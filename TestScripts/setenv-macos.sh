@@ -63,6 +63,7 @@ if [ -z "$MACOS_CPU" ]; then
 fi
 
 DEF_CPPFLAGS="-DNDEBUG"
+DEF_CFLAGS="-Wall -g2 -O3 -fPIC"
 DEF_CXXFLAGS="-Wall -g2 -O3 -fPIC"
 DEF_LDFLAGS=""
 
@@ -76,6 +77,7 @@ unset IS_ANDROID
 unset IS_ARM_EMBEDDED
 
 unset MACOS_CPPFLAGS
+unset MACOS_CFLAGS
 unset MACOS_CXXFLAGS
 unset MACOS_LDFLAGS
 unset MACOS_SYSROOT
@@ -174,6 +176,7 @@ fi
 
 if [[ "${XCODE_DEVELOPER}" == "/Developer"* ]]; then
    ANTIQUE_XCODE=1
+   DEF_CFLAGS=$(echo "$DEF_CFLAGS" | sed 's/-Wall //g')
    DEF_CXXFLAGS=$(echo "$DEF_CXXFLAGS" | sed 's/-Wall //g')
 fi
 
@@ -287,6 +290,7 @@ if [ ! -d "${XCODE_TOOLCHAIN}" ]; then
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
+MACOS_CFLAGS="-arch $MACOS_CPU $MIN_VER"
 MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER ${MACOS_STDLIB}"
 MACOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
@@ -363,6 +367,7 @@ if [ "$VERBOSE" -gt 0 ]; then
   if [ -n "${MACOS_CPPFLAGS}" ]; then
     echo "MACOS_CPPFLAGS: ${MACOS_CPPFLAGS}"
   fi
+  echo "MACOS_CFLAGS: ${MACOS_CFLAGS}"
   echo "MACOS_CXXFLAGS: ${MACOS_CXXFLAGS}"
   if [ -n "${MACOS_LDFLAGS}" ]; then
     echo "MACOS_LDFLAGS: ${MACOS_LDFLAGS}"
@@ -380,21 +385,24 @@ export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
 
 if [[ "${ANTIQUE_XCODE}" == "1" ]]
 then
-    CPPFLAGS="${DEF_CPPFLAGS} ${MACOS_CPPFLAGS} -isysroot \"${MACOS_SYSROOT}\""
+    CPPFLAGS="${DEF_CPPFLAGS} ${MACOS_CPPFLAGS} -isysroot ${MACOS_SYSROOT}"
+    CFLAGS="${DEF_CFLAGS} ${MACOS_CFLAGS}"
     CXXFLAGS="${DEF_CXXFLAGS} ${MACOS_CXXFLAGS}"
-    LDFLAGS="${DEF_LDFLAGS} ${MACOS_LDFLAGS} -sysroot=\"${MACOS_SYSROOT}\""
+    LDFLAGS="${DEF_LDFLAGS} ${MACOS_LDFLAGS} -sysroot=${MACOS_SYSROOT}"
 else
-    CPPFLAGS="${DEF_CPPFLAGS} ${MACOS_CPPFLAGS} -isysroot \"${MACOS_SYSROOT}\""
-    CXXFLAGS="${DEF_CXXFLAGS} ${MACOS_CXXFLAGS} --sysroot \"${MACOS_SYSROOT}\""
+    CPPFLAGS="${DEF_CPPFLAGS} ${MACOS_CPPFLAGS} -isysroot ${MACOS_SYSROOT}"
+    CFLAGS="${DEF_CFLAGS} ${MACOS_CFLAGS} --sysroot ${MACOS_SYSROOT}"
+    CXXFLAGS="${DEF_CXXFLAGS} ${MACOS_CXXFLAGS} --sysroot ${MACOS_SYSROOT}"
     LDFLAGS="${DEF_LDFLAGS} ${MACOS_LDFLAGS}"
 fi
 
 # Trim whitespace as needed
 CPPFLAGS=$(echo "${CPPFLAGS}" | awk '{$1=$1;print}')
+CFLAGS=$(echo "${CFLAGS}" | awk '{$1=$1;print}')
 CXXFLAGS=$(echo "${CXXFLAGS}" | awk '{$1=$1;print}')
 LDFLAGS=$(echo "${LDFLAGS}" | awk '{$1=$1;print}')
 
-export CPPFLAGS CXXFLAGS LDFLAGS
+export CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
 
 #####################################################################
 

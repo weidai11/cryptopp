@@ -67,6 +67,7 @@ if [ -z "${IOS_CPU}" ]; then
 fi
 
 DEF_CPPFLAGS="-DNDEBUG"
+DEF_CFLAGS="-Wall -g2 -O3 -fPIC"
 DEF_CXXFLAGS="-Wall -g2 -O3 -fPIC"
 DEF_LDFLAGS=""
 
@@ -80,6 +81,7 @@ unset IS_ANDROID
 unset IS_ARM_EMBEDDED
 
 unset IOS_CPPFLAGS
+unset IOS_CFLAGS
 unset IOS_CXXFLAGS
 unset IOS_LDFLAGS
 unset IOS_SYSROOT
@@ -271,6 +273,7 @@ if [ -z "${XCODE_SDK}" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
+IOS_CFLAGS="-arch ${IOS_CPU} ${MIN_VER}"
 IOS_CXXFLAGS="-arch ${IOS_CPU} ${MIN_VER}"
 IOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
@@ -347,6 +350,7 @@ if [ "$VERBOSE" -gt 0 ]; then
   if [ -n "${IOS_CPPFLAGS}" ]; then
     echo "IOS_CPPFLAGS: ${IOS_CPPFLAGS}"
   fi
+  echo "IOS_CFLAGS: ${IOS_CFLAGS}"
   echo "IOS_CXXFLAGS: ${IOS_CXXFLAGS}"
   if [ -n "${IOS_LDFLAGS}" ]; then
     echo "IOS_LDFLAGS: ${IOS_LDFLAGS}"
@@ -362,16 +366,18 @@ fi
 export IS_IOS=1
 export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
 
-CPPFLAGS="${DEF_CPPFLAGS} ${IOS_CPPFLAGS} -isysroot \"${IOS_SYSROOT}\""
-CXXFLAGS="${DEF_CXXFLAGS} ${IOS_CXXFLAGS} -stdlib=libc++ --sysroot \"${IOS_SYSROOT}\""
+CPPFLAGS="${DEF_CPPFLAGS} ${IOS_CPPFLAGS} -isysroot ${IOS_SYSROOT}"
+CFLAGS="${DEF_CFLAGS} ${IOS_CFLAGS} --sysroot ${IOS_SYSROOT}"
+CXXFLAGS="${DEF_CXXFLAGS} ${IOS_CXXFLAGS} -stdlib=libc++ --sysroot ${IOS_SYSROOT}"
 LDFLAGS="${DEF_LDFLAGS} ${IOS_LDFLAGS}"
 
 # Trim whitespace as needed
 CPPFLAGS=$(echo "${CPPFLAGS}" | awk '{$1=$1;print}')
+CFLAGS=$(echo "${CFLAGS}" | awk '{$1=$1;print}')
 CXXFLAGS=$(echo "${CXXFLAGS}" | awk '{$1=$1;print}')
 LDFLAGS=$(echo "${LDFLAGS}" | awk '{$1=$1;print}')
 
-export CPPFLAGS CXXFLAGS LDFLAGS
+export CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
 
 #####################################################################
 

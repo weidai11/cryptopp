@@ -70,6 +70,7 @@ if [ -z "${ANDROID_CPU}" ]; then
 fi
 
 DEF_CPPFLAGS="-DNDEBUG"
+DEF_CFLAGS="-Wall -g2 -O3 -fPIC"
 DEF_CXXFLAGS="-Wall -g2 -O3 -fPIC"
 DEF_LDFLAGS=""
 
@@ -83,6 +84,7 @@ unset IS_ANDROID
 unset IS_ARM_EMBEDDED
 
 unset ANDROID_CPPFLAGS
+unset ANDROID_CFLAGS
 unset ANDROID_CXXFLAGS
 unset ANDROID_LDFLAGS
 unset ANDROID_SYSROOT
@@ -209,8 +211,14 @@ case "$ANDROID_CPU" in
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
 
     # Android NDK r19 and r20 no longer use -mfloat-abi=softfp. Add it as required.
-    ANDROID_CXXFLAGS="-target armv7-none-linux-androideabi${ANDROID_API} -std=c++11 -stdlib=libc++"
+    ANDROID_CFLAGS="-target armv7-none-linux-androideabi${ANDROID_API}"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -march=armv7-a -mthumb"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -fno-addrsig -fno-experimental-isel"
+
+    ANDROID_CXXFLAGS="-target armv7-none-linux-androideabi${ANDROID_API}"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -march=armv7-a -mthumb"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
     ;;
@@ -227,6 +235,10 @@ case "$ANDROID_CPU" in
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
+
+    ANDROID_CFLAGS="-target aarch64-none-linux-android${ANDROID_API}"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -fno-addrsig -fno-experimental-isel"
 
     ANDROID_CXXFLAGS="-target aarch64-none-linux-android${ANDROID_API}"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
@@ -247,9 +259,14 @@ case "$ANDROID_CPU" in
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
 
+    ANDROID_CFLAGS="-target i686-none-linux-android${ANDROID_API}"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -mtune=intel -mssse3 -mfpmath=sse"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -fno-addrsig -fno-experimental-isel"
+
     ANDROID_CXXFLAGS="-target i686-none-linux-android${ANDROID_API}"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -mtune=intel -mssse3 -mfpmath=sse"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
     ;;
@@ -267,9 +284,14 @@ case "$ANDROID_CPU" in
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
 
+    ANDROID_CFLAGS="-target x86_64-none-linux-android${ANDROID_API}"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -march=x86-64 -msse4.2 -mpopcnt -mtune=intel"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -fno-addrsig -fno-experimental-isel"
+
     ANDROID_CXXFLAGS="-target x86_64-none-linux-android${ANDROID_API}"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -march=x86-64 -msse4.2 -mpopcnt -mtune=intel"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
     ;;
@@ -286,9 +308,8 @@ echo "Configuring for Android API ${ANDROID_API} ($ANDROID_CPU)"
 # Common to all builds
 
 ANDROID_CPPFLAGS="${DEF_CPPFLAGS} ${ANDROID_CPPFLAGS} -DANDROID"
-
+ANDROID_CFLAGS="${DEF_CFLAGS} ${ANDROID_CFLAGS} -Wa,--noexecstack"
 ANDROID_CXXFLAGS="${DEF_CXXFLAGS} ${ANDROID_CXXFLAGS} -Wa,--noexecstack"
-
 ANDROID_LDFLAGS="${DEF_LDFLAGS}"
 
 # Aarch64 ld does not understand --warn-execstack
@@ -386,6 +407,7 @@ if [ "$VERBOSE" -gt 0 ]; then
   if [ -n "${ANDROID_CPPFLAGS}" ]; then
     echo "ANDROID_CPPFLAGS: ${ANDROID_CPPFLAGS}"
   fi
+  echo "ANDROID_CFLAGS: ${ANDROID_CFLAGS}"
   echo "ANDROID_CXXFLAGS: ${ANDROID_CXXFLAGS}"
   if [ -n "${ANDROID_LDFLAGS}" ]; then
     echo "ANDROID_LDFLAGS: ${ANDROID_LDFLAGS}"
@@ -407,16 +429,18 @@ export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
 # Do NOT use ANDROID_SYSROOT_INC or ANDROID_SYSROOT_LD
 # https://github.com/android/ndk/issues/894#issuecomment-470837964
 
-CPPFLAGS="${ANDROID_CPPFLAGS} -isysroot \"${ANDROID_SYSROOT}\""
-CXXFLAGS="${ANDROID_CXXFLAGS} --sysroot \"${ANDROID_SYSROOT}\""
+CPPFLAGS="${ANDROID_CPPFLAGS} -isysroot ${ANDROID_SYSROOT}"
+CFLAGS="${ANDROID_CFLAGS} --sysroot ${ANDROID_SYSROOT}"
+CXXFLAGS="${ANDROID_CXXFLAGS} --sysroot ${ANDROID_SYSROOT}"
 LDFLAGS="${ANDROID_LDFLAGS}"
 
 # Trim whitespace as needed
 CPPFLAGS=$(echo "${CPPFLAGS}" | awk '{$1=$1;print}')
+CFLAGS=$(echo "${CFLAGS}" | awk '{$1=$1;print}')
 CXXFLAGS=$(echo "${CXXFLAGS}" | awk '{$1=$1;print}')
 LDFLAGS=$(echo "${LDFLAGS}" | awk '{$1=$1;print}')
 
-export CPPFLAGS CXXFLAGS LDFLAGS
+export CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
 
 #####################################################################
 
