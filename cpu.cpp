@@ -219,17 +219,16 @@ public:
 		{
 			// M1 machine?
 			std::string brand;
-			size_t size = 0;
+			size_t size = 32;
 
-			if (sysctlbyname("machdep.cpu.brand_string", NULL, &size, NULL, 0) == 0 && size > 0)
+			// Supply an oversized buffer, and avoid
+			// an extra call to sysctlbyname.
+			brand.resize(size);
+			if (sysctlbyname("machdep.cpu.brand_string", &brand[0], &size, NULL, 0) == 0 && size > 0)
 			{
+				if (brand[size-1] == '\0')
+					size--;
 				brand.resize(size);
-				if (sysctlbyname("machdep.cpu.brand_string", &brand[0], &size, NULL, 0) == 0 && size > 0)
-				{
-					if (brand[size-1] == '\0')
-						size--;
-					brand.resize(size);
-				}
 			}
 
 			if (brand == "Apple M1")
