@@ -70,8 +70,8 @@ LIB_SRCS = \
     gost.cpp gzip.cpp hc128.cpp hc256.cpp hex.cpp hight.cpp hmac.cpp \
     hrtimer.cpp ida.cpp idea.cpp iterhash.cpp kalyna.cpp kalynatab.cpp \
     keccak.cpp keccak_core.cpp keccak_simd.cpp lea.cpp lea_simd.cpp luc.cpp \
-    mars.cpp marss.cpp md2.cpp md4.cpp md5.cpp misc.cpp modes.cpp mqueue.cpp \
-    mqv.cpp nbtheory.cpp neon_simd.cpp oaep.cpp osrng.cpp padlkrng.cpp \
+    mars.cpp marss.cpp md2.cpp md4.cpp md5.cpp misc.cpp modes.cpp \
+    mqueue.cpp mqv.cpp nbtheory.cpp oaep.cpp osrng.cpp padlkrng.cpp \
     panama.cpp pkcspad.cpp poly1305.cpp polynomi.cpp ppc_power7.cpp \
     ppc_power8.cpp ppc_power9.cpp ppc_simd.cpp pssr.cpp pubkey.cpp queue.cpp \
     rabbit.cpp rabin.cpp randpool.cpp rc2.cpp rc5.cpp rc6.cpp rdrand.cpp \
@@ -101,8 +101,8 @@ LIB_OBJS = \
     gost.obj gzip.obj hc128.obj hc256.obj hex.obj hight.obj hmac.obj \
     hrtimer.obj ida.obj idea.obj iterhash.obj kalyna.obj kalynatab.obj \
     keccak.obj keccak_core.obj keccak_simd.obj lea.obj lea_simd.obj luc.obj \
-    mars.obj marss.obj md2.obj md4.obj md5.obj misc.obj modes.obj mqueue.obj \
-    mqv.obj nbtheory.obj neon_simd.obj oaep.obj osrng.obj padlkrng.obj \
+    mars.obj marss.obj md2.obj md4.obj md5.obj misc.obj modes.obj \
+    mqueue.obj mqv.obj nbtheory.obj oaep.obj osrng.obj padlkrng.obj \
     panama.obj pkcspad.obj poly1305.obj polynomi.obj ppc_power7.obj \
     ppc_power8.obj ppc_power9.obj ppc_simd.obj pssr.obj pubkey.obj queue.obj \
     rabbit.obj rabin.obj randpool.obj rc2.obj rc5.obj rc6.obj rdrand.obj \
