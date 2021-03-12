@@ -192,7 +192,7 @@ do
             fi
 
             # Test PMULL code generation
-            count=$(${OBJDUMP} --disassemble gcm_simd.o 2>&1 | grep -c -E 'pclmulqdq|pclmullqhq|vpclmulqdq|pclmulqdq|pclmullqlq|vpclmulqdq')
+            count=$(${OBJDUMP} --disassemble gcm_simd.o 2>&1 | grep -c -E 'pclmulqdq|pclmullqlq|pclmullqhq|vpclmulqdq')
             if [[ "${count}" -gt 16 ]]
             then
                 echo "${platform} : PMULL ==> SUCCESS" >> "${TMPDIR}/build.log"
