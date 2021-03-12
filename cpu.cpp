@@ -20,7 +20,8 @@
 # include <immintrin.h>
 #endif
 
-// For IsProcessorFeaturePresent() on Microsoft Arm64 platform
+// For IsProcessorFeaturePresent on Microsoft Arm64 platforms,
+// https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
 #if defined(_WIN32) && defined(_M_ARM64)
 # include <Windows.h>
 # include <processthreadsapi.h>
@@ -867,10 +868,12 @@ inline bool CPU_QueryNEON()
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
 	// Core feature set for Aarch32 and Aarch64.
-	return true;
+	if (IsAppleMachineARMv8())
+		return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	// Windows 10 ARM64 is only supported on Armv8a and above
-	return true;
+	if (IsProcessorFeaturePresent(PF_ARM_V8_INSTRUCTIONS_AVAILABLE) != 0)
+		return true;
 #endif
 	return false;
 }
@@ -896,8 +899,8 @@ inline bool CPU_QueryCRC32()
 	if (IsAppleMachineARMv82())
 		return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
-	// https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
-	return IsProcessorFeaturePresent(PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE) != 0;
+	if (IsProcessorFeaturePresent(PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE) != 0)
+		return true;
 #endif
 	return false;
 }
@@ -923,9 +926,8 @@ inline bool CPU_QueryPMULL()
 	if (IsAppleMachineARMv82())
 		return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
-	// Detect if the PMULL, AES, SHA1, SHA2 extension are available
-	// https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
-	return IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0;
+	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
+		return true;
 #endif
 	return false;
 }
@@ -947,11 +949,12 @@ inline bool CPU_QueryAES()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_AES) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	return IsAppleMachineARMv8();
+	// M1 processor
+	if (IsAppleMachineARMv82())
+		return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
-	// Detect if the PMULL, AES, SHA1, SHA2 extension are available
-	// https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
-	return IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0;
+	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
+		return true;
 #endif
 	return false;
 }
@@ -973,11 +976,12 @@ inline bool CPU_QuerySHA1()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA1) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	return IsAppleMachineARMv8();
+	// M1 processor
+	if (IsAppleMachineARMv82())
+		return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
-	// Detect if the PMULL, AES, SHA1, SHA2 extension are available
-	// https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
-	return IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0;
+	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
+		return true;
 #endif
 	return false;
 }
@@ -999,11 +1003,12 @@ inline bool CPU_QuerySHA256()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA2) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	return IsAppleMachineARMv8();
+	// M1 processor
+	if (IsAppleMachineARMv82())
+		return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
-	// Detect if the PMULL, AES, SHA1, SHA2 extension are available
-	// https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
-	return IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0;
+	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
+		return true;
 #endif
 	return false;
 }
@@ -1066,10 +1071,6 @@ inline bool CPU_QuerySHA512()
 	// M1 processor
 	if (IsAppleMachineARMv82())
 		return true;
-#elif defined(_WIN32) && defined(_M_ARM64)
-	// Detect if the PMULL, AES, SHA1, SHA2 extension are available
-	// https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-isprocessorfeaturepresent
-	return IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0;
 #endif
 	return false;
 }
