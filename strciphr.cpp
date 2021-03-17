@@ -1,5 +1,15 @@
 // strciphr.cpp - originally written and placed in the public domain by Wei Dai
 
+// TODO: Figure out what is happening in ProcessData. The issue surfaced for
+//       CFB_CipherTemplate<BASE>::ProcessData when we cut-in Cryptogams
+//       AES ARMv7 asm. Then again in AdditiveCipherTemplate<S>::ProcessData
+//       for CTR mode with HIGHT, which is a 64-bit block cipher. In both cases,
+//       using 'outString' for both input and output leads to incorrect results.
+//       We think it relates to aliasing violations because inString == outString.
+//
+//       Also see https://github.com/weidai11/cryptopp/issues/683 and
+//       https://github.com/weidai11/cryptopp/issues/1010.
+
 #include "pch.h"
 
 #ifndef CRYPTOPP_IMPORTS
@@ -12,13 +22,6 @@ extern const char STRCIPHER_FNAME[] = __FILE__;
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
-
-// Workaround for https://github.com/weidai11/cryptopp/issues/683
-// and https://github.com/weidai11/cryptopp/issues/1010. GCC and
-// Clang are optimizing away some calls in ProcessData on ARM when
-// outString == inString. Other workarounds are available but they
-// require a memcpy, which degrades performance to varying degrees.
-static volatile byte* s_workaround;
 
 template <class S>
 void AdditiveCipherTemplate<S>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
@@ -81,6 +84,26 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 
+	// GCC and Clang do not like this for CTR mode and 64-bit ciphers like HIGHT.
+	// The incorrect result is a partial string of 0's instead of plaintext or
+	// ciphertext. Recovered plaintext is partially garbage.
+	//
+	// It almost feels as if the compiler does not see the string is transformed
+	// in-place so it short-circuits the transform. In this case, if we use a
+	// stand-alone reproducer with the same data then the issue is present.
+
+	byte* savedOutString = outString;
+	size_t savedLength = length;
+	bool copyOut = false;
+
+	if (inString == outString)
+	{
+		m_tempOutString.Assign(inString, length);
+		m_tempOutString.SetMark(0);
+		outString = m_tempOutString.BytePtr();
+		copyOut = true;
+	}
+
 	if (m_leftOver > 0)
 	{
 		const size_t len = STDMIN(m_leftOver, length);
@@ -91,7 +114,11 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		length -= len; m_leftOver -= len;
 	}
 
-	if (!length) {return;}
+	if (!length) {
+		if (copyOut)
+			std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength-length);
+		return;
+	}
 
 	const unsigned int alignment = policy.GetAlignment();
 	const bool inAligned = IsAlignedOn(inString, alignment);
@@ -103,9 +130,7 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		KeystreamOperationFlags flags = static_cast<KeystreamOperationFlags>(
 			(inAligned ? EnumToInt(INPUT_ALIGNED) : 0) | (outAligned ? EnumToInt(OUTPUT_ALIGNED) : 0));
 		KeystreamOperation operation = KeystreamOperation(flags);
-
 		policy.OperateKeystream(operation, outString, inString, iterations);
-		s_workaround = const_cast<volatile byte*>(outString);
 
 		inString = PtrAdd(inString, iterations * bytesPerIteration);
 		outString = PtrAdd(outString, iterations * bytesPerIteration);
@@ -135,6 +160,9 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 
 		m_leftOver = bufferByteSize - length;
 	}
+
+	if (copyOut)
+		std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength);
 }
 
 template <class S>
@@ -198,6 +226,38 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 	byte *reg = policy.GetRegisterBegin();
 
+	// GCC and Clang do not like this on ARM when inString == outString. The incorrect
+	// result is a string of 0's instead of plaintext or ciphertext. The 0's trace back
+	// to the allocation for the std::string in datatest.cpp. Elements in the string
+	// are initialized to their default value, which is 0.
+	//
+	// It almost feels as if the compiler does not see the string is transformed
+	// in-place so it short-circuits the transform. However, if we use a stand-alone
+	// reproducer with the same data then the issue is _not_ present.
+	//
+	// One workaround is a distinct and aligned temporary buffer. It [mostly] works
+	// as expected but requires an extra allocation (casts not shown):
+	//
+	//   std::string temp(inString, length);
+	//   policy.Iterate(outString, &temp[0], cipherDir, length / bytesPerIteration);
+	//
+	// Another workaround is:
+	//
+	//   memcpy(outString, inString, length);
+	//   policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
+
+	byte* savedOutString = outString;
+	size_t savedLength = length;
+	bool copyOut = false;
+
+	if (inString == outString)
+	{
+		m_tempOutString.Assign(inString, length);
+		m_tempOutString.SetMark(0);
+		outString = m_tempOutString.BytePtr();
+		copyOut = true;
+	}
+
 	if (m_leftOver)
 	{
 		const size_t len = STDMIN(m_leftOver, length);
@@ -208,16 +268,11 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		m_leftOver -= len; length -= len;
 	}
 
-	if (!length) {return;}
-
-	// TODO: Figure out what is happening on ARM A-32. x86, Aarch64 and PowerPC are OK.
-	//       The issue surfaced for CFB mode when we cut-in Cryptogams AES ARMv7 asm.
-	//       Using 'outString' for both input and output leads to incorrect results.
-	//
-	//       Benchmarking on Cortex-A7 and Cortex-A9 indicates removing the block
-	//       below costs about 9 cpb for CFB mode on ARM.
-	//
-	//       Also see https://github.com/weidai11/cryptopp/issues/683.
+	if (!length) {
+		if (copyOut)
+			std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength-length);
+		return;
+	}
 
 	const unsigned int alignment = policy.GetAlignment();
 	const bool inAligned = IsAlignedOn(inString, alignment);
@@ -226,33 +281,8 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	if (policy.CanIterate() && length >= bytesPerIteration && outAligned)
 	{
 		CipherDir cipherDir = GetCipherDir(*this);
-		if (inAligned)
-			policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
-		else
-		{
-			// GCC and Clang do not like this on ARM. The incorrect result is a string
-			// of 0's instead of ciphertext (or plaintext if decrypting). The 0's trace
-			// back to the allocation for the std::string in datatest.cpp. Elements in the
-			// string are initialized to their default value, which is 0.
-			//
-			// It almost feels as if the compiler does not see the string is transformed
-			// in-place so it short-circuits the transform. However, if we use a stand-alone
-			// reproducer with the same data then the issue is _not_ present.
-			//
-			// One workaround is a distinct and aligned temporary buffer. It [mostly] works
-			// as expected but requires an extra allocation (casts not shown):
-			//
-			//   std::string temp(inString, length);
-			//   policy.Iterate(outString, &temp[0], cipherDir, length / bytesPerIteration);
-			//
-			// Another workaround is:
-			//
-			//   std::memcpy(outString, inString, length);
-			//   policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
+		policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
 
-			policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
-			s_workaround = const_cast<volatile byte*>(outString);
-		}
 		const size_t remainder = length % bytesPerIteration;
 		inString = PtrAdd(inString, length - remainder);
 		outString = PtrAdd(outString, length - remainder);
@@ -275,6 +305,9 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		CombineMessageAndShiftRegister(outString, reg, inString, length);
 		m_leftOver = bytesPerIteration - length;
 	}
+
+	if (copyOut)
+		std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength);
 }
 
 template <class BASE>

@@ -253,7 +253,7 @@ void CBC_Decryption::ProcessData(byte *outString, const byte *inString, size_t l
 
 	// save copy now in case of in-place decryption
 	const unsigned int blockSize = BlockSize();
-	memcpy(m_temp, PtrAdd(inString,length-blockSize), blockSize);
+	memcpy(m_temp, PtrAdd(inString, length-blockSize), blockSize);
 	if (length > blockSize)
 		m_cipher->AdvancedProcessBlocks(PtrAdd(inString,blockSize), inString, PtrAdd(outString,blockSize), length-blockSize, BlockTransformation::BT_ReverseDirection|BlockTransformation::BT_AllowParallel);
 	m_cipher->ProcessAndXorBlock(inString, m_register, outString);
