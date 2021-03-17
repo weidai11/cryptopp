@@ -13,6 +13,13 @@ extern const char STRCIPHER_FNAME[] = __FILE__;
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Workaround for https://github.com/weidai11/cryptopp/issues/683
+// and https://github.com/weidai11/cryptopp/issues/1010. GCC and
+// Clang are optimizing away some calls in ProcessData on ARM when
+// outString == inString. Other workarounds are available but they
+// require a memcpy, which degrades performance to varying degrees.
+static volatile byte* s_workaround;
+
 template <class S>
 void AdditiveCipherTemplate<S>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
@@ -68,36 +75,41 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 template <class S>
 void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
+	CRYPTOPP_ASSERT(outString); CRYPTOPP_ASSERT(inString);
+	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
+
+	PolicyInterface &policy = this->AccessPolicy();
+	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
+
 	if (m_leftOver > 0)
 	{
 		const size_t len = STDMIN(m_leftOver, length);
 		xorbuf(outString, inString, PtrSub(KeystreamBufferEnd(), m_leftOver), len);
 
-		length -= len; m_leftOver -= len;
 		inString = PtrAdd(inString, len);
 		outString = PtrAdd(outString, len);
-
-		if (!length) {return;}
+		length -= len; m_leftOver -= len;
 	}
 
-	PolicyInterface &policy = this->AccessPolicy();
-	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
+	if (!length) {return;}
+
+	const unsigned int alignment = policy.GetAlignment();
+	const bool inAligned = IsAlignedOn(inString, alignment);
+	const bool outAligned = IsAlignedOn(outString, alignment);
 
 	if (policy.CanOperateKeystream() && length >= bytesPerIteration)
 	{
 		const size_t iterations = length / bytesPerIteration;
-		unsigned int alignment = policy.GetAlignment();
-		volatile int inAligned = IsAlignedOn(inString, alignment) << 1;
-		volatile int outAligned = IsAlignedOn(outString, alignment) << 0;
+		KeystreamOperationFlags flags = static_cast<KeystreamOperationFlags>(
+			(inAligned ? EnumToInt(INPUT_ALIGNED) : 0) | (outAligned ? EnumToInt(OUTPUT_ALIGNED) : 0));
+		KeystreamOperation operation = KeystreamOperation(flags);
 
-		KeystreamOperation operation = KeystreamOperation(inAligned | outAligned);
 		policy.OperateKeystream(operation, outString, inString, iterations);
+		s_workaround = const_cast<volatile byte*>(outString);
 
 		inString = PtrAdd(inString, iterations * bytesPerIteration);
 		outString = PtrAdd(outString, iterations * bytesPerIteration);
 		length -= iterations * bytesPerIteration;
-
-		if (!length) {return;}
 	}
 
 	size_t bufferByteSize = m_buffer.size();
@@ -108,9 +120,9 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		policy.WriteKeystream(m_buffer, bufferIterations);
 		xorbuf(outString, inString, KeystreamBufferBegin(), bufferByteSize);
 
-		length -= bufferByteSize;
 		inString = PtrAdd(inString, bufferByteSize);
 		outString = PtrAdd(outString, bufferByteSize);
+		length -= bufferByteSize;
 	}
 
 	if (length > 0)
@@ -120,6 +132,7 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 
 		policy.WriteKeystream(PtrSub(KeystreamBufferEnd(), bufferByteSize), bufferIterations);
 		xorbuf(outString, inString, PtrSub(KeystreamBufferEnd(), bufferByteSize), length);
+
 		m_leftOver = bufferByteSize - length;
 	}
 }
@@ -137,7 +150,7 @@ template <class BASE>
 void AdditiveCipherTemplate<BASE>::Seek(lword position)
 {
 	PolicyInterface &policy = this->AccessPolicy();
-	word32 bytesPerIteration = policy.GetBytesPerIteration();
+	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 
 	policy.SeekToIteration(position / bytesPerIteration);
 	position %= bytesPerIteration;
@@ -145,7 +158,7 @@ void AdditiveCipherTemplate<BASE>::Seek(lword position)
 	if (position > 0)
 	{
 		policy.WriteKeystream(PtrSub(KeystreamBufferEnd(), bytesPerIteration), 1);
-		m_leftOver = bytesPerIteration - static_cast<word32>(position);
+		m_leftOver = bytesPerIteration - static_cast<unsigned int>(position);
 	}
 	else
 		m_leftOver = 0;
@@ -182,7 +195,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
-	word32 bytesPerIteration = policy.GetBytesPerIteration();
+	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 	byte *reg = policy.GetRegisterBegin();
 
 	if (m_leftOver)
@@ -190,9 +203,9 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		const size_t len = STDMIN(m_leftOver, length);
 		CombineMessageAndShiftRegister(outString, PtrAdd(reg, bytesPerIteration - m_leftOver), inString, len);
 
-		m_leftOver -= len; length -= len;
 		inString = PtrAdd(inString, len);
 		outString = PtrAdd(outString, len);
+		m_leftOver -= len; length -= len;
 	}
 
 	if (!length) {return;}
@@ -207,8 +220,8 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	//       Also see https://github.com/weidai11/cryptopp/issues/683.
 
 	const unsigned int alignment = policy.GetAlignment();
-	volatile bool inAligned = IsAlignedOn(inString, alignment);
-	volatile bool outAligned = IsAlignedOn(outString, alignment);
+	const bool inAligned = IsAlignedOn(inString, alignment);
+	const bool outAligned = IsAlignedOn(outString, alignment);
 
 	if (policy.CanIterate() && length >= bytesPerIteration && outAligned)
 	{
@@ -226,19 +239,19 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 			// in-place so it short-circuits the transform. However, if we use a stand-alone
 			// reproducer with the same data then the issue is _not_ present.
 			//
-			// When working on this issue we introduced PtrAdd and PtrSub to ensure we were
-			// not running afoul of pointer arithmetic rules of the language. Namely we need
-			// to use ptrdiff_t when subtracting pointers. We believe the relevant code paths
-			// are clean.
-			//
 			// One workaround is a distinct and aligned temporary buffer. It [mostly] works
 			// as expected but requires an extra allocation (casts not shown):
 			//
 			//   std::string temp(inString, length);
 			//   policy.Iterate(outString, &temp[0], cipherDir, length / bytesPerIteration);
+			//
+			// Another workaround is:
+			//
+			//   std::memcpy(outString, inString, length);
+			//   policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
 
-			std::memcpy(outString, inString, length);
-			policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
+			policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
+			s_workaround = const_cast<volatile byte*>(outString);
 		}
 		const size_t remainder = length % bytesPerIteration;
 		inString = PtrAdd(inString, length - remainder);
@@ -250,9 +263,10 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	{
 		policy.TransformRegister();
 		CombineMessageAndShiftRegister(outString, reg, inString, bytesPerIteration);
-		length -= bytesPerIteration;
+
 		inString = PtrAdd(inString, bytesPerIteration);
 		outString = PtrAdd(outString, bytesPerIteration);
+		length -= bytesPerIteration;
 	}
 
 	if (length > 0)

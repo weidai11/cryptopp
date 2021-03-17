@@ -23,7 +23,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Guarding based on DLL due to Clang, http://github.com/weidai11/cryptopp/issues/300
-#if defined(CRYPTOPP_IS_DLL)
+#ifdef CRYPTOPP_IS_DLL
 template<> const byte PKCS_DigestDecoration<SHA1>::decoration[] = {0x30,0x21,0x30,0x09,0x06,0x05,0x2B,0x0E,0x03,0x02,0x1A,0x05,0x00,0x04,0x14};
 template<> const unsigned int PKCS_DigestDecoration<SHA1>::length = sizeof(PKCS_DigestDecoration<SHA1>::decoration);
 
