@@ -74,7 +74,7 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
-	word32 bytesPerIteration = policy.GetBytesPerIteration();
+	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 
 	if (m_leftOver > 0)
 	{
@@ -88,7 +88,7 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 
 	if (!length) {return;}
 
-	const word32 alignment = policy.GetAlignment();
+	const unsigned int alignment = policy.GetAlignment();
 	const bool inAligned = IsAlignedOn(inString, alignment);
 	const bool outAligned = IsAlignedOn(outString, alignment);
 
@@ -127,6 +127,7 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 
 		policy.WriteKeystream(PtrSub(KeystreamBufferEnd(), bufferByteSize), bufferIterations);
 		xorbuf(outString, inString, PtrSub(KeystreamBufferEnd(), bufferByteSize), length);
+
 		m_leftOver = bufferByteSize - length;
 	}
 }
@@ -144,7 +145,7 @@ template <class BASE>
 void AdditiveCipherTemplate<BASE>::Seek(lword position)
 {
 	PolicyInterface &policy = this->AccessPolicy();
-	word32 bytesPerIteration = policy.GetBytesPerIteration();
+	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 
 	policy.SeekToIteration(position / bytesPerIteration);
 	position %= bytesPerIteration;
@@ -152,7 +153,7 @@ void AdditiveCipherTemplate<BASE>::Seek(lword position)
 	if (position > 0)
 	{
 		policy.WriteKeystream(PtrSub(KeystreamBufferEnd(), bytesPerIteration), 1);
-		m_leftOver = bytesPerIteration - static_cast<word32>(position);
+		m_leftOver = bytesPerIteration - static_cast<unsigned int>(position);
 	}
 	else
 		m_leftOver = 0;
@@ -189,7 +190,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
-	word32 bytesPerIteration = policy.GetBytesPerIteration();
+	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 	byte *reg = policy.GetRegisterBegin();
 
 	if (m_leftOver)
@@ -213,7 +214,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	//
 	//       Also see https://github.com/weidai11/cryptopp/issues/683.
 
-	const word32 alignment = policy.GetAlignment();
+	const unsigned int alignment = policy.GetAlignment();
 	const bool inAligned = IsAlignedOn(inString, alignment);
 	const bool outAligned = IsAlignedOn(outString, alignment);
 
