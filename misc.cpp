@@ -24,7 +24,9 @@
 #endif
 
 #if (CRYPTOPP_ARM_NEON_HEADER)
-# include <arm_neon.h>
+# if defined(__ARM_FEATURE_NEON)
+#  include <arm_neon.h>
+# endif
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
