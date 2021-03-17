@@ -23,8 +23,8 @@
 # include <immintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_HEADER)
-# if defined(__ARM_FEATURE_NEON)
+#if defined(__ARM_FEATURE_NEON)
+# if (CRYPTOPP_ARM_NEON_HEADER)
 #  include <arm_neon.h>
 # endif
 #endif
