@@ -48,7 +48,7 @@ public:
 	/// \brief Computes the hash of the current message
 	/// \param digest a pointer to the buffer to receive the hash
 	/// \param digestSize the size of the truncated digest, in bytes
-	/// \details TruncatedFinal() call Final() and then copies digestSize bytes to digest.
+	/// \details TruncatedFinal() calls Final() and then copies digestSize bytes to digest.
 	///   The hash is restarted the hash for the next message.
 	void TruncatedFinal(byte *digest, size_t digestSize);
 
