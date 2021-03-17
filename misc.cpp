@@ -19,6 +19,14 @@
 #include "integer.h"
 #include "secblock.h"
 
+#if defined(__AVX__) || defined(__SSE2__)
+# include <immintrin.h>
+#endif
+
+#if (CRYPTOPP_ARM_NEON_HEADER)
+# include <arm_neon.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 byte* BytePtr(SecByteBlock& str)
@@ -43,111 +51,162 @@ size_t BytePtrSize(const SecByteBlock& str)
 	return str.size();
 }
 
+// xorbuf simplified at https://github.com/weidai11/cryptopp/issues/1020
 void xorbuf(byte *buf, const byte *mask, size_t count)
 {
 	CRYPTOPP_ASSERT(buf != NULLPTR);
 	CRYPTOPP_ASSERT(mask != NULLPTR);
 	CRYPTOPP_ASSERT(count > 0);
 
-	size_t i=0;
-	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
+#if defined(__AVX__)
+	while (count >= 32)
 	{
-		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(buf) && IsAligned<word64>(mask))
-		{
-			for (i=0; i<count/8; i++)
-				((word64*)(void*)buf)[i] ^= ((word64*)(void*)mask)[i];
-			count -= 8*i;
-			if (!count)
-				return;
-			buf += 8*i;
-			mask += 8*i;
-		}
-
-		for (i=0; i<count/4; i++)
-			((word32*)(void*)buf)[i] ^= ((word32*)(void*)mask)[i];
-		count -= 4*i;
-		if (!count)
-			return;
-		buf += 4*i;
-		mask += 4*i;
+		__m256i b = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(buf));
+		__m256i m = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(mask));
+		_mm256_storeu_si256(reinterpret_cast<__m256i*>(buf), _mm256_castps_si256(
+			_mm256_xor_ps(_mm256_castsi256_ps(b), _mm256_castsi256_ps(m))));
+		buf += 32; mask += 32; count -= 32;
+	}
+	// https://software.intel.com/en-us/articles/avoiding-avx-sse-transition-penalties
+	_mm256_zeroupper();
+#endif
+#if defined(__SSE2__)
+	while (count >= 16)
+	{
+		__m128i b = _mm_loadu_si128(reinterpret_cast<const __m128i*>(buf));
+		__m128i m = _mm_loadu_si128(reinterpret_cast<const __m128i*>(mask));
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(buf), _mm_castps_si128(
+			_mm_xor_ps(_mm_castsi128_ps(b), _mm_castsi128_ps(m))));
+		buf += 16; mask += 16; count -= 16;
 	}
 
-	for (i=0; i<count; i++)
+	if (count == 0) return;
+#endif
+#if defined(__ARM_FEATURE_NEON)
+	while (count >= 16)
+	{
+		vst1q_u8(buf, veorq_u8(vld1q_u8(buf), vld1q_u8(mask)));
+		buf += 16; mask += 16; count -= 16;
+	}
+
+	if (count == 0) return;
+#endif
+
+	while (count >= 4)
+	{
+		word32 r, b, m;
+		memcpy(&b, buf, 4); memcpy(&m, mask, 4);
+
+		r = b ^ m;
+		memcpy(buf, &r, 4);
+
+		buf += 4; mask += 4; count -= 4;
+	}
+
+	for (size_t i=0; i<count; i++)
 		buf[i] ^= mask[i];
 }
 
+// xorbuf simplified at https://github.com/weidai11/cryptopp/issues/1020
 void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 {
 	CRYPTOPP_ASSERT(output != NULLPTR);
 	CRYPTOPP_ASSERT(input != NULLPTR);
 	CRYPTOPP_ASSERT(count > 0);
 
-	size_t i=0;
-	if (IsAligned<word32>(output) && IsAligned<word32>(input) && IsAligned<word32>(mask))
+#if defined(__AVX__)
+	while (count >= 32)
 	{
-		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(output) && IsAligned<word64>(input) && IsAligned<word64>(mask))
-		{
-			for (i=0; i<count/8; i++)
-				((word64*)(void*)output)[i] = ((word64*)(void*)input)[i] ^ ((word64*)(void*)mask)[i];
-			count -= 8*i;
-			if (!count)
-				return;
-			output += 8*i;
-			input += 8*i;
-			mask += 8*i;
-		}
-
-		for (i=0; i<count/4; i++)
-			((word32*)(void*)output)[i] = ((word32*)(void*)input)[i] ^ ((word32*)(void*)mask)[i];
-		count -= 4*i;
-		if (!count)
-			return;
-		output += 4*i;
-		input += 4*i;
-		mask += 4*i;
+		__m256i b = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input));
+		__m256i m = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(mask));
+		_mm256_storeu_si256(reinterpret_cast<__m256i*>(output), _mm256_castps_si256(
+			_mm256_xor_ps(_mm256_castsi256_ps(b), _mm256_castsi256_ps(m))));
+		output += 32; input += 32; mask += 32; count -= 32;
+	}
+	// https://software.intel.com/en-us/articles/avoiding-avx-sse-transition-penalties
+	_mm256_zeroupper();
+#endif
+#if defined(__SSE2__)
+	while (count >= 16)
+	{
+		__m128i b = _mm_loadu_si128(reinterpret_cast<const __m128i*>(input));
+		__m128i m = _mm_loadu_si128(reinterpret_cast<const __m128i*>(mask));
+		_mm_storeu_si128(reinterpret_cast<__m128i*>(output), _mm_castps_si128(
+			_mm_xor_ps(_mm_castsi128_ps(b), _mm_castsi128_ps(m))));
+		output += 16; input += 16; mask += 16; count -= 16;
 	}
 
-	for (i=0; i<count; i++)
+	if (count == 0) return;
+#endif
+#if defined(__ARM_FEATURE_NEON)
+	while (count >= 16)
+	{
+		vst1q_u8(output, veorq_u8(vld1q_u8(input), vld1q_u8(mask)));
+		output += 16; input += 16; mask += 16; count -= 16;
+	}
+
+	if (count == 0) return;
+#endif
+
+	while (count >= 4)
+	{
+		word32 b, m, r;
+		memcpy(&b, input, 4); memcpy(&m, mask, 4);
+
+		r = b ^ m;
+		memcpy(output, &r, 4);
+
+		output += 4; input += 4; mask += 4; count -= 4;
+	}
+
+	for (size_t i=0; i<count; i++)
 		output[i] = input[i] ^ mask[i];
 }
 
+// VerifyBufsEqual simplified at https://github.com/weidai11/cryptopp/issues/1020
 bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 {
 	CRYPTOPP_ASSERT(buf != NULLPTR);
 	CRYPTOPP_ASSERT(mask != NULLPTR);
 	// CRYPTOPP_ASSERT(count > 0);
 
-	size_t i=0;
-	byte acc8 = 0;
-
-	if (IsAligned<word32>(buf) && IsAligned<word32>(mask) && count)
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_ARM64 || CRYPTOPP_BOOL_PPC64 || CRYPTOPP_BOOL_MIPS64 || CRYPTOPP_BOOL_SPARC64
+	word64 acc64 = 0;
+	while (count >= 8)
 	{
-		word32 acc32 = 0;
-		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(buf) && IsAligned<word64>(mask))
-		{
-			word64 acc64 = 0;
-			for (i=0; i<count/8; i++)
-				acc64 |= ((word64*)(void*)buf)[i] ^ ((word64*)(void*)mask)[i];
-			count -= 8*i;
-			if (!count)
-				return acc64 == 0;
-			buf += 8*i;
-			mask += 8*i;
-			acc32 = word32(acc64) | word32(acc64>>32);
-		}
+		word64 b, m;
+		memcpy(&b, buf, 8); memcpy(&m, mask, 8);
+		acc64 |= b ^ m;
 
-		for (i=0; i<count/4; i++)
-			acc32 |= ((word32*)(void*)buf)[i] ^ ((word32*)(void*)mask)[i];
-		count -= 4*i;
-		if (!count)
-			return acc32 == 0;
-		buf += 4*i;
-		mask += 4*i;
-		acc8 = byte(acc32) | byte(acc32>>8) | byte(acc32>>16) | byte(acc32>>24);
+		buf += 8; mask += 8; count -= 8;
 	}
 
-	for (i=0; i<count; i++)
+	word32 acc8 = (acc64 >> 32) | (acc64 & 0xffffffff);
+	acc8 = static_cast<byte>(acc8) | static_cast<byte>(acc8 >> 8) |
+		static_cast<byte>(acc8 >> 16) | static_cast<byte>(acc8 >> 24);
+#else
+	word32 acc32 = 0;
+	while (count >= 4)
+	{
+		word32 b, m;
+		memcpy(&b, buf, 4); memcpy(&m, mask, 4);
+		acc32 |= b ^ m;
+
+		buf += 4; mask += 4; count -= 4;
+	}
+
+	word32 acc8 = acc32;
+	acc8 = static_cast<byte>(acc8) | static_cast<byte>(acc8 >> 8) |
+		static_cast<byte>(acc8 >> 16) | static_cast<byte>(acc8 >> 24);
+#endif
+
+	for (size_t i=0; i<count; i++)
 		acc8 |= buf[i] ^ mask[i];
+
+	// word32 resuts in this tail code on x86:
+	//   33a:  85 c0     test  %eax, %eax
+	//   33c:  0f 94 c0  sete  %al
+	//   33f:  c3        ret
 	return acc8 == 0;
 }
 
