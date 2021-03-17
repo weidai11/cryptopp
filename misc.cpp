@@ -94,8 +94,23 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 	if (count == 0) return;
 #endif
 
+#if CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
 	// word64 and stride of 8 slows things down on x86_64.
 	// word64 and stride of 8 makes no difference on ARM.
+	// word64 and stride of 16 benefits PowerPC.
+	while (count >= 16)
+	{
+		word64 r[2], b[2], m[2];
+		memcpy(&b, buf, 16); memcpy(&m, mask, 16);
+
+		r[0] = b[0] ^ m[0];
+		r[1] = b[1] ^ m[1];
+		memcpy(buf, &r, 16);
+
+		buf += 16; mask += 16; count -= 16;
+	}
+#endif
+
 	while (count >= 4)
 	{
 		word32 r, b, m;
@@ -152,8 +167,23 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 	if (count == 0) return;
 #endif
 
+#if CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
 	// word64 and stride of 8 slows things down on x86_64.
 	// word64 and stride of 8 makes no difference on ARM.
+	// word64 and stride of 16 benefits PowerPC.
+	while (count >= 16)
+	{
+		word64 b[2], m[2], r[2];
+		memcpy(&b, input, 16); memcpy(&m, mask, 16);
+
+		r[0] = b[0] ^ m[0];
+		r[1] = b[1] ^ m[1];
+		memcpy(output, &r, 16);
+
+		output += 16; input += 16; mask += 16; count -= 16;
+	}
+#endif
+
 	while (count >= 4)
 	{
 		word32 b, m, r;
