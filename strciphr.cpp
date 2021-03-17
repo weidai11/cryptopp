@@ -4,8 +4,8 @@
 //       CFB_CipherTemplate<BASE>::ProcessData when we cut-in Cryptogams
 //       AES ARMv7 asm. Then again in AdditiveCipherTemplate<S>::ProcessData
 //       for CTR mode with HIGHT, which is a 64-bit block cipher. In both cases,
-//       using 'outString' for both input and output leads to incorrect results.
-//       We think it relates to aliasing violations because inString == outString.
+//       inString == outString leads to incorrect results. We think it relates to
+//       aliasing violations because inString == outString.
 //
 //       Also see https://github.com/weidai11/cryptopp/issues/683 and
 //       https://github.com/weidai11/cryptopp/issues/1010.
