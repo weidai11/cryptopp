@@ -702,13 +702,16 @@ public:
 
 NAMESPACE_END
 
+// Used by dll.cpp to ensure objects are in dll.o, and not strciphr.o.
 #ifdef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
-#include "strciphr.cpp"
+# include "strciphr.cpp"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
+
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractPolicyHolder<AdditiveCipherAbstractPolicy, SymmetricCipher>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, SymmetricCipher> >;
+
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >;
