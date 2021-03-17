@@ -234,17 +234,6 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	// It almost feels as if the compiler does not see the string is transformed
 	// in-place so it short-circuits the transform. However, if we use a stand-alone
 	// reproducer with the same data then the issue is _not_ present.
-	//
-	// One workaround is a distinct and aligned temporary buffer. It [mostly] works
-	// as expected but requires an extra allocation (casts not shown):
-	//
-	//   std::string temp(inString, length);
-	//   policy.Iterate(outString, &temp[0], cipherDir, length / bytesPerIteration);
-	//
-	// Another workaround is:
-	//
-	//   memcpy(outString, inString, length);
-	//   policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
 
 	byte* savedOutString = outString;
 	size_t savedLength = length;
