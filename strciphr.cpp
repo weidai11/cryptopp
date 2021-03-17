@@ -97,7 +97,7 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		const size_t iterations = length / bytesPerIteration;
 		KeystreamOperationFlags flags = static_cast<KeystreamOperationFlags>(
 			(inAligned ? EnumToInt(INPUT_ALIGNED) : 0) | (outAligned ? EnumToInt(OUTPUT_ALIGNED) : 0));
-		const KeystreamOperation operation = KeystreamOperation(flags);
+		KeystreamOperation operation = KeystreamOperation(flags);
 
 		policy.OperateKeystream(operation, outString, inString, iterations);
 		s_workaround = const_cast<volatile byte*>(outString);
