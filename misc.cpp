@@ -24,7 +24,7 @@
 #endif
 
 #if defined(__ARM_FEATURE_NEON)
-# if (CRYPTOPP_ARM_NEON_HEADER)
+# if defined(CRYPTOPP_ARM_NEON_HEADER)
 #  include <arm_neon.h>
 # endif
 #endif
@@ -94,6 +94,8 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 	if (count == 0) return;
 #endif
 
+	// word64 and stride of 8 slows things down on x86_64.
+	// word64 and stride of 8 makes no difference on ARM.
 	while (count >= 4)
 	{
 		word32 r, b, m;
@@ -150,6 +152,8 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 	if (count == 0) return;
 #endif
 
+	// word64 and stride of 8 slows things down on x86_64.
+	// word64 and stride of 8 makes no difference on ARM.
 	while (count >= 4)
 	{
 		word32 b, m, r;
