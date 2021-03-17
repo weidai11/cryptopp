@@ -13,6 +13,11 @@ extern const char STRCIPHER_FNAME[] = __FILE__;
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Workaround for https://github.com/weidai11/cryptopp/issues/683
+// and https://github.com/weidai11/cryptopp/issues/1010. GCC and
+// Clang are optimizing away some calls in ProcessData on ARM when
+// outString == inString. Other workarounds are available but they
+// require a memcpy, which degrades performance to varying degrees.
 static volatile byte* s_workaround;
 
 template <class S>
@@ -234,19 +239,16 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 			// in-place so it short-circuits the transform. However, if we use a stand-alone
 			// reproducer with the same data then the issue is _not_ present.
 			//
-			// When working on this issue we introduced PtrAdd and PtrSub to ensure we were
-			// not running afoul of pointer arithmetic rules of the language. Namely we need
-			// to use ptrdiff_t when subtracting pointers. We believe the relevant code paths
-			// are clean.
-			//
 			// One workaround is a distinct and aligned temporary buffer. It [mostly] works
 			// as expected but requires an extra allocation (casts not shown):
 			//
 			//   std::string temp(inString, length);
 			//   policy.Iterate(outString, &temp[0], cipherDir, length / bytesPerIteration);
-
-			//std::memcpy(outString, inString, length);
-			//policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
+			//
+			// Another workaround is:
+			//
+			//   std::memcpy(outString, inString, length);
+			//   policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
 
 			policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
 			s_workaround = const_cast<volatile byte*>(outString);
