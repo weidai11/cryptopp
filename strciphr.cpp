@@ -13,6 +13,8 @@ extern const char STRCIPHER_FNAME[] = __FILE__;
 
 NAMESPACE_BEGIN(CryptoPP)
 
+static volatile byte* s_workaround;
+
 template <class S>
 void AdditiveCipherTemplate<S>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
@@ -68,36 +70,41 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 template <class S>
 void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
+	CRYPTOPP_ASSERT(outString); CRYPTOPP_ASSERT(inString);
+	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
+
+	PolicyInterface &policy = this->AccessPolicy();
+	word32 bytesPerIteration = policy.GetBytesPerIteration();
+
 	if (m_leftOver > 0)
 	{
 		const size_t len = STDMIN(m_leftOver, length);
 		xorbuf(outString, inString, PtrSub(KeystreamBufferEnd(), m_leftOver), len);
 
-		length -= len; m_leftOver -= len;
 		inString = PtrAdd(inString, len);
 		outString = PtrAdd(outString, len);
-
-		if (!length) {return;}
+		length -= len; m_leftOver -= len;
 	}
 
-	PolicyInterface &policy = this->AccessPolicy();
-	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
+	if (!length) {return;}
+
+	const word32 alignment = policy.GetAlignment();
+	const bool inAligned = IsAlignedOn(inString, alignment);
+	const bool outAligned = IsAlignedOn(outString, alignment);
 
 	if (policy.CanOperateKeystream() && length >= bytesPerIteration)
 	{
 		const size_t iterations = length / bytesPerIteration;
-		unsigned int alignment = policy.GetAlignment();
-		volatile int inAligned = IsAlignedOn(inString, alignment) << 1;
-		volatile int outAligned = IsAlignedOn(outString, alignment) << 0;
+		KeystreamOperationFlags flags = static_cast<KeystreamOperationFlags>(
+			(inAligned ? EnumToInt(INPUT_ALIGNED) : 0) | (outAligned ? EnumToInt(OUTPUT_ALIGNED) : 0));
+		const KeystreamOperation operation = KeystreamOperation(flags);
 
-		KeystreamOperation operation = KeystreamOperation(inAligned | outAligned);
 		policy.OperateKeystream(operation, outString, inString, iterations);
+		s_workaround = const_cast<volatile byte*>(outString);
 
 		inString = PtrAdd(inString, iterations * bytesPerIteration);
 		outString = PtrAdd(outString, iterations * bytesPerIteration);
 		length -= iterations * bytesPerIteration;
-
-		if (!length) {return;}
 	}
 
 	size_t bufferByteSize = m_buffer.size();
@@ -108,9 +115,9 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		policy.WriteKeystream(m_buffer, bufferIterations);
 		xorbuf(outString, inString, KeystreamBufferBegin(), bufferByteSize);
 
-		length -= bufferByteSize;
 		inString = PtrAdd(inString, bufferByteSize);
 		outString = PtrAdd(outString, bufferByteSize);
+		length -= bufferByteSize;
 	}
 
 	if (length > 0)
@@ -190,9 +197,9 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		const size_t len = STDMIN(m_leftOver, length);
 		CombineMessageAndShiftRegister(outString, PtrAdd(reg, bytesPerIteration - m_leftOver), inString, len);
 
-		m_leftOver -= len; length -= len;
 		inString = PtrAdd(inString, len);
 		outString = PtrAdd(outString, len);
+		m_leftOver -= len; length -= len;
 	}
 
 	if (!length) {return;}
@@ -206,9 +213,9 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	//
 	//       Also see https://github.com/weidai11/cryptopp/issues/683.
 
-	const unsigned int alignment = policy.GetAlignment();
-	volatile bool inAligned = IsAlignedOn(inString, alignment);
-	volatile bool outAligned = IsAlignedOn(outString, alignment);
+	const word32 alignment = policy.GetAlignment();
+	const bool inAligned = IsAlignedOn(inString, alignment);
+	const bool outAligned = IsAlignedOn(outString, alignment);
 
 	if (policy.CanIterate() && length >= bytesPerIteration && outAligned)
 	{
@@ -237,8 +244,11 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 			//   std::string temp(inString, length);
 			//   policy.Iterate(outString, &temp[0], cipherDir, length / bytesPerIteration);
 
-			std::memcpy(outString, inString, length);
-			policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
+			//std::memcpy(outString, inString, length);
+			//policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
+
+			policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
+			s_workaround = const_cast<volatile byte*>(outString);
 		}
 		const size_t remainder = length % bytesPerIteration;
 		inString = PtrAdd(inString, length - remainder);
@@ -250,9 +260,10 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	{
 		policy.TransformRegister();
 		CombineMessageAndShiftRegister(outString, reg, inString, bytesPerIteration);
-		length -= bytesPerIteration;
+
 		inString = PtrAdd(inString, bytesPerIteration);
 		outString = PtrAdd(outString, bytesPerIteration);
+		length -= bytesPerIteration;
 	}
 
 	if (length > 0)
