@@ -3,27 +3,27 @@
 /// \file strciphr.h
 /// \brief Classes for implementing stream ciphers
 /// \details This file contains helper classes for implementing stream ciphers.
-///   All this infrastructure may look very complex compared to what's in Crypto++ 4.x,
-///   but stream ciphers implementations now support a lot of new functionality,
-///   including better performance (minimizing copying), resetting of keys and IVs, and
-///   methods to query which features are supported by a cipher.
+///  All this infrastructure may look very complex compared to what's in Crypto++ 4.x,
+///  but stream ciphers implementations now support a lot of new functionality,
+///  including better performance (minimizing copying), resetting of keys and IVs, and
+///  methods to query which features are supported by a cipher.
 /// \details Here's an explanation of these classes. The word "policy" is used here to
-///   mean a class with a set of methods that must be implemented by individual stream
-///   cipher implementations. This is usually much simpler than the full stream cipher
-///   API, which is implemented by either AdditiveCipherTemplate or CFB_CipherTemplate
-///   using the policy. So for example, an implementation of SEAL only needs to implement
-///   the AdditiveCipherAbstractPolicy interface (since it's an additive cipher, i.e., it
-///   xors a keystream into the plaintext). See this line in seal.h:
+///  mean a class with a set of methods that must be implemented by individual stream
+///  cipher implementations. This is usually much simpler than the full stream cipher
+///  API, which is implemented by either AdditiveCipherTemplate or CFB_CipherTemplate
+///  using the policy. So for example, an implementation of SEAL only needs to implement
+///  the AdditiveCipherAbstractPolicy interface (since it's an additive cipher, i.e., it
+///  xors a keystream into the plaintext). See this line in seal.h:
 /// <pre>
 ///     typedef SymmetricCipherFinal\<ConcretePolicyHolder\<SEAL_Policy\<B\>, AdditiveCipherTemplate\<\> \> \> Encryption;
 /// </pre>
 /// \details AdditiveCipherTemplate and CFB_CipherTemplate are designed so that they don't
-///   need to take a policy class as a template parameter (although this is allowed), so
-///   that their code is not duplicated for each new cipher. Instead they each get a
-///   reference to an abstract policy interface by calling AccessPolicy() on itself, so
-///   AccessPolicy() must be overridden to return the actual policy reference. This is done
-///   by the ConceretePolicyHolder class. Finally, SymmetricCipherFinal implements the
-///   constructors and other functions that must be implemented by the most derived class.
+///  need to take a policy class as a template parameter (although this is allowed), so
+///  that their code is not duplicated for each new cipher. Instead they each get a
+///  reference to an abstract policy interface by calling AccessPolicy() on itself, so
+///  AccessPolicy() must be overridden to return the actual policy reference. This is done
+///  by the ConcretePolicyHolder class. Finally, SymmetricCipherFinal implements the
+///  constructors and other functions that must be implemented by the most derived class.
 
 #ifndef CRYPTOPP_STRCIPHR_H
 #define CRYPTOPP_STRCIPHR_H
@@ -72,7 +72,7 @@ protected:
 
 /// \brief Keystream operation flags
 /// \sa AdditiveCipherAbstractPolicy::GetBytesPerIteration(), AdditiveCipherAbstractPolicy::GetOptimalBlockSize()
-///   and AdditiveCipherAbstractPolicy::GetAlignment()
+///  and AdditiveCipherAbstractPolicy::GetAlignment()
 enum KeystreamOperationFlags {
 	/// \brief Output buffer is aligned
 	OUTPUT_ALIGNED=1,
@@ -84,7 +84,7 @@ enum KeystreamOperationFlags {
 
 /// \brief Keystream operation flags
 /// \sa AdditiveCipherAbstractPolicy::GetBytesPerIteration(), AdditiveCipherAbstractPolicy::GetOptimalBlockSize()
-///   and AdditiveCipherAbstractPolicy::GetAlignment()
+///  and AdditiveCipherAbstractPolicy::GetAlignment()
 enum KeystreamOperation {
 	/// \brief Wirte the keystream to the output buffer, input is NULL
 	WRITE_KEYSTREAM				= INPUT_NULL,
@@ -108,7 +108,7 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	/// \brief Provides data alignment requirements
 	/// \return data alignment requirements, in bytes
 	/// \details Internally, the default implementation returns 1. If the stream cipher is implemented
-	///   using an SSE2 ASM or intrinsics, then the value returned is usually 16.
+	///  using an SSE2 ASM or intrinsics, then the value returned is usually 16.
 	virtual unsigned int GetAlignment() const {return 1;}
 
 	/// \brief Provides number of bytes operated upon during an iteration
@@ -144,7 +144,7 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	/// \param input the input buffer
 	/// \param iterationCount the number of iterations to perform on the input
 	/// \details OperateKeystream() will attempt to operate upon GetOptimalBlockSize() buffer,
-	///   which will be derived from GetBytesPerIteration().
+	///  which will be derived from GetBytesPerIteration().
 	/// \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream(), KeystreamOperation()
 	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 		{CRYPTOPP_UNUSED(operation); CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(input);
@@ -178,16 +178,16 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	/// \brief Retrieve the provider of this algorithm
 	/// \return the algorithm provider
 	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
-	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
-	///    usually indicate a specialized implementation using instructions from a higher
-	///    instruction set architecture (ISA). Future labels may include external hardware
-	///    like a hardware security module (HSM).
+	///  "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///  usually indicate a specialized implementation using instructions from a higher
+	///  instruction set architecture (ISA). Future labels may include external hardware
+	///  like a hardware security module (HSM).
 	/// \details Generally speaking Wei Dai's original IA-32 ASM code falls under "SSE2".
-	///    Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
-	///    instead of ASM.
+	///  Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
+	///  instead of ASM.
 	/// \details Algorithms which combine different instructions or ISAs provide the
-	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
-	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
+	///  dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
+	///  "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
 	/// \note Provider is not universally implemented yet.
 	virtual std::string AlgorithmProvider() const { return "C++"; }
 };
@@ -212,14 +212,12 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 
 	virtual ~AdditiveCipherConcretePolicy() {}
 
-#if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64)
 	/// \brief Provides data alignment requirements
 	/// \return data alignment requirements, in bytes
 	/// \details Internally, the default implementation returns 1. If the stream
 	///  cipher is implemented using an SSE2 ASM or intrinsics, then the value
 	///  returned is usually 16.
 	unsigned int GetAlignment() const {return GetAlignmentOf<WordType>();}
-#endif
 
 	/// \brief Provides number of bytes operated upon during an iteration
 	/// \return bytes operated upon during an iteration, in bytes
@@ -242,7 +240,7 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	/// \param input the input buffer
 	/// \param iterationCount the number of iterations to perform on the input
 	/// \details OperateKeystream() will attempt to operate upon GetOptimalBlockSize() buffer,
-	///   which will be derived from GetBytesPerIteration().
+	///  which will be derived from GetBytesPerIteration().
 	/// \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream(), KeystreamOperation()
 	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount) =0;
 };
@@ -306,7 +304,7 @@ public:
 	/// \param output the byte buffer
 	/// \param size the length of the buffer, in bytes
 	/// \details All generated values are uniformly distributed over the range specified
-	///   within the constraints of a particular generator.
+	///  within the constraints of a particular generator.
 	void GenerateBlock(byte *output, size_t size);
 
 	/// \brief Apply keystream to data
@@ -367,16 +365,16 @@ public:
 	/// \brief Retrieve the provider of this algorithm
 	/// \return the algorithm provider
 	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
-	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
-	///    usually indicate a specialized implementation using instructions from a higher
-	///    instruction set architecture (ISA). Future labels may include external hardware
-	///    like a hardware security module (HSM).
+	///  "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///  usually indicate a specialized implementation using instructions from a higher
+	///  instruction set architecture (ISA). Future labels may include external hardware
+	///  like a hardware security module (HSM).
 	/// \details Generally speaking Wei Dai's original IA-32 ASM code falls under "SSE2".
-	///    Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
-	///    instead of ASM.
+	///  Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
+	///  instead of ASM.
 	/// \details Algorithms which combine different instructions or ISAs provide the
-	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
-	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
+	///  dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
+	///  "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
 	/// \note Provider is not universally implemented yet.
 	std::string AlgorithmProvider() const { return this->GetPolicy().AlgorithmProvider(); }
 
@@ -403,7 +401,7 @@ public:
 	/// \brief Provides data alignment requirements
 	/// \return data alignment requirements, in bytes
 	/// \details Internally, the default implementation returns 1. If the stream cipher is implemented
-	///   using an SSE2 ASM or intrinsics, then the value returned is usually 16.
+	///  using an SSE2 ASM or intrinsics, then the value returned is usually 16.
 	virtual unsigned int GetAlignment() const =0;
 
 	/// \brief Provides number of bytes operated upon during an iteration
@@ -449,16 +447,16 @@ public:
 	/// \brief Retrieve the provider of this algorithm
 	/// \return the algorithm provider
 	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
-	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
-	///    usually indicate a specialized implementation using instructions from a higher
-	///    instruction set architecture (ISA). Future labels may include external hardware
-	///    like a hardware security module (HSM).
+	///  "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///  usually indicate a specialized implementation using instructions from a higher
+	///  instruction set architecture (ISA). Future labels may include external hardware
+	///  like a hardware security module (HSM).
 	/// \details Generally speaking Wei Dai's original IA-32 ASM code falls under "SSE2".
-	///    Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
-	///    instead of ASM.
+	///  Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
+	///  instead of ASM.
 	/// \details Algorithms which combine different instructions or ISAs provide the
-	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
-	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
+	///  dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
+	///  "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
 	/// \note Provider is not universally implemented yet.
 	virtual std::string AlgorithmProvider() const { return "C++"; }
 };
@@ -615,16 +613,16 @@ public:
 	/// \brief Retrieve the provider of this algorithm
 	/// \return the algorithm provider
 	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
-	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
-	///    usually indicate a specialized implementation using instructions from a higher
-	///    instruction set architecture (ISA). Future labels may include external hardware
-	///    like a hardware security module (HSM).
+	///  "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///  usually indicate a specialized implementation using instructions from a higher
+	///  instruction set architecture (ISA). Future labels may include external hardware
+	///  like a hardware security module (HSM).
 	/// \details Generally speaking Wei Dai's original IA-32 ASM code falls under "SSE2".
-	///    Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
-	///    instead of ASM.
+	///  Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
+	///  instead of ASM.
 	/// \details Algorithms which combine different instructions or ISAs provide the
-	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
-	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
+	///  dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
+	///  "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
 	/// \note Provider is not universally implemented yet.
 	std::string AlgorithmProvider() const { return this->GetPolicy().AlgorithmProvider(); }
 
