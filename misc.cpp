@@ -265,7 +265,7 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError)
 	if (err != 0)
 	{
 		if (throwOnError)
-			throw InvalidArgument("StringNarrow: wcstombs_s() call failed with error " + IntToString(err));
+			throw InvalidArgument("StringNarrow: wcstombs_s() failed with error " + IntToString(err));
 		else
 			return std::string();
 	}
@@ -276,7 +276,7 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError)
 	if (err != 0)
 	{
 		if (throwOnError)
-			throw InvalidArgument("StringNarrow: wcstombs_s() call failed with error " + IntToString(err));
+			throw InvalidArgument("StringNarrow: wcstombs_s() failed with error " + IntToString(err));
 		else
 			return std::string();
 	}
@@ -290,7 +290,7 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError)
 	if (size == (size_t)-1)
 	{
 		if (throwOnError)
-			throw InvalidArgument("StringNarrow: wcstombs() call failed");
+			throw InvalidArgument("StringNarrow: wcstombs() failed");
 		else
 			return std::string();
 	}
@@ -301,7 +301,7 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError)
 	if (size == (size_t)-1)
 	{
 		if (throwOnError)
-			throw InvalidArgument("StringNarrow: wcstombs() call failed");
+			throw InvalidArgument("StringNarrow: wcstombs() failed");
 		else
 			return std::string();
 	}
@@ -329,7 +329,7 @@ std::wstring StringWiden(const char *str, bool throwOnError)
 	if (err != 0)
 	{
 		if (throwOnError)
-			throw InvalidArgument("StringWiden: wcstombs_s() call failed with error " + IntToString(err));
+			throw InvalidArgument("StringWiden: wcstombs_s() failed with error " + IntToString(err));
 		else
 			return std::wstring();
 	}
@@ -340,7 +340,7 @@ std::wstring StringWiden(const char *str, bool throwOnError)
 	if (err != 0)
 	{
 		if (throwOnError)
-			throw InvalidArgument("StringWiden: wcstombs_s() call failed with error " + IntToString(err));
+			throw InvalidArgument("StringWiden: wcstombs_s() failed with error " + IntToString(err));
 		else
 			return std::wstring();
 	}
@@ -354,7 +354,7 @@ std::wstring StringWiden(const char *str, bool throwOnError)
 	if (size == (size_t)-1)
 	{
 		if (throwOnError)
-			throw InvalidArgument("StringWiden: mbstowcs() call failed");
+			throw InvalidArgument("StringWiden: mbstowcs() failed");
 		else
 			return std::wstring();
 	}
@@ -365,7 +365,7 @@ std::wstring StringWiden(const char *str, bool throwOnError)
 	if (size == (size_t)-1)
 	{
 		if (throwOnError)
-			throw InvalidArgument("StringWiden: mbstowcs() call failed");
+			throw InvalidArgument("StringWiden: mbstowcs() failed");
 		else
 			return std::wstring();
 	}
