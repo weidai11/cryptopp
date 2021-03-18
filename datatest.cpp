@@ -294,8 +294,10 @@ private:
 	mutable std::string m_temp;
 };
 
-void TestKeyPairValidAndConsistent(CryptoMaterial &pub, const CryptoMaterial &priv)
+void TestKeyPairValidAndConsistent(CryptoMaterial &pub, const CryptoMaterial &priv, unsigned int &totalTests)
 {
+	totalTests++;
+
 	if (!pub.Validate(Test::GlobalRNG(), 2U+!!s_thorough))
 		SignalTestFailure();
 	if (!priv.Validate(Test::GlobalRNG(), 2U+!!s_thorough))
@@ -309,7 +311,7 @@ void TestKeyPairValidAndConsistent(CryptoMaterial &pub, const CryptoMaterial &pr
 		SignalTestFailure();
 }
 
-void TestSignatureScheme(TestData &v)
+void TestSignatureScheme(TestData &v, unsigned int &totalTests)
 {
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
@@ -327,6 +329,8 @@ void TestSignatureScheme(TestData &v)
 
 	if (test == "GenerateKey")
 	{
+		totalTests++;
+
 		signer->AccessPrivateKey().GenerateRandom(Test::GlobalRNG(), pairs);
 		verifier->AccessPublicKey().AssignFrom(signer->AccessPrivateKey());
 	}
@@ -334,6 +338,7 @@ void TestSignatureScheme(TestData &v)
 	{
 		std::string keyFormat = GetRequiredDatum(v, "KeyFormat");
 
+		totalTests++;  // key format
 		if (keyFormat == "DER")
 			verifier->AccessMaterial().Load(StringStore(GetDecodedDatum(v, "PublicKey")).Ref());
 		else if (keyFormat == "Component")
@@ -341,6 +346,8 @@ void TestSignatureScheme(TestData &v)
 
 		if (test == "Verify" || test == "NotVerify")
 		{
+			totalTests++;
+
 			SignatureVerificationFilter verifierFilter(*verifier, NULLPTR, SignatureVerificationFilter::SIGNATURE_AT_BEGIN);
 			PutDecodedDatumInto(v, "Signature", verifierFilter);
 			PutDecodedDatumInto(v, "Message", verifierFilter);
@@ -351,11 +358,14 @@ void TestSignatureScheme(TestData &v)
 		}
 		else if (test == "PublicKeyValid")
 		{
+			totalTests++;
+
 			if (!verifier->GetMaterial().Validate(Test::GlobalRNG(), 3))
 				SignalTestFailure();
 			return;
 		}
 
+		totalTests++; // key format
 		if (keyFormat == "DER")
 			signer->AccessMaterial().Load(StringStore(GetDecodedDatum(v, "PrivateKey")).Ref());
 		else if (keyFormat == "Component")
@@ -364,7 +374,9 @@ void TestSignatureScheme(TestData &v)
 
 	if (test == "GenerateKey" || test == "KeyPairValidAndConsistent")
 	{
-		TestKeyPairValidAndConsistent(verifier->AccessMaterial(), signer->GetMaterial());
+		totalTests++;
+
+		TestKeyPairValidAndConsistent(verifier->AccessMaterial(), signer->GetMaterial(),totalTests);
 		SignatureVerificationFilter verifierFilter(*verifier, NULLPTR, SignatureVerificationFilter::THROW_EXCEPTION);
 		const byte msg[3] = {'a', 'b', 'c'};
 		verifierFilter.Put(msg, sizeof(msg));
@@ -372,12 +384,16 @@ void TestSignatureScheme(TestData &v)
 	}
 	else if (test == "Sign")
 	{
+		totalTests++;
+
 		SignerFilter f(Test::GlobalRNG(), *signer, new HexEncoder(new FileSink(std::cout)));
 		StringSource ss(GetDecodedDatum(v, "Message"), true, new Redirector(f));
 		SignalTestFailure();
 	}
 	else if (test == "DeterministicSign")
 	{
+		totalTests++;
+
 		// This test is specialized for RFC 6979. The RFC is a drop-in replacement
 		// for DSA and ECDSA, and access to the seed or secret is not needed. If
 		// additional deterministic signatures are added, then the test harness will
@@ -399,7 +415,7 @@ void TestSignatureScheme(TestData &v)
 	}
 }
 
-void TestAsymmetricCipher(TestData &v)
+void TestAsymmetricCipher(TestData &v, unsigned int &totalTests)
 {
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
@@ -417,11 +433,15 @@ void TestAsymmetricCipher(TestData &v)
 
 	if (keyFormat == "DER")
 	{
+		totalTests++;
+
 		decryptor->AccessMaterial().Load(StringStore(GetDecodedDatum(v, "PrivateKey")).Ref());
 		encryptor->AccessMaterial().Load(StringStore(GetDecodedDatum(v, "PublicKey")).Ref());
 	}
 	else if (keyFormat == "Component")
 	{
+		totalTests++;
+
 		TestDataNameValuePairs pairs(v);
 		decryptor->AccessMaterial().AssignFrom(pairs);
 		encryptor->AccessMaterial().AssignFrom(pairs);
@@ -429,6 +449,8 @@ void TestAsymmetricCipher(TestData &v)
 
 	if (test == "DecryptMatch")
 	{
+		totalTests++;
+
 		std::string decrypted, expected = GetDecodedDatum(v, "Plaintext");
 		StringSource ss(GetDecodedDatum(v, "Ciphertext"), true, new PK_DecryptorFilter(Test::GlobalRNG(), *decryptor, new StringSink(decrypted)));
 		if (decrypted != expected)
@@ -436,7 +458,9 @@ void TestAsymmetricCipher(TestData &v)
 	}
 	else if (test == "KeyPairValidAndConsistent")
 	{
-		TestKeyPairValidAndConsistent(encryptor->AccessMaterial(), decryptor->GetMaterial());
+		totalTests++;
+
+		TestKeyPairValidAndConsistent(encryptor->AccessMaterial(), decryptor->GetMaterial(), totalTests);
 	}
 	else
 	{
@@ -446,7 +470,7 @@ void TestAsymmetricCipher(TestData &v)
 	}
 }
 
-void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
+void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, unsigned int &totalTests)
 {
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
@@ -461,6 +485,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 	{
 		static member_ptr<SymmetricCipher> encryptor, decryptor;
 		static std::string lastName;
+
+		totalTests++;
 
 		if (name != lastName)
 		{
@@ -624,13 +650,14 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 }
 
 // TODO: figure out what is going on with chacha_tls.
-void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overrideParameters)
+void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overrideParameters, unsigned int &totalTests)
 {
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
 
 	// Limit FileSource tests to Encrypt only.
 	if (test != "Encrypt") { return; }
+	totalTests++;
 
 	std::string key = GetDecodedDatum(v, "Key");
 	std::string plaintext = GetDecodedDatum(v, "Plaintext");
@@ -747,7 +774,7 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 	}
 }
 
-void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
+void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, unsigned int &totalTests)
 {
 	std::string type = GetRequiredDatum(v, "AlgorithmType");
 	std::string name = GetRequiredDatum(v, "Name");
@@ -765,6 +792,8 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 	if (test == "Encrypt" || test == "EncryptXorDigest" || test == "NotVerify")
 	{
+		totalTests++;
+
 		member_ptr<AuthenticatedSymmetricCipher> encryptor, decryptor;
 		encryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
 		decryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
@@ -837,7 +866,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 	}
 }
 
-void TestDigestOrMAC(TestData &v, bool testDigest)
+void TestDigestOrMAC(TestData &v, bool testDigest, unsigned int &totalTests)
 {
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
@@ -872,6 +901,8 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 
 	if (test == "Verify" || test == "VerifyTruncated" || test == "NotVerify")
 	{
+		totalTests++;
+
 		int digestSize = -1;
 		if (test == "VerifyTruncated")
 			digestSize = pairs.GetIntValueWithDefault(Name::DigestSize(), digestSize);
@@ -889,8 +920,10 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 	}
 }
 
-void TestKeyDerivationFunction(TestData &v)
+void TestKeyDerivationFunction(TestData &v, unsigned int &totalTests)
 {
+	totalTests++;
+
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
 
@@ -1074,22 +1107,22 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 			try
 			{
 				if (algType == "Signature")
-					TestSignatureScheme(v);
+					TestSignatureScheme(v, totalTests);
 				else if (algType == "SymmetricCipher")
 				{
-					TestSymmetricCipher(v, overrideParameters);
-					// TestSymmetricCipherWithFileSource(v, overrideParameters);
+					TestSymmetricCipher(v, overrideParameters, totalTests);
+					// TestSymmetricCipherWithFileSource(v, overrideParameters, totalTests);
 				}
 				else if (algType == "AuthenticatedSymmetricCipher")
-					TestAuthenticatedSymmetricCipher(v, overrideParameters);
+					TestAuthenticatedSymmetricCipher(v, overrideParameters, totalTests);
 				else if (algType == "AsymmetricCipher")
-					TestAsymmetricCipher(v);
+					TestAsymmetricCipher(v, totalTests);
 				else if (algType == "MessageDigest")
-					TestDigestOrMAC(v, true);
+					TestDigestOrMAC(v, true, totalTests);
 				else if (algType == "MAC")
-					TestDigestOrMAC(v, false);
+					TestDigestOrMAC(v, false, totalTests);
 				else if (algType == "KDF")
-					TestKeyDerivationFunction(v);
+					TestKeyDerivationFunction(v, totalTests);
 				else if (algType == "FileList")
 					TestDataFile(GetRequiredDatum(v, "Test"), g_nullNameValuePairs, totalTests, failedTests);
 				else
@@ -1118,8 +1151,6 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 			}
 			else
 				std::cout << "." << std::flush;
-
-			totalTests++;
 		}
 	}
 }
