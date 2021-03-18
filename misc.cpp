@@ -23,7 +23,7 @@
 # include <immintrin.h>
 #endif
 
-#if defined(__ARM_FEATURE_NEON)
+#if defined(__ARM_FEATURE_NEON) || defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
 # if defined(CRYPTOPP_ARM_NEON_HEADER)
 #  include <arm_neon.h>
 # endif
@@ -84,6 +84,15 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 
 	if (count == 0) return;
 #endif
+#if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
+	while (count >= 16)
+	{
+		vst1q_u8(buf, veorq_u8(vld1q_u8(buf), vld1q_u8(mask)));
+		buf += 16; mask += 16; count -= 16;
+	}
+
+	if (count == 0) return;
+#endif
 #if defined(__ARM_FEATURE_NEON)
 	while (count >= 16)
 	{
@@ -109,6 +118,8 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 
 		buf += 16; mask += 16; count -= 16;
 	}
+
+	if (count == 0) return;
 #endif
 
 	while (count >= 4)
@@ -157,6 +168,15 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 
 	if (count == 0) return;
 #endif
+#if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
+	while (count >= 16)
+	{
+		vst1q_u8(output, veorq_u8(vld1q_u8(input), vld1q_u8(mask)));
+		output += 16; input += 16; mask += 16; count -= 16;
+	}
+
+	if (count == 0) return;
+#endif
 #if defined(__ARM_FEATURE_NEON)
 	while (count >= 16)
 	{
@@ -182,6 +202,8 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 
 		output += 16; input += 16; mask += 16; count -= 16;
 	}
+
+	if (count == 0) return;
 #endif
 
 	while (count >= 4)
