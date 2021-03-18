@@ -738,7 +738,7 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 	//RandomizedTransfer(pstore, encFilter, true);
 	//encFilter.MessageEnd();
 
-	std::string testFilename = "test.dat";
+	std::string testFilename = "cryptest.dat";
 	StringSource(plaintext, true, new FileSink(testFilename.c_str()));
 
 	FileSource pstore(testFilename.c_str(), true);
