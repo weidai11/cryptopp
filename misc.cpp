@@ -19,15 +19,17 @@
 #include "integer.h"
 #include "secblock.h"
 
-#if defined(__AVX__) || defined(__SSE2__)
-# include <immintrin.h>
-#endif
-
-#if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
-# if defined(CRYPTOPP_ARM_NEON_HEADER)
-#  include <arm_neon.h>
+#ifndef CRYPTOPP_DISABLE_ASM
+# if defined(__AVX__) || defined(__SSE2__)
+#  include <immintrin.h>
 # endif
-#endif
+
+# if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
+#  if defined(CRYPTOPP_ARM_NEON_HEADER)
+#   include <arm_neon.h>
+#  endif
+# endif
+#endif  // CRYPTOPP_DISABLE_ASM
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -60,7 +62,8 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 	CRYPTOPP_ASSERT(mask != NULLPTR);
 	CRYPTOPP_ASSERT(count > 0);
 
-#if defined(__AVX__)
+#ifndef CRYPTOPP_DISABLE_ASM
+# if defined(__AVX__)
 	while (count >= 32)
 	{
 		__m256i b = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(buf));
@@ -71,8 +74,8 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 	}
 	// https://software.intel.com/en-us/articles/avoiding-avx-sse-transition-penalties
 	_mm256_zeroupper();
-#endif
-#if defined(__SSE2__)
+# endif
+# if defined(__SSE2__)
 	while (count >= 16)
 	{
 		__m128i b = _mm_loadu_si128(reinterpret_cast<const __m128i*>(buf));
@@ -83,8 +86,8 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 	}
 
 	if (count == 0) return;
-#endif
-#if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
+# endif
+# if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
 	while (count >= 16)
 	{
 		vst1q_u8(buf, veorq_u8(vld1q_u8(buf), vld1q_u8(mask)));
@@ -92,7 +95,8 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 	}
 
 	if (count == 0) return;
-#endif
+# endif
+#endif  // CRYPTOPP_DISABLE_ASM
 
 #if CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
 	// word64 and stride of 8 slows things down on x86_64.
@@ -135,7 +139,8 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 	CRYPTOPP_ASSERT(input != NULLPTR);
 	CRYPTOPP_ASSERT(count > 0);
 
-#if defined(__AVX__)
+#ifndef CRYPTOPP_DISABLE_ASM
+# if defined(__AVX__)
 	while (count >= 32)
 	{
 		__m256i b = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input));
@@ -146,8 +151,8 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 	}
 	// https://software.intel.com/en-us/articles/avoiding-avx-sse-transition-penalties
 	_mm256_zeroupper();
-#endif
-#if defined(__SSE2__)
+# endif
+# if defined(__SSE2__)
 	while (count >= 16)
 	{
 		__m128i b = _mm_loadu_si128(reinterpret_cast<const __m128i*>(input));
@@ -158,8 +163,8 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 	}
 
 	if (count == 0) return;
-#endif
-#if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
+# endif
+# if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
 	while (count >= 16)
 	{
 		vst1q_u8(output, veorq_u8(vld1q_u8(input), vld1q_u8(mask)));
@@ -167,7 +172,8 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 	}
 
 	if (count == 0) return;
-#endif
+# endif
+#endif  // CRYPTOPP_DISABLE_ASM
 
 #if CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
 	// word64 and stride of 8 slows things down on x86_64.
