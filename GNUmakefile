@@ -1712,7 +1712,7 @@ endif
 
 .PHONY: osx_warning
 osx_warning:
-ifeq ($(IS_DARWIN),1)
+ifeq ($(IS_DARWIN)$(CLANG_COMPILER),11)
   ifeq ($(findstring -stdlib=libc++,$(CRYPTOPP_CXXFLAGS)$(CXXFLAGS)),)
 	$(info )
 	$(info INFO: Crypto++ was built without LLVM's libc++. If you are using the library)
