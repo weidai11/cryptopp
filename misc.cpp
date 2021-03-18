@@ -19,6 +19,14 @@
 #include "integer.h"
 #include "secblock.h"
 
+// Hack for OpenBSD and GCC 4.2.1. I believe they are stuck at 4.2.1 due to GPLv3.
+#if defined(__OpenBSD__)
+# if defined (CRYPTOPP_GCC_VERSION) && (CRYPTOPP_GCC_VERSION < 43000)
+#  undef  CRYPTOPP_DISABLE_ASM
+#  define CRYPTOPP_DISABLE_ASM 1
+# endif
+#endif
+
 #ifndef CRYPTOPP_DISABLE_ASM
 # if defined(__AVX__) || defined(__SSE2__)
 #  include <immintrin.h>
