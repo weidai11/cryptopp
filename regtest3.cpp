@@ -59,6 +59,7 @@ void RegisterFactories4()
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SHACAL2> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<ARIA> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<HIGHT> >();
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<HIGHT> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<HIGHT> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Camellia> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<TEA> >();
