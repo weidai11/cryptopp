@@ -116,7 +116,7 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 
 	if (!length) {
 		if (copyOut)
-			std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength-length);
+			std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength);
 		return;
 	}
 
@@ -259,7 +259,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 
 	if (!length) {
 		if (copyOut)
-			std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength-length);
+			std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength);
 		return;
 	}
 
