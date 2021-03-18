@@ -147,18 +147,18 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 
 	while (!s1.empty())
 	{
-		while (s1[0] == ' ')
-		{
-			s1 = s1.substr(1);
-			if (s1.empty())
-				goto end;	// avoid invalid read if s1 is empty
-		}
+		std::string::size_type pos = s1.find_first_not_of(" ");
+		if (pos != std::string::npos)
+			s1.erase(0, pos);
+
+		if (s1.empty())
+			goto end;
 
 		int repeat = 1;
 		if (s1[0] == 'r')
 		{
 			s1 = s1.erase(0, 1);
-			repeat = ::atoi(s1.c_str());
+			repeat = std::atoi(s1.c_str());
 			s1 = s1.substr(s1.find(' ')+1);
 		}
 
