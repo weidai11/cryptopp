@@ -1058,13 +1058,14 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 
 		if (name == "Test" && (s_thorough || v["SlowTest"] != "1"))
 		{
-			bool failed = true;
+			bool failed = false;
 			std::string algType = GetRequiredDatum(v, "AlgorithmType");
+			std::string algName = GetRequiredDatum(v, "Name");
 
-			if (lastAlgName != GetRequiredDatum(v, "Name"))
+			if (lastAlgName != algName)
 			{
-				lastAlgName = GetRequiredDatum(v, "Name");
-				std::cout << "\nTesting " << algType.c_str() << " algorithm " << lastAlgName.c_str() << ".\n";
+				std::cout << "\nTesting " << algType << " algorithm " << algName << ".\n";
+				lastAlgName = algName;
 			}
 
 			try
@@ -1090,18 +1091,20 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 					TestDataFile(GetRequiredDatum(v, "Test"), g_nullNameValuePairs, totalTests, failedTests);
 				else
 					SignalUnknownAlgorithmError(algType);
-				failed = false;
 			}
 			catch (const TestFailure &)
 			{
+				failed = true;
 				std::cout << "\nTest FAILED.\n";
 			}
-			catch (const CryptoPP::Exception &e)
+			catch (const Exception &e)
 			{
+				failed = true;
 				std::cout << "\nCryptoPP::Exception caught: " << e.what() << std::endl;
 			}
 			catch (const std::exception &e)
 			{
+				failed = true;
 				std::cout << "\nstd::exception caught: " << e.what() << std::endl;
 			}
 
