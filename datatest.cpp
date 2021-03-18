@@ -484,7 +484,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it in test vectors.
 		// 0 is NoPadding, 1 is ZerosPadding, 2 is PkcsPadding, 3 is OneAndZerosPadding, etc
 		// Note: The machinery is wired such that paddingScheme is effectively latched. An
-		//   old paddingScheme may be unintentionally used in a subsequent test.
+		// old paddingScheme may be unintentionally used in a subsequent test.
 		int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
 
 		ConstByteArrayParameter iv;
@@ -623,6 +623,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 	}
 }
 
+// TODO: figure out what is going on with chacha_tls.
 void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overrideParameters)
 {
 	std::string name = GetRequiredDatum(v, "Name");
@@ -662,7 +663,7 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 	// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it in test vectors.
 	// 0 is NoPadding, 1 is ZerosPadding, 2 is PkcsPadding, 3 is OneAndZerosPadding, etc
 	// Note: The machinery is wired such that paddingScheme is effectively latched. An
-	//   old paddingScheme may be unintentionally used in a subsequent test.
+	// old paddingScheme may be unintentionally used in a subsequent test.
 	int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
 
 	ConstByteArrayParameter iv;
@@ -708,11 +709,13 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 
 	//StringStore pstore(plaintext);
 	//RandomizedTransfer(pstore, encFilter, true);
-	// encFilter.MessageEnd();
+	//encFilter.MessageEnd();
 
 	std::string testFilename = "test.dat";
 	StringSource(plaintext, true, new FileSink(testFilename.c_str()));
-	FileSource(testFilename.c_str(), true, new Redirector(encFilter));
+
+	FileSource pstore(testFilename.c_str(), true);
+	RandomizedTransfer(pstore, encFilter, true);
 	encFilter.MessageEnd();
 
 	ciphertext = GetDecodedDatum(v, "Ciphertext");
