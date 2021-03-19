@@ -935,6 +935,10 @@ bool TestDARN()
 		DARN& darn = dynamic_cast<DARN&>(*rng.get());
 		pass = Test_RandomNumberGenerator(darn) && pass;
 
+		// DARN does not accept entropy. However, the contract is no throw
+		const byte entropy[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+		(void)darn.IncorporateEntropy(entropy, sizeof(entropy));
+
 		MaurerRandomnessTest maurer;
 		const unsigned int SIZE = 1024*10;
 		RandomNumberSource(darn, SIZE, true, new Redirector(maurer));
