@@ -579,12 +579,6 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 			(void)decryptor->DefaultKeyLength();
 		}
 
-		// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it in test vectors.
-		// 0 is NoPadding, 1 is ZerosPadding, 2 is PkcsPadding, 3 is OneAndZerosPadding, etc
-		// Note: The machinery is wired such that paddingScheme is effectively latched. An
-		// old paddingScheme may be unintentionally used in a subsequent test.
-		int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
-
 		ConstByteArrayParameter iv;
 		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize())
 			SignalTestFailure();
@@ -615,6 +609,13 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 				decryptor->Seek(seek);
 			}
 		}
+
+		// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it
+		// in test vectors. 0 is NoPadding, 1 is ZerosPadding, 2 is PkcsPadding,
+		// 3 is OneAndZerosPadding, etc. Note: The machinery is wired such that
+		// paddingScheme is effectively latched. An old paddingScheme may be
+		// unintentionally used in a subsequent test.
+		int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
 
 		// If a per-test vector parameter was set for a test, like BlockPadding,
 		// BlockSize or Tweak, then it becomes latched in testDataPairs. The old
@@ -761,12 +762,6 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 		(void)decryptor->DefaultKeyLength();
 	}
 
-	// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it in test vectors.
-	// 0 is NoPadding, 1 is ZerosPadding, 2 is PkcsPadding, 3 is OneAndZerosPadding, etc
-	// Note: The machinery is wired such that paddingScheme is effectively latched. An
-	// old paddingScheme may be unintentionally used in a subsequent test.
-	int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
-
 	ConstByteArrayParameter iv;
 	if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize())
 		SignalTestFailure();
@@ -789,6 +784,13 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 			decryptor->Seek(seek);
 		}
 	}
+
+	// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it
+	// in test vectors. 0 is NoPadding, 1 is ZerosPadding, 2 is PkcsPadding,
+	// 3 is OneAndZerosPadding, etc. Note: The machinery is wired such that
+	// paddingScheme is effectively latched. An old paddingScheme may be
+	// unintentionally used in a subsequent test.
+	int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
 
 	// If a per-test vector parameter was set for a test, like BlockPadding,
 	// BlockSize or Tweak, then it becomes latched in testDataPairs. The old
