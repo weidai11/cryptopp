@@ -73,8 +73,8 @@ bool Readline(std::istream& stream, std::string& line)
 		}
 
 		// Grow by 1.5x as needed
-		if (line.capacity() == 0)
-			line.reserve(line.size()*3/2);
+		//if (line.capacity() == 0)
+		//	line.reserve(line.size()*3/2);
 
 		line.push_back(static_cast<char>(ch));
 	}
