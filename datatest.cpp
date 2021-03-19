@@ -43,6 +43,7 @@ NAMESPACE_BEGIN(Test)
 
 typedef std::map<std::string, std::string> TestData;
 static bool s_thorough = false;
+const std::string testDataFilename = "cryptest.dat";
 
 class TestFailure : public Exception
 {
@@ -404,14 +405,72 @@ void TestSignatureScheme(TestData &v, unsigned int &totalTests)
 
 		if (GetDecodedDatum(v, "Signature") != signature)
 			SignalTestFailure();
-
-		return;
 	}
 	else
 	{
 		std::string msg("Unknown signature test \"" + test + "\"");
 		SignalTestError(msg.c_str());
 		CRYPTOPP_ASSERT(false);
+	}
+}
+
+// Subset of TestSignatureScheme. We picked the tests that have data that is easy to write to a file.
+void TestSignatureSchemeWithFileSource(TestData &v, unsigned int &totalTests)
+{
+	std::string name = GetRequiredDatum(v, "Name");
+	std::string test = GetRequiredDatum(v, "Test");
+
+	if (test != "Sign" && test != "DeterministicSign") { return; }
+
+	member_ptr<PK_Signer> signer(ObjectFactoryRegistry<PK_Signer>::Registry().CreateObject(name.c_str()));
+	member_ptr<PK_Verifier> verifier(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
+
+	// Code coverage
+	(void)signer->AlgorithmName();
+	(void)verifier->AlgorithmName();
+	(void)signer->AlgorithmProvider();
+	(void)verifier->AlgorithmProvider();
+
+	TestDataNameValuePairs pairs(v);
+
+	std::string keyFormat = GetRequiredDatum(v, "KeyFormat");
+
+	totalTests++;  // key format
+	if (keyFormat == "DER")
+		verifier->AccessMaterial().Load(StringStore(GetDecodedDatum(v, "PublicKey")).Ref());
+	else if (keyFormat == "Component")
+		verifier->AccessMaterial().AssignFrom(pairs);
+
+	totalTests++; // key format
+	if (keyFormat == "DER")
+		signer->AccessMaterial().Load(StringStore(GetDecodedDatum(v, "PrivateKey")).Ref());
+	else if (keyFormat == "Component")
+		signer->AccessMaterial().AssignFrom(pairs);
+
+	if (test == "Sign")
+	{
+		totalTests++;
+
+		SignerFilter f(Test::GlobalRNG(), *signer, new HexEncoder(new FileSink(std::cout)));
+		StringSource ss(GetDecodedDatum(v, "Message"), true, new FileSink(testDataFilename.c_str()));
+		FileSource fs(testDataFilename.c_str(), true, new Redirector(f));
+		SignalTestFailure();
+	}
+	else if (test == "DeterministicSign")
+	{
+		totalTests++;
+
+		// This test is specialized for RFC 6979. The RFC is a drop-in replacement
+		// for DSA and ECDSA, and access to the seed or secret is not needed. If
+		// additional deterministic signatures are added, then the test harness will
+		// likely need to be extended.
+		std::string signature;
+		SignerFilter f(Test::GlobalRNG(), *signer, new StringSink(signature));
+		StringSource ss(GetDecodedDatum(v, "Message"), true, new FileSink(testDataFilename.c_str()));
+		FileSource fs(testDataFilename.c_str(), true, new Redirector(f));
+
+		if (GetDecodedDatum(v, "Signature") != signature)
+			SignalTestFailure();
 	}
 }
 
@@ -649,7 +708,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 	}
 }
 
-// TODO: figure out what is going on with chacha_tls.
+// Subset of TestSymmetricCipher. We picked the tests that have data that is easy to write to a file.
 void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overrideParameters, unsigned int &totalTests)
 {
 	std::string name = GetRequiredDatum(v, "Name");
@@ -657,6 +716,7 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 
 	// Limit FileSource tests to Encrypt only.
 	if (test != "Encrypt") { return; }
+
 	totalTests++;
 
 	std::string key = GetDecodedDatum(v, "Key");
@@ -738,10 +798,8 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 	//RandomizedTransfer(pstore, encFilter, true);
 	//encFilter.MessageEnd();
 
-	std::string testFilename = "cryptest.dat";
-	StringSource(plaintext, true, new FileSink(testFilename.c_str()));
-
-	FileSource pstore(testFilename.c_str(), true);
+	StringSource ss(plaintext, true, new FileSink(testDataFilename.c_str()));
+	FileSource pstore(testDataFilename.c_str(), true);
 	RandomizedTransfer(pstore, encFilter, true);
 	encFilter.MessageEnd();
 
@@ -1107,7 +1165,11 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 			try
 			{
 				if (algType == "Signature")
+				{
+					TestData vv(v);  // Used with TestSignatureSchemeWithFileSource
 					TestSignatureScheme(v, totalTests);
+					TestSignatureSchemeWithFileSource(vv, totalTests);
+				}
 				else if (algType == "SymmetricCipher")
 				{
 					TestData vv(v);  // Used with TestSymmetricCipherWithFileSource
