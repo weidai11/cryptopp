@@ -711,7 +711,7 @@ bool TestMersenne()
 	bool pass = true;
 
 	try {rng.reset(new MT19937ar);}
-	catch (const PadlockRNG_Err &) {}
+	catch (const Exception &) {}
 
 	if(rng.get())
 	{
@@ -720,7 +720,7 @@ bool TestMersenne()
 
 	// Reset state
 	try {rng.reset(new MT19937ar);}
-	catch (const PadlockRNG_Err &) {}
+	catch (const Exception &) {}
 
 	if(rng.get())
 	{
@@ -760,6 +760,10 @@ bool TestPadlockRNG()
 	{
 		PadlockRNG& padlock = dynamic_cast<PadlockRNG&>(*rng.get());
 		pass = Test_RandomNumberGenerator(padlock);
+
+		// PadlockRNG does not accept entropy. However, the contract is no throw
+		const byte entropy[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+		(void)padlock.IncorporateEntropy(entropy, sizeof(entropy));
 
 		SecByteBlock zero(16), one(16), t(16);
 		std::memset(zero, 0x00, zero.size());
@@ -839,6 +843,10 @@ bool TestRDRAND()
 		RDRAND& rdrand = dynamic_cast<RDRAND&>(*rng.get());
 		pass = Test_RandomNumberGenerator(rdrand) && pass;
 
+		// RDRAND does not accept entropy. However, the contract is no throw
+		const byte entropy[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+		(void)rdrand.IncorporateEntropy(entropy, sizeof(entropy));
+
 		MaurerRandomnessTest maurer;
 		const unsigned int SIZE = 1024*10;
 		RandomNumberSource(rdrand, SIZE, true, new Redirector(maurer));
@@ -879,6 +887,10 @@ bool TestRDSEED()
 	{
 		RDSEED& rdseed = dynamic_cast<RDSEED&>(*rng.get());
 		pass = Test_RandomNumberGenerator(rdseed) && pass;
+
+		// RDSEED does not accept entropy. However, the contract is no throw
+		const byte entropy[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+		(void)rdseed.IncorporateEntropy(entropy, sizeof(entropy));
 
 		MaurerRandomnessTest maurer;
 		const unsigned int SIZE = 1024*10;
