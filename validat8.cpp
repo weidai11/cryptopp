@@ -41,6 +41,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
+ANONYMOUS_NAMESPACE_BEGIN
+
 inline byte* C2B(char* ptr) {
     return reinterpret_cast<byte*>(ptr);
 }
@@ -111,6 +113,8 @@ inline bool operator==(const Rabin::PublicKey& lhs, const Rabin::PublicKey& rhs)
 inline bool operator!=(const Rabin::PublicKey& lhs, const Rabin::PublicKey& rhs) {
 	return !operator==(lhs, rhs);
 }
+
+ANONYMOUS_NAMESPACE_END
 
 bool ValidateRSA_Encrypt()
 {
