@@ -415,6 +415,7 @@ void TestSignatureScheme(TestData &v, unsigned int &totalTests)
 }
 
 // Subset of TestSignatureScheme. We picked the tests that have data that is easy to write to a file.
+// Also see https://github.com/weidai11/cryptopp/issues/1010, where HIGHT broke when using FileSource.
 void TestSignatureSchemeWithFileSource(TestData &v, unsigned int &totalTests)
 {
 	std::string name = GetRequiredDatum(v, "Name");
@@ -709,6 +710,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 }
 
 // Subset of TestSymmetricCipher. We picked the tests that have data that is easy to write to a file.
+// Also see https://github.com/weidai11/cryptopp/issues/1010, where HIGHT broke when using FileSource.
 void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overrideParameters, unsigned int &totalTests)
 {
 	std::string name = GetRequiredDatum(v, "Name");
