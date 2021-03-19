@@ -59,6 +59,15 @@ inline bool operator!=(const RSA::PrivateKey& lhs, const RSA::PrivateKey& rhs) {
 	return !operator==(lhs, rhs);
 }
 
+inline bool operator==(const RSA::PublicKey& lhs, const RSA::PublicKey& rhs) {
+	return lhs.GetModulus() == rhs.GetModulus() &&
+		lhs.GetPublicExponent() == rhs.GetPublicExponent();
+}
+
+inline bool operator!=(const RSA::PublicKey& lhs, const RSA::PublicKey& rhs) {
+	return !operator==(lhs, rhs);
+}
+
 inline bool operator==(const LUC::PrivateKey& lhs, const LUC::PrivateKey& rhs) {
 	return lhs.GetModulus() == rhs.GetModulus() &&
 		lhs.GetPublicExponent() == rhs.GetPublicExponent() &&
@@ -68,6 +77,15 @@ inline bool operator==(const LUC::PrivateKey& lhs, const LUC::PrivateKey& rhs) {
 }
 
 inline bool operator!=(const LUC::PrivateKey& lhs, const LUC::PrivateKey& rhs) {
+	return !operator==(lhs, rhs);
+}
+
+inline bool operator==(const LUC::PublicKey& lhs, const LUC::PublicKey& rhs) {
+	return lhs.GetModulus() == rhs.GetModulus() &&
+		lhs.GetPublicExponent() == rhs.GetPublicExponent();
+}
+
+inline bool operator!=(const LUC::PublicKey& lhs, const LUC::PublicKey& rhs) {
 	return !operator==(lhs, rhs);
 }
 
@@ -118,6 +136,15 @@ bool ValidateRSA_Encrypt()
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
 		std::cout << "RSA::PrivateKey initialization\n";
+
+		RSA::PublicKey rsaPub2;
+		rsaPub2.Initialize(n, e);
+
+		fail = (rsaPub != rsaPub2);
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "RSA::PublicKey initialization\n";
 	}
 	{
 		FileSource keys(DataDir("TestData/rsa1024.dat").c_str(), true, new HexDecoder);
@@ -209,6 +236,15 @@ bool ValidateLUC_Encrypt()
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
 		std::cout << "LUC::PrivateKey initialization\n";
+
+		LUC::PublicKey lucPub2;
+		lucPub2.Initialize(n, e);
+
+		fail = (lucPub != lucPub2);
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "LUC::PublicKey initialization\n";
 	}
 	{
 		FileSource keys(DataDir("TestData/luc1024.dat").c_str(), true, new HexDecoder);
@@ -225,6 +261,23 @@ bool ValidateLUC_Encrypt()
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
 		std::cout << "LUC::PrivateKey encoding and decoding\n";
+	}
+	{
+		FileSource keys(DataDir("TestData/rabi1024.dat").c_str(), true, new HexDecoder);
+		LUC::PrivateKey lucPriv; lucPriv.BERDecode(keys);
+		LUC::PublicKey lucPub(lucPriv);
+
+		ByteQueue q;
+		lucPub.DEREncode(q);
+
+		LUC::PublicKey lucPub2;
+		lucPub2.BERDecode(q);
+
+		fail = (lucPub != lucPub2);
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "LUC::PublicKey encoding and decoding\n";
 	}
 #endif
 
