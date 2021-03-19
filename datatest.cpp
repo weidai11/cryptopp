@@ -356,14 +356,22 @@ void TestSignatureScheme(TestData &v, unsigned int &totalTests)
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
 
-	member_ptr<PK_Signer> signer(ObjectFactoryRegistry<PK_Signer>::Registry().CreateObject(name.c_str()));
-	member_ptr<PK_Verifier> verifier(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
+	static member_ptr<PK_Signer> signer;
+	static member_ptr<PK_Verifier> verifier;
+	static std::string lastName;
 
-	// Code coverage
-	(void)signer->AlgorithmName();
-	(void)verifier->AlgorithmName();
-	(void)signer->AlgorithmProvider();
-	(void)verifier->AlgorithmProvider();
+	if (name != lastName)
+	{
+		signer.reset(ObjectFactoryRegistry<PK_Signer>::Registry().CreateObject(name.c_str()));
+		verifier.reset(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
+		lastName = name;
+
+		// Code coverage
+		(void)signer->AlgorithmName();
+		(void)verifier->AlgorithmName();
+		(void)signer->AlgorithmProvider();
+		(void)verifier->AlgorithmProvider();
+	}
 
 	TestDataNameValuePairs pairs(v);
 
@@ -462,14 +470,22 @@ void TestSignatureSchemeWithFileSource(TestData &v, unsigned int &totalTests)
 
 	if (test != "Sign" && test != "DeterministicSign") { return; }
 
-	member_ptr<PK_Signer> signer(ObjectFactoryRegistry<PK_Signer>::Registry().CreateObject(name.c_str()));
-	member_ptr<PK_Verifier> verifier(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
+	static member_ptr<PK_Signer> signer;
+	static member_ptr<PK_Verifier> verifier;
+	static std::string lastName;
 
-	// Code coverage
-	(void)signer->AlgorithmName();
-	(void)verifier->AlgorithmName();
-	(void)signer->AlgorithmProvider();
-	(void)verifier->AlgorithmProvider();
+	if (name != lastName)
+	{
+		signer.reset(ObjectFactoryRegistry<PK_Signer>::Registry().CreateObject(name.c_str()));
+		verifier.reset(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
+		name = lastName;
+
+		// Code coverage
+		(void)signer->AlgorithmName();
+		(void)verifier->AlgorithmName();
+		(void)signer->AlgorithmProvider();
+		(void)verifier->AlgorithmProvider();
+	}
 
 	TestDataNameValuePairs pairs(v);
 
@@ -901,35 +917,43 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 	{
 		totalTests++;
 
-		member_ptr<AuthenticatedSymmetricCipher> encryptor, decryptor;
-		encryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
-		decryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
+		static member_ptr<AuthenticatedSymmetricCipher> encryptor;
+		static member_ptr<AuthenticatedSymmetricCipher> decryptor;
+		static std::string lastName;
+
+		if (name != lastName)
+		{
+			encryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
+			decryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
+			name = lastName;
+
+			// Code coverage
+			(void)encryptor->AlgorithmName();
+			(void)decryptor->AlgorithmName();
+			(void)encryptor->AlgorithmProvider();
+			(void)decryptor->AlgorithmProvider();
+			(void)encryptor->MinKeyLength();
+			(void)decryptor->MinKeyLength();
+			(void)encryptor->MaxKeyLength();
+			(void)decryptor->MaxKeyLength();
+			(void)encryptor->DefaultKeyLength();
+			(void)decryptor->DefaultKeyLength();
+			(void)encryptor->IsRandomAccess();
+			(void)decryptor->IsRandomAccess();
+			(void)encryptor->IsSelfInverting();
+			(void)decryptor->IsSelfInverting();
+			(void)encryptor->MaxHeaderLength();
+			(void)decryptor->MaxHeaderLength();
+			(void)encryptor->MaxMessageLength();
+			(void)decryptor->MaxMessageLength();
+			(void)encryptor->MaxFooterLength();
+			(void)decryptor->MaxFooterLength();
+			(void)encryptor->NeedsPrespecifiedDataLengths();
+			(void)decryptor->NeedsPrespecifiedDataLengths();
+		}
+
 		encryptor->SetKey(ConstBytePtr(key), BytePtrSize(key), pairs);
 		decryptor->SetKey(ConstBytePtr(key), BytePtrSize(key), pairs);
-
-		// Code coverage
-		(void)encryptor->AlgorithmName();
-		(void)decryptor->AlgorithmName();
-		(void)encryptor->AlgorithmProvider();
-		(void)decryptor->AlgorithmProvider();
-		(void)encryptor->MinKeyLength();
-		(void)decryptor->MinKeyLength();
-		(void)encryptor->MaxKeyLength();
-		(void)decryptor->MaxKeyLength();
-		(void)encryptor->DefaultKeyLength();
-		(void)decryptor->DefaultKeyLength();
-		(void)encryptor->IsRandomAccess();
-		(void)decryptor->IsRandomAccess();
-		(void)encryptor->IsSelfInverting();
-		(void)decryptor->IsSelfInverting();
-		(void)encryptor->MaxHeaderLength();
-		(void)decryptor->MaxHeaderLength();
-		(void)encryptor->MaxMessageLength();
-		(void)decryptor->MaxMessageLength();
-		(void)encryptor->MaxFooterLength();
-		(void)decryptor->MaxFooterLength();
-		(void)encryptor->NeedsPrespecifiedDataLengths();
-		(void)decryptor->NeedsPrespecifiedDataLengths();
 
 		std::string encrypted, decrypted;
 		AuthenticatedEncryptionFilter ef(*encryptor, new StringSink(encrypted));
@@ -1070,14 +1094,20 @@ void TestKeyDerivationFunction(TestData &v, unsigned int &totalTests)
 
 	TestDataNameValuePairs pairs(v);
 
-	member_ptr<KeyDerivationFunction> kdf;
-	kdf.reset(ObjectFactoryRegistry<KeyDerivationFunction>::Registry().CreateObject(name.c_str()));
+	static member_ptr<KeyDerivationFunction> kdf;
+	static std::string lastName;
 
-	// Code coverage
-	(void)kdf->AlgorithmName();
-	(void)kdf->AlgorithmProvider();
-	(void)kdf->MinDerivedKeyLength();
-	(void)kdf->MaxDerivedKeyLength();
+	if (name != lastName)
+	{
+		kdf.reset(ObjectFactoryRegistry<KeyDerivationFunction>::Registry().CreateObject(name.c_str()));
+		name = lastName;
+
+		// Code coverage
+		(void)kdf->AlgorithmName();
+		(void)kdf->AlgorithmProvider();
+		(void)kdf->MinDerivedKeyLength();
+		(void)kdf->MaxDerivedKeyLength();
+	}
 
 	std::string calculated; calculated.resize(expected.size());
 	kdf->DeriveKey(BytePtr(calculated), BytePtrSize(calculated), BytePtr(secret), BytePtrSize(secret), pairs);
