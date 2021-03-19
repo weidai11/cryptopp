@@ -49,11 +49,70 @@ inline const byte* C2B(const char* ptr) {
     return reinterpret_cast<const byte*>(ptr);
 }
 
+inline bool operator==(const RSA::PrivateKey& lhs, const RSA::PrivateKey& rhs) {
+	return lhs.GetModulus() == rhs.GetModulus() &&
+		lhs.GetPublicExponent() == rhs.GetPublicExponent() &&
+		lhs.GetPrivateExponent() == rhs.GetPrivateExponent();
+}
+
+inline bool operator!=(const RSA::PrivateKey& lhs, const RSA::PrivateKey& rhs) {
+	return !operator==(lhs, rhs);
+}
+
+inline bool operator==(const LUC::PrivateKey& lhs, const LUC::PrivateKey& rhs) {
+	return lhs.GetModulus() == rhs.GetModulus() &&
+		lhs.GetPublicExponent() == rhs.GetPublicExponent() &&
+		lhs.GetPrime1() == rhs.GetPrime1() &&
+		lhs.GetPrime2() == rhs.GetPrime2() &&
+		lhs.GetMultiplicativeInverseOfPrime2ModPrime1() == rhs.GetMultiplicativeInverseOfPrime2ModPrime1();
+}
+
+inline bool operator!=(const LUC::PrivateKey& lhs, const LUC::PrivateKey& rhs) {
+	return !operator==(lhs, rhs);
+}
+
 bool ValidateRSA_Encrypt()
 {
 	// Must be large enough for RSA-3072 to test SHA3_256
 	byte out[256], outPlain[128];
 	bool pass = true, fail;
+
+#ifdef CRYPTOPP_COVERAGE
+	{
+		FileSource keys(DataDir("TestData/rsa1024.dat").c_str(), true, new HexDecoder);
+		RSA::PrivateKey rsaPriv; rsaPriv.Load(keys);
+		RSA::PublicKey rsaPub(rsaPriv);
+
+		const Integer& n = rsaPriv.GetModulus();
+		const Integer& e = rsaPriv.GetPublicExponent();
+		const Integer& d = rsaPriv.GetPrivateExponent();
+
+		RSA::PrivateKey rsaPriv2;
+		rsaPriv2.Initialize(n, e, d);
+
+		fail = (rsaPriv != rsaPriv2);
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "RSA::PrivateKey initialization\n";
+	}
+	{
+		FileSource keys(DataDir("TestData/rsa1024.dat").c_str(), true, new HexDecoder);
+		RSA::PrivateKey rsaPriv; rsaPriv.Load(keys);
+
+		ByteQueue q;
+		rsaPriv.DEREncodePrivateKey(q);
+
+		RSA::PrivateKey rsaPriv2;
+		rsaPriv2.BERDecodePrivateKey(q, true, q.MaxRetrievable());
+
+		fail = (rsaPriv != rsaPriv2);
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "RSA::PrivateKey encoding and decoding\n";
+	}
+#endif
 
 	{
 		FileSource keys(DataDir("TestData/rsa1024.dat").c_str(), true, new HexDecoder);
@@ -69,14 +128,14 @@ bool ValidateRSA_Encrypt()
 		pass = CryptoSystemValidate(rsaPriv, rsaPub) && pass;
 	}
 	{
-		byte *plain = (byte *)
+		const byte plain[] =
 			"\x54\x85\x9b\x34\x2c\x49\xea\x2a";
-		static const byte encrypted[] =
+		const byte encrypted[] =
 			"\x14\xbd\xdd\x28\xc9\x83\x35\x19\x23\x80\xe8\xe5\x49\xb1\x58\x2a"
 			"\x8b\x40\xb4\x48\x6d\x03\xa6\xa5\x31\x1f\x1f\xd5\xf0\xa1\x80\xe4"
 			"\x17\x53\x03\x29\xa9\x34\x90\x74\xb1\x52\x13\x54\x29\x08\x24\x52"
 			"\x62\x51";
-		static const byte oaepSeed[] =
+		const byte oaepSeed[] =
 			"\xaa\xfd\x12\xf6\x59\xca\xe6\x34\x89\xb4\x79\xe5\x07\x6d\xde\xc2"
 			"\xf0\x6c\xb5\x8f";
 		ByteQueue bq;
@@ -105,10 +164,53 @@ bool ValidateRSA_Encrypt()
 
 bool ValidateLUC_Encrypt()
 {
+	bool pass = true, fail;
+
+#ifdef CRYPTOPP_COVERAGE
+	{
+		FileSource keys(DataDir("TestData/luc1024.dat").c_str(), true, new HexDecoder);
+		LUC::PrivateKey lucPriv; lucPriv.BERDecode(keys);
+		LUC::PublicKey lucPub(lucPriv);
+
+		const Integer& n = lucPriv.GetModulus();
+		const Integer& e = lucPriv.GetPublicExponent();
+		const Integer& p = lucPriv.GetPrime1();
+		const Integer& q = lucPriv.GetPrime2();
+		const Integer& u = lucPriv.GetMultiplicativeInverseOfPrime2ModPrime1();
+
+		LUC::PrivateKey lucPriv2;
+		lucPriv2.Initialize(n, e, p, q, u);
+
+		fail = (lucPriv != lucPriv2);
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "LUC::PrivateKey initialization\n";
+	}
+	{
+		FileSource keys(DataDir("TestData/luc1024.dat").c_str(), true, new HexDecoder);
+		LUC::PrivateKey lucPriv; lucPriv.BERDecode(keys);
+
+		ByteQueue q;
+		lucPriv.DEREncode(q);
+
+		LUC::PrivateKey lucPriv2;
+		lucPriv2.BERDecode(q);
+
+		fail = (lucPriv != lucPriv2);
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "LUC::PrivateKey encoding and decoding\n";
+	}
+#endif
+
 	FileSource f(DataDir("TestData/luc1024.dat").c_str(), true, new HexDecoder);
 	LUCES_OAEP_SHA_Decryptor priv(GlobalRNG(), 512);
 	LUCES_OAEP_SHA_Encryptor pub(priv);
-	return CryptoSystemValidate(priv, pub);
+	pass = pass && CryptoSystemValidate(priv, pub);
+
+	return pass;
 }
 
 bool ValidateLUC_DL_Encrypt()
