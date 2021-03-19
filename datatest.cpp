@@ -1164,6 +1164,8 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 				lastAlgName = algName;
 			}
 
+			unsigned int currentTests = totalTests;
+
 			try
 			{
 				if (algType == "Signature")
@@ -1211,11 +1213,20 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 
 			if (failed)
 			{
-				std::cout << "Skipping to next test.\n";
+				std::cout << "Skipping to next test." << std::endl;
 				failedTests++;
 			}
 			else
-				std::cout << "." << std::flush;
+			{
+				unsigned int deltaTests = totalTests-currentTests;
+				if (deltaTests)
+				{
+					std::string progress(deltaTests, '.');
+					std::cout << progress;
+					if (currentTests % 8 == 0)
+						std::cout << std::flush;
+				}
+			}
 		}
 	}
 }
