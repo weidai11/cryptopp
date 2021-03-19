@@ -66,7 +66,6 @@ bool Readline(std::istream& stream, std::string& line)
 
 			break;
 		}
-
 		else if (ch == '\n')
 		{
 			break;
