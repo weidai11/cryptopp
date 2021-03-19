@@ -43,17 +43,10 @@ NAMESPACE_BEGIN(Test)
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-typedef std::map<std::string, std::string> TestData;
 bool s_thorough = false;
-const std::string testDataFilename = "cryptest.dat";
-
-class TestFailure : public Exception
-{
-public:
-	TestFailure() : Exception(OTHER_ERROR, "Validation test failed") {}
-};
-
+typedef std::map<std::string, std::string> TestData;
 const TestData *s_currentTestData = NULLPTR;
+const std::string testDataFilename = "cryptest.dat";
 
 // Handles CR, LF, and CRLF properly
 bool Readline(std::istream& stream, std::string& line)
@@ -118,6 +111,12 @@ std::string TrimComment(const std::string& str)
 	else
 		return TrimSpace(str);
 }
+
+class TestFailure : public Exception
+{
+public:
+	TestFailure() : Exception(OTHER_ERROR, "Validation test failed") {}
+};
 
 void OutputTestData(const TestData &v)
 {
