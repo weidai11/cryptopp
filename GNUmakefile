@@ -1312,7 +1312,8 @@ android-clean:
 
 .PHONY: distclean
 distclean: clean autotools-clean cmake-clean android-clean
-	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps cryptest.info benchmarks.html cryptest.txt
+	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt
+	-$(RM) cryptest_debug.info cryptest_noasm.info cryptest_release.info cryptest.info
 	@-$(RM) cryptest-*.txt cryptopp.tgz libcryptopp.pc *.o *.bc *.ii *~
 	@-$(RM) -r cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
 	@-$(RM) -r $(LIBOBJS:.o=.obj) $(TESTOBJS:.o=.obj)

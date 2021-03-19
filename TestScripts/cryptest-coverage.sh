@@ -22,20 +22,22 @@ make clean > /dev/null
 CXXFLAGS="${DEBUG_CXXFLAGS}" make -j "${MAKE_JOBS}"
 ./cryptest.exe v
 ./cryptest.exe tv all
-lcov --base-directory . --directory . -c -o cryptest.info
+lcov --base-directory . --directory . -c -o cryptest_debug.info
 
 make clean > /dev/null
 CXXFLAGS="${NOASM_CXXFLAGS}" make -j "${MAKE_JOBS}"
 ./cryptest.exe v
 ./cryptest.exe tv all
-lcov --base-directory . --directory . -c -o cryptest.info
+lcov --base-directory . --directory . -c -o cryptest_noasm.info
 
 make clean > /dev/null
 CXXFLAGS="${RELEASE_CXXFLAGS}" make -j "${MAKE_JOBS}"
 ./cryptest.exe v
 ./cryptest.exe tv all
 ./cryptest.exe b 0.5 2.0
-lcov --base-directory . --directory . -c -o cryptest.info
+lcov --base-directory . --directory . -c -o cryptest_release.info
+
+lcov --add-tracefile cryptest_debug.info --add-tracefile cryptest_noasm.info --add-tracefile cryptest_release.info -o cryptest.info
 
 lcov --remove cryptest.info "adhoc.*" -o cryptest.info
 lcov --remove cryptest.info "fips140.*" -o cryptest.info
