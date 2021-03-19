@@ -865,6 +865,26 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 		// Code coverage
 		(void)encryptor->AlgorithmName();
 		(void)decryptor->AlgorithmName();
+		(void)encryptor->AlgorithmProvider();
+		(void)decryptor->AlgorithmProvider();
+		(void)encryptor->MinKeyLength();
+		(void)decryptor->MinKeyLength();
+		(void)encryptor->MaxKeyLength();
+		(void)decryptor->MaxKeyLength();
+		(void)encryptor->DefaultKeyLength();
+		(void)decryptor->DefaultKeyLength();
+		(void)encryptor->IsRandomAccess();
+		(void)decryptor->IsRandomAccess();
+		(void)encryptor->IsSelfInverting();
+		(void)decryptor->IsSelfInverting();
+		(void)encryptor->MaxHeaderLength();
+		(void)decryptor->MaxHeaderLength();
+		(void)encryptor->MaxMessageLength();
+		(void)decryptor->MaxMessageLength();
+		(void)encryptor->MaxFooterLength();
+		(void)decryptor->MaxFooterLength();
+		(void)encryptor->NeedsPrespecifiedDataLengths();
+		(void)decryptor->NeedsPrespecifiedDataLengths();
 
 		std::string encrypted, decrypted;
 		AuthenticatedEncryptionFilter ef(*encryptor, new StringSink(encrypted));
