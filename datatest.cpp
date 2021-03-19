@@ -590,8 +590,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 			if (encrypted != ciphertext)
 			{
 				std::cout << "\nincorrectly encrypted: ";
-				StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
-				xx.Pump(256); xx.Flush(false);
+				StringSource ss(encrypted, false, new HexEncoder(new FileSink(std::cout)));
+				ss.Pump(256); ss.Flush(false);
 				std::cout << "\n";
 				SignalTestFailure();
 			}
@@ -619,8 +619,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 		if (test != "EncryptXorDigest" ? encrypted != ciphertext : xorDigest != ciphertextXorDigest)
 		{
 			std::cout << "\nincorrectly encrypted: ";
-			StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
-			xx.Pump(2048); xx.Flush(false);
+			StringSource ss(encrypted, false, new HexEncoder(new FileSink(std::cout)));
+			ss.Pump(2048); ss.Flush(false);
 			std::cout << "\n";
 			SignalTestFailure();
 		}
@@ -636,8 +636,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 		if (decrypted != plaintext)
 		{
 			std::cout << "\nincorrectly decrypted: ";
-			StringSource xx(decrypted, false, new HexEncoder(new FileSink(std::cout)));
-			xx.Pump(256); xx.Flush(false);
+			StringSource ss(decrypted, false, new HexEncoder(new FileSink(std::cout)));
+			ss.Pump(256); ss.Flush(false);
 			std::cout << "\n";
 			SignalTestFailure();
 		}
@@ -750,8 +750,8 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 	if (encrypted != ciphertext)
 	{
 		std::cout << "\nincorrectly encrypted: ";
-		StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
-		xx.Pump(2048); xx.Flush(false);
+		StringSource ss(encrypted, false, new HexEncoder(new FileSink(std::cout)));
+		ss.Pump(2048); ss.Flush(false);
 		std::cout << "\n";
 		SignalTestFailure();
 	}
@@ -767,8 +767,8 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 	if (decrypted != plaintext)
 	{
 		std::cout << "\nincorrectly decrypted: ";
-		StringSource xx(decrypted, false, new HexEncoder(new FileSink(std::cout)));
-		xx.Pump(256); xx.Flush(false);
+		StringSource ss(decrypted, false, new HexEncoder(new FileSink(std::cout)));
+		ss.Pump(256); ss.Flush(false);
 		std::cout << "\n";
 		SignalTestFailure();
 	}
@@ -834,16 +834,16 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 		if (test == "Encrypt" && encrypted != ciphertext+mac)
 		{
 			std::cout << "\nincorrectly encrypted: ";
-			StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
-			xx.Pump(2048); xx.Flush(false);
+			StringSource ss(encrypted, false, new HexEncoder(new FileSink(std::cout)));
+			ss.Pump(2048); ss.Flush(false);
 			std::cout << "\n";
 			SignalTestFailure();
 		}
 		if (test == "Encrypt" && decrypted != plaintext)
 		{
 			std::cout << "\nincorrectly decrypted: ";
-			StringSource xx(decrypted, false, new HexEncoder(new FileSink(std::cout)));
-			xx.Pump(256); xx.Flush(false);
+			StringSource ss(decrypted, false, new HexEncoder(new FileSink(std::cout)));
+			ss.Pump(256); ss.Flush(false);
 			std::cout << "\n";
 			SignalTestFailure();
 		}
@@ -1110,8 +1110,9 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 					TestSignatureScheme(v, totalTests);
 				else if (algType == "SymmetricCipher")
 				{
+					TestData vv(v);  // Used with TestSymmetricCipherWithFileSource
 					TestSymmetricCipher(v, overrideParameters, totalTests);
-					// TestSymmetricCipherWithFileSource(v, overrideParameters, totalTests);
+					TestSymmetricCipherWithFileSource(vv, overrideParameters, totalTests);
 				}
 				else if (algType == "AuthenticatedSymmetricCipher")
 					TestAuthenticatedSymmetricCipher(v, overrideParameters, totalTests);
