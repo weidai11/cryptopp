@@ -79,8 +79,12 @@ bool Readline(std::istream& stream, std::string& line)
 		line.push_back(static_cast<char>(ch));
 	}
 
+#if defined(CRYPTOPP_CXX11)
+	line.shrink_to_fit();
+#else
 	// Non-binding shrink to fit
 	line.reserve(0);
+#endif
 
 	return !stream.fail();
 }
