@@ -41,8 +41,10 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
+ANONYMOUS_NAMESPACE_BEGIN
+
 typedef std::map<std::string, std::string> TestData;
-static bool s_thorough = false;
+bool s_thorough = false;
 const std::string testDataFilename = "cryptest.dat";
 
 class TestFailure : public Exception
@@ -51,9 +53,9 @@ public:
 	TestFailure() : Exception(OTHER_ERROR, "Validation test failed") {}
 };
 
-static const TestData *s_currentTestData = NULLPTR;
+const TestData *s_currentTestData = NULLPTR;
 
-std::string TrimSpace(std::string str)
+std::string TrimSpace(const std::string& str)
 {
 	if (str.empty()) return "";
 
@@ -69,7 +71,7 @@ std::string TrimSpace(std::string str)
 		return "";
 }
 
-std::string TrimComment(std::string str)
+std::string TrimComment(const std::string& str)
 {
 	if (str.empty()) return "";
 
@@ -81,7 +83,7 @@ std::string TrimComment(std::string str)
 		return TrimSpace(str);
 }
 
-static void OutputTestData(const TestData &v)
+void OutputTestData(const TestData &v)
 {
 	std::cerr << "\n";
 	for (TestData::const_iterator i = v.begin(); i != v.end(); ++i)
@@ -90,19 +92,19 @@ static void OutputTestData(const TestData &v)
 	}
 }
 
-static void SignalTestFailure()
+void SignalTestFailure()
 {
 	OutputTestData(*s_currentTestData);
 	throw TestFailure();
 }
 
-static void SignalUnknownAlgorithmError(const std::string& algType)
+void SignalUnknownAlgorithmError(const std::string& algType)
 {
 	OutputTestData(*s_currentTestData);
 	throw Exception(Exception::OTHER_ERROR, "Unknown algorithm " + algType + " during validation test");
 }
 
-static void SignalTestError(const char* msg = NULLPTR)
+void SignalTestError(const char* msg = NULLPTR)
 {
 	OutputTestData(*s_currentTestData);
 
@@ -480,14 +482,22 @@ void TestAsymmetricCipher(TestData &v, unsigned int &totalTests)
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
 
-	member_ptr<PK_Encryptor> encryptor(ObjectFactoryRegistry<PK_Encryptor>::Registry().CreateObject(name.c_str()));
-	member_ptr<PK_Decryptor> decryptor(ObjectFactoryRegistry<PK_Decryptor>::Registry().CreateObject(name.c_str()));
+	static member_ptr<PK_Encryptor> encryptor;
+	static member_ptr<PK_Decryptor> decryptor;
+	static std::string lastName;
 
-	// Code coverage
-	(void)encryptor->AlgorithmName();
-	(void)decryptor->AlgorithmName();
-	(void)encryptor->AlgorithmProvider();
-	(void)decryptor->AlgorithmProvider();
+	if (name != lastName)
+	{
+		encryptor.reset(ObjectFactoryRegistry<PK_Encryptor>::Registry().CreateObject(name.c_str()));
+		decryptor.reset(ObjectFactoryRegistry<PK_Decryptor>::Registry().CreateObject(name.c_str()));
+		lastName = name;
+
+		// Code coverage
+		(void)encryptor->AlgorithmName();
+		(void)decryptor->AlgorithmName();
+		(void)encryptor->AlgorithmProvider();
+		(void)decryptor->AlgorithmProvider();
+	}
 
 	std::string keyFormat = GetRequiredDatum(v, "KeyFormat");
 
@@ -661,7 +671,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 		}
 
 		StreamTransformationFilter encFilter(*encryptor, new StringSink(encrypted),
-				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
+			static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 
 		StringStore pstore(plaintext);
 		RandomizedTransfer(pstore, encFilter, true);
@@ -689,7 +699,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 
 		std::string decrypted;
 		StreamTransformationFilter decFilter(*decryptor, new StringSink(decrypted),
-				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
+			static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 
 		StringStore cstore(encrypted);
 		RandomizedTransfer(cstore, decFilter, true);
@@ -796,11 +806,7 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 
 	std::string encrypted, ciphertext;
 	StreamTransformationFilter encFilter(*encryptor, new StringSink(encrypted),
-			static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
-
-	//StringStore pstore(plaintext);
-	//RandomizedTransfer(pstore, encFilter, true);
-	//encFilter.MessageEnd();
+		static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 
 	StringSource ss(plaintext, true, new FileSink(testDataFilename.c_str()));
 	FileSource pstore(testDataFilename.c_str(), true);
@@ -820,7 +826,7 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 
 	std::string decrypted;
 	StreamTransformationFilter decFilter(*decryptor, new StringSink(decrypted),
-			static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
+		static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 
 	StringStore cstore(encrypted);
 	RandomizedTransfer(cstore, decFilter, true);
@@ -1266,6 +1272,8 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 		}
 	}
 }
+
+ANONYMOUS_NAMESPACE_END
 
 bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParameters, bool thorough)
 {
