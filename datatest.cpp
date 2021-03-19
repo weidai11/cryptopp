@@ -559,6 +559,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 			(void)decryptor->AlgorithmName();
 			(void)encryptor->AlgorithmProvider();
 			(void)decryptor->AlgorithmProvider();
+			(void)encryptor->IsRandomAccess();
+			(void)decryptor->IsRandomAccess();
 			(void)encryptor->MinKeyLength();
 			(void)decryptor->MinKeyLength();
 			(void)encryptor->MaxKeyLength();
@@ -946,6 +948,9 @@ void TestDigestOrMAC(TestData &v, bool testDigest, unsigned int &totalTests)
 		// Code coverage
 		(void)hash->AlgorithmName();
 		(void)hash->AlgorithmProvider();
+		(void)hash->TagSize();
+		(void)hash->DigestSize();
+		(void)hash->Restart();
 	}
 	else
 	{
@@ -957,6 +962,12 @@ void TestDigestOrMAC(TestData &v, bool testDigest, unsigned int &totalTests)
 		// Code coverage
 		(void)mac->AlgorithmName();
 		(void)mac->AlgorithmProvider();
+		(void)mac->TagSize();
+		(void)mac->DigestSize();
+		(void)mac->Restart();
+		(void)mac->MinKeyLength();
+		(void)mac->MaxKeyLength();
+		(void)mac->DefaultKeyLength();
 	}
 
 	if (test == "Verify" || test == "VerifyTruncated" || test == "NotVerify")
@@ -988,7 +999,6 @@ void TestKeyDerivationFunction(TestData &v, unsigned int &totalTests)
 	std::string test = GetRequiredDatum(v, "Test");
 
 	if(test == "Skip") return;
-	CRYPTOPP_ASSERT(test == "Verify");
 
 	std::string secret = GetDecodedDatum(v, "Secret");
 	std::string expected = GetDecodedDatum(v, "DerivedKey");
@@ -997,6 +1007,12 @@ void TestKeyDerivationFunction(TestData &v, unsigned int &totalTests)
 
 	member_ptr<KeyDerivationFunction> kdf;
 	kdf.reset(ObjectFactoryRegistry<KeyDerivationFunction>::Registry().CreateObject(name.c_str()));
+
+	// Code coverage
+	(void)kdf->AlgorithmName();
+	(void)kdf->AlgorithmProvider();
+	(void)kdf->MinDerivedKeyLength();
+	(void)kdf->MaxDerivedKeyLength();
 
 	std::string calculated; calculated.resize(expected.size());
 	kdf->DeriveKey(BytePtr(calculated), BytePtrSize(calculated), BytePtr(secret), BytePtrSize(secret), pairs);
