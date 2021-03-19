@@ -72,10 +72,8 @@ bool Readline(std::istream& stream, std::string& line)
 			break;
 		}
 
-		// Grow by 1.5x as needed
-		//if (line.capacity() == 0)
-		//	line.reserve(line.size()*3/2);
-
+		// Let string class manage its own capacity.
+		// The string will grow as needed.
 		line.push_back(static_cast<char>(ch));
 	}
 
