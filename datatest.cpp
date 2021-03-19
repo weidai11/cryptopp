@@ -55,6 +55,42 @@ public:
 
 const TestData *s_currentTestData = NULLPTR;
 
+// Handles CR, LF, and CRLF properly
+bool Readline(std::istream& stream, std::string& line)
+{
+	line.clear();
+	line.reserve(64);
+
+	while (stream.good())
+	{
+		int ch = stream.get();
+		if (ch == '\r')
+		{
+			int next = stream.peek();
+			if (next == '\n')
+				(void)stream.get();
+
+			break;
+		}
+
+		else if (ch == '\n')
+		{
+			break;
+		}
+
+		// Grow by 1.5x as needed
+		if (line.capacity() == 0)
+			line.reserve(line.size()*3/2);
+
+		line.push_back(static_cast<char>(ch));
+	}
+
+	// Non-binding shrink to fit
+	line.reserve(0);
+
+	return stream.good();
+}
+
 std::string TrimSpace(const std::string& str)
 {
 	if (str.empty()) return "";
@@ -1076,7 +1112,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	name.clear(); value.clear();
 
 	// ***** Name *****
-	while (is >> std::ws && std::getline(is, line))
+	while (Readline(is, line))
 	{
 		// Eat whitespace and comments gracefully
 		if (line.empty() || line[0] == '#')
