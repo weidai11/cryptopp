@@ -49,12 +49,13 @@ const TestData *s_currentTestData = NULLPTR;
 const std::string testDataFilename = "cryptest.dat";
 
 // Handles CR, LF, and CRLF properly
+// For istream.fail() see https://stackoverflow.com/q/34395801/608639.
 bool Readline(std::istream& stream, std::string& line)
 {
 	line.clear();
 	line.reserve(64);
 
-	while (stream.good())
+	while (!stream.fail())
 	{
 		int ch = stream.get();
 		if (ch == '\r')
@@ -81,7 +82,7 @@ bool Readline(std::istream& stream, std::string& line)
 	// Non-binding shrink to fit
 	line.reserve(0);
 
-	return stream.good();
+	return !stream.fail();
 }
 
 std::string TrimSpace(const std::string& str)
@@ -1104,7 +1105,6 @@ inline char LastChar(const std::string& str) {
 // because Unix&Linux uses LF, OS X uses CR, and Windows uses CRLF. If this function
 // is modified, then run 'cryptest.exe tv rsa_pkcs1_1_5' as a test. Its the parser
 // file from hell. If it can be parsed without error, then things are likely OK.
-// For istream.fail() see https://stackoverflow.com/q/34395801/608639.
 bool GetField(std::istream &is, std::string &name, std::string &value)
 {
 	std::string line;
