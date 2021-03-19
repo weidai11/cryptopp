@@ -18,17 +18,29 @@ make distclean >/dev/null
 
 lcov --base-directory . --directory . --zerocounters -q
 
+echo "**************************************************"
+echo "*****               Debug build              *****"
+echo "**************************************************"
+
 make clean > /dev/null
 CXXFLAGS="${DEBUG_CXXFLAGS}" make -j "${MAKE_JOBS}"
 ./cryptest.exe v
 ./cryptest.exe tv all
 lcov --base-directory . --directory . -c -o cryptest_debug.info
 
+echo "**************************************************"
+echo "*****              No ASM build              *****"
+echo "**************************************************"
+
 make clean > /dev/null
 CXXFLAGS="${NOASM_CXXFLAGS}" make -j "${MAKE_JOBS}"
 ./cryptest.exe v
 ./cryptest.exe tv all
 lcov --base-directory . --directory . -c -o cryptest_noasm.info
+
+echo "**************************************************"
+echo "*****              Release build             *****"
+echo "**************************************************"
 
 make clean > /dev/null
 CXXFLAGS="${RELEASE_CXXFLAGS}" make -j "${MAKE_JOBS}"
@@ -39,9 +51,15 @@ lcov --base-directory . --directory . -c -o cryptest_release.info
 
 lcov --add-tracefile cryptest_debug.info --add-tracefile cryptest_noasm.info --add-tracefile cryptest_release.info -o cryptest.info
 
-lcov --remove cryptest.info "adhoc.*" -o cryptest.info
-lcov --remove cryptest.info "fips140.*" -o cryptest.info
+lcov --remove cryptest.info "*/adhoc.*" -o cryptest.info
+lcov --remove cryptest.info "*/fips140.*" -o cryptest.info
 lcov --remove cryptest.info "*test.*" -o cryptest.info
 lcov --remove cryptest.info "/usr/*" -o cryptest.info
 
+echo "**************************************************"
+echo "*****             HTML processing            *****"
+echo "**************************************************"
+
 genhtml -o TestCoverage/ -t "Crypto++ test coverage" --num-spaces 4 cryptest.info
+
+exit 0
