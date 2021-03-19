@@ -1173,7 +1173,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 		if (continueLine)
 			value += ' ';
 	}
-	while (continueLine && is >> std::ws && std::getline(is, line));
+	while (continueLine && Readline(is, line));
 
 	return true;
 }
