@@ -1150,7 +1150,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 		if (line.empty())
 			continue;
 
-		// Check end of line. It must be last character
+		// Check for continuation. The slash must be the last character.
 		if (LastChar(line) == '\\') {
 			continueLine = true;
 			line.erase(line.end()-1);
