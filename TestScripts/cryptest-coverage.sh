@@ -31,31 +31,36 @@ RELEASE_CXXFLAGS="-DNDEBUG -DCRYPTOPP_COVERAGE=1 -g3 -O1 -coverage"
 rm -rf TestCoverage/ >/dev/null
 make distclean >/dev/null
 
-# This baseline shit does not work. Just use zero-counters
-lcov --base-directory . --directory . --zerocounters -q
-
-if false;
-then
-
 echo "**************************************************"
 echo "*****             Baseline build             *****"
 echo "**************************************************"
 
-make clean > /dev/null
-if ! make -j "${MAKE_JOBS}";
+# Though the man page says to run a baseline, the cryptest_base just
+# breaks things. Zeroing the counters seems to be the best we can do.
+if lcov --base-directory . --directory . --zerocounters;
 then
-    echo "Baseline build failed"
-    exit 1
+	echo
+	echo "Baseline zero counters ok"
+	echo
+else
+	echo
+	echo "Baseline zero counters failed"
+	echo
 fi
+
+#make clean > /dev/null
+#if ! make -j "${MAKE_JOBS}";
+#then
+#    echo "Baseline build failed"
+#    exit 1
+#fi
 
 # Run test programs
-./cryptest.exe v
-./cryptest.exe tv all
+#./cryptest.exe v
+#./cryptest.exe tv all
 
 # Create a baseline
-lcov --base-directory . --directory . -i -c -o cryptest_base.info
-
-fi
+#lcov --base-directory . --directory . -i -c -o cryptest_base.info
 
 echo "**************************************************"
 echo "*****               Debug build              *****"
@@ -126,6 +131,8 @@ if [ ! -e cryptest_release.info ]; then
     echo "WARN: cryptest_release.info does not exist"
 fi
 
+# Though the man page says to run a baseline, the cryptest_base just
+# breaks things. Zeroing the counters seems to be the best we can do.
 # --add-tracefile cryptest_base.info
 
 lcov --add-tracefile cryptest_debug.info \
@@ -134,7 +141,7 @@ lcov --add-tracefile cryptest_debug.info \
     --output-file cryptest_all.info
 
 lcov --remove cryptest_all.info \
-    '/usr/*' 'adhoc*.*' 'dlltest*.*' 'fipstest*.*' 'fips140*.*' 'test*.*' \
+    '/usr/*' '*/adhoc*.*' '*/dlltest*.*' '*/fipstest*.*' '*/fips140*.*' '*/test*.*' \
     --output-file cryptest.info
 
 genhtml -o TestCoverage/ -t "Crypto++ test coverage" --num-spaces 4 cryptest.info
