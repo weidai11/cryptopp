@@ -309,8 +309,8 @@ bool TestX25519()
 	failed ? fail = true : fail = false;
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED" : "passed");
-	std::cout << "  " << AGREE_COUNT << " key agreements" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << AGREE_COUNT << " key agreements" << std::endl;
 
 	try {
 
@@ -339,8 +339,8 @@ bool TestX25519()
 
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED" : "passed");
-	std::cout << "  " << "x25519 load and save\n";
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << "x25519 load and save\n";
 
 #ifdef CRYPTOPP_COVERAGE
 	{
@@ -353,8 +353,8 @@ bool TestX25519()
 		fail = (x1 != x2);
 		pass = pass && !fail;
 
-		std::cout << (fail ? "FAILED" : "passed");
-		std::cout << "  " << "x25519 encoding and decoding\n";
+		std::cout << (fail ? "FAILED" : "passed") << "  ";
+		std::cout << "x25519 encoding and decoding\n";
 	}
 	{
 		SecByteBlock b1(32);
@@ -372,8 +372,8 @@ bool TestX25519()
 
 		pass = pass && !fail;
 
-		std::cout << (fail ? "FAILED" : "passed");
-		std::cout << "  " << "x25519 private key byte buffer construction\n";
+		std::cout << (fail ? "FAILED" : "passed") << "  ";
+		std::cout << "x25519 private key byte buffer construction\n";
 
 		std::reverse(b1.begin(), b1.begin()+b1.size());
 		Integer x(b1.begin(), b1.size());
@@ -389,8 +389,8 @@ bool TestX25519()
 
 		pass = pass && !fail;
 
-		std::cout << (fail ? "FAILED" : "passed");
-		std::cout << "  " << "x25519 private key Integer construction\n";
+		std::cout << (fail ? "FAILED" : "passed") << "  ";
+		std::cout << "x25519 private key Integer construction\n";
 	}
 
 	{
@@ -410,8 +410,8 @@ bool TestX25519()
 
 		pass = pass && !fail;
 
-		std::cout << (fail ? "FAILED" : "passed");
-		std::cout << "  " << "x25519 public key byte buffer construction\n";
+		std::cout << (fail ? "FAILED" : "passed") << "  ";
+		std::cout << "x25519 public key byte buffer construction\n";
 
 		SecByteBlock b3(b1), b4(b2);
 		std::reverse(b3.begin(), b3+b3.size());
@@ -446,8 +446,8 @@ bool TestX25519()
 
 		pass = pass && !fail;
 
-		std::cout << (fail ? "FAILED" : "passed");
-		std::cout << "  " << "x25519 byte buffer and Integer consistency\n";
+		std::cout << (fail ? "FAILED" : "passed") << "  ";
+		std::cout << "x25519 byte buffer and Integer consistency\n";
 	}
 #endif
 
@@ -488,8 +488,8 @@ bool TestEd25519()
 	failed ? fail = true : fail = false;
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED" : "passed");
-	std::cout << "  " << SIGN_COUNT << " public keys" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << SIGN_COUNT << " public keys" << std::endl;
 
 	// Test signature generation
 	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
@@ -519,8 +519,8 @@ bool TestEd25519()
 	failed ? fail = true : fail = false;
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED" : "passed");
-	std::cout << "  " << SIGN_COUNT << " signatures" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << SIGN_COUNT << " signatures" << std::endl;
 
 	// Test signature verification
 	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
@@ -564,8 +564,8 @@ bool TestEd25519()
 	failed ? fail = true : fail = false;
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED" : "passed");
-	std::cout << "  " << SIGN_COUNT << " verifications" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << SIGN_COUNT << " verifications" << std::endl;
 
 	// Test signature verification using streams
 	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
@@ -617,8 +617,8 @@ bool TestEd25519()
 	failed ? fail = true : fail = false;
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED" : "passed");
-	std::cout << "  " << SIGN_COUNT << " streams" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << SIGN_COUNT << " streams" << std::endl;
 #endif
 
 	// RFC 8032 test vector
@@ -665,8 +665,8 @@ bool TestEd25519()
 
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED" : "passed");
-	std::cout << "  " << "RFC 8032 test vectors" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << "RFC 8032 test vectors" << std::endl;
 
 	// Test key loads
 	try {
@@ -695,8 +695,8 @@ bool TestEd25519()
 
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED" : "passed");
-	std::cout << "  " << "RFC 5208 and 5958 key loads" << std::endl;
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << "RFC 5208 and 5958 key loads" << std::endl;
 
 	return pass;
 }
