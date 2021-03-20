@@ -114,10 +114,8 @@ if [ ! -e cryptest_release.info ]; then
     echo "WARN: cryptest_release.info does not exist"
 fi
 
-# The man page at https://linux.die.net/man/1/lcov says to add cryptest_base.info,
-# but it causes an error in the command below.
-# --add-tracefile cryptest_base.info
-lcov --add-tracefile cryptest_debug.info \
+lcov --add-tracefile cryptest_base.info \
+    --add-tracefile cryptest_debug.info \
     --add-tracefile cryptest_noasm.info \
     --add-tracefile cryptest_release.info \
     --output-file cryptest_all.info
