@@ -241,7 +241,14 @@
 
 // ***************** C++ fixups ********************
 
-#if defined(CRYPTOPP_CXX11_NOEXCEPT)
+// Testing with -DCRYPTOPP_NO_CXX11 causes a lot of noise
+// Grab this one C++11 feature for a sane compile.
+#if (CRYPTOPP_MSC_VERSION >= 1900) || __has_feature(cxx_noexcept) || \
+	(__INTEL_COMPILER >= 1400) || (CRYPTOPP_GCC_VERSION >= 40600) || (__SUNPRO_CC >= 0x5130)
+# define CRYPTOPP_CXX11_ALT_NOEXCEPT 1
+#endif // noexcept compilers
+
+#if defined(CRYPTOPP_CXX11_NOEXCEPT) || defined(CRYPTOPP_CXX11_ALT_NOEXCEPT)
 #  define CRYPTOPP_THROW noexcept(false)
 #  define CRYPTOPP_NO_THROW noexcept(true)
 #else
