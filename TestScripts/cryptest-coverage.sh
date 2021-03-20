@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
+if ! command -v gcov > /dev/null; then
+	echo "Please install gcov"
+	exit 1
+fi
+
 if ! command -v lcov > /dev/null; then
-	echo "Please install gconv or lcov"
+	echo "Please install lcov"
 	exit 1
 fi
 
@@ -81,11 +86,21 @@ echo "**************************************************"
 echo "*****             HTML processing            *****"
 echo "**************************************************"
 
+if [ ! e cryptest_debug.info ]; then
+	echo "WARN: cryptest_debug.info does not exist"
+fi
+if [ ! e cryptest_noasm.info ]; then
+	echo "WARN: cryptest_noasm.info does not exist"
+fi
+if [ ! e cryptest_release.info ]; then
+	echo "WARN: cryptest_release.info does not exist"
+fi
+
 lcov --add-tracefile cryptest_debug.info --add-tracefile cryptest_noasm.info --add-tracefile cryptest_release.info -o cryptest.info
 
-lcov --remove cryptest.info "*adhoc*.*" -o cryptest.info
-lcov --remove cryptest.info "*datatest*.*" -o cryptest.info
-lcov --remove cryptest.info "*fips140*.*" -o cryptest.info
+lcov --remove cryptest.info "*/adhoc*.*" -o cryptest.info
+lcov --remove cryptest.info "*/fipstest*.*" -o cryptest.info
+lcov --remove cryptest.info "*/fips140*.*" -o cryptest.info
 lcov --remove cryptest.info "/usr/*" -o cryptest.info
 
 genhtml -o TestCoverage/ -t "Crypto++ test coverage" --num-spaces 4 cryptest.info
