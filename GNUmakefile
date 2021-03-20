@@ -155,7 +155,12 @@ endif
 ifneq ($(IS_DARWIN),0)
   CXX ?= c++
   # CRYPTOPP_CXXFLAGS += -stdlib=libc++
-  AR = libtool
+  IS_APPLE_LIBTOOL=$(shell libtool -V 2>&1 | $(GREP) -i -c 'Apple')
+  ifeq ($(IS_APPLE_LIBTOOL),1)
+    AR = libtool
+  else
+    AR = /usr/bin/libtool
+  endif
   ARFLAGS = -static -o
 endif
 

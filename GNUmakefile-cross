@@ -92,7 +92,12 @@ endif
 #   See http://www.cryptopp.com/wiki/MacOS_(Command_Line).
 ifeq ($(IS_MACOS),1)
   # setenv-macos.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
-  AR = libtool
+  IS_APPLE_LIBTOOL=$(shell libtool -V 2>&1 | $(GREP) -i -c 'Apple')
+  ifeq ($(IS_APPLE_LIBTOOL),1)
+    AR = libtool
+  else
+    AR = /usr/bin/libtool
+  endif
   ARFLAGS = -static -o
 endif
 
