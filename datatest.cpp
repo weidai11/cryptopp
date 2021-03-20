@@ -670,20 +670,6 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 		// unintentionally used in a subsequent test.
 		int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
 
-		// If a per-test vector parameter was set for a test, like BlockPadding,
-		// BlockSize or Tweak, then it becomes latched in testDataPairs. The old
-		// value is used in subsequent tests, and it could cause a self test
-		// failure in the next test. The behavior surfaced under Kalyna and
-		// Threefish. The Kalyna test vectors use NO_PADDING for all tests except
-		// one. For Threefish, using (and not using) a Tweak caused problems as
-		// we marched through test vectors. For BlockPadding, BlockSize or Tweak,
-		// unlatch them now, after the key has been set and NameValuePairs have
-		// been processed. Also note we only unlatch from testDataPairs. If
-		// overrideParameters are specified, the caller is responsible for
-		// managing the parameter.
-		v.erase("Tweak");     v.erase("InitialBlock");
-		v.erase("BlockSize"); v.erase("BlockPaddingScheme");
-
 		std::string encrypted, xorDigest, ciphertext, ciphertextXorDigest;
 		if (test == "EncryptionMCT" || test == "DecryptionMCT")
 		{
@@ -844,20 +830,6 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 	// paddingScheme is effectively latched. An old paddingScheme may be
 	// unintentionally used in a subsequent test.
 	int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
-
-	// If a per-test vector parameter was set for a test, like BlockPadding,
-	// BlockSize or Tweak, then it becomes latched in testDataPairs. The old
-	// value is used in subsequent tests, and it could cause a self test
-	// failure in the next test. The behavior surfaced under Kalyna and
-	// Threefish. The Kalyna test vectors use NO_PADDING for all tests except
-	// one. For Threefish, using (and not using) a Tweak caused problems as
-	// we marched through test vectors. For BlockPadding, BlockSize or Tweak,
-	// unlatch them now, after the key has been set and NameValuePairs have
-	// been processed. Also note we only unlatch from testDataPairs. If
-	// overrideParameters are specified, the caller is responsible for
-	// managing the parameter.
-	v.erase("Tweak");     v.erase("InitialBlock");
-	v.erase("BlockSize"); v.erase("BlockPaddingScheme");
 
 	std::string encrypted, ciphertext;
 	StreamTransformationFilter encFilter(*encryptor, new StringSink(encrypted),
@@ -1255,6 +1227,9 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 		// CRYPTOPP_ASSERT(!value.empty());
 		v[name] = value;
 
+		// The name "Test" is special. It tells the framework
+		// to run the test. Otherwise, name/value pairs are
+		// parsed and added to TestData 'v'.
 		if (name == "Test" && (s_thorough || v["SlowTest"] != "1"))
 		{
 			bool failed = false;
@@ -1273,15 +1248,13 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 			{
 				if (algType == "Signature")
 				{
-					TestData vv(v);  // Used with TestSignatureSchemeWithFileSource
 					TestSignatureScheme(v, totalTests);
-					TestSignatureSchemeWithFileSource(vv, totalTests);
+					TestSignatureSchemeWithFileSource(v, totalTests);
 				}
 				else if (algType == "SymmetricCipher")
 				{
-					TestData vv(v);  // Used with TestSymmetricCipherWithFileSource
 					TestSymmetricCipher(v, overrideParameters, totalTests);
-					TestSymmetricCipherWithFileSource(vv, overrideParameters, totalTests);
+					TestSymmetricCipherWithFileSource(v, overrideParameters, totalTests);
 				}
 				else if (algType == "AuthenticatedSymmetricCipher")
 					TestAuthenticatedSymmetricCipher(v, overrideParameters, totalTests);
@@ -1330,6 +1303,20 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 						std::cout << std::flush;
 				}
 			}
+
+			// If a per-test vector parameter was set for a test, like BlockPadding,
+			// BlockSize or Tweak, then it becomes latched in testDataPairs. The old
+			// value is used in subsequent tests, and it could cause a self test
+			// failure in the next test. The behavior surfaced under Kalyna and
+			// Threefish. The Kalyna test vectors use NO_PADDING for all tests except
+			// one. For Threefish, using (and not using) a Tweak caused problems as
+			// we marched through test vectors. For BlockPadding, BlockSize or Tweak,
+			// unlatch them now, after the key has been set and NameValuePairs have
+			// been processed. Also note we only unlatch from testDataPairs. If
+			// overrideParameters are specified, the caller is responsible for
+			// managing the parameter.
+			v.erase("Tweak");     v.erase("InitialBlock");
+			v.erase("BlockSize"); v.erase("BlockPaddingScheme");
 		}
 	}
 }
