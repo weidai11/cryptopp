@@ -2108,6 +2108,7 @@ fi
 ############################################
 # Default CXXFLAGS
 if true; then
+
     ############################################
     # Debug build
     echo
@@ -7382,6 +7383,95 @@ if [[ ("$IS_CYGWIN" -eq 0 && "$IS_MINGW" -eq 0) ]]; then
         elif [[ (-e "$INSTALL_DIR/lib/libcryptopp.so") ]]; then
             echo "ERROR: failed to remove libcryptopp.so dynamic library" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
         fi
+    fi
+fi
+
+############################################
+# Test latest zip with unzip -a
+if true; then
+
+    major=8; minor=5; rev=0
+    base="cryptopp${major}${minor}${rev}"
+    filename="${base}.zip"
+    url="https://cryptopp.com/${filename}"
+
+    rm -rf "${base}" 2>/dev/null
+    if wget -q -O ${filename} "${url}";
+    then
+        unzip -aoq "${filename}" -d "${base}"
+        cd "${base}" || exit 1
+
+        ############################################
+        # Debug build
+        echo
+        echo "************************************" | tee -a "$TEST_RESULTS"
+        echo "Testing: Latest zip, unzip -a, Debug" | tee -a "$TEST_RESULTS"
+        echo
+
+        TEST_LIST+=("Latest zip, unzip -a, Debug CXXFLAGS")
+
+        "$MAKE" clean &>/dev/null
+        rm -f "${TMPDIR}/test.exe" &>/dev/null
+
+        CXXFLAGS="$DEBUG_CXXFLAGS"
+        CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+            # Stop now if things are broke
+            exit 1
+        else
+            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+                echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+                # Stop now if things are broke
+                exit 1
+            fi
+            ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+            if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+                echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+                # Stop now if things are broke
+                exit 1
+            fi
+        fi
+
+        ############################################
+        # Release build
+        echo
+        echo "************************************" | tee -a "$TEST_RESULTS"
+        echo "Testing: Latest zip, unzip -a, Release" | tee -a "$TEST_RESULTS"
+        echo
+
+        TEST_LIST+=("Latest zip, unzip -a, Release CXXFLAGS")
+
+        "$MAKE" clean &>/dev/null
+        rm -f "${TMPDIR}/test.exe" &>/dev/null
+
+        CXXFLAGS="$RELEASE_CXXFLAGS"
+        CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+            # Stop now if things are broke
+            exit 1
+        else
+            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+                echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+                # Stop now if things are broke
+                exit 1
+            fi
+            ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+            if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+                echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+                # Stop now if things are broke
+                exit 1
+            fi
+            echo
+        fi
+
+        cd ../ || exit 1
+        rm -rf "${base}"
     fi
 fi
 
