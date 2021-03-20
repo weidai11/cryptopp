@@ -46,6 +46,25 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
+ANONYMOUS_NAMESPACE_BEGIN
+
+inline bool operator==(const x25519& lhs, const x25519& rhs)
+{
+	// This is a hack because the KeyAgreement classes do not make it easy to access the PrivateKey
+	ByteQueue q1, q2;
+	lhs.DEREncodePrivateKey(q1);
+	rhs.DEREncodePrivateKey(q2);
+
+	return q1 == q2;
+}
+
+inline bool operator!=(const x25519& lhs, const x25519& rhs)
+{
+	return !operator==(lhs, rhs);
+}
+
+ANONYMOUS_NAMESPACE_END
+
 bool ValidateDH()
 {
 	std::cout << "\nDH validation suite running...\n\n";
@@ -250,32 +269,13 @@ bool TestX25519()
 {
 	std::cout << "\nTesting curve25519 Key Agreements...\n\n";
 	const unsigned int AGREE_COUNT = 64;
-	bool pass = true;
+	bool pass = true, fail;
 
-	try {
-
-		FileSource f1(DataDir("TestData/x25519.dat").c_str(), true, new HexDecoder);
-		FileSource f2(DataDir("TestData/x25519v0.dat").c_str(), true, new HexDecoder);
-		FileSource f3(DataDir("TestData/x25519v1.dat").c_str(), true, new HexDecoder);
-
-		x25519 x1(f1);
-		x25519 x2(f2);
-		x25519 x3(f3);
-
-		FileSource f4(DataDir("TestData/x25519.dat").c_str(), true, new HexDecoder);
-		FileSource f5(DataDir("TestData/x25519v0.dat").c_str(), true, new HexDecoder);
-		FileSource f6(DataDir("TestData/x25519v1.dat").c_str(), true, new HexDecoder);
-
-		x1.Load(f4);
-		x2.Load(f5);
-		x3.Load(f6);
-	}
-	catch (const BERDecodeErr&) {
-		pass = false;
-	}
+	size_t i = 0;
+	unsigned int failed = 0;
 
 	SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32), share1(32), share2(32);
-	for (unsigned int i=0; i<AGREE_COUNT; ++i)
+	for (i=0, failed=0; i<AGREE_COUNT; ++i)
 	{
 		GlobalRNG().GenerateBlock(priv1, priv1.size());
 		GlobalRNG().GenerateBlock(priv2, priv2.size());
@@ -302,15 +302,154 @@ bool TestX25519()
 		int ret6 = std::memcmp(share1, share2, 32);
 #endif
 
-		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ret4 != 0 || ret5 != 0 || ret6 != 0;
-		pass = pass && !fail;
+		fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ret4 != 0 || ret5 != 0 || ret6 != 0;
+		if (fail) failed++;
 	}
 
-	if (pass)
-		std::cout << "passed:";
-	else
-		std::cout << "FAILED:";
+	failed ? fail = true : fail = false;
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed");
 	std::cout << "  " << AGREE_COUNT << " key agreements" << std::endl;
+
+	try {
+
+		FileSource f1(DataDir("TestData/x25519.dat").c_str(), true, new HexDecoder);
+		FileSource f2(DataDir("TestData/x25519v0.dat").c_str(), true, new HexDecoder);
+		FileSource f3(DataDir("TestData/x25519v1.dat").c_str(), true, new HexDecoder);
+
+		x25519 x1(f1);
+		x25519 x2(f2);
+		x25519 x3(f3);
+
+		FileSource f4(DataDir("TestData/x25519.dat").c_str(), true, new HexDecoder);
+		FileSource f5(DataDir("TestData/x25519v0.dat").c_str(), true, new HexDecoder);
+		FileSource f6(DataDir("TestData/x25519v1.dat").c_str(), true, new HexDecoder);
+
+		x1.Load(f4);
+		x2.Load(f5);
+		x3.Load(f6);
+
+		// No throw is success
+		fail = false;
+	}
+	catch (const BERDecodeErr&) {
+		fail = true;
+	}
+
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed");
+	std::cout << "  " << "x25519 load and save\n";
+
+#ifdef CRYPTOPP_COVERAGE
+	{
+		x25519 x1(GlobalRNG()), x2;
+
+		ByteQueue q;
+		x1.DEREncode(q);
+		x2.BERDecode(q);
+
+		fail = (x1 != x2);
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED" : "passed");
+		std::cout << "  " << "x25519 encoding and decoding\n";
+	}
+	{
+		SecByteBlock b1(32);
+		GlobalRNG().GenerateBlock(b1, b1.size());
+		b1[0] &= 248; b1[31] &= 127; b1[31] |= 64;
+
+		try {
+			fail = false;
+			x25519 x1(b1);
+			if (!x1.Validate(GlobalRNG(), 3))
+				throw Exception(Exception::OTHER_ERROR, "x25519::Validate");
+		} catch(const Exception&) {
+			fail = true;
+		}
+
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED" : "passed");
+		std::cout << "  " << "x25519 private key byte buffer construction\n";
+
+		std::reverse(b1.begin(), b1.begin()+b1.size());
+		Integer x(b1.begin(), b1.size());
+
+		try {
+			fail = false;
+			x25519 x1(x);
+			if (!x1.Validate(GlobalRNG(), 3))
+				throw Exception(Exception::OTHER_ERROR, "x25519::Validate");
+		} catch(const Exception&) {
+			fail = true;
+		}
+
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED" : "passed");
+		std::cout << "  " << "x25519 private key Integer construction\n";
+	}
+
+	{
+		SecByteBlock b1(32), b2(32);
+		GlobalRNG().GenerateBlock(b1, b1.size());
+		b1[0] &= 248; b1[31] &= 127; b1[31] |= 64;
+		Donna::curve25519_mult(b2, b1);
+
+		try {
+			fail = false;
+			x25519 x1(b2, b1);
+			if (!x1.Validate(GlobalRNG(), 3))
+				throw Exception(Exception::OTHER_ERROR, "x25519::Validate");
+		} catch(const Exception&) {
+			fail = true;
+		}
+
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED" : "passed");
+		std::cout << "  " << "x25519 public key byte buffer construction\n";
+
+		SecByteBlock b3(b1), b4(b2);
+		std::reverse(b3.begin(), b3+b3.size());
+		std::reverse(b4.begin(), b4+b4.size());
+
+		Integer x(b3, b3.size());
+		Integer y(b4, b4.size());
+
+		try {
+			fail = false;
+			x25519 x1(y, x);
+			if (!x1.Validate(GlobalRNG(), 3))
+				throw Exception(Exception::OTHER_ERROR, "x25519::Validate");
+		} catch(const Exception&) {
+			fail = true;
+		}
+
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED" : "passed");
+		std::cout << "  " << "x25519 public key Integer construction\n";
+
+		try {
+			fail = false;
+			x25519 x1(b2, b1);
+			x25519 x2(y, x);
+			if (x1 != x2)
+				throw Exception(Exception::OTHER_ERROR, "x25519::Validate");
+		} catch(const Exception&) {
+			fail = true;
+		}
+
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED" : "passed");
+		std::cout << "  " << "x25519 byte buffer and Integer consistency\n";
+	}
+#endif
 
 	return pass;
 }
@@ -321,7 +460,10 @@ bool TestX25519()
 bool TestEd25519()
 {
 	std::cout << "\nTesting ed25519 Signatures...\n\n";
-	bool pass = true;
+	bool pass = true, fail;
+
+	size_t i = 0;
+	unsigned int failed = 0;
 
 #ifndef CRYPTOPP_DISABLE_NACL
 	const unsigned int SIGN_COUNT = 64, MSG_SIZE=128;
@@ -329,7 +471,7 @@ bool TestEd25519()
 
 	// Test key conversion
 	byte seed[32], sk1[64], sk2[64], pk1[32], pk2[32];
-	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
+	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
 	{
 		GlobalRNG().GenerateBlock(seed, 32);
 		std::memcpy(sk1, seed, 32);
@@ -339,18 +481,18 @@ bool TestEd25519()
 		int ret2 = Donna::ed25519_publickey(pk2, sk2);
 		int ret3 = std::memcmp(pk1, pk2, 32);
 
-		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
-		pass = pass && !fail;
+		fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
+		if (fail) failed++;
 	}
 
-	if (pass)
-		std::cout << "passed:";
-	else
-		std::cout << "FAILED:";
+	failed ? fail = true : fail = false;
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed");
 	std::cout << "  " << SIGN_COUNT << " public keys" << std::endl;
 
 	// Test signature generation
-	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
+	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
 	{
 		// Fresh keypair
 		(void)NaCl::crypto_sign_keypair(pk1, sk1);
@@ -370,18 +512,18 @@ bool TestEd25519()
 		int ret2 = Donna::ed25519_sign(msg, len, sk2, pk2, sig2);
 		int ret3 = std::memcmp(sig1, sig2, 64);
 
-		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
-		pass = pass && !fail;
+		fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
+		if (fail) failed++;
 	}
 
-	if (pass)
-		std::cout << "passed:";
-	else
-		std::cout << "FAILED:";
+	failed ? fail = true : fail = false;
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed");
 	std::cout << "  " << SIGN_COUNT << " signatures" << std::endl;
 
 	// Test signature verification
-	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
+	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
 	{
 		// Fresh keypair
 		(void)NaCl::crypto_sign_keypair(pk1, sk1);
@@ -415,18 +557,18 @@ bool TestEd25519()
 		int ret4 = NaCl::crypto_sign_open(msg1, &mlen, sig1, smlen, pk2);
 		int ret5 = Donna::ed25519_sign_open(msg2, len, pk1, sig2);
 
-		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
-		pass = pass && !fail;
+		fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
+		if (fail) failed++;
 	}
 
-	if (pass)
-		std::cout << "passed:";
-	else
-		std::cout << "FAILED:";
+	failed ? fail = true : fail = false;
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed");
 	std::cout << "  " << SIGN_COUNT << " verifications" << std::endl;
 
 	// Test signature verification using streams
-	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
+	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
 	{
 		// Fresh keypair
 		(void)NaCl::crypto_sign_keypair(pk1, sk1);
@@ -468,14 +610,14 @@ bool TestEd25519()
 		int ret4 = NaCl::crypto_sign_open(msg1, &mlen, sig1, smlen, pk2);
 		int ret5 = Donna::ed25519_sign_open(iss, pk1, sig2);
 
-		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
-		pass = pass && !fail;
+		fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
+		if (fail) failed++;
 	}
 
-	if (pass)
-		std::cout << "passed:";
-	else
-		std::cout << "FAILED:";
+	failed ? fail = true : fail = false;
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed");
 	std::cout << "  " << SIGN_COUNT << " streams" << std::endl;
 #endif
 
@@ -514,18 +656,17 @@ bool TestEd25519()
 		StringSource(msg_sig, true, new SignatureVerificationFilter(verifier, NULLPTR, flags));
 
 		// No throw is success
+		fail = false;
 	}
 	catch(const Exception&)
 	{
-		pass = false;
+		fail = true;
 	}
 
-	if (pass)
-		std::cout << "passed:";
-	else
-		std::cout << "FAILED:";
-	std::cout << "  RFC 8032 test vectors" << std::endl;
+	pass = pass && !fail;
 
+	std::cout << (fail ? "FAILED" : "passed");
+	std::cout << "  " << "RFC 8032 test vectors" << std::endl;
 
 	// Test key loads
 	try {
@@ -544,16 +685,18 @@ bool TestEd25519()
 		s1.AccessKey().Load(f4);
 		s2.AccessKey().Load(f5);
 		s3.AccessKey().Load(f6);
+
+		// No throw is success
+		fail = false;
 	}
 	catch (const BERDecodeErr&) {
-		pass = false;
+		fail = true;
 	}
 
-	if (pass)
-		std::cout << "passed:";
-	else
-		std::cout << "FAILED:";
-	std::cout << "  RFC 5208 and 5958 key loads" << std::endl;
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed");
+	std::cout << "  " << "RFC 5208 and 5958 key loads" << std::endl;
 
 	return pass;
 }
