@@ -1304,17 +1304,21 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 				}
 			}
 
+			// Most tests fully specify parameters, like key and iv. Each test gets
+			// its own unique value. Since each test gets a new value for each test
+			// case, latching a value in 'TestData v' does not matter. The old key
+			// or iv will get overwritten on the next test.
+			//
 			// If a per-test vector parameter was set for a test, like BlockPadding,
-			// BlockSize or Tweak, then it becomes latched in testDataPairs. The old
+			// BlockSize or Tweak, then it becomes latched in 'TestData v'. The old
 			// value is used in subsequent tests, and it could cause a self test
 			// failure in the next test. The behavior surfaced under Kalyna and
 			// Threefish. The Kalyna test vectors use NO_PADDING for all tests except
-			// one. For Threefish, using (and not using) a Tweak caused problems as
-			// we marched through test vectors. For BlockPadding, BlockSize or Tweak,
-			// unlatch them now, after the key has been set and NameValuePairs have
-			// been processed. Also note we only unlatch from testDataPairs. If
-			// overrideParameters are specified, the caller is responsible for
-			// managing the parameter.
+			// one. Threefish occasionally use a Tweak.
+			//
+			// Unlatch BlockPadding, BlockSize and Tweak now, after the test has been
+			// run. Also note we only unlatch from 'TestData v'. If overrideParameters
+			// are specified, the caller is responsible for managing the parameter.
 			v.erase("Tweak");     v.erase("InitialBlock");
 			v.erase("BlockSize"); v.erase("BlockPaddingScheme");
 		}
