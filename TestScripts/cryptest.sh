@@ -7418,20 +7418,14 @@ if true; then
 
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-            # Stop now if things are broke
-            exit 1
         else
             ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-                # Stop now if things are broke
-                exit 1
             fi
             ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-                # Stop now if things are broke
-                exit 1
             fi
         fi
 
@@ -7452,20 +7446,14 @@ if true; then
 
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
-            # Stop now if things are broke
-            exit 1
         else
             ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
-                # Stop now if things are broke
-                exit 1
             fi
             ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
-                # Stop now if things are broke
-                exit 1
             fi
             echo
         fi
