@@ -1132,10 +1132,8 @@ inline char LastChar(const std::string& str) {
 	return str[str.length()-1];
 }
 
-// GetField parses the name/value pairs. The tricky part is the insertion operator
-// because Unix&Linux uses LF, OS X uses CR, and Windows uses CRLF. If this function
-// is modified, then run 'cryptest.exe tv rsa_pkcs1_1_5' as a test. Its the parser
-// file from hell. If it can be parsed without error, then things are likely OK.
+// GetField parses the name/value pairs. If this function is modified,
+// then run 'cryptest.exe tv all' to ensure parsing still works.
 bool GetField(std::istream &is, std::string &name, std::string &value)
 {
 	std::string line;
@@ -1144,7 +1142,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	// ***** Name *****
 	while (Readline(is, line))
 	{
-		// Eat whitespace and comments gracefully
+		// Eat empty lines and comments gracefully
 		if (line.empty() || line[0] == '#')
 			continue;
 
@@ -1153,7 +1151,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 			SignalTestError("Unable to parse name/value pair");
 
 		name = TrimSpace(line.substr(0, pos));
-		line = TrimSpace(line.substr(pos + 1));
+		line = TrimSpace(line.substr(pos +1));
 
 		// Empty name is bad
 		if (name.empty())
@@ -1171,29 +1169,24 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 
 	do
 	{
-		// Trim leading and trailing whitespace, including OS X and Windows
-		// new lines. Don't parse comments here because there may be a line
-		// continuation at the end.
+		continueLine = false;
+
+		// Trim leading and trailing whitespace. Don't parse comments
+		// here because there may be a line continuation at the end.
 		line = TrimSpace(line);
 
-		continueLine = false;
 		if (line.empty())
 			continue;
 
-		// Early out for immediate line continuation
-		if (line[0] == '\\') {
-			continueLine = true;
-			continue;
-		}
 		// Check end of line. It must be last character
 		if (LastChar(line) == '\\') {
 			continueLine = true;
 			line.erase(line.end()-1);
-			line = TrimSpace(line);
 		}
 
 		// Re-trim after parsing
 		line = TrimComment(line);
+		line = TrimSpace(line);
 
 		if (line.empty())
 			continue;

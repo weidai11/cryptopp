@@ -18,9 +18,9 @@ then
 	fi
 fi
 
-DEBUG_CXXFLAGS="-DDEBUG -DCRYPTOPP_COVERAGE -g3 -O1 -coverage"
-NOASM_CXXFLAGS="-DNDEBUG -DCRYPTOPP_DISABLE_ASM -DCRYPTOPP_COVERAGE -g3 -O1 -coverage"
-RELEASE_CXXFLAGS="-DNDEBUG -DCRYPTOPP_COVERAGE -g3 -O1 -coverage"
+DEBUG_CXXFLAGS="-DDEBUG -DCRYPTOPP_COVERAGE=1 -g3 -O1 -coverage"
+NOASM_CXXFLAGS="-DNDEBUG -DCRYPTOPP_DISABLE_ASM -DCRYPTOPP_COVERAGE=1 -g3 -O1 -coverage"
+RELEASE_CXXFLAGS="-DNDEBUG -DCRYPTOPP_COVERAGE=1 -g3 -O1 -coverage"
 
 # Clean old artifacts
 rm -rf TestCoverage/ >/dev/null
@@ -83,9 +83,9 @@ echo "**************************************************"
 
 lcov --add-tracefile cryptest_debug.info --add-tracefile cryptest_noasm.info --add-tracefile cryptest_release.info -o cryptest.info
 
-lcov --remove cryptest.info "*/adhoc.*" -o cryptest.info
-lcov --remove cryptest.info "*/fips140.*" -o cryptest.info
-lcov --remove cryptest.info "*/*test.*" -o cryptest.info
+lcov --remove cryptest.info "*adhoc*.*" -o cryptest.info
+lcov --remove cryptest.info "*datatest*.*" -o cryptest.info
+lcov --remove cryptest.info "*fips140*.*" -o cryptest.info
 lcov --remove cryptest.info "/usr/*" -o cryptest.info
 
 genhtml -o TestCoverage/ -t "Crypto++ test coverage" --num-spaces 4 cryptest.info
