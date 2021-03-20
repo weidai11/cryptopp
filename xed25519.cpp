@@ -73,8 +73,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 x25519::x25519(const byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH])
 {
-    std::memcpy(m_pk, y, SECRET_KEYLENGTH);
-    std::memcpy(m_sk, x, PUBLIC_KEYLENGTH);
+    std::memcpy(m_pk, y, PUBLIC_KEYLENGTH);
+    std::memcpy(m_sk, x, SECRET_KEYLENGTH);
 
     CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
