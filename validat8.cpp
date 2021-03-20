@@ -267,7 +267,7 @@ bool ValidateLUC_Encrypt()
 		std::cout << "LUC::PrivateKey encoding and decoding\n";
 	}
 	{
-		FileSource keys(DataDir("TestData/rabi1024.dat").c_str(), true, new HexDecoder);
+		FileSource keys(DataDir("TestData/luc1024.dat").c_str(), true, new HexDecoder);
 		LUC::PrivateKey lucPriv; lucPriv.BERDecode(keys);
 		LUC::PublicKey lucPub(lucPriv);
 
