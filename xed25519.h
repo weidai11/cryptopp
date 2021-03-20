@@ -366,6 +366,8 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     ///  concatenation of <tt>r || s</tt>.
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64);
 
+    virtual ~ed25519PrivateKey() {}
+
     // CryptoMaterial
     bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
     bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
@@ -628,6 +630,8 @@ struct ed25519PublicKey : public X509PublicKey
     /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
     typedef Integer Element;
+
+    virtual ~ed25519PublicKey() {}
 
     OID GetAlgorithmID() const {
         return m_oid.Empty() ? ASN1::Ed25519() : m_oid;
