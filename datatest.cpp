@@ -1120,6 +1120,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	while (Readline(is, line))
 	{
 		// Eat empty lines and comments gracefully
+		line = TrimSpace(line);
 		if (line.empty() || line[0] == '#')
 			continue;
 
