@@ -52,8 +52,11 @@ const std::string testDataFilename = "cryptest.dat";
 // For istream.fail() see https://stackoverflow.com/q/34395801/608639.
 bool Readline(std::istream& stream, std::string& line)
 {
+	// Ensure old data is cleared
 	line.clear();
-	line.reserve(64);
+
+	std::string temp;
+	temp.resize(64);
 
 	while (!stream.fail())
 	{
@@ -73,15 +76,17 @@ bool Readline(std::istream& stream, std::string& line)
 
 		// Let string class manage its own capacity.
 		// The string will grow as needed.
-		line.push_back(static_cast<char>(ch));
+		temp.push_back(static_cast<char>(ch));
 	}
 
 #if defined(CRYPTOPP_CXX11)
-	line.shrink_to_fit();
+	temp.shrink_to_fit();
 #else
 	// Non-binding shrink to fit
-	line.reserve(0);
+	temp.reserve(0);
 #endif
+
+	std::swap(line, temp);
 
 	return !stream.fail();
 }
@@ -1314,7 +1319,7 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 			// value is used in subsequent tests, and it could cause a self test
 			// failure in the next test. The behavior surfaced under Kalyna and
 			// Threefish. The Kalyna test vectors use NO_PADDING for all tests except
-			// one. Threefish occasionally use a Tweak.
+			// one. Threefish occasionally uses a Tweak.
 			//
 			// Unlatch BlockPadding, BlockSize and Tweak now, after the test has been
 			// run. Also note we only unlatch from 'TestData v'. If overrideParameters
