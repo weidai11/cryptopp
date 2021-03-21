@@ -56,7 +56,7 @@ bool Readline(std::istream& stream, std::string& line)
 	line.clear();
 
 	std::string temp;
-	temp.resize(64);
+	temp.reserve(64);
 
 	while (!stream.fail())
 	{
