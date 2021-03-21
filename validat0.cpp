@@ -1542,6 +1542,100 @@ bool TestASN1Parse()
 
     return pass;
 }
+
+bool TestASN1Functions()
+{
+    std::cout << "\nTesting ASN.1 functions...\n\n";
+
+    bool pass = true, fail;
+
+    {
+        const std::string message = "Now is the time for all good men to come to the aide of their country";
+        ByteQueue encoded, reencoded, decoded;
+        size_t len = 0, rlen = 0;
+
+        len = DEREncodeOctetString(encoded, ConstBytePtr(message), BytePtrSize(message));
+        DERReencode(encoded, reencoded);
+        rlen = reencoded.MaxRetrievable();
+        (void)BERDecodeOctetString(reencoded, decoded);
+
+        std::string recovered;
+        StringSink sink(recovered);
+        decoded.TransferTo(sink);
+
+        fail = (len != rlen || message != recovered);
+        pass = pass && !fail;
+        CRYPTOPP_ASSERT(!fail);
+
+        std::cout << (fail ? "FAILED" : "passed") << "  ";
+        std::cout << "DEREncodeOctetString" << "\n";
+        std::cout << (fail ? "FAILED" : "passed") << "  ";
+        std::cout << "BERDecodeOctetString" << "\n";
+    }
+
+    {
+        const std::string message = "Now is the time for all good men to come to the aide of their country";
+        const int asnStringTypes[] = {UTF8_STRING, PRINTABLE_STRING, T61_STRING, VIDEOTEXT_STRING, IA5_STRING, VISIBLE_STRING};
+        unsigned int failed = 0;
+        size_t len = 0, rlen = 0, i = 0;
+
+        for (i = 0; i < COUNTOF(asnStringTypes); ++i)
+        {
+            ByteQueue encoded, reencoded, decoded;
+            std::string recovered;
+
+            len = DEREncodeTextString(encoded, ConstBytePtr(message), BytePtrSize(message), asnStringTypes[i]);
+            DERReencode(encoded, reencoded);
+            rlen = reencoded.MaxRetrievable();
+            (void)BERDecodeTextString(reencoded, recovered, asnStringTypes[i]);
+
+            fail = (len != rlen || message != recovered);
+            if (fail) failed++;
+            CRYPTOPP_ASSERT(!fail);
+        }
+
+        failed ? fail = true : fail = false;
+        pass = pass && !fail;
+
+        std::cout << (fail ? "FAILED" : "passed") << "  ";
+        std::cout << "DEREncodeTextString" << "\n";
+        std::cout << (fail ? "FAILED" : "passed") << "  ";
+        std::cout << "DEREncodeTextString" << "\n";
+    }
+
+#if 0
+    {
+        const SecByteBlock message = "Sun, 21 Mar 2021 01:00:00 +0000";
+        const int asnDateTypes[] = {UTC_TIME, GENERALIZED_TIME};
+        unsigned int failed = 0;
+        size_t i = 0;
+
+        for (i = 0; i < COUNTOF(asnDateTypes); ++i)
+        {
+            ByteQueue encoded, decoded;
+            std::string recovered;
+
+            (void)DEREncodeDate(encoded, ConstBytePtr(message), BytePtrSize(message), asnDateTypes[i]);
+            (void)BERDecodeDate(encoded, recovered, asnDateTypes[i]);
+
+            fail = (message != recovered);
+            if (fail) failed++;
+            CRYPTOPP_ASSERT(!fail);
+        }
+
+        failed ? fail = true : fail = false;
+        pass = pass && !fail;
+
+        std::cout << (fail ? "FAILED" : "passed") << "  ";
+        std::cout << "DEREncodeDate" << "\n";
+        std::cout << (fail ? "FAILED" : "passed") << "  ";
+        std::cout << "BERDecodeDate" << "\n";
+    }
+#endif
+
+    return pass;
+}
+
 #endif
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)

@@ -342,7 +342,7 @@ bool TestX25519()
 	std::cout << (fail ? "FAILED" : "passed") << "  ";
 	std::cout << "x25519 load and save\n";
 
-#ifdef CRYPTOPP_COVERAGE
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	{
 		x25519 x1(GlobalRNG()), x2;
 

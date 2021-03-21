@@ -35,7 +35,7 @@ echo "**************************************************"
 echo "*****             Baseline build             *****"
 echo "**************************************************"
 
-# Though the man page says to run a baseline, the cryptest_base just
+# The man page says to run a baseline, but the cryptest_base recipe
 # breaks things. Zeroing the counters seems to be the best we can do.
 if lcov --base-directory . --directory . --zerocounters;
 then
@@ -131,7 +131,7 @@ if [ ! -e cryptest_release.info ]; then
     echo "WARN: cryptest_release.info does not exist"
 fi
 
-# Though the man page says to run a baseline, the cryptest_base just
+# The man page says to run a baseline, but the cryptest_base recipe
 # breaks things. Zeroing the counters seems to be the best we can do.
 # --add-tracefile cryptest_base.info
 

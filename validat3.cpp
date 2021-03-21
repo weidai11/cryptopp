@@ -73,6 +73,7 @@ bool ValidateAll(bool thorough)
 	pass=TestHuffmanCodes() && pass;
 	// http://github.com/weidai11/cryptopp/issues/346
 	pass=TestASN1Parse() && pass;
+	pass=TestASN1Functions() && pass;
 	// https://github.com/weidai11/cryptopp/pull/334
 	pass=TestStringSink() && pass;
 	// Always part of the self tests; call in Debug

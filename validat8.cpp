@@ -122,7 +122,7 @@ bool ValidateRSA_Encrypt()
 	byte out[256], outPlain[128];
 	bool pass = true, fail;
 
-#ifdef CRYPTOPP_COVERAGE
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	{
 		FileSource keys(DataDir("TestData/rsa1024.dat").c_str(), true, new HexDecoder);
 		RSA::PrivateKey rsaPriv; rsaPriv.Load(keys);
@@ -220,7 +220,7 @@ bool ValidateLUC_Encrypt()
 {
 	bool pass = true, fail;
 
-#ifdef CRYPTOPP_COVERAGE
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	{
 		FileSource keys(DataDir("TestData/luc1024.dat").c_str(), true, new HexDecoder);
 		LUC::PrivateKey lucPriv; lucPriv.BERDecode(keys);
@@ -306,7 +306,7 @@ bool ValidateRabin_Encrypt()
 {
 	bool pass = true, fail;
 
-#ifdef CRYPTOPP_COVERAGE
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	{
 		FileSource keys(DataDir("TestData/rabi1024.dat").c_str(), true, new HexDecoder);
 		Rabin::PrivateKey rabinPriv; rabinPriv.BERDecode(keys);
