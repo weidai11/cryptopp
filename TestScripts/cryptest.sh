@@ -1609,14 +1609,14 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
 
         if [[ ("$HAVE_ARMV8" -ne 0) ]]; then
             # ARIA::UncheckedKeySet: 4 ldr q{N}
-            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'ldr[[:space:]]*q')
+            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'ldr[[:space:]]*q|ldp[[:space:]]*q')
             if [[ ("$COUNT" -lt 4) ]]; then
                 FAILED=1
                 echo "ERROR: failed to generate NEON load instructions" | tee -a "$TEST_RESULTS"
             fi
         else  # ARMv7
             # ARIA::UncheckedKeySet: 4 vld1.32 {d1,d2}
-            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vld1.32[[:space:]]*{')
+            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vld1.32[[:space:]]*')
             if [[ ("$COUNT" -lt 4) ]]; then
                 FAILED=1
                 echo "ERROR: failed to generate NEON load instructions" | tee -a "$TEST_RESULTS"
@@ -1625,14 +1625,14 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
 
         if [[ ("$HAVE_ARMV8" -ne 0) ]]; then
             # ARIA::UncheckedKeySet: 17 str q{N}
-            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'str[[:space:]]*q')
-            if [[ ("$COUNT" -lt 16) ]]; then
+            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'str[[:space:]]*q|stp[[:space:]]*q')
+            if [[ ("$COUNT" -lt 8) ]]; then
                 FAILED=1
                 echo "ERROR: failed to generate NEON store instructions" | tee -a "$TEST_RESULTS"
             fi
         else
             # ARIA::UncheckedKeySet: 17 vstr1.32 {d1,d2}
-            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vst1.32[[:space:]]*{')
+            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vst1.32[[:space:]]*')
             if [[ ("$COUNT" -lt 16) ]]; then
                 FAILED=1
                 echo "ERROR: failed to generate NEON store instructions" | tee -a "$TEST_RESULTS"
@@ -1641,7 +1641,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
 
         if [[ ("$HAVE_ARMV8" -ne 0) ]]; then
             # ARIA::UncheckedKeySet: 17 shl v{N}
-            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'shl[[:space:]]*v')
+            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'shl[[:space:]]*v|shl.4s')
             if [[ ("$COUNT" -lt 16) ]]; then
                 FAILED=1
                 echo "ERROR: failed to generate NEON shift left instructions" | tee -a "$TEST_RESULTS"
@@ -1657,7 +1657,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
 
         if [[ ("$HAVE_ARMV8" -ne 0) ]]; then
             # ARIA::UncheckedKeySet: 17 shr v{N}
-            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'shr[[:space:]]*v')
+            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'shr[[:space:]]*v|shr.4s')
             if [[ ("$COUNT" -lt 16) ]]; then
                 FAILED=1
                 echo "ERROR: failed to generate NEON shift right instructions" | tee -a "$TEST_RESULTS"
@@ -1673,7 +1673,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
 
         if [[ ("$HAVE_ARMV8" -ne 0) ]]; then
             # ARIA::UncheckedKeySet: 12 ext v{N}
-            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'ext[[:space:]]*v')
+            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'ext[[:space:]]*v|ext.*v')
             if [[ ("$COUNT" -lt 12) ]]; then
                 FAILED=1
                 echo "ERROR: failed to generate NEON extract instructions" | tee -a "$TEST_RESULTS"
