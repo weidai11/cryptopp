@@ -123,6 +123,7 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 	const unsigned int alignment = policy.GetAlignment();
 	const bool inAligned = IsAlignedOn(inString, alignment);
 	const bool outAligned = IsAlignedOn(outString, alignment);
+	CRYPTOPP_UNUSED(inAligned); CRYPTOPP_UNUSED(outAligned);
 
 	if (policy.CanOperateKeystream() && length >= bytesPerIteration)
 	{
@@ -266,6 +267,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	const unsigned int alignment = policy.GetAlignment();
 	const bool inAligned = IsAlignedOn(inString, alignment);
 	const bool outAligned = IsAlignedOn(outString, alignment);
+	CRYPTOPP_UNUSED(inAligned); CRYPTOPP_UNUSED(outAligned);
 
 	if (policy.CanIterate() && length >= bytesPerIteration && outAligned)
 	{

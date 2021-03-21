@@ -173,13 +173,15 @@ bool ValidateRSA_Encrypt()
 		RSAES_PKCS1v15_Decryptor rsaPriv(keys);
 		RSAES_PKCS1v15_Encryptor rsaPub(rsaPriv);
 
-		pass = CryptoSystemValidate(rsaPriv, rsaPub) && pass;
+		fail = !CryptoSystemValidate(rsaPriv, rsaPub);
+		pass = pass && !fail;
 	}
 	{
 		RSAES<OAEP<SHA1> >::Decryptor rsaPriv(GlobalRNG(), 512);
 		RSAES<OAEP<SHA1> >::Encryptor rsaPub(rsaPriv);
 
-		pass = CryptoSystemValidate(rsaPriv, rsaPub) && pass;
+		fail = !CryptoSystemValidate(rsaPriv, rsaPub);
+		pass = pass && !fail;
 	}
 	{
 		const byte plain[] =
@@ -287,7 +289,8 @@ bool ValidateLUC_Encrypt()
 
 	LUCES_OAEP_SHA_Decryptor priv(GlobalRNG(), 512);
 	LUCES_OAEP_SHA_Encryptor pub(priv);
-	pass = CryptoSystemValidate(priv, pub) && pass;
+	fail = !CryptoSystemValidate(priv, pub);
+	pass = pass && !fail;
 
 	return pass;
 }
@@ -375,7 +378,8 @@ bool ValidateRabin_Encrypt()
 	FileSource f(DataDir("TestData/rabi1024.dat").c_str(), true, new HexDecoder);
 	RabinES<OAEP<SHA1> >::Decryptor priv(f);
 	RabinES<OAEP<SHA1> >::Encryptor pub(priv);
-	pass = CryptoSystemValidate(priv, pub) && pass;
+	fail = !CryptoSystemValidate(priv, pub);
+	pass = pass && !fail;
 
 	return pass;
 }
