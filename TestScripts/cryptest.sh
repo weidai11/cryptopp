@@ -2103,23 +2103,6 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
             echo "Verified vpmsum machine instruction" | tee -a "$TEST_RESULTS"
         fi
     fi
-
-    ############################################
-    # Altivec
-
-    PPC_ALTIVEC=0
-    if [[ ("$PPC_ALTIVEC" -eq 0) ]]; then
-        "$CXX" -maltivec "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
-        if [[ "$?" -eq 0 ]]; then
-            PPC_ALTIVEC=1
-        fi
-    fi
-    if [[ ("$PPC_ALTIVEC" -eq 0) ]]; then
-        "$CXX" -qarch=altivec "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
-        if [[ "$?" -eq 0 ]]; then
-            PPC_ALTIVEC=1
-        fi
-    fi
 fi
 
 ############################################
