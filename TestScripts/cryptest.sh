@@ -2103,6 +2103,95 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
             echo "Verified vpmsum machine instruction" | tee -a "$TEST_RESULTS"
         fi
     fi
+
+    ############################################
+    # Altivec
+
+    PPC_ALTIVEC=0
+    if [[ ("$PPC_ALTIVEC" -eq 0) ]]; then
+        "$CXX" -maltivec "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
+        if [[ "$?" -eq 0 ]]; then
+            PPC_ALTIVEC=1
+        fi
+    fi
+    if [[ ("$PPC_ALTIVEC" -eq 0) ]]; then
+        "$CXX" -qarch=altivec "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
+        if [[ "$?" -eq 0 ]]; then
+            PPC_ALTIVEC=1
+        fi
+    fi
+fi
+
+############################################
+# Altivec generation tests
+if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0)) ]]; then
+
+    ############################################
+    # Altivec
+
+    PPC_ALTIVEC=0
+    if [[ ("$PPC_ALTIVEC" -eq 0) ]]; then
+        "$CXX" -maltivec "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
+        if [[ "$?" -eq 0 ]]; then
+            PPC_ALTIVEC=1
+        fi
+    fi
+    if [[ ("$PPC_ALTIVEC" -eq 0) ]]; then
+        "$CXX" -qarch=altivec "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
+        if [[ "$?" -eq 0 ]]; then
+            PPC_ALTIVEC=1
+        fi
+    fi
+
+    if [[ ("$PPC_ALTIVEC" -ne 0) ]]; then
+        echo
+        echo "************************************" | tee -a "$TEST_RESULTS"
+        echo "Testing: Altivec code generation" | tee -a "$TEST_RESULTS"
+        echo
+
+        TEST_LIST+=("Altivec code generation")
+
+        OBJFILE=speck128_simd.o; rm -f "$OBJFILE" 2>/dev/null
+        CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+        COUNT=0
+        FAILED=0
+        DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+        COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c lvx)
+        if [[ ("$COUNT" -lt 8) ]]; then
+            FAILED=1
+            echo "ERROR: failed to generate lvx instruction" | tee -a "$TEST_RESULTS"
+        fi
+
+        COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c stvx)
+        if [[ ("$COUNT" -lt 8) ]]; then
+            FAILED=1
+            echo "ERROR: failed to generate stvx instruction" | tee -a "$TEST_RESULTS"
+        fi
+
+        COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vsldoi)
+        if [[ ("$COUNT" -lt 8) ]]; then
+            FAILED=1
+            echo "ERROR: failed to generate vsldoi instruction" | tee -a "$TEST_RESULTS"
+        fi
+
+        COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vxor)
+        if [[ ("$COUNT" -lt 8) ]]; then
+            FAILED=1
+            echo "ERROR: failed to generate vxor instruction" | tee -a "$TEST_RESULTS"
+        fi
+
+        COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vperm)
+        if [[ ("$COUNT" -lt 8) ]]; then
+            FAILED=1
+            echo "ERROR: failed to generate vperm instruction" | tee -a "$TEST_RESULTS"
+        fi
+
+        if [[ ("$FAILED" -eq 0) ]]; then
+            echo "Verified vxl, stvx, vsldoi, vxor, vperm instructions" | tee -a "$TEST_RESULTS"
+        fi
+    fi
 fi
 
 ############################################
