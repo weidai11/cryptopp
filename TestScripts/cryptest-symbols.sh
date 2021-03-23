@@ -12,8 +12,6 @@
 # licensed under the Boost Software License 1.0, while the individual files
 # in the compilation are all public domain.
 #
-# See http://www.cryptopp.com/wiki/Android.mk_(Command_Line) for more details
-#
 #############################################################################
 
 #############################################################################
@@ -23,7 +21,7 @@ OLD_VERSION_TAG=CRYPTOPP_8_3_0
 NEW_VERSION_TAG=master
 
 #############################################################################
-# If local repo is dirty, then promt first
+# If local repo is dirty, then prompt first
 
 DIRTY=$(git diff --shortstat 2> /dev/null | tail -1)
 if [[ ! -z "$DIRTY" ]]; then
@@ -108,8 +106,8 @@ CLANG_COMPILER=$("${CXX}" --version 2>&1 | "${GREP}" -i -c "clang")
 #############################################################################
 
 # CPU is logical count, memory is in MiB. Low resource boards have
-#   fewer than 4 cores and 1GB or less memory. We use this to
-#   determine if we can build in parallel without an OOM kill.
+#  fewer than 4 cores and 1GB or less memory. We use this to
+#  determine if we can build in parallel without an OOM kill.
 CPU_COUNT=1
 MEM_SIZE=512
 
@@ -127,7 +125,7 @@ elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 fi
 
 # Some ARM devboards cannot use 'make -j N', even with multiple cores and RAM
-#  An 8-core Cubietruck Plus with 2GB RAM experiences OOM kills with '-j 2'.
+# An 8-core Cubietruck Plus with 2GB RAM experiences OOM kills with '-j 2'.
 HAVE_SWAP=1
 if [[ "$IS_LINUX" -ne "0" ]]; then
 	if [[ -e "/proc/meminfo" ]]; then
