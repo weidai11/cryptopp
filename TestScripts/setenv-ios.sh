@@ -273,8 +273,8 @@ if [ -z "${XCODE_SDK}" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-IOS_CFLAGS="-arch ${IOS_CPU} ${MIN_VER}"
-IOS_CXXFLAGS="-arch ${IOS_CPU} ${MIN_VER} -stdlib=libc++"
+IOS_CFLAGS="-arch ${IOS_CPU} ${MIN_VER} -fno-common"
+IOS_CXXFLAGS="-arch ${IOS_CPU} ${MIN_VER} -stdlib=libc++ -fno-common"
 IOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
 if [ ! -d "${IOS_SYSROOT}" ]; then

@@ -290,8 +290,8 @@ if [ ! -d "${XCODE_TOOLCHAIN}" ]; then
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-MACOS_CFLAGS="-arch $MACOS_CPU $MIN_VER"
-MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER ${MACOS_STDLIB}"
+MACOS_CFLAGS="-arch $MACOS_CPU $MIN_VER -fno-common"
+MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER ${MACOS_STDLIB} -fno-common"
 MACOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
 if [ ! -d "${MACOS_SYSROOT}" ]; then
