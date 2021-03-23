@@ -1603,9 +1603,9 @@ bool TestASN1Functions()
         std::cout << "DEREncodeTextString" << "\n";
     }
 
-#if 0
     {
-        const SecByteBlock message = "Sun, 21 Mar 2021 01:00:00 +0000";
+        const byte date[] = "Sun, 21 Mar 2021 01:00:00 +0000";
+        SecByteBlock message; message.Assign(date, sizeof(date)-1);
         const int asnDateTypes[] = {UTC_TIME, GENERALIZED_TIME};
         unsigned int failed = 0;
         size_t i = 0;
@@ -1613,9 +1613,9 @@ bool TestASN1Functions()
         for (i = 0; i < COUNTOF(asnDateTypes); ++i)
         {
             ByteQueue encoded, decoded;
-            std::string recovered;
+            SecByteBlock recovered;
 
-            (void)DEREncodeDate(encoded, ConstBytePtr(message), BytePtrSize(message), asnDateTypes[i]);
+            (void)DEREncodeDate(encoded, message, asnDateTypes[i]);
             (void)BERDecodeDate(encoded, recovered, asnDateTypes[i]);
 
             fail = (message != recovered);
@@ -1631,7 +1631,6 @@ bool TestASN1Functions()
         std::cout << (fail ? "FAILED" : "passed") << "  ";
         std::cout << "BERDecodeDate" << "\n";
     }
-#endif
 
     return pass;
 }
