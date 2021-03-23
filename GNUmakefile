@@ -149,24 +149,6 @@ ifeq ($(IS_AIX),1)
   endif
 endif
 
-# libc++ is LLVM's standard C++ library. If we add libc++
-# here then all user programs must use it too. The open
-# question is, which choice is easier on users?
-ifneq ($(IS_DARWIN),0)
-  CXX ?= c++
-  # CRYPTOPP_CXXFLAGS += -stdlib=libc++
-  ifeq ($(findstring -fno-common,$(CXXFLAGS)),)
-    CRYPTOPP_CXXFLAGS += -fno-common
-  endif
-  IS_APPLE_LIBTOOL=$(shell libtool -V 2>&1 | $(GREP) -i -c 'Apple')
-  ifeq ($(IS_APPLE_LIBTOOL),1)
-    AR = libtool
-  else
-    AR = /usr/bin/libtool
-  endif
-  ARFLAGS = -static -o
-endif
-
 # Uncomment for debugging
 # $(info Here's what we found... IS_X86: $(IS_X86), IS_X64: $(IS_X64), IS_ARM32: $(IS_ARM32), IS_ARMV8: $(IS_ARMV8))
 
@@ -848,6 +830,24 @@ ifeq ($(XLC_COMPILER),1)
     CRYPTOPP_CXXFLAGS += -qsuppress=1500-036
   endif  # -qsuppress
 endif  # IBM XL C++ compiler
+
+# libc++ is LLVM's standard C++ library. If we add libc++
+# here then all user programs must use it too. The open
+# question is, which choice is easier on users?
+ifneq ($(IS_DARWIN),0)
+  CXX ?= c++
+  # CRYPTOPP_CXXFLAGS += -stdlib=libc++
+  ifeq ($(findstring -fno-common,$(CXXFLAGS)),)
+    CRYPTOPP_CXXFLAGS += -fno-common
+  endif
+  IS_APPLE_LIBTOOL=$(shell libtool -V 2>&1 | $(GREP) -i -c 'Apple')
+  ifeq ($(IS_APPLE_LIBTOOL),1)
+    AR = libtool
+  else
+    AR = /usr/bin/libtool
+  endif
+  ARFLAGS = -static -o
+endif
 
 # Add -xregs=no%appl SPARC. SunCC should not use certain registers in library code.
 # https://docs.oracle.com/cd/E18659_01/html/821-1383/bkamt.html
