@@ -54,21 +54,9 @@
 # define __has_feature(x) 0
 #endif
 
-// Define CRYPTOPP_NO_CXX11 to avoid C++11 related features shown at the
-// end of this file. Some compilers and standard C++ headers advertise C++11
-// but they are really just C++03 with some additional C++11 headers and
-// non-conforming classes. Also see Issues 529.
-// #define CRYPTOPP_NO_CXX11 1
-
-// Define CRYPTOPP_NO_CXX17 to avoid C++17 related features shown at the end of
-// this file. At the moment it should only affect std::uncaught_exceptions.
-// #define CRYPTOPP_NO_CXX17 1
-
 // C++11 macro version, https://stackoverflow.com/q/7223991/608639
-#if !defined(CRYPTOPP_NO_CXX11)
-#  if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
-#    define CRYPTOPP_CXX11 1
-#  endif
+#if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
+#  define CRYPTOPP_CXX11 1
 #endif
 
 // Hack ahead. Apple's standard library does not have C++'s unique_ptr in C++11.
@@ -241,14 +229,7 @@
 
 // ***************** C++ fixups ********************
 
-// Testing with -DCRYPTOPP_NO_CXX11 causes a lot of noise
-// Grab this one C++11 feature for a sane compile.
-#if (CRYPTOPP_MSC_VERSION >= 1900) || __has_feature(cxx_noexcept) || \
-	(__INTEL_COMPILER >= 1400) || (CRYPTOPP_GCC_VERSION >= 40600) || (__SUNPRO_CC >= 0x5130)
-# define CRYPTOPP_CXX11_ALT_NOEXCEPT 1
-#endif // noexcept compilers
-
-#if defined(CRYPTOPP_CXX11_NOEXCEPT) || defined(CRYPTOPP_CXX11_ALT_NOEXCEPT)
+#if defined(CRYPTOPP_CXX11_NOEXCEPT)
 #  define CRYPTOPP_THROW noexcept(false)
 #  define CRYPTOPP_NO_THROW noexcept(true)
 #else
