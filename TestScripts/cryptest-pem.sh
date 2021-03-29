@@ -35,7 +35,7 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
 fi
 
 # Fixup for Solaris and BSDs
-if [[ ! -z $(command -v gmake) ]]; then
+if command -v gmake 2>/dev/null; then
 	MAKE=gmake
 else
 	MAKE=make
@@ -43,15 +43,15 @@ fi
 
 #############################################################################
 
-if [[ -z $(command -v "$MAKE") ]]; then
+if ! command -v "${MAKE}" 2>/dev/null; then
 	echo "Cannot find $MAKE. Things may fail."
 fi
 
-if [[ -z $(command -v curl) ]]; then
+if ! command -v curl 2>/dev/null; then
 	echo "Cannot find cURL. Things may fail."
 fi
 
-if [[ -z $(command -v openssl) ]]; then
+if ! command -v openssl 2>/dev/null; then
 	echo "Cannot find openssl. Things may fail."
 fi
 
