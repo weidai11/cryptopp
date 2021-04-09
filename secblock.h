@@ -897,6 +897,7 @@ public:
 		if (t.m_ptr && ptr)  // GCC analyzer warning
 			memcpy_s(t.m_ptr, t.m_size*sizeof(T), ptr, len*sizeof(T));
 		std::swap(*this, t);
+
 		m_mark = ELEMS_MAX;
 	}
 
@@ -937,7 +938,7 @@ public:
 	/// \brief Append contents from an array
 	/// \param ptr a pointer to an array of T
 	/// \param len the number of elements in the memory block
-	/// \throw InvalidArgument if the number of elements would overflow
+	/// \throw InvalidArgument if resulting size would overflow
 	/// \details Internally, this SecBlock calls Grow and then appends t.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
@@ -949,24 +950,21 @@ public:
 		if (ELEMS_MAX - m_size < len)
 			throw InvalidArgument("Append: buffer overflow");
 
-		if (len)
-		{
-			// ptr is unknown. It could be same array or different array.
-			// It could be same array at different offset so m_ptr!=ptr.
-			SecBlock<T, A> t(m_size+len);
-			if (t.m_ptr && m_ptr && ptr)  // GCC analyzer warning
-			{
-				memcpy_s(t.m_ptr, t.m_size*sizeof(T), m_ptr, m_size*sizeof(T));
-				memcpy_s(t.m_ptr+m_size, (t.m_size-m_size)*sizeof(T), ptr, len*sizeof(T));
-			}
-			std::swap(*this, t);
-		}
+		// ptr is unknown. It could be same array or different array.
+		// It could be same array at different offset so m_ptr!=ptr.
+		SecBlock<T, A> t(m_size+len);
+		if (t.m_ptr && m_ptr)  // GCC analyzer warning
+			memcpy_s(t.m_ptr, t.m_size*sizeof(T), m_ptr, m_size*sizeof(T));
+		if (t.m_ptr && ptr)    // GCC analyzer warning
+			memcpy_s(t.m_ptr+m_size, (t.m_size-m_size)*sizeof(T), ptr, len*sizeof(T));
+		std::swap(*this, t);
+
 		m_mark = ELEMS_MAX;
 	}
 
 	/// \brief Append contents from another SecBlock
 	/// \param t the other SecBlock
-	/// \throw InvalidArgument if the number of elements would overflow
+	/// \throw InvalidArgument if resulting size would overflow
 	/// \details Internally, this SecBlock calls Grow and then appends t.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
@@ -990,8 +988,8 @@ public:
 			else            // t += t
 			{
 				Grow(m_size*2);
-				if (m_ptr && t.m_ptr)  // GCC analyzer warning
-					memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
+				if (m_ptr)  // GCC analyzer warning
+					memmove_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
 			}
 		}
 		m_mark = ELEMS_MAX;
@@ -1000,7 +998,7 @@ public:
 	/// \brief Append contents from a value
 	/// \param count the number of values to copy
 	/// \param value the value, repeated count times
-	/// \throw InvalidArgument if the number of elements would overflow
+	/// \throw InvalidArgument if resulting size would overflow
 	/// \details Internally, this SecBlock calls Grow and then appends value.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
