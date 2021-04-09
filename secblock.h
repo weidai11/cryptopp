@@ -938,7 +938,7 @@ public:
 	/// \throw InvalidArgument if resulting size would overflow
 	/// \details The array pointed to by <tt>ptr</tt> must be distinct
 	///  from this SecBlock because Append() calls Grow() and memcpy.
-	/// \details Internally, this SecBlock calls Grow and then appends t.
+	/// \details Internally, this SecBlock calls Grow() and then appends t.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
 	///  The ByteQueue can copy elements without growing.
@@ -959,7 +959,7 @@ public:
 	/// \brief Append contents from another SecBlock
 	/// \param t the other SecBlock
 	/// \throw InvalidArgument if resulting size would overflow
-	/// \details Internally, this SecBlock calls Grow and then appends t.
+	/// \details Internally, this SecBlock calls Grow() and then appends t.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
 	///  The ByteQueue can copy elements without growing.
@@ -990,7 +990,7 @@ public:
 	/// \param count the number of values to copy
 	/// \param value the value, repeated count times
 	/// \throw InvalidArgument if resulting size would overflow
-	/// \details Internally, this SecBlock calls Grow and then appends value.
+	/// \details Internally, this SecBlock calls Grow() and then appends value.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
 	///  The ByteQueue can copy elements without growing.
