@@ -948,7 +948,6 @@ public:
 		if (len)
 		{
 			const size_type oldSize = m_size;
-
 			Grow(m_size+len);
 			if (m_ptr && ptr)  // GCC analyzer warning
 				memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), ptr, len*sizeof(T));
@@ -1003,8 +1002,9 @@ public:
 		if (ELEMS_MAX - m_size < count)
 			throw InvalidArgument("Append: buffer overflow");
 
+		const size_type oldSize = m_size;
 		Grow(m_size+count);
-		for (size_t i=m_size; i<m_size+count; ++i)
+		for (size_t i=oldSize; i<oldSize+count; ++i)
 			m_ptr[i] = value;
 
 		m_mark = ELEMS_MAX;
