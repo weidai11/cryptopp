@@ -886,7 +886,7 @@ public:
 	/// \param ptr a pointer to an array of T
 	/// \param len the number of elements in the memory block
 	/// \details The array pointed to by <tt>ptr</tt> must be distinct
-	///  from this SecBlock because Assign() calls memcpy.
+	///  from this SecBlock because Assign() calls New() and memcpy.
 	/// \details If the memory block is reduced in size, then the reclaimed
 	///  memory is set to 0. If an assignment occurs, then Assign() resets
 	///  the element count after the previous block is zeroized.
@@ -938,7 +938,7 @@ public:
 	/// \param len the number of elements in the memory block
 	/// \throw InvalidArgument if resulting size would overflow
 	/// \details The array pointed to by <tt>ptr</tt> must be distinct
-	///  from this SecBlock because Append() calls memcpy.
+	///  from this SecBlock because Append() calls Grow() and memcpy.
 	/// \details Internally, this SecBlock calls Grow and then appends t.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
