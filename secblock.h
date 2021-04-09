@@ -891,12 +891,17 @@ public:
 	/// \since Crypto++ 2.0
 	void Assign(const T *ptr, size_type len)
 	{
-		// ptr is unknown. It could be same array or different array.
-		// It could be same array at different offset so m_ptr!=ptr.
-		SecBlock<T, A> t(len);
-		if (t.m_ptr && ptr)  // GCC analyzer warning
-			memcpy_s(t.m_ptr, t.m_size*sizeof(T), ptr, len*sizeof(T));
-		std::swap(*this, t);
+		if (len)
+		{
+			// ptr is unknown. It could be same array or different array.
+			// It could be same array at different offset so m_ptr!=ptr.
+			SecBlock<T, A> t(len);
+			if (t.m_ptr && ptr)  // GCC analyzer warning
+				memcpy_s(t.m_ptr, t.m_size*sizeof(T), ptr, len*sizeof(T));
+			std::swap(*this, t);
+		}
+		else
+			New(0);
 
 		m_mark = ELEMS_MAX;
 	}
@@ -950,14 +955,17 @@ public:
 		if (ELEMS_MAX - m_size < len)
 			throw InvalidArgument("Append: buffer overflow");
 
-		// ptr is unknown. It could be same array or different array.
-		// It could be same array at different offset so m_ptr!=ptr.
-		SecBlock<T, A> t(m_size+len);
-		if (t.m_ptr && m_ptr)  // GCC analyzer warning
-			memcpy_s(t.m_ptr, t.m_size*sizeof(T), m_ptr, m_size*sizeof(T));
-		if (t.m_ptr && ptr)    // GCC analyzer warning
-			memcpy_s(t.m_ptr+m_size, (t.m_size-m_size)*sizeof(T), ptr, len*sizeof(T));
-		std::swap(*this, t);
+		if (len)
+		{
+			// ptr is unknown. It could be same array or different array.
+			// It could be same array at different offset so m_ptr!=ptr.
+			SecBlock<T, A> t(m_size+len);
+			if (t.m_ptr && m_ptr)  // GCC analyzer warning
+				memcpy_s(t.m_ptr, t.m_size*sizeof(T), m_ptr, m_size*sizeof(T));
+			if (t.m_ptr && ptr)    // GCC analyzer warning
+				memcpy_s(t.m_ptr+m_size, (t.m_size-m_size)*sizeof(T), ptr, len*sizeof(T));
+			std::swap(*this, t);
+		}
 
 		m_mark = ELEMS_MAX;
 	}
