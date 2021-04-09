@@ -127,7 +127,7 @@ public:
 	void FinalizeLazyPut();
 
 	/// \brief Assign contents from another ByteQueue
-	/// \param t the other ByteQueue
+	/// \param rhs the other ByteQueue
 	/// \return reference to this ByteQueue
 	ByteQueue & operator=(const ByteQueue &rhs);
 
@@ -149,7 +149,7 @@ public:
 	/// \param index of byte to retrieve
 	/// \return byte at the specified index
 	/// \details operator[]() does not perform bounds checking.
-	byte operator[](lword i) const;
+	byte operator[](lword index) const;
 
 	/// \brief Swap contents with another ByteQueue
 	/// \param rhs the other SecBlock
