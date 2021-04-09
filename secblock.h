@@ -885,24 +885,17 @@ public:
 	/// \brief Set contents and size from an array
 	/// \param ptr a pointer to an array of T
 	/// \param len the number of elements in the memory block
+	/// \details The array pointed to by <tt>ptr</tt> must be distinct
+	///  from this SecBlock because Assign() calls memcpy.
 	/// \details If the memory block is reduced in size, then the reclaimed
 	///  memory is set to 0. If an assignment occurs, then Assign() resets
 	///  the element count after the previous block is zeroized.
 	/// \since Crypto++ 2.0
 	void Assign(const T *ptr, size_type len)
 	{
-		if (len)
-		{
-			// ptr is unknown. It could be same array or different array.
-			// It could be same array at different offset so m_ptr!=ptr.
-			SecBlock<T, A> t(len);
-			if (t.m_ptr && ptr)  // GCC analyzer warning
-				memcpy_s(t.m_ptr, t.m_size*sizeof(T), ptr, len*sizeof(T));
-			std::swap(*this, t);
-		}
-		else
-			New(0);
-
+		New(len);
+		if (m_ptr && ptr)  // GCC analyzer warning
+			memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));
 		m_mark = ELEMS_MAX;
 	}
 
@@ -944,6 +937,8 @@ public:
 	/// \param ptr a pointer to an array of T
 	/// \param len the number of elements in the memory block
 	/// \throw InvalidArgument if resulting size would overflow
+	/// \details The array pointed to by <tt>ptr</tt> must be distinct
+	///  from this SecBlock because Append() calls memcpy.
 	/// \details Internally, this SecBlock calls Grow and then appends t.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
@@ -955,17 +950,10 @@ public:
 		if (ELEMS_MAX - m_size < len)
 			throw InvalidArgument("Append: buffer overflow");
 
-		if (len)
-		{
-			// ptr is unknown. It could be same array or different array.
-			// It could be same array at different offset so m_ptr!=ptr.
-			SecBlock<T, A> t(m_size+len);
-			if (t.m_ptr && m_ptr)  // GCC analyzer warning
-				memcpy_s(t.m_ptr, t.m_size*sizeof(T), m_ptr, m_size*sizeof(T));
-			if (t.m_ptr && ptr)    // GCC analyzer warning
-				memcpy_s(t.m_ptr+m_size, (t.m_size-m_size)*sizeof(T), ptr, len*sizeof(T));
-			std::swap(*this, t);
-		}
+		const size_type oldSize = m_size;
+		Grow(m_size+len);
+		if (m_ptr && ptr)  // GCC analyzer warning
+			memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), ptr, len*sizeof(T));
 
 		m_mark = ELEMS_MAX;
 	}
@@ -984,22 +972,20 @@ public:
 		if (ELEMS_MAX - m_size < t.m_size)
 			throw InvalidArgument("Append: buffer overflow");
 
-		if (t.m_size)
+		const size_type oldSize = m_size;
+		if (this != &t)  // s += t
 		{
-			const size_type oldSize = m_size;
-			if (this != &t)  // s += t
-			{
-				Grow(m_size+t.m_size);
-				if (m_ptr && t.m_ptr)  // GCC analyzer warning
-					memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
-			}
-			else            // t += t
-			{
-				Grow(m_size*2);
-				if (m_ptr)  // GCC analyzer warning
-					memmove_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
-			}
+			Grow(m_size+t.m_size);
+			if (m_ptr && t.m_ptr)  // GCC analyzer warning
+				memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
 		}
+		else            // t += t
+		{
+			Grow(m_size*2);
+			if (m_ptr)  // GCC analyzer warning
+				memmove_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
+		}
+
 		m_mark = ELEMS_MAX;
 	}
 
