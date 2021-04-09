@@ -891,9 +891,12 @@ public:
 	/// \since Crypto++ 2.0
 	void Assign(const T *ptr, size_type len)
 	{
-		New(len);
-		if (m_ptr && ptr)  // GCC analyzer warning
-			memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));
+		// ptr is unknown. It could be same array or different array.
+		// It could be same array at different offset so m_ptr!=ptr.
+		SecBlock<T, A> t(len);
+		if (t.m_ptr && ptr)  // GCC analyzer warning
+			memcpy_s(t.m_ptr, t.m_size*sizeof(T), ptr, len*sizeof(T));
+		std::swap(*this, t);
 		m_mark = ELEMS_MAX;
 	}
 
@@ -948,11 +951,15 @@ public:
 
 		if (len)
 		{
-			const size_type oldSize = m_size;
-			Grow(m_size+len);
-			if (m_ptr && ptr)  // GCC analyzer warning
-				memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), ptr, len*sizeof(T));
-
+			// ptr is unknown. It could be same array or different array.
+			// It could be same array at different offset so m_ptr!=ptr.
+			SecBlock<T, A> t(m_size+len);
+			if (t.m_ptr && m_ptr && ptr)  // GCC analyzer warning
+			{
+				memcpy_s(t.m_ptr, t.m_size*sizeof(T), m_ptr, m_size*sizeof(T));
+				memcpy_s(t.m_ptr+m_size, (t.m_size-m_size)*sizeof(T), ptr, len*sizeof(T));
+			}
+			std::swap(*this, t);
 		}
 		m_mark = ELEMS_MAX;
 	}
