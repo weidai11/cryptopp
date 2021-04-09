@@ -9,9 +9,9 @@
 ///  classes and template classes from the Win32 dynamic link library.
 ///  When not building the Win32 dynamic link library they are mostly an extern
 ///  template declaration.
-/// \detail In practice they are a furball coughed up by a cat and then peed
+/// \details In practice they are a furball coughed up by a cat and then peed
 ///  on by a dog. They are awful to get just right because of inconsistent
-///  compiler supprt for extern templates, manual instantiation and the FIPS DLL.
+///  compiler support for extern templates, manual instantiation and the FIPS DLL.
 /// \details <tt>config.h</tt> was split into components in May 2019 to better
 ///  integrate with Autoconf and its feature tests. The splitting occurred so
 ///  users could continue to include <tt>config.h</tt> while allowing Autoconf

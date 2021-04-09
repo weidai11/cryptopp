@@ -90,7 +90,7 @@ public:
 
 	/// \brief Insert data in the queue
 	/// \param inString a byte array to insert
-	/// \param length the size of the byte array
+	/// \param size the length of the byte array
 	/// \details LazyPut() inserts a byte array at the tail of the queue.
 	///  The data may not be copied at this point. Rather, the pointer
 	///  and size to external data are recorded.
@@ -102,7 +102,7 @@ public:
 
 	/// \brief Insert data in the queue
 	/// \param inString a byte array to insert
-	/// \param length the size of the byte array
+	/// \param size the length of the byte array
 	/// \details LazyPut() inserts a byte array at the tail of the queue.
 	///  The data may not be copied at this point. Rather, the pointer
 	///  and size to external data are recorded.
