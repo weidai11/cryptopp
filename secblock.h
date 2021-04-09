@@ -911,7 +911,6 @@ public:
 		New(count);
 		for (size_t i=0; i<count; ++i)
 			m_ptr[i] = value;
-
 		m_mark = ELEMS_MAX;
 	}
 
@@ -954,7 +953,6 @@ public:
 		Grow(m_size+len);
 		if (m_ptr && ptr)  // GCC analyzer warning
 			memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), ptr, len*sizeof(T));
-
 		m_mark = ELEMS_MAX;
 	}
 
@@ -985,7 +983,6 @@ public:
 			if (m_ptr)  // GCC analyzer warning
 				memmove_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
 		}
-
 		m_mark = ELEMS_MAX;
 	}
 
@@ -1008,7 +1005,6 @@ public:
 		Grow(m_size+count);
 		for (size_t i=oldSize; i<oldSize+count; ++i)
 			m_ptr[i] = value;
-
 		m_mark = ELEMS_MAX;
 	}
 
@@ -1055,7 +1051,7 @@ public:
 	/// \since Crypto++ 2.0
 	SecBlock<T, A>& operator+=(const SecBlock<T, A> &t)
 	{
-		// Assign guards for overflow
+		// Append guards for overflow
 		Append(t);
 		return *this;
 	}
