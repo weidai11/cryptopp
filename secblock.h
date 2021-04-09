@@ -723,6 +723,7 @@ private:
 /// \brief Secure memory block with allocator and cleanup
 /// \tparam T a class or type
 /// \tparam A AllocatorWithCleanup derived class for allocation and cleanup
+/// \since Crypto++ 2.0
 template <class T, class A = AllocatorWithCleanup<T> >
 class SecBlock
 {
@@ -758,6 +759,7 @@ public:
 	/// \param size the size of the allocation, in elements
 	/// \throw std::bad_alloc
 	/// \details The elements are not initialized.
+	/// \since Crypto++ 2.0
 	/// \note size is the count of elements, and not the number of bytes
 	explicit SecBlock(size_type size=0)
 		: m_mark(ELEMS_MAX), m_size(size), m_ptr(m_alloc.allocate(size, NULLPTR)) { }
@@ -765,6 +767,7 @@ public:
 	/// \brief Copy construct a SecBlock from another SecBlock
 	/// \param t the other SecBlock
 	/// \throw std::bad_alloc
+	/// \since Crypto++ 2.0
 	SecBlock(const SecBlock<T, A> &t)
 		: m_mark(t.m_mark), m_size(t.m_size), m_ptr(m_alloc.allocate(t.m_size, NULLPTR)) {
 			CRYPTOPP_ASSERT((!t.m_ptr && !m_size) || (t.m_ptr && m_size));
@@ -779,6 +782,7 @@ public:
 	/// \details If <tt>ptr!=NULL</tt> and <tt>len!=0</tt>, then the block is initialized from the pointer
 	///  <tt>ptr</tt>. If <tt>ptr==NULL</tt> and <tt>len!=0</tt>, then the block is initialized to 0.
 	///  Otherwise, the block is empty and not initialized.
+	/// \since Crypto++ 2.0
 	/// \note size is the count of elements, and not the number of bytes
 	SecBlock(const T *ptr, size_type len)
 		: m_mark(ELEMS_MAX), m_size(len), m_ptr(m_alloc.allocate(len, NULLPTR)) {
@@ -794,73 +798,217 @@ public:
 
 #ifdef __BORLANDC__
 	/// \brief Cast operator
-        /// \return block pointer cast to non-const <tt>T *</tt>
+	/// \return block pointer cast to non-const <tt>T *</tt>
+	/// \since Crypto++ 2.0
 	operator T *() const
 		{return (T*)m_ptr;}
 #else
 	/// \brief Cast operator
-        /// \return block pointer cast to <tt>const void *</tt>
+	/// \return block pointer cast to <tt>const void *</tt>
+	/// \since Crypto++ 2.0
 	operator const void *() const
 		{return m_ptr;}
 
 	/// \brief Cast operator
-        /// \return block pointer cast to non-const <tt>void *</tt>
+	/// \return block pointer cast to non-const <tt>void *</tt>
+	/// \since Crypto++ 2.0
 	operator void *()
 		{return m_ptr;}
 
 	/// \brief Cast operator
-        /// \return block pointer cast to <tt>const T *</tt>
+	/// \return block pointer cast to <tt>const T *</tt>
+	/// \since Crypto++ 2.0
 	operator const T *() const
 		{return m_ptr;}
 
 	/// \brief Cast operator
-        /// \return block pointer cast to non-const <tt>T *</tt>
+	/// \return block pointer cast to non-const <tt>T *</tt>
+	/// \since Crypto++ 2.0
 	operator T *()
 		{return m_ptr;}
 #endif
 
 	/// \brief Provides an iterator pointing to the first element in the memory block
 	/// \return iterator pointing to the first element in the memory block
+	/// \since Crypto++ 2.0
 	iterator begin()
 		{return m_ptr;}
 	/// \brief Provides a constant iterator pointing to the first element in the memory block
 	/// \return constant iterator pointing to the first element in the memory block
+	/// \since Crypto++ 2.0
 	const_iterator begin() const
 		{return m_ptr;}
 	/// \brief Provides an iterator pointing beyond the last element in the memory block
 	/// \return iterator pointing beyond the last element in the memory block
+	/// \since Crypto++ 2.0
 	iterator end()
 		{return m_ptr+m_size;}
 	/// \brief Provides a constant iterator pointing beyond the last element in the memory block
 	/// \return constant iterator pointing beyond the last element in the memory block
+	/// \since Crypto++ 2.0
 	const_iterator end() const
 		{return m_ptr+m_size;}
 
 	/// \brief Provides a pointer to the first element in the memory block
 	/// \return pointer to the first element in the memory block
+	/// \since Crypto++ 2.0
 	typename A::pointer data() {return m_ptr;}
 	/// \brief Provides a pointer to the first element in the memory block
 	/// \return constant pointer to the first element in the memory block
+	/// \since Crypto++ 2.0
 	typename A::const_pointer data() const {return m_ptr;}
 
 	/// \brief Provides the count of elements in the SecBlock
 	/// \return number of elements in the memory block
 	/// \note the return value is the count of elements, and not the number of bytes
+	/// \since Crypto++ 2.0
 	size_type size() const {return m_size;}
 	/// \brief Determines if the SecBlock is empty
 	/// \return true if number of elements in the memory block is 0, false otherwise
+	/// \since Crypto++ 2.0
 	bool empty() const {return m_size == 0;}
 
 	/// \brief Provides a byte pointer to the first element in the memory block
 	/// \return byte pointer to the first element in the memory block
+	/// \since Crypto++ 2.0
 	byte * BytePtr() {return (byte *)m_ptr;}
 	/// \brief Return a byte pointer to the first element in the memory block
 	/// \return constant byte pointer to the first element in the memory block
+	/// \since Crypto++ 2.0
 	const byte * BytePtr() const {return (const byte *)m_ptr;}
 	/// \brief Provides the number of bytes in the SecBlock
 	/// \return the number of bytes in the memory block
 	/// \note the return value is the number of bytes, and not count of elements.
+	/// \since Crypto++ 2.0
 	size_type SizeInBytes() const {return m_size*sizeof(T);}
+
+	/// \brief Set contents and size from an array
+	/// \param ptr a pointer to an array of T
+	/// \param len the number of elements in the memory block
+	/// \details If the memory block is reduced in size, then the reclaimed
+	///  memory is set to 0. If an assignment occurs, then Assign() resets
+	///  the element count after the previous block is zeroized.
+	/// \since Crypto++ 2.0
+	void Assign(const T *ptr, size_type len)
+	{
+		New(len);
+		if (m_ptr && ptr)  // GCC analyzer warning
+			memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));
+		m_mark = ELEMS_MAX;
+	}
+
+	/// \brief Set contents from a value
+	/// \param count the number of values to copy
+	/// \param value the value, repeated count times
+	/// \details If the memory block is reduced in size, then the reclaimed
+	///  memory is set to 0. If an assignment occurs, then Assign() resets
+	///  the element count after the previous block is zeroized.
+	/// \since TODO... (not in 5.0)
+	void Assign(size_type count, T value)
+	{
+		New(count);
+		for (size_t i=0; i<count; ++i)
+			m_ptr[i] = value;
+
+		m_mark = ELEMS_MAX;
+	}
+
+	/// \brief Copy contents from another SecBlock
+	/// \param t the other SecBlock
+	/// \details Assign checks for self assignment.
+	/// \details If the memory block is reduced in size, then the reclaimed
+	///  memory is set to 0. If an assignment occurs, then Assign() resets
+	///  the element count after the previous block is zeroized.
+	/// \since Crypto++ 2.0
+	void Assign(const SecBlock<T, A> &t)
+	{
+		if (this != &t)
+		{
+			New(t.m_size);
+			if (m_ptr && t.m_ptr)  // GCC analyzer warning
+				memcpy_s(m_ptr, m_size*sizeof(T), t, t.m_size*sizeof(T));
+		}
+		m_mark = ELEMS_MAX;
+	}
+
+	/// \brief Append contents from an array
+	/// \param ptr a pointer to an array of T
+	/// \param len the number of elements in the memory block
+	/// \details Internally, this SecBlock calls Grow and then appends t.
+	/// \details Append() may be less efficient than a ByteQueue because
+	///  Append() must Grow() the internal array and then copy elements.
+	///  The ByteQueue can copy elements without growing.
+	/// \sa ByteQueue
+	/// \since Crypto++ 8.6
+	void Append(const T *ptr, size_type len)
+	{
+		if (ELEMS_MAX - m_size < len)
+			throw InvalidArgument("Append: buffer overflow");
+
+		if (len)
+		{
+			const size_type oldSize = m_size;
+
+			Grow(m_size+len);
+			if (m_ptr && ptr)  // GCC analyzer warning
+				memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), ptr, len*sizeof(T));
+
+		}
+		m_mark = ELEMS_MAX;
+	}
+
+	/// \brief Append contents from another SecBlock
+	/// \param t the other SecBlock
+	/// \details Internally, this SecBlock calls Grow and then appends t.
+	/// \details Append() may be less efficient than a ByteQueue because
+	///  Append() must Grow() the internal array and then copy elements.
+	///  The ByteQueue can copy elements without growing.
+	/// \sa ByteQueue
+	/// \since Crypto++ 8.6
+	void Append(const SecBlock<T, A> &t)
+	{
+		if (ELEMS_MAX - m_size < t.m_size)
+			throw InvalidArgument("Append: buffer overflow");
+
+		if (t.m_size)
+		{
+			const size_type oldSize = m_size;
+			if (this != &t)  // s += t
+			{
+				Grow(m_size+t.m_size);
+				if (m_ptr && t.m_ptr)  // GCC analyzer warning
+					memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
+			}
+			else            // t += t
+			{
+				Grow(m_size*2);
+				if (m_ptr && t.m_ptr)  // GCC analyzer warning
+					memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
+			}
+		}
+		m_mark = ELEMS_MAX;
+	}
+
+	/// \brief Append contents from a value
+	/// \param count the number of values to copy
+	/// \param value the value, repeated count times
+	/// \details Internally, this SecBlock calls Grow and then appends value.
+	/// \details Append() may be less efficient than a ByteQueue because
+	///  Append() must Grow() the internal array and then copy elements.
+	///  The ByteQueue can copy elements without growing.
+	/// \sa ByteQueue
+	/// \since Crypto++ 8.6
+	void Append(size_type count, T value)
+	{
+		if (ELEMS_MAX - m_size < count)
+			throw InvalidArgument("Append: buffer overflow");
+
+		Grow(m_size+count);
+		for (size_t i=m_size; i<m_size+count; ++i)
+			m_ptr[i] = value;
+
+		m_mark = ELEMS_MAX;
+	}
 
 	/// \brief Sets the number of elements to zeroize
 	/// \param count the number of elements
@@ -885,56 +1033,13 @@ public:
 	/// \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
 	void SetMark(size_t count) {m_mark = count;}
 
-	/// \brief Set contents and size from an array
-	/// \param ptr a pointer to an array of T
-	/// \param len the number of elements in the memory block
-	/// \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
-	///  Assign() resets the element count after the previous block is zeroized.
-	void Assign(const T *ptr, size_type len)
-	{
-		New(len);
-		if (m_ptr && ptr)  // GCC analyzer warning
-			memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));
-		m_mark = ELEMS_MAX;
-	}
-
-	/// \brief Set contents from a value
-	/// \param count the number of values to copy
-	/// \param value the value, repeated count times
-	/// \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
-	///  Assign() resets the element count after the previous block is zeroized.
-	void Assign(size_type count, T value)
-	{
-		New(count);
-		for (size_t i=0; i<count; ++i)
-			m_ptr[i] = value;
-
-		m_mark = ELEMS_MAX;
-	}
-
-	/// \brief Copy contents from another SecBlock
-	/// \param t the other SecBlock
-	/// \details Assign checks for self assignment.
-	/// \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
-	///  If an assignment occurs, then Assign() resets the element count after the previous block
-	///  is zeroized.
-	void Assign(const SecBlock<T, A> &t)
-	{
-		if (this != &t)
-		{
-			New(t.m_size);
-			if (m_ptr && t.m_ptr)  // GCC analyzer warning
-				memcpy_s(m_ptr, m_size*sizeof(T), t, t.m_size*sizeof(T));
-		}
-		m_mark = ELEMS_MAX;
-	}
-
 	/// \brief Assign contents from another SecBlock
 	/// \param t the other SecBlock
 	/// \details Internally, operator=() calls Assign().
-	/// \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
-	///  If an assignment occurs, then Assign() resets the element count after the previous block
-	///  is zeroized.
+	/// \details If the memory block is reduced in size, then the reclaimed
+	///  memory is set to 0. If an assignment occurs, then Assign() resets
+	///  the element count after the previous block is zeroized.
+	/// \since Crypto++ 2.0
 	SecBlock<T, A>& operator=(const SecBlock<T, A> &t)
 	{
 		// Assign guards for self-assignment
@@ -944,34 +1049,20 @@ public:
 
 	/// \brief Append contents from another SecBlock
 	/// \param t the other SecBlock
-	/// \details Internally, this SecBlock calls Grow and then appends t.
+	/// \details Internally, operator+=() calls Append().
+	/// \since Crypto++ 2.0
 	SecBlock<T, A>& operator+=(const SecBlock<T, A> &t)
 	{
-		CRYPTOPP_ASSERT((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_size));
-		if (t.m_size)
-		{
-			const size_type oldSize = m_size;
-			if (this != &t)  // s += t
-			{
-				Grow(m_size+t.m_size);
-				if (m_ptr && t.m_ptr)  // GCC analyzer warning
-					memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
-			}
-			else            // t += t
-			{
-				Grow(m_size*2);
-				if (m_ptr && t.m_ptr)  // GCC analyzer warning
-					memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
-			}
-		}
-		m_mark = ELEMS_MAX;
+		// Assign guards for overflow
+		Append(t);
 		return *this;
 	}
 
 	/// \brief Construct a SecBlock from this and another SecBlock
 	/// \param t the other SecBlock
-	/// \return a newly constructed SecBlock that is a conacentation of this and t
+	/// \return a newly constructed SecBlock that is a concatenation of this and t
 	/// \details Internally, a new SecBlock is created from this and a concatenation of t.
+	/// \since Crypto++ 2.0
 	SecBlock<T, A> operator+(const SecBlock<T, A> &t)
 	{
 		CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
@@ -992,6 +1083,7 @@ public:
 	/// \details Uses a constant time compare if the arrays are equal size. The constant time
 	///  compare is VerifyBufsEqual() found in misc.h.
 	/// \sa operator!=()
+	/// \since Crypto++ 2.0
 	bool operator==(const SecBlock<T, A> &t) const
 	{
 		return m_size == t.m_size && VerifyBufsEqual(
@@ -1006,6 +1098,7 @@ public:
 	///  compare is VerifyBufsEqual() found in misc.h.
 	/// \details Internally, operator!=() returns the inverse of operator==().
 	/// \sa operator==()
+	/// \since Crypto++ 2.0
 	bool operator!=(const SecBlock<T, A> &t) const
 	{
 		return !operator==(t);
@@ -1019,6 +1112,7 @@ public:
 	///  previous block is zeroized.
 	/// \details Internally, this SecBlock calls reallocate().
 	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
+	/// \since Crypto++ 2.0
 	void New(size_type newSize)
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, false);
@@ -1034,6 +1128,7 @@ public:
 	///  previous block is zeroized.
 	/// \details Internally, this SecBlock calls New().
 	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
+	/// \since Crypto++ 2.0
 	void CleanNew(size_type newSize)
 	{
 		New(newSize);
@@ -1049,6 +1144,7 @@ public:
 	///  change, then use resize(). Grow() resets the element count after the
 	///  previous block is zeroized.
 	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
+	/// \since Crypto++ 2.0
 	void Grow(size_type newSize)
 	{
 		if (newSize > m_size)
@@ -1067,6 +1163,7 @@ public:
 	///  change, then use resize(). CleanGrow() resets the element count after the
 	///  previous block is zeroized.
 	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
+	/// \since Crypto++ 2.0
 	void CleanGrow(size_type newSize)
 	{
 		if (newSize > m_size)
@@ -1085,6 +1182,7 @@ public:
 	///  the previous block is zeroized.
 	/// \details Internally, this SecBlock calls reallocate().
 	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
+	/// \since Crypto++ 2.0
 	void resize(size_type newSize)
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, true);
@@ -1095,6 +1193,7 @@ public:
 	/// \brief Swap contents with another SecBlock
 	/// \param b the other SecBlock
 	/// \details Internally, std::swap() is called on m_alloc, m_size and m_ptr.
+	/// \since Crypto++ 2.0
 	void swap(SecBlock<T, A> &b)
 	{
 		// Swap must occur on the allocator in case its FixedSize that spilled into the heap.
