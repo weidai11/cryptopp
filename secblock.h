@@ -934,6 +934,7 @@ public:
 	/// \brief Append contents from an array
 	/// \param ptr a pointer to an array of T
 	/// \param len the number of elements in the memory block
+	/// \throw InvalidArgument if the number of elements would overflow
 	/// \details Internally, this SecBlock calls Grow and then appends t.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
@@ -958,6 +959,7 @@ public:
 
 	/// \brief Append contents from another SecBlock
 	/// \param t the other SecBlock
+	/// \throw InvalidArgument if the number of elements would overflow
 	/// \details Internally, this SecBlock calls Grow and then appends t.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
@@ -991,6 +993,7 @@ public:
 	/// \brief Append contents from a value
 	/// \param count the number of values to copy
 	/// \param value the value, repeated count times
+	/// \throw InvalidArgument if the number of elements would overflow
 	/// \details Internally, this SecBlock calls Grow and then appends value.
 	/// \details Append() may be less efficient than a ByteQueue because
 	///  Append() must Grow() the internal array and then copy elements.
