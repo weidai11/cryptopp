@@ -1027,7 +1027,7 @@ public:
 	///  before throwing an exception. In this case, the attacker provides a large
 	///  BER encoded length (say 64MB) but only a small number of content octets
 	///  (say 16). If the allocator zeroized all 64MB, then a transient DoS could
-	///  occur as CPU cycles are spent zeroizing unintialized memory.
+	///  occur as CPU cycles are spent zeroizing uninitialized memory.
 	/// \details Generally speaking, any operation which changes the size of the SecBlock
 	///  results in the mark being reset to <tt>ELEMS_MAX</tt>. In particular, if Assign(),
 	///  New(), Grow(), CleanNew(), CleanGrow() are called, then the count is reset to
