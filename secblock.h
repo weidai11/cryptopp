@@ -903,7 +903,7 @@ public:
 	/// \details If the memory block is reduced in size, then the reclaimed
 	///  memory is set to 0. If an assignment occurs, then Assign() resets
 	///  the element count after the previous block is zeroized.
-	/// \since TODO... (not in 5.0)
+	/// \since Crypto++ 6.0
 	void Assign(size_type count, T value)
 	{
 		New(count);
