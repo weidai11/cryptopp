@@ -947,7 +947,7 @@ public:
 	void Append(const T *ptr, size_type len)
 	{
 		if (ELEMS_MAX - m_size < len)
-			throw InvalidArgument("Append: buffer overflow");
+			throw InvalidArgument("SecBlock: buffer overflow");
 
 		const size_type oldSize = m_size;
 		Grow(m_size+len);
@@ -968,7 +968,7 @@ public:
 	void Append(const SecBlock<T, A> &t)
 	{
 		if (ELEMS_MAX - m_size < t.m_size)
-			throw InvalidArgument("Append: buffer overflow");
+			throw InvalidArgument("SecBlock: buffer overflow");
 
 		const size_type oldSize = m_size;
 		if (this != &t)  // s += t
@@ -999,7 +999,7 @@ public:
 	void Append(size_type count, T value)
 	{
 		if (ELEMS_MAX - m_size < count)
-			throw InvalidArgument("Append: buffer overflow");
+			throw InvalidArgument("SecBlock: buffer overflow");
 
 		const size_type oldSize = m_size;
 		Grow(m_size+count);
@@ -1033,6 +1033,7 @@ public:
 
 	/// \brief Assign contents from another SecBlock
 	/// \param t the other SecBlock
+	/// \return reference to this SecBlock
 	/// \details Internally, operator=() calls Assign().
 	/// \details If the memory block is reduced in size, then the reclaimed
 	///  memory is set to 0. If an assignment occurs, then Assign() resets
@@ -1047,6 +1048,7 @@ public:
 
 	/// \brief Append contents from another SecBlock
 	/// \param t the other SecBlock
+	/// \return reference to this SecBlock
 	/// \details Internally, operator+=() calls Append().
 	/// \since Crypto++ 2.0
 	SecBlock<T, A>& operator+=(const SecBlock<T, A> &t)
