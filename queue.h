@@ -128,6 +128,7 @@ public:
 	/// \brief Insert data in the queue
 	/// \details FinalizeLazyPut() copies external data inserted using
 	///  LazyPut() or LazyPutModifiable() into the tail of the queue.
+	/// \sa LazyPutter
 	void FinalizeLazyPut();
 
 	/// \brief Assign contents from another ByteQueue
@@ -210,24 +211,43 @@ private:
 	bool m_autoNodeSize;
 };
 
-/// use this to make sure LazyPut is finalized in event of exception
+/// \brief Helper class to finalize Puts on ByteQueue
+/// \details LazyPutter ensures LazyPut is committed to the ByteQueue
+///  in event of exception. During destruction, the LazyPutter class
+///  calls FinalizeLazyPut.
 class CRYPTOPP_DLL LazyPutter
 {
 public:
+	virtual ~LazyPutter() {
+		try {m_bq.FinalizeLazyPut();}
+		catch(const Exception&) {CRYPTOPP_ASSERT(0);}
+	}
+
+	/// \brief Construct a LazyPutter
+	/// \details LazyPutter ensures LazyPut is committed to the ByteQueue
+	///  in event of exception. During destruction, the LazyPutter class
+	///  calls FinalizeLazyPut.
 	LazyPutter(ByteQueue &bq, const byte *inString, size_t size)
 		: m_bq(bq) {bq.LazyPut(inString, size);}
-	~LazyPutter()
-		{try {m_bq.FinalizeLazyPut();} catch(const Exception&) {CRYPTOPP_ASSERT(0);}}
+
 protected:
 	LazyPutter(ByteQueue &bq) : m_bq(bq) {}
+
 private:
 	ByteQueue &m_bq;
 };
 
-/// like LazyPutter, but does a LazyPutModifiable instead
+/// \brief Helper class to finalize Puts on ByteQueue
+/// \details LazyPutterModifiable ensures LazyPut is committed to the
+///  ByteQueue in event of exception. During destruction, the
+///  LazyPutterModifiable class calls FinalizeLazyPut.
 class LazyPutterModifiable : public LazyPutter
 {
 public:
+	/// \brief Construct a LazyPutterModifiable
+	/// \details LazyPutterModifiable ensures LazyPut is committed to the
+	///  ByteQueue in event of exception. During destruction, the
+	///  LazyPutterModifiable class calls FinalizeLazyPut.
 	LazyPutterModifiable(ByteQueue &bq, byte *inString, size_t size)
 		: LazyPutter(bq) {bq.LazyPutModifiable(inString, size);}
 };
