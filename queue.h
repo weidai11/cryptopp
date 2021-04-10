@@ -82,7 +82,7 @@ public:
 	/// \details Unget() inserts a byte array at the head of the queue
 	void Unget(const byte *inString, size_t length);
 
-	/// \brief Peek data from the queue
+	/// \brief Peek data in the queue
 	/// \param contiguousSize the size of the data
 	/// \details Spy() peeks at data at the head of the queue. Spy() does
 	///  not remove data from the queue.
@@ -157,7 +157,7 @@ public:
 	byte operator[](lword index) const;
 
 	/// \brief Swap contents with another ByteQueue
-	/// \param rhs the other SecBlock
+	/// \param rhs the other ByteQueue
 	void swap(ByteQueue &rhs);
 
 	/// \brief A ByteQueue iterator

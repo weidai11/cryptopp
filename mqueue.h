@@ -1,3 +1,8 @@
+// mqueue.h - originally written and placed in the public domain by Wei Dai
+
+/// \file
+/// \brief Classes for an unlimited queue to store messages
+
 #ifndef CRYPTOPP_MQUEUE_H
 #define CRYPTOPP_MQUEUE_H
 
@@ -10,12 +15,21 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// Message Queue
+/// \brief Data structure used to store messages
+/// \details The queue is implemented with a ByteQueue.
+/// \sa <A HREF="https://www.cryptopp.com/wiki/MessageQueue">MessageQueue</A>
+///  on the Crypto++ wiki.
+/// \since Crypto++ 2.0
 class CRYPTOPP_DLL MessageQueue : public AutoSignaling<BufferedTransformation>
 {
 public:
+	virtual ~MessageQueue() {}
+
+	/// \brief Construct a MessageQueue
+	/// \param nodeSize the initial node size
 	MessageQueue(unsigned int nodeSize=256);
 
+	// BufferedTransformation
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{m_queue.IsolatedInitialize(parameters); m_lengths.assign(1, 0U); m_messageCounts.assign(1, 0U);}
 	size_t Put2(const byte *begin, size_t length, int messageEnd, bool blocking)
@@ -54,10 +68,23 @@ public:
 	unsigned int NumberOfMessageSeries() const
 		{return (unsigned int)m_messageCounts.size()-1;}
 
+	/// \brief Copy messages from this object to another BufferedTransformation.
+	/// \param target the destination BufferedTransformation
+	/// \param count the number of messages to copy
+	/// \param channel the channel on which the transfer should occur
+	/// \return the number of messages that remain in the copy (i.e., messages not copied)
 	unsigned int CopyMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=DEFAULT_CHANNEL) const;
 
+	/// \brief Peek data in the queue
+	/// \param contiguousSize the size of the data
+	/// \details Spy() peeks at data at the head of the queue. Spy() does
+	///  not remove data from the queue.
+	/// \details The data's size is returned in <tt>contiguousSize</tt>.
+	///  Spy() returns the size of the first message in the list.
 	const byte * Spy(size_t &contiguousSize) const;
 
+	/// \brief Swap contents with another MessageQueue
+	/// \param rhs the other MessageQueue
 	void swap(MessageQueue &rhs);
 
 private:
@@ -66,26 +93,39 @@ private:
 	std::deque<unsigned int> m_messageCounts;
 };
 
-
-/// A filter that checks messages on two channels for equality
+/// \brief Filter that checks messages on two channels for equality
 class CRYPTOPP_DLL EqualityComparisonFilter : public Unflushable<Multichannel<Filter> >
 {
 public:
-	struct MismatchDetected : public Exception {MismatchDetected() : Exception(DATA_INTEGRITY_CHECK_FAILED, "EqualityComparisonFilter: did not receive the same data on two channels") {}};
+	/// \brief Different messages were detected
+	struct MismatchDetected : public Exception
+	{
+		/// \brief Construct a MismatchDetected exception
+		MismatchDetected() : Exception(DATA_INTEGRITY_CHECK_FAILED, "EqualityComparisonFilter: did not receive the same data on two channels") {}
+	};
 
-	/*! if throwIfNotEqual is false, this filter will output a '\\0' byte when it detects a mismatch, '\\1' otherwise */
+	/// \brief Construct an EqualityComparisonFilter
+	/// \param attachment an attached transformation
+	/// \param throwIfNotEqual flag indicating whether the objects throws
+	/// \param firstChannel string naming the first channel
+	/// \param secondChannel string naming the second channel
+	/// \throw MismatchDetected if throwIfNotEqual is true and not equal
+	/// \details If throwIfNotEqual is false, this filter will output a '\\0'
+	///  byte when it detects a mismatch, '\\1' otherwise.
 	EqualityComparisonFilter(BufferedTransformation *attachment=NULLPTR, bool throwIfNotEqual=true, const std::string &firstChannel="0", const std::string &secondChannel="1")
 		: m_throwIfNotEqual(throwIfNotEqual), m_mismatchDetected(false)
 		, m_firstChannel(firstChannel), m_secondChannel(secondChannel)
 		{Detach(attachment);}
 
+	// BufferedTransformation
 	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
 	bool ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1, bool blocking=true);
 
-private:
+protected:
 	unsigned int MapChannel(const std::string &channel) const;
 	bool HandleMismatchDetected(bool blocking);
 
+private:
 	bool m_throwIfNotEqual, m_mismatchDetected;
 	std::string m_firstChannel, m_secondChannel;
 	MessageQueue m_q[2];
