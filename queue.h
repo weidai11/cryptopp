@@ -65,7 +65,7 @@ public:
 	lword CurrentSize() const;
 
 	/// \brief Determine data availability
-	/// \return true if the ByteQueu has data, false otherwise
+	/// \return true if the ByteQueue has data, false otherwise
 	bool IsEmpty() const;
 
 	/// \brief Empty the queue
