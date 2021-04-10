@@ -43,7 +43,11 @@ template <class T>
 class CBC_MAC : public MessageAuthenticationCodeImpl<CBC_MAC_Base, CBC_MAC<T> >, public SameKeyLengthAs<T>
 {
 public:
+	/// \brief Construct a CBC_MAC
 	CBC_MAC() {}
+	/// \brief Construct a CBC_MAC
+	/// \param key a byte buffer used to key the cipher
+	/// \param length the length of the byte buffer
 	CBC_MAC(const byte *key, size_t length=SameKeyLengthAs<T>::DEFAULT_KEYLENGTH)
 		{this->SetKey(key, length);}
 
