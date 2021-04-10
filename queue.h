@@ -14,7 +14,11 @@ NAMESPACE_BEGIN(CryptoPP)
 class ByteQueueNode;
 
 /// \brief Data structure used to store byte strings
-/// \details The queue is implemented as a linked list of byte arrays
+/// \details The queue is implemented as a linked list of byte arrays.
+///  Each byte array is stored in a ByteQueueNode.
+/// \sa <A HREF="https://www.cryptopp.com/wiki/ByteQueue">ByteQueue</A>
+///  on the Crypto++ wiki.
+/// \since Crypto++ 2.0
 class CRYPTOPP_DLL ByteQueue : public Bufferless<BufferedTransformation>
 {
 public:
@@ -141,8 +145,8 @@ public:
 	/// \brief Bitwise compare two ByteQueue
 	/// \param rhs the other ByteQueue
 	/// \return true if the size and bits are not equal, false otherwise
-	/// \details operator==() walks each ByteQueue comparing bytes in
-	///  each queue. operator==() is not constant time.
+	/// \details operator!=() is implemented in terms of operator==().
+	///  operator==() is not constant time.
 	bool operator!=(const ByteQueue &rhs) const {return !operator==(rhs);}
 
 	/// \brief Retrieve data from the queue

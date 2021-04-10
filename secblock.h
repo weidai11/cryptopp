@@ -723,6 +723,8 @@ private:
 /// \brief Secure memory block with allocator and cleanup
 /// \tparam T a class or type
 /// \tparam A AllocatorWithCleanup derived class for allocation and cleanup
+/// \sa <A HREF="https://www.cryptopp.com/wiki/SecBlock">SecBlock</A>
+///  on the Crypto++ wiki.
 /// \since Crypto++ 2.0
 template <class T, class A = AllocatorWithCleanup<T> >
 class SecBlock
