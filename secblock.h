@@ -1062,8 +1062,10 @@ public:
 
 	/// \brief Construct a SecBlock from this and another SecBlock
 	/// \param t the other SecBlock
-	/// \return a newly constructed SecBlock that is a concatenation of this and t
-	/// \details Internally, a new SecBlock is created from this and a concatenation of t.
+	/// \return a newly constructed SecBlock that is a concatenation of this
+	///  and t.
+	/// \details Internally, a new SecBlock is created from this and a
+	///  concatenation of t.
 	/// \since Crypto++ 2.0
 	SecBlock<T, A> operator+(const SecBlock<T, A> &t)
 	{
@@ -1082,8 +1084,9 @@ public:
 	/// \brief Bitwise compare two SecBlocks
 	/// \param t the other SecBlock
 	/// \return true if the size and bits are equal, false otherwise
-	/// \details Uses a constant time compare if the arrays are equal size. The constant time
-	///  compare is VerifyBufsEqual() found in misc.h.
+	/// \details Uses a constant time compare if the arrays are equal size.
+	///  The constant time compare is VerifyBufsEqual() found in
+	///  <tt>misc.h</tt>.
 	/// \sa operator!=()
 	/// \since Crypto++ 2.0
 	bool operator==(const SecBlock<T, A> &t) const
@@ -1096,8 +1099,9 @@ public:
 	/// \brief Bitwise compare two SecBlocks
 	/// \param t the other SecBlock
 	/// \return true if the size and bits are equal, false otherwise
-	/// \details Uses a constant time compare if the arrays are equal size. The constant time
-	///  compare is VerifyBufsEqual() found in misc.h.
+	/// \details Uses a constant time compare if the arrays are equal size.
+	///  The constant time compare is VerifyBufsEqual() found in
+	///  <tt>misc.h</tt>.
 	/// \details Internally, operator!=() returns the inverse of operator==().
 	/// \sa operator==()
 	/// \since Crypto++ 2.0
@@ -1108,10 +1112,11 @@ public:
 
 	/// \brief Change size without preserving contents
 	/// \param newSize the new size of the memory block
-	/// \details Old content is not preserved. If the memory block is reduced in size,
-	///  then the reclaimed memory is set to 0. If the memory block grows in size, then
-	///  the new memory is not initialized. New() resets the element count after the
-	///  previous block is zeroized.
+	/// \details Old content is not preserved. If the memory block is
+	///  reduced in size, then the reclaimed content is set to 0. If the
+	///  memory block grows in size, then the new memory is initialized
+	///  to 0. New() resets the element count after the previous block
+	///  is zeroized.
 	/// \details Internally, this SecBlock calls reallocate().
 	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
 	/// \since Crypto++ 2.0
@@ -1124,10 +1129,11 @@ public:
 
 	/// \brief Change size without preserving contents
 	/// \param newSize the new size of the memory block
-	/// \details Old content is not preserved. If the memory block is reduced in size,
-	///  then the reclaimed content is set to 0. If the memory block grows in size, then
-	///  the new memory is initialized to 0. CleanNew() resets the element count after the
-	///  previous block is zeroized.
+	/// \details Old content is not preserved. If the memory block is
+	///  reduced in size, then the reclaimed content is set to 0. If the
+	///  memory block grows in size, then the new memory is initialized
+	///  to 0. CleanNew() resets the element count after the previous
+	///  block is zeroized.
 	/// \details Internally, this SecBlock calls New().
 	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
 	/// \since Crypto++ 2.0
@@ -1141,10 +1147,11 @@ public:
 	/// \brief Change size and preserve contents
 	/// \param newSize the new size of the memory block
 	/// \details Old content is preserved. New content is not initialized.
-	/// \details Internally, this SecBlock calls reallocate() when size must increase. If the
-	///  size does not increase, then Grow() does not take action. If the size must
-	///  change, then use resize(). Grow() resets the element count after the
-	///  previous block is zeroized.
+	/// \details Internally, this SecBlock calls reallocate() when size must
+	///  increase. If the size does not increase, then CleanGrow() does not
+	///  take action. If the size must change, then use resize(). CleanGrow()
+	///  resets the element count after the previous block is zeroized.
+	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
 	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
 	/// \since Crypto++ 2.0
 	void Grow(size_type newSize)
@@ -1160,10 +1167,10 @@ public:
 	/// \brief Change size and preserve contents
 	/// \param newSize the new size of the memory block
 	/// \details Old content is preserved. New content is initialized to 0.
-	/// \details Internally, this SecBlock calls reallocate() when size must increase. If the
-	///  size does not increase, then CleanGrow() does not take action. If the size must
-	///  change, then use resize(). CleanGrow() resets the element count after the
-	///  previous block is zeroized.
+	/// \details Internally, this SecBlock calls reallocate() when size must
+	///  increase. If the size does not increase, then CleanGrow() does not
+	///  take action. If the size must change, then use resize(). CleanGrow()
+	///  resets the element count after the previous block is zeroized.
 	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
 	/// \since Crypto++ 2.0
 	void CleanGrow(size_type newSize)
@@ -1242,7 +1249,8 @@ public:
 /// \brief Fixed size stack-based SecBlock with 16-byte alignment
 /// \tparam T class or type
 /// \tparam S fixed-size of the stack-based memory block, in elements
-/// \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
+/// \tparam T_Align16 boolean that determines whether allocations should be
+///  aligned on a 16-byte boundary
 template <class T, unsigned int S, bool T_Align16 = true>
 class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocatorWithCleanup<T, S, NullAllocator<T>, T_Align16> >
 {
