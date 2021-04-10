@@ -98,7 +98,9 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 
 	if (inString == outString)
 	{
-		m_tempOutString.Assign(inString, length);
+		// No need to copy inString to outString.
+		// Just allocate the space.
+		m_tempOutString.New(length);
 		m_tempOutString.SetMark(0);
 		outString = m_tempOutString.BytePtr();
 		copyOut = true;
@@ -242,7 +244,9 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 
 	if (inString == outString)
 	{
-		m_tempOutString.Assign(inString, length);
+		// No need to copy inString to outString.
+		// Just allocate the space.
+		m_tempOutString.New(length);
 		m_tempOutString.SetMark(0);
 		outString = m_tempOutString.BytePtr();
 		copyOut = true;
