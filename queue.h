@@ -224,6 +224,9 @@ public:
 	}
 
 	/// \brief Construct a LazyPutter
+	/// \param bq the ByteQueue
+	/// \param inString a byte array to insert
+	/// \param size the length of the byte array
 	/// \details LazyPutter ensures LazyPut is committed to the ByteQueue
 	///  in event of exception. During destruction, the LazyPutter class
 	///  calls FinalizeLazyPut.
@@ -245,6 +248,9 @@ class LazyPutterModifiable : public LazyPutter
 {
 public:
 	/// \brief Construct a LazyPutterModifiable
+	/// \param bq the ByteQueue
+	/// \param inString a byte array to insert
+	/// \param size the length of the byte array
 	/// \details LazyPutterModifiable ensures LazyPut is committed to the
 	///  ByteQueue in event of exception. During destruction, the
 	///  LazyPutterModifiable class calls FinalizeLazyPut.
