@@ -692,7 +692,7 @@ public:
 	/// \brief Generate and apply mask
 	/// \param hash HashTransformation derived class
 	/// \param output the destination byte array
-	/// \param outputLength the size fo the destination byte array
+	/// \param outputLength the size of the destination byte array
 	/// \param input the message to hash
 	/// \param inputLength the size of the message
 	/// \param mask flag indicating whether to apply the mask
@@ -703,7 +703,7 @@ public:
 /// \brief P1363 mask generation function
 /// \param hash HashTransformation derived class
 /// \param output the destination byte array
-/// \param outputLength the size fo the destination byte array
+/// \param outputLength the size of the destination byte array
 /// \param input the message to hash
 /// \param inputLength the size of the message
 /// \param derivationParams additional derivation parameters
@@ -727,7 +727,7 @@ public:
 	/// \brief P1363 mask generation function
 	/// \param hash HashTransformation derived class
 	/// \param output the destination byte array
-	/// \param outputLength the size fo the destination byte array
+	/// \param outputLength the size of the destination byte array
 	/// \param input the message to hash
 	/// \param inputLength the size of the message
 	/// \param mask flag indicating whether to apply the mask
@@ -751,7 +751,7 @@ class P1363_KDF2
 public:
 	/// \brief P1363 key derivation function
 	/// \param output the destination byte array
-	/// \param outputLength the size fo the destination byte array
+	/// \param outputLength the size of the destination byte array
 	/// \param input the message to hash
 	/// \param inputLength the size of the message
 	/// \param derivationParams additional derivation parameters
@@ -1553,7 +1553,7 @@ public:
 		{return GetMessageEncodingInterface().MaxRecoverableLength(0, GetHashIdentifier().second, GetDigestSize());}
 
 	/// \brief Provides the maximum recoverable length
-	/// \param signatureLength the size fo the signature
+	/// \param signatureLength the size of the signature
 	/// \return maximum recoverable length based on signature length, in bytes
 	/// \details this function is not implemented and always returns 0.
 	size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const

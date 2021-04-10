@@ -310,7 +310,7 @@ public:
 	/// \brief Apply keystream to data
 	/// \param outString a buffer to write the transformed data
 	/// \param inString a buffer to read the data
-	/// \param length the size fo the buffers, in bytes
+	/// \param length the size of the buffers, in bytes
 	/// \details This is the primary method to operate a stream cipher. For example:
 	/// <pre>
 	///     size_t size = 30;
@@ -568,7 +568,7 @@ public:
 	/// \brief Apply keystream to data
 	/// \param outString a buffer to write the transformed data
 	/// \param inString a buffer to read the data
-	/// \param length the size fo the buffers, in bytes
+	/// \param length the size of the buffers, in bytes
 	/// \details This is the primary method to operate a stream cipher. For example:
 	/// <pre>
 	///     size_t size = 30;
