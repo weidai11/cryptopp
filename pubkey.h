@@ -1495,6 +1495,7 @@ public:
 };
 
 /// \brief Interface for symmetric encryption algorithms used in DL cryptosystems
+/// \sa DLIES, ECIES, ECIES_P1363
 class CRYPTOPP_NO_VTABLE DL_SymmetricEncryptionAlgorithm
 {
 public:
