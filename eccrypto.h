@@ -620,7 +620,7 @@ struct ECIES
 /// \brief Elliptic Curve Integrated Encryption Scheme for P1363
 /// \tparam COFACTOR_OPTION cofactor multiplication option
 /// \tparam HASH HashTransformation derived class used for key drivation and MAC computation
-/// \details ECIES is an Elliptic Curve based Integrated Encryption Scheme (IES) for P1363. The scheme combines a Key Encapsulation
+/// \details ECIES_P1363 is an Elliptic Curve based Integrated Encryption Scheme (IES) for P1363. The scheme combines a Key Encapsulation
 ///  Method (KEM) with a Data Encapsulation Method (DEM) and a MAC tag. The scheme is
 ///  <A HREF="http://en.wikipedia.org/wiki/ciphertext_indistinguishability">IND-CCA2</A>, which is a strong notion of security.
 ///  You should prefer an Integrated Encryption Scheme over homegrown schemes.
