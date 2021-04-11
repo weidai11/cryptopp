@@ -913,7 +913,11 @@ public:
     }
 };
 
-/// _
+/// \brief P1363 based Key Derivation Method
+/// \tparam T field type
+/// \tparam DHAES_MODE flag indicating DHAES mode
+/// \tparam KDF key derivation function
+/// \details Field type <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T, bool DHAES_MODE, class KDF>
 class DL_KeyDerivationAlgorithm_P1363 : public DL_KeyDerivationAlgorithm<T>
 {
