@@ -284,6 +284,7 @@ protected:
 
 /// \brief GDSA algorithm
 /// \tparam T FieldElement type or class
+/// \details FieldElement <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T>
 class DL_Algorithm_GDSA : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
@@ -318,6 +319,7 @@ public:
 /// \brief DSA signature algorithm based on RFC 6979
 /// \tparam T FieldElement type or class
 /// \tparam H HashTransformation derived class
+/// \details FieldElement <tt>T</tt> can be Integer, ECP or EC2N.
 /// \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">RFC 6979, Deterministic Usage of the
 ///  Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
 /// \since Crypto++ 6.0
@@ -474,8 +476,9 @@ private:
 
 /// \brief German Digital Signature Algorithm
 /// \tparam T FieldElement type or class
+/// \details FieldElement <tt>T</tt> can be Integer, ECP or EC2N.
 /// \details The Digital Signature Scheme ECGDSA does not define the algorithm over integers. Rather, the
-///  signature algorithm is only defined over elliptic curves. However, The library design is such that the
+///  signature algorithm is only defined over elliptic curves. However, the library design is such that the
 ///  generic algorithm reside in <tt>gfpcrypt.h</tt>.
 /// \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">
 ///  The Digital Signature Scheme ECGDSA (October 24, 2006)</A>
@@ -520,6 +523,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA512>;
 
 /// \brief NR algorithm
 /// \tparam T FieldElement type or class
+/// \details FieldElement <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T>
 class DL_Algorithm_NR : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
@@ -914,10 +918,10 @@ public:
 };
 
 /// \brief P1363 based Key Derivation Method
-/// \tparam T field type
+/// \tparam T FieldElement type or class
 /// \tparam DHAES_MODE flag indicating DHAES mode
 /// \tparam KDF key derivation function
-/// \details Field type <tt>T</tt> can be Integer, ECP or EC2N.
+/// \details FieldElement <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T, bool DHAES_MODE, class KDF>
 class DL_KeyDerivationAlgorithm_P1363 : public DL_KeyDerivationAlgorithm<T>
 {
