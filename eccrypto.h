@@ -34,7 +34,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \brief Elliptic Curve Parameters
 /// \tparam EC elliptic curve field
 /// \details This class corresponds to the ASN.1 sequence of the same name
-///   in ANSI X9.62 and SEC 1. EC is currently defined for ECP and EC2N.
+///  in ANSI X9.62 and SEC 1. EC is currently defined for ECP and EC2N.
 template <class EC>
 class DL_GroupParameters_EC : public DL_GroupParametersImpl<EcPrecomputation<EC> >
 {
@@ -233,8 +233,8 @@ public:
 	/// \param rng a RandomNumberGenerator derived class
 	/// \param params the EC group parameters
 	/// \details This function overload of Initialize() creates a new private key because it
-	///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-	///   then use one of the other Initialize() overloads.
+	///  takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	///  then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const DL_GroupParameters_EC<EC> &params)
 		{this->GenerateRandom(rng, params);}
 
@@ -244,8 +244,8 @@ public:
 	/// \param G the base point
 	/// \param n the order of the base point
 	/// \details This function overload of Initialize() creates a new private key because it
-	///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-	///   then use one of the other Initialize() overloads.
+	///  takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	///  then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const EC &ec, const Element &G, const Integer &n)
 		{this->GenerateRandom(rng, DL_GroupParameters_EC<EC>(ec, G, n));}
 
@@ -283,7 +283,7 @@ struct ECMQV
 /// \tparam EC elliptic curve field
 /// \tparam COFACTOR_OPTION cofactor multiplication option
 /// \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
-///   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
+///  Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
 /// \sa CofactorMultiplicationOption
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption, class HASH = SHA256>
 struct ECHMQV
@@ -300,8 +300,8 @@ typedef ECHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA512
 /// \tparam EC elliptic curve field
 /// \tparam COFACTOR_OPTION cofactor multiplication option
 /// \details This implementation follows Augustin P. Sarr and Philippe Elbaz–Vincent, and Jean–Claude Bajard's
-///   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
-///   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
+///  <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
+///  Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
 /// \sa CofactorMultiplicationOption
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption, class HASH = SHA256>
 struct ECFHMQV
@@ -350,7 +350,7 @@ public:
 /// \brief Elliptic Curve DSA (ECDSA) signature algorithm based on RFC 6979
 /// \tparam EC elliptic curve field
 /// \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">RFC 6979, Deterministic Usage of the
-///   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+///  Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
 /// \since Crypto++ 6.0
 template <class EC, class H>
 class DL_Algorithm_ECDSA_RFC6979 : public DL_Algorithm_DSA_RFC6979<typename EC::Point, H>
@@ -382,7 +382,7 @@ struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_Signat
 /// \tparam EC elliptic curve field
 /// \tparam H HashTransformation derived class
 /// \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">Deterministic Usage of the
-///   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+///  Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
 /// \since Crypto++ 6.0
 template <class EC, class H>
 struct ECDSA_RFC6979 : public DL_SS<
@@ -450,8 +450,8 @@ public:
 	/// \param rng a RandomNumberGenerator derived class
 	/// \param params the EC group parameters
 	/// \details This function overload of Initialize() creates a new private key because it
-	///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-	///   then use one of the other Initialize() overloads.
+	///  takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	///  then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const DL_GroupParameters_EC<EC> &params)
 		{this->GenerateRandom(rng, params);}
 
@@ -461,8 +461,8 @@ public:
 	/// \param G the base point
 	/// \param n the order of the base point
 	/// \details This function overload of Initialize() creates a new private key because it
-	///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-	///   then use one of the other Initialize() overloads.
+	///  takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	///  then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const EC &ec, const Element &G, const Integer &n)
 		{this->GenerateRandom(rng, DL_GroupParameters_EC<EC>(ec, G, n));}
 
@@ -570,8 +570,8 @@ public:
 /// \tparam EC elliptic curve field
 /// \tparam H HashTransformation derived class
 /// \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A
-///   HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">The Digital Signature Scheme
-///   ECGDSA (October 24, 2006)</A>
+///  HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">The Digital Signature Scheme
+///  ECGDSA (October 24, 2006)</A>
 /// \since Crypto++ 6.0
 template <class EC, class H>
 struct ECGDSA : public DL_SS<
@@ -591,32 +591,18 @@ struct ECGDSA : public DL_SS<
 /// \tparam DHAES_MODE flag indicating if the MAC includes additional context parameters such as <em>u·V</em>, <em>v·U</em> and label
 /// \tparam LABEL_OCTETS flag indicating if the label size is specified in octets or bits
 /// \details ECIES is an Elliptic Curve based Integrated Encryption Scheme (IES). The scheme combines a Key Encapsulation
-///   Method (KEM) with a Data Encapsulation Method (DEM) and a MAC tag. The scheme is
-///   <A HREF="http://en.wikipedia.org/wiki/ciphertext_indistinguishability">IND-CCA2</A>, which is a strong notion of security.
-///   You should prefer an Integrated Encryption Scheme over homegrown schemes.
-/// \details The library's original implementation is based on an early P1363 draft, which itself appears to be based on an early Certicom
-///   SEC-1 draft (or an early SEC-1 draft was based on a P1363 draft). Crypto++ 4.2 used the early draft in its Integrated Ecryption
-///   Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-/// \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the ECIES template class with
-///   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-/// \details If you desire an Integrated Encryption Scheme with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES
-///   template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
+///  Method (KEM) with a Data Encapsulation Method (DEM) and a MAC tag. The scheme is
+///  <A HREF="http://en.wikipedia.org/wiki/ciphertext_indistinguishability">IND-CCA2</A>, which is a strong notion of security.
+///  You should prefer an Integrated Encryption Scheme over homegrown schemes.
+/// \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the ECIES_P1363.
+///  If you desire an Integrated Encryption Scheme compatibile with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES
+///  template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
 /// \details The default template parameters ensure compatibility with Bouncy Castle 1.54 and Botan 1.11. The combination of
-///   <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.
-///   SHA1 is used for compatibility reasons, but it can be changed if desired. SHA-256 or another hash will likely improve the
-///   security provided by the MAC. The hash is also used in the key derivation function as a PRF.
-/// \details Below is an example of constructing a Crypto++ 4.2 compatible ECIES encryptor and decryptor.
-/// <pre>
-///     AutoSeededRandomPool prng;
-///     DL_PrivateKey_EC<ECP> key;
-///     key.Initialize(prng, ASN1::secp160r1());
-///
-///     ECIES<ECP,SHA1,NoCofactorMultiplication,true,true>::Decryptor decryptor(key);
-///     ECIES<ECP,SHA1,NoCofactorMultiplication,true,true>::Encryptor encryptor(decryptor);
-/// </pre>
-/// \sa DLIES, <a href="http://www.weidai.com/scan-mirror/ca.html#ECIES">Elliptic Curve Integrated Encryption Scheme (ECIES)</a>,
-///   Martínez, Encinas, and Ávila's <A HREF="http://digital.csic.es/bitstream/10261/32671/1/V2-I2-P7-13.pdf">A Survey of the Elliptic
-///   Curve Integrated Encryption Schemes</A>
+///  <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.
+///  SHA1 is used for compatibility reasons, but it can be changed if desired.
+/// \sa DLIES, ECIES_P1363, <a href="http://www.weidai.com/scan-mirror/ca.html#ECIES">Elliptic Curve Integrated Encryption Scheme (ECIES)</a>,
+///  Martínez, Encinas, and Ávila's <A HREF="http://digital.csic.es/bitstream/10261/32671/1/V2-I2-P7-13.pdf">A Survey of the Elliptic
+///  Curve Integrated Encryption Schemes</A>
 /// \since Crypto++ 4.0, Crypto++ 5.7 for Bouncy Castle and Botan compatibility
 template <class EC, class HASH = SHA1, class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = true, bool LABEL_OCTETS = false>
 struct ECIES
@@ -629,6 +615,39 @@ struct ECIES
 {
 	// TODO: fix this after name is standardized
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECIES";}
+};
+
+/// \brief Elliptic Curve Integrated Encryption Scheme for P1363
+/// \tparam COFACTOR_OPTION cofactor multiplication option
+/// \tparam HASH HashTransformation derived class used for key drivation and MAC computation
+/// \details ECIES is an Elliptic Curve based Integrated Encryption Scheme (IES) for P1363. The scheme combines a Key Encapsulation
+///  Method (KEM) with a Data Encapsulation Method (DEM) and a MAC tag. The scheme is
+///  <A HREF="http://en.wikipedia.org/wiki/ciphertext_indistinguishability">IND-CCA2</A>, which is a strong notion of security.
+///  You should prefer an Integrated Encryption Scheme over homegrown schemes.
+/// \details The library's original implementation is based on an early P1363 draft, which itself appears to be based on an early Certicom
+///  SEC-1 draft (or an early SEC-1 draft was based on a P1363 draft). Crypto++ 4.2 used the early draft in its Integrated Ecryption
+///  Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
+/// \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the ECIES_P1363.
+///  If you desire an Integrated Encryption Scheme compatibile with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES
+///  template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
+/// \details The default template parameters ensure compatibility with P1363. The combination of
+///  <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.
+///  SHA1 is used for compatibility reasons, but it can be changed if desired.
+/// \sa DLIES, ECIES, <a href="http://www.weidai.com/scan-mirror/ca.html#ECIES">Elliptic Curve Integrated Encryption Scheme (ECIES)</a>,
+///  Martínez, Encinas, and Ávila's <A HREF="http://digital.csic.es/bitstream/10261/32671/1/V2-I2-P7-13.pdf">A Survey of the Elliptic
+///  Curve Integrated Encryption Schemes</A>
+/// \since Crypto++ 4.0
+template <class EC, class HASH = SHA1, class COFACTOR_OPTION = NoCofactorMultiplication>
+struct ECIES_P1363
+	: public DL_ES<
+		DL_Keys_EC<EC>,
+		DL_KeyAgreementAlgorithm_DH<typename EC::Point, COFACTOR_OPTION>,
+		DL_KeyDerivationAlgorithm_P1363<typename EC::Point, false, P1363_KDF2<HASH> >,
+		DL_EncryptionAlgorithm_Xor<HMAC<HASH>, false, true>,
+		ECIES<EC> >
+{
+	// TODO: fix this after name is standardized
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECIES-P1363";}
 };
 
 NAMESPACE_END
