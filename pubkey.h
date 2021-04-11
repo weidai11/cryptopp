@@ -1400,7 +1400,8 @@ template<class GP>
 DL_PublicKeyImpl<GP>::~DL_PublicKeyImpl() {}
 
 /// \brief Interface for Elgamal-like signature algorithms
-/// \tparam T Field element
+/// \tparam T Field element type or class
+/// \details Field element <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_ElgamalLikeSignatureAlgorithm
 {
@@ -1468,7 +1469,8 @@ public:
 };
 
 /// \brief Interface for DL key agreement algorithms
-/// \tparam T Field element
+/// \tparam T Field element type or class
+/// \details Field element <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_KeyAgreementAlgorithm
 {
@@ -1482,7 +1484,8 @@ public:
 };
 
 /// \brief Interface for key derivation algorithms used in DL cryptosystems
-/// \tparam T Field element
+/// \tparam T Field element type or class
+/// \details Field element <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_KeyDerivationAlgorithm
 {
@@ -1589,7 +1592,8 @@ protected:
 };
 
 /// \brief Discrete Log (DL) signature scheme signer base implementation
-/// \tparam T Field element
+/// \tparam T Field element type or class
+/// \details Field element <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_SignerBase : public DL_SignatureSchemeBase<PK_Signer, DL_PrivateKey<T> >
 {
@@ -1706,7 +1710,8 @@ protected:
 };
 
 /// \brief Discret Log (DL) Verifier base class
-/// \tparam T Field element
+/// \tparam T Field element type or class
+/// \details Field element <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_VerifierBase : public DL_SignatureSchemeBase<PK_Verifier, DL_PublicKey<T> >
 {
@@ -1817,7 +1822,8 @@ protected:
 };
 
 /// \brief Discrete Log (DL) decryptor base implementation
-/// \tparam T Field element
+/// \tparam T Field element type or class
+/// \details Field element <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_DecryptorBase : public DL_CryptoSystemBase<PK_Decryptor, DL_PrivateKey<T> >
 {
@@ -1857,7 +1863,8 @@ public:
 };
 
 /// \brief Discrete Log (DL) encryptor base implementation
-/// \tparam T Field element
+/// \tparam T Field element type or class
+/// \details Field element <tt>T</tt> can be Integer, ECP or EC2N.
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_EncryptorBase : public DL_CryptoSystemBase<PK_Encryptor, DL_PublicKey<T> >
 {
