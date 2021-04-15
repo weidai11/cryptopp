@@ -726,23 +726,7 @@ lsh_err lsh256_init(LSH256_Context* ctx)
 	lsh_u32 algtype = ctx->algtype;
 	const lsh_u32* const_v = NULL;
 
-	// Cannot be NULL
-	//if (ctx == NULL){
-	//	return LSH_ERR_NULL_PTR;
-	//}
-
-	// ctx->algtype = algtype;
 	ctx->remain_databitlen = 0;
-
-	// Cannot be wrong algtype
-	//if (!LSH_IS_LSH256(algtype)){
-	//	return LSH_ERR_INVALID_ALGTYPE;
-	//}
-
-	// Cannot be wrong algtype
-	//if (LSH_GET_HASHBYTE(algtype) > LSH256_HASH_VAL_MAX_BYTE_LEN || LSH_GET_HASHBYTE(algtype) == 0){
-	//	return LSH_ERR_INVALID_ALGTYPE;
-	//}
 
 	switch (algtype)
 	{
@@ -794,25 +778,14 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 		return LSH_SUCCESS;
 	}
 
-	// Cannot be NULL
-	//if (ctx == NULL || data == NULL){
-	//	return LSH_ERR_NULL_PTR;
-	//}
-
 	size_t databytelen = databitlen >> 3;
 	lsh_uint pos2 = databitlen & 0x7;
 
-	lsh_uint remain_msg_byte;
-	lsh_uint remain_msg_bit;
+	// We are byte oriented. remain_msg_bit will always be 0.
+	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
+	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
+	lsh_uint remain_msg_bit = 0;
 
-	// Cannot be wrong algtype
-	//if (ctx->algtype == 0 || LSH_GET_HASHBYTE(ctx->algtype) > LSH256_HASH_VAL_MAX_BYTE_LEN)
-	//{
-	//	return LSH_ERR_INVALID_STATE;
-	//}
-
-	remain_msg_byte = ctx->remain_databitlen >> 3;
-	remain_msg_bit = ctx->remain_databitlen & 7;
 	if (remain_msg_byte >= LSH256_MSG_BLK_BYTE_LEN){
 		return LSH_ERR_INVALID_STATE;
 	}
@@ -862,18 +835,10 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 
 lsh_err lsh256_final(LSH256_Context* ctx, lsh_u8* hashval)
 {
-    // Cannot be NULL
-	//if (ctx == NULL || hashval == NULL){
-	//	return LSH_ERR_NULL_PTR;
-	//}
-
-    // Cannot be wrong algtype
-	//if (ctx->algtype == 0 || LSH_GET_HASHBYTE(ctx->algtype) > LSH256_HASH_VAL_MAX_BYTE_LEN){
-	//	return LSH_ERR_INVALID_STATE;
-	//}
-
+	// We are byte oriented. remain_msg_bit will always be 0.
 	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
-	lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
+	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
+	lsh_uint remain_msg_bit = 0;
 
 	if (remain_msg_byte >= LSH256_MSG_BLK_BYTE_LEN){
 		return LSH_ERR_INVALID_STATE;
@@ -940,7 +905,7 @@ void LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::TruncatedFinal(byte *has
 	{
 		// TODO: determine if LSH256 supports truncated hashes. See the code in get_hash(),
 		// where a bit-length is added to the last output byte of the hash function.
-		CRYPTOPP_ASSERT(0);
+		// CRYPTOPP_ASSERT(0);
 
 		byte fullHash[HASH_VAL_MAX_WORD_LEN * sizeof(lsh_uint)];
 		err = lsh256_final(&ctx, fullHash);
