@@ -253,49 +253,28 @@ inline void msg_exp_even(LSH256_Internal* i_state)
 
 #if defined(__SSE2__)
 	{
-	//i_state->submsg_e_l[0] = i_state->submsg_o_l[0] + i_state->submsg_e_l[3];
-	//i_state->submsg_e_l[1] = i_state->submsg_o_l[1] + i_state->submsg_e_l[2];
-	//i_state->submsg_e_l[2] = i_state->submsg_o_l[2] + i_state->submsg_e_l[0];
-	//i_state->submsg_e_l[3] = i_state->submsg_o_l[3] + i_state->submsg_e_l[1];
-
 	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+0)), _MM_SHUFFLE(3,2,1,0));
 	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+0)), _MM_SHUFFLE(1,0,2,3));
 	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+0), _mm_add_epi32(x, y));
 	}
 
 	{
-	//i_state->submsg_e_l[4] = i_state->submsg_o_l[4] + i_state->submsg_e_l[7];
-	//i_state->submsg_e_l[5] = i_state->submsg_o_l[5] + i_state->submsg_e_l[4];
-	//i_state->submsg_e_l[6] = i_state->submsg_o_l[6] + i_state->submsg_e_l[5];
-	//i_state->submsg_e_l[7] = i_state->submsg_o_l[7] + i_state->submsg_e_l[6];
-
 	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+4)), _MM_SHUFFLE(3,2,1,0));
 	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+4)), _MM_SHUFFLE(2,1,0,3));
 	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+4), _mm_add_epi32(x, y));
 	}
 
 	{
-	//i_state->submsg_e_r[0] = i_state->submsg_o_r[0] + i_state->submsg_e_r[3];
-	//i_state->submsg_e_r[1] = i_state->submsg_o_r[1] + i_state->submsg_e_r[2];
-	//i_state->submsg_e_r[2] = i_state->submsg_o_r[2] + i_state->submsg_e_r[0];
-	//i_state->submsg_e_r[3] = i_state->submsg_o_r[3] + i_state->submsg_e_r[1];
-
 	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+0)), _MM_SHUFFLE(3,2,1,0));
 	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+0)), _MM_SHUFFLE(1,0,2,3));
 	_mm_storeu_si128(M128_CAST(i_state->submsg_e_r+0), _mm_add_epi32(x, y));
 	}
 
 	{
-	//i_state->submsg_e_r[4] = i_state->submsg_o_r[4] + i_state->submsg_e_r[7];
-	//i_state->submsg_e_r[5] = i_state->submsg_o_r[5] + i_state->submsg_e_r[4];
-	//i_state->submsg_e_r[6] = i_state->submsg_o_r[6] + i_state->submsg_e_r[5];
-	//i_state->submsg_e_r[7] = i_state->submsg_o_r[7] + i_state->submsg_e_r[6];
-
 	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+4)), _MM_SHUFFLE(3,2,1,0));
 	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+4)), _MM_SHUFFLE(2,1,0,3));
 	_mm_storeu_si128(M128_CAST(i_state->submsg_e_r+4), _mm_add_epi32(x, y));
 	}
-
 #else
 	lsh_u32 temp;
 	temp = i_state->submsg_e_l[0];
@@ -327,41 +306,21 @@ inline void msg_exp_odd(LSH256_Internal* i_state)
 
 #if defined(__SSE2__)
 	{
-	//i_state->submsg_o_l[0] = i_state->submsg_e_l[0] + i_state->submsg_o_l[3];
-	//i_state->submsg_o_l[1] = i_state->submsg_e_l[1] + i_state->submsg_o_l[2];
-	//i_state->submsg_o_l[2] = i_state->submsg_e_l[2] + i_state->submsg_o_l[0];
-	//i_state->submsg_o_l[3] = i_state->submsg_e_l[3] + i_state->submsg_o_l[1];
-
 	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+0)), _MM_SHUFFLE(3,2,1,0));
 	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+0)), _MM_SHUFFLE(1,0,2,3));
 	_mm_storeu_si128(M128_CAST(i_state->submsg_o_l+0), _mm_add_epi32(x, y));
 	}
 	{
-	//i_state->submsg_o_l[4] = i_state->submsg_e_l[4] + i_state->submsg_o_l[7];
-	//i_state->submsg_o_l[5] = i_state->submsg_e_l[5] + i_state->submsg_o_l[4];
-	//i_state->submsg_o_l[6] = i_state->submsg_e_l[6] + i_state->submsg_o_l[5];
-	//i_state->submsg_o_l[7] = i_state->submsg_e_l[7] + i_state->submsg_o_l[6];
-
 	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+4)), _MM_SHUFFLE(3,2,1,0));
 	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+4)), _MM_SHUFFLE(2,1,0,3));
 	_mm_storeu_si128(M128_CAST(i_state->submsg_o_l+4), _mm_add_epi32(x, y));
 	}
 	{
-	//i_state->submsg_o_r[0] = i_state->submsg_e_r[0] + i_state->submsg_o_r[3];
-	//i_state->submsg_o_r[1] = i_state->submsg_e_r[1] + i_state->submsg_o_r[2];
-	//i_state->submsg_o_r[2] = i_state->submsg_e_r[2] + i_state->submsg_o_r[0];
-	//i_state->submsg_o_r[3] = i_state->submsg_e_r[3] + i_state->submsg_o_r[1];
-
 	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+0)), _MM_SHUFFLE(3,2,1,0));
 	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+0)), _MM_SHUFFLE(1,0,2,3));
 	_mm_storeu_si128(M128_CAST(i_state->submsg_o_r+0), _mm_add_epi32(x, y));
 	}
 	{
-	//i_state->submsg_o_r[4] = i_state->submsg_e_r[4] + i_state->submsg_o_r[7];
-	//i_state->submsg_o_r[5] = i_state->submsg_e_r[5] + i_state->submsg_o_r[4];
-	//i_state->submsg_o_r[6] = i_state->submsg_e_r[6] + i_state->submsg_o_r[5];
-	//i_state->submsg_o_r[7] = i_state->submsg_e_r[7] + i_state->submsg_o_r[6];
-
 	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+4)), _MM_SHUFFLE(3,2,1,0));
 	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+4)), _MM_SHUFFLE(2,1,0,3));
 	_mm_storeu_si128(M128_CAST(i_state->submsg_o_r+4), _mm_add_epi32(x, y));
@@ -476,23 +435,6 @@ inline void add_blk(lsh_u32* cv_l, const lsh_u32* cv_r)
 #endif
 }
 
-#if 0
-inline void rotate_blk(lsh_u32 cv[8], int rot_value)
-{
-	CRYPTOPP_ASSERT(cv != NULLPTR);
-	CRYPTOPP_ASSERT(rot_value != 0);
-
-	cv[0] = ROTL(cv[0], rot_value);
-	cv[1] = ROTL(cv[1], rot_value);
-	cv[2] = ROTL(cv[2], rot_value);
-	cv[3] = ROTL(cv[3], rot_value);
-	cv[4] = ROTL(cv[4], rot_value);
-	cv[5] = ROTL(cv[5], rot_value);
-	cv[6] = ROTL(cv[6], rot_value);
-	cv[7] = ROTL(cv[7], rot_value);
-}
-#endif
-
 template <unsigned int R>
 inline void rotate_blk(lsh_u32 cv[8])
 {
@@ -541,20 +483,6 @@ inline void xor_with_const(lsh_u32* cv_l, const lsh_u32* const_v)
 #endif
 }
 
-#if 0
-inline void rotate_msg_gamma(lsh_u32* cv_r)
-{
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
-	cv_r[1] = ROTL(cv_r[1], g_gamma256[1]);
-	cv_r[2] = ROTL(cv_r[2], g_gamma256[2]);
-	cv_r[3] = ROTL(cv_r[3], g_gamma256[3]);
-	cv_r[4] = ROTL(cv_r[4], g_gamma256[4]);
-	cv_r[5] = ROTL(cv_r[5], g_gamma256[5]);
-	cv_r[6] = ROTL(cv_r[6], g_gamma256[6]);
-}
-#endif
-
 inline void rotate_msg_gamma(lsh_u32* cv_r)
 {
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
@@ -596,25 +524,6 @@ inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 /* -------------------------------------------------------- *
 * step function
 * -------------------------------------------------------- */
-
-#if 0
-inline void mix(lsh_u32* cv_l, lsh_u32* cv_r, const lsh_u32* const_v, int rot_alpha, int rot_beta)
-{
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-	CRYPTOPP_ASSERT(const_v != NULLPTR);
-	CRYPTOPP_ASSERT(rot_alpha != 0);
-	CRYPTOPP_ASSERT(rot_beta != 0);
-
-	add_blk(cv_l, cv_r);
-	rotate_blk(cv_l, rot_alpha);
-	xor_with_const(cv_l, const_v);
-	add_blk(cv_r, cv_l);
-	rotate_blk(cv_r, rot_beta);
-	add_blk(cv_l, cv_r);
-	rotate_msg_gamma(cv_r);
-}
-#endif
 
 template <unsigned int Alpha, unsigned int Beta>
 inline void mix(lsh_u32* cv_l, lsh_u32* cv_r, const lsh_u32* const_v)
