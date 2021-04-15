@@ -377,10 +377,14 @@ inline void msg_add_even(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
 		_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
 		_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+4))));
 #else
-	cv_l[0] ^= i_state->submsg_e_l[0]; cv_l[1] ^= i_state->submsg_e_l[1]; cv_l[2] ^= i_state->submsg_e_l[2]; cv_l[3] ^= i_state->submsg_e_l[3];
-	cv_l[4] ^= i_state->submsg_e_l[4]; cv_l[5] ^= i_state->submsg_e_l[5]; cv_l[6] ^= i_state->submsg_e_l[6]; cv_l[7] ^= i_state->submsg_e_l[7];
-	cv_r[0] ^= i_state->submsg_e_r[0]; cv_r[1] ^= i_state->submsg_e_r[1]; cv_r[2] ^= i_state->submsg_e_r[2]; cv_r[3] ^= i_state->submsg_e_r[3];
-	cv_r[4] ^= i_state->submsg_e_r[4]; cv_r[5] ^= i_state->submsg_e_r[5]; cv_r[6] ^= i_state->submsg_e_r[6]; cv_r[7] ^= i_state->submsg_e_r[7];
+	cv_l[0] ^= i_state->submsg_e_l[0];  cv_l[1] ^= i_state->submsg_e_l[1];
+	cv_l[2] ^= i_state->submsg_e_l[2];  cv_l[3] ^= i_state->submsg_e_l[3];
+	cv_l[4] ^= i_state->submsg_e_l[4];  cv_l[5] ^= i_state->submsg_e_l[5];
+	cv_l[6] ^= i_state->submsg_e_l[6];  cv_l[7] ^= i_state->submsg_e_l[7];
+	cv_r[0] ^= i_state->submsg_e_r[0];  cv_r[1] ^= i_state->submsg_e_r[1];
+	cv_r[2] ^= i_state->submsg_e_r[2];  cv_r[3] ^= i_state->submsg_e_r[3];
+	cv_r[4] ^= i_state->submsg_e_r[4];  cv_r[5] ^= i_state->submsg_e_r[5];
+	cv_r[6] ^= i_state->submsg_e_r[6];  cv_r[7] ^= i_state->submsg_e_r[7];
 #endif
 }
 
@@ -404,10 +408,14 @@ inline void msg_add_odd(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
 		_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
 		_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+4))));
 #else
-	cv_l[0] ^= i_state->submsg_o_l[0]; cv_l[1] ^= i_state->submsg_o_l[1]; cv_l[2] ^= i_state->submsg_o_l[2]; cv_l[3] ^= i_state->submsg_o_l[3];
-	cv_l[4] ^= i_state->submsg_o_l[4]; cv_l[5] ^= i_state->submsg_o_l[5]; cv_l[6] ^= i_state->submsg_o_l[6]; cv_l[7] ^= i_state->submsg_o_l[7];
-	cv_r[0] ^= i_state->submsg_o_r[0]; cv_r[1] ^= i_state->submsg_o_r[1]; cv_r[2] ^= i_state->submsg_o_r[2]; cv_r[3] ^= i_state->submsg_o_r[3];
-	cv_r[4] ^= i_state->submsg_o_r[4]; cv_r[5] ^= i_state->submsg_o_r[5]; cv_r[6] ^= i_state->submsg_o_r[6]; cv_r[7] ^= i_state->submsg_o_r[7];
+	cv_l[0] ^= i_state->submsg_o_l[0];  cv_l[1] ^= i_state->submsg_o_l[1];
+	cv_l[2] ^= i_state->submsg_o_l[2];  cv_l[3] ^= i_state->submsg_o_l[3];
+	cv_l[4] ^= i_state->submsg_o_l[4];  cv_l[5] ^= i_state->submsg_o_l[5];
+	cv_l[6] ^= i_state->submsg_o_l[6];  cv_l[7] ^= i_state->submsg_o_l[7];
+	cv_r[0] ^= i_state->submsg_o_r[0];  cv_r[1] ^= i_state->submsg_o_r[1];
+	cv_r[2] ^= i_state->submsg_o_r[2];  cv_r[3] ^= i_state->submsg_o_r[3];
+	cv_r[4] ^= i_state->submsg_o_r[4];  cv_r[5] ^= i_state->submsg_o_r[5];
+	cv_r[6] ^= i_state->submsg_o_r[6];  cv_r[7] ^= i_state->submsg_o_r[7];
 #endif
 }
 
@@ -500,6 +508,22 @@ inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 
+#if defined(__SSE2__)
+	_mm_storeu_si128(M128_CAST(cv_l+0),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(cv_l+0)), _MM_SHUFFLE(3,1,0,2)));
+	_mm_storeu_si128(M128_CAST(cv_l+4),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(cv_l+4)), _MM_SHUFFLE(3,1,0,2)));
+	_mm_storeu_si128(M128_CAST(cv_r+0),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)), _MM_SHUFFLE(1,2,3,0)));
+	_mm_storeu_si128(M128_CAST(cv_r+4),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)), _MM_SHUFFLE(1,2,3,0)));
+
+	__m128i cv_l_temp = _mm_loadu_si128(CONST_M128_CAST(cv_l+0));
+	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_loadu_si128(CONST_M128_CAST(cv_l+4)));
+	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_loadu_si128(CONST_M128_CAST(cv_r+4)));
+	_mm_storeu_si128(M128_CAST(cv_r+4), _mm_loadu_si128(CONST_M128_CAST(cv_r+0)));
+	_mm_storeu_si128(M128_CAST(cv_r+0), cv_l_temp);
+#else
 	lsh_u32 temp;
 	temp = cv_l[0];
 	cv_l[0] = cv_l[6];
@@ -519,6 +543,7 @@ inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 	cv_l[7] = cv_r[5];
 	cv_r[5] = cv_r[3];
 	cv_r[3] = temp;
+#endif
 };
 
 /* -------------------------------------------------------- *
@@ -598,6 +623,12 @@ inline void init224(LSH256_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+#if defined(__SSE2__)
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_loadu_si128(CONST_M128_CAST(g_IV224+0)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+4), _mm_loadu_si128(CONST_M128_CAST(g_IV224+4)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_r+0), _mm_loadu_si128(CONST_M128_CAST(g_IV224+8)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_r+4), _mm_loadu_si128(CONST_M128_CAST(g_IV224+12)));
+#else
 	ctx->cv_l[0] = g_IV224[0];
 	ctx->cv_l[1] = g_IV224[1];
 	ctx->cv_l[2] = g_IV224[2];
@@ -614,12 +645,19 @@ inline void init224(LSH256_Context* ctx)
 	ctx->cv_r[5] = g_IV224[13];
 	ctx->cv_r[6] = g_IV224[14];
 	ctx->cv_r[7] = g_IV224[15];
+#endif
 }
 
 inline void init256(LSH256_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+#if defined(__SSE2__)
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_loadu_si128(CONST_M128_CAST(g_IV256+0)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+4), _mm_loadu_si128(CONST_M128_CAST(g_IV256+4)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_r+0), _mm_loadu_si128(CONST_M128_CAST(g_IV256+8)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_r+4), _mm_loadu_si128(CONST_M128_CAST(g_IV256+12)));
+#else
 	ctx->cv_l[0] = g_IV256[0];
 	ctx->cv_l[1] = g_IV256[1];
 	ctx->cv_l[2] = g_IV256[2];
@@ -636,6 +674,7 @@ inline void init256(LSH256_Context* ctx)
 	ctx->cv_r[5] = g_IV256[13];
 	ctx->cv_r[6] = g_IV256[14];
 	ctx->cv_r[7] = g_IV256[15];
+#endif
 }
 
 /* -------------------------------------------------------- */
@@ -644,9 +683,18 @@ inline void fin(LSH256_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+#if defined(__SSE2__)
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_xor_si128(
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+0)),
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+0))));
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+4), _mm_xor_si128(
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+4)),
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+4))));
+#else
 	for (lsh_uint i = 0; i < HASH_VAL_MAX_WORD_LEN; i++){
 		ctx->cv_l[i] = loadLE32(ctx->cv_l[i] ^ ctx->cv_r[i]);
 	}
+#endif
 }
 
 /* -------------------------------------------------------- */
