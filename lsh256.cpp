@@ -14,6 +14,13 @@
 # define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 #endif
 
+#if defined(__XOP__)
+# include <ammintrin.h>
+# if defined(__GNUC__)
+#  include <x86intrin.h>
+# endif
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
@@ -104,27 +111,9 @@ const unsigned int LSH_ERR_INVALID_ALGTYPE = 0x2402;
 const unsigned int LSH_ERR_INVALID_DATABITLEN = 0x2403;
 const unsigned int LSH_ERR_INVALID_STATE = 0x2404;
 
-//#if defined(CRYPTOPP_BIG_ENDIAN)
-//#  define loadLE32(v)   __builtin_bswap32(v)
-//#else
-//#  define loadLE32(v)   (v)
-//#endif
 inline lsh_u32 loadLE32(lsh_u32 v) {
 	return ConditionalByteReverse(LITTLE_ENDIAN_ORDER, v);
 }
-
-//#if defined(_MSC_VER) && _MSC_VER >= 1400
-//#include <stdlib.h>
-//#define ROTL64(x,r)	_rotl64(x,r)
-//#define ROTR64(x,r)	_rotr64(x,r)
-//#define ROTL(x,r)	_lrotl(x,r)
-//#define ROTR(x,r)	_lrotr(x,r)
-//#else
-//#define ROTL64(x,r)	((x) << (r)) | ((x) >> (WORD_BIT_LEN-r))
-//#define ROTR64(x,r)	((x) >> (r)) | ((x) << (WORD_BIT_LEN-r))
-//#define ROTL(x,r)	((x) << (r)) | ((x) >> (WORD_BIT_LEN-r))
-//#define ROTR(x,r)	((x) >> (r)) | ((x) << (WORD_BIT_LEN-r))
-//#endif
 
 lsh_u32 ROTL(lsh_u32 x, lsh_u32 r) {
 	return rotlFixed(x, r);
@@ -448,7 +437,12 @@ inline void rotate_blk(lsh_u32 cv[8])
 {
 	CRYPTOPP_ASSERT(cv != NULLPTR);
 
-#if defined(__SSE2__)
+#if defined(__XOP__)
+	_mm_storeu_si128(M128_CAST(cv),
+		_mm_roti_epi32(_mm_loadu_si128(CONST_M128_CAST(cv)), R));
+	_mm_storeu_si128(M128_CAST(cv+4),
+		_mm_roti_epi32(_mm_loadu_si128(CONST_M128_CAST(cv+4)), R));
+#elif defined(__SSE2__)
 	_mm_storeu_si128(M128_CAST(cv), _mm_or_si128(
 		_mm_slli_epi32(_mm_loadu_si128(CONST_M128_CAST(cv)), R),
 		_mm_srli_epi32(_mm_loadu_si128(CONST_M128_CAST(cv)), 32-R)));
@@ -573,7 +567,6 @@ inline void compress(LSH256_Context* ctx, const lsh_u32 pdMsgBlk[MSG_BLK_WORD_LE
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
-	// LSH256_Internal i_state[1];
 	LSH256_Internal  s_state(ctx->state);
 	LSH256_Internal* i_state = &s_state;
 
@@ -585,13 +578,11 @@ inline void compress(LSH256_Context* ctx, const lsh_u32 pdMsgBlk[MSG_BLK_WORD_LE
 
 	msg_add_even(cv_l, cv_r, i_state);
 	load_sc(&const_v, 0);
-	// mix(cv_l, cv_r, const_v, ROT_EVEN_ALPHA, ROT_EVEN_BETA);
 	mix<ROT_EVEN_ALPHA, ROT_EVEN_BETA>(cv_l, cv_r, const_v);
 	word_perm(cv_l, cv_r);
 
 	msg_add_odd(cv_l, cv_r, i_state);
 	load_sc(&const_v, 8);
-	// mix(cv_l, cv_r, const_v, ROT_ODD_ALPHA, ROT_ODD_BETA);
 	mix<ROT_ODD_ALPHA, ROT_ODD_BETA>(cv_l, cv_r, const_v);
 	word_perm(cv_l, cv_r);
 
@@ -600,14 +591,12 @@ inline void compress(LSH256_Context* ctx, const lsh_u32 pdMsgBlk[MSG_BLK_WORD_LE
 		msg_exp_even(i_state);
 		msg_add_even(cv_l, cv_r, i_state);
 		load_sc(&const_v, 16 * i);
-		// mix(cv_l, cv_r, const_v, ROT_EVEN_ALPHA, ROT_EVEN_BETA);
 		mix<ROT_EVEN_ALPHA, ROT_EVEN_BETA>(cv_l, cv_r, const_v);
 		word_perm(cv_l, cv_r);
 
 		msg_exp_odd(i_state);
 		msg_add_odd(cv_l, cv_r, i_state);
 		load_sc(&const_v, 16 * i + 8);
-		// mix(cv_l, cv_r, const_v, ROT_ODD_ALPHA, ROT_ODD_BETA);
 		mix<ROT_ODD_ALPHA, ROT_ODD_BETA>(cv_l, cv_r, const_v);
 		word_perm(cv_l, cv_r);
 	}
@@ -753,12 +742,10 @@ lsh_err lsh256_init(LSH256_Context* ctx)
 	{
 		//Mix
 		load_sc(&const_v, i * 16);
-		// mix(cv_l, cv_r, const_v, ROT_EVEN_ALPHA, ROT_EVEN_BETA);
 		mix<ROT_EVEN_ALPHA, ROT_EVEN_BETA>(cv_l, cv_r, const_v);
 		word_perm(cv_l, cv_r);
 
 		load_sc(&const_v, i * 16 + 8);
-		// mix(cv_l, cv_r, const_v, ROT_ODD_ALPHA, ROT_ODD_BETA);
 		mix<ROT_ODD_ALPHA, ROT_ODD_BETA>(cv_l, cv_r, const_v);
 		word_perm(cv_l, cv_r);
 	}
@@ -852,7 +839,6 @@ lsh_err lsh256_final(LSH256_Context* ctx, lsh_u8* hashval)
 	}
 	memset(ctx->last_block + remain_msg_byte + 1, 0, LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
 
-	// last_block is a lsh_u32[]
 	compress(ctx, (lsh_u32*)ctx->last_block);
 
 	fin(ctx);
