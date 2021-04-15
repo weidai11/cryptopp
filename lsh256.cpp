@@ -133,11 +133,13 @@ lsh_u32 ROTR(lsh_u32 x, lsh_u32 r) {
 # define MAYBE_CONSTEXPR const
 #endif
 
+CRYPTOPP_ALIGN_DATA(16)
 MAYBE_CONSTEXPR lsh_u32 g_IV224[CV_WORD_LEN] = {
 	0x068608D3, 0x62D8F7A7, 0xD76652AB, 0x4C600A43, 0xBDC40AA8, 0x1ECA0B68, 0xDA1A89BE, 0x3147D354,
 	0x707EB4F9, 0xF65B3862, 0x6B0B2ABE, 0x56B8EC0A, 0xCF237286, 0xEE0D1727, 0x33636595, 0x8BB8D05F,
 };
 
+CRYPTOPP_ALIGN_DATA(16)
 MAYBE_CONSTEXPR lsh_u32 g_IV256[CV_WORD_LEN] = {
 	0x46a10f1f, 0xfddce486, 0xb41443a8, 0x198e6b9d, 0x3304388d, 0xb0f5a3c7, 0xb36061c4, 0x7adbd553,
 	0x105d5378, 0x2f74de54, 0x5c2f2d95, 0xf2553fbe, 0x8051357a, 0x138668c8, 0x47aa4484, 0xe01afb41
@@ -241,29 +243,21 @@ inline void msg_exp_even(LSH256_Internal* i_state)
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 #if defined(__SSE2__)
-	{
-	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+0)), _MM_SHUFFLE(3,2,1,0));
-	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+0)), _MM_SHUFFLE(1,0,2,3));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+0), _mm_add_epi32(x, y));
-	}
+	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+0), _mm_add_epi32(
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+0)), _MM_SHUFFLE(3,2,1,0)),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+0)), _MM_SHUFFLE(1,0,2,3))));
 
-	{
-	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+4)), _MM_SHUFFLE(3,2,1,0));
-	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+4)), _MM_SHUFFLE(2,1,0,3));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+4), _mm_add_epi32(x, y));
-	}
+	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+4), _mm_add_epi32(
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+4)), _MM_SHUFFLE(3,2,1,0)),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+4)), _MM_SHUFFLE(2,1,0,3))));
 
-	{
-	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+0)), _MM_SHUFFLE(3,2,1,0));
-	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+0)), _MM_SHUFFLE(1,0,2,3));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_r+0), _mm_add_epi32(x, y));
-	}
+	_mm_storeu_si128(M128_CAST(i_state->submsg_e_r+0), _mm_add_epi32(
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+0)), _MM_SHUFFLE(3,2,1,0)),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+0)), _MM_SHUFFLE(1,0,2,3))));
 
-	{
-	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+4)), _MM_SHUFFLE(3,2,1,0));
-	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+4)), _MM_SHUFFLE(2,1,0,3));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_r+4), _mm_add_epi32(x, y));
-	}
+	_mm_storeu_si128(M128_CAST(i_state->submsg_e_r+4), _mm_add_epi32(
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+4)), _MM_SHUFFLE(3,2,1,0)),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+4)), _MM_SHUFFLE(2,1,0,3))));
 #else
 	lsh_u32 temp;
 	temp = i_state->submsg_e_l[0];
@@ -294,26 +288,21 @@ inline void msg_exp_odd(LSH256_Internal* i_state)
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 #if defined(__SSE2__)
-	{
-	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+0)), _MM_SHUFFLE(3,2,1,0));
-	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+0)), _MM_SHUFFLE(1,0,2,3));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_l+0), _mm_add_epi32(x, y));
-	}
-	{
-	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+4)), _MM_SHUFFLE(3,2,1,0));
-	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+4)), _MM_SHUFFLE(2,1,0,3));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_l+4), _mm_add_epi32(x, y));
-	}
-	{
-	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+0)), _MM_SHUFFLE(3,2,1,0));
-	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+0)), _MM_SHUFFLE(1,0,2,3));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_r+0), _mm_add_epi32(x, y));
-	}
-	{
-	__m128i x = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+4)), _MM_SHUFFLE(3,2,1,0));
-	__m128i y = _mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+4)), _MM_SHUFFLE(2,1,0,3));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_r+4), _mm_add_epi32(x, y));
-	}
+	_mm_storeu_si128(M128_CAST(i_state->submsg_o_l+0), _mm_add_epi32(
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+0)), _MM_SHUFFLE(3,2,1,0)),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+0)), _MM_SHUFFLE(1,0,2,3))));
+
+	_mm_storeu_si128(M128_CAST(i_state->submsg_o_l+4), _mm_add_epi32(
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_l+4)), _MM_SHUFFLE(3,2,1,0)),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_l+4)), _MM_SHUFFLE(2,1,0,3))));
+
+	_mm_storeu_si128(M128_CAST(i_state->submsg_o_r+0), _mm_add_epi32(
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+0)), _MM_SHUFFLE(3,2,1,0)),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+0)), _MM_SHUFFLE(1,0,2,3))));
+
+	_mm_storeu_si128(M128_CAST(i_state->submsg_o_r+4), _mm_add_epi32(
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_e_r+4)), _MM_SHUFFLE(3,2,1,0)),
+		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(i_state->submsg_o_r+4)), _MM_SHUFFLE(2,1,0,3))));
 #else
 	lsh_u32 temp;
 	temp = i_state->submsg_o_l[0];
@@ -613,10 +602,10 @@ inline void init224(LSH256_Context* ctx)
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
 #if defined(__SSE2__)
-	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_loadu_si128(CONST_M128_CAST(g_IV224+0)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_l+4), _mm_loadu_si128(CONST_M128_CAST(g_IV224+4)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_r+0), _mm_loadu_si128(CONST_M128_CAST(g_IV224+8)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_r+4), _mm_loadu_si128(CONST_M128_CAST(g_IV224+12)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_load_si128(CONST_M128_CAST(g_IV224+0)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+4), _mm_load_si128(CONST_M128_CAST(g_IV224+4)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_r+0), _mm_load_si128(CONST_M128_CAST(g_IV224+8)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_r+4), _mm_load_si128(CONST_M128_CAST(g_IV224+12)));
 #else
 	ctx->cv_l[0] = g_IV224[0];
 	ctx->cv_l[1] = g_IV224[1];
@@ -642,10 +631,10 @@ inline void init256(LSH256_Context* ctx)
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
 #if defined(__SSE2__)
-	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_loadu_si128(CONST_M128_CAST(g_IV256+0)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_l+4), _mm_loadu_si128(CONST_M128_CAST(g_IV256+4)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_r+0), _mm_loadu_si128(CONST_M128_CAST(g_IV256+8)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_r+4), _mm_loadu_si128(CONST_M128_CAST(g_IV256+12)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_load_si128(CONST_M128_CAST(g_IV256+0)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+4), _mm_load_si128(CONST_M128_CAST(g_IV256+4)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_r+0), _mm_load_si128(CONST_M128_CAST(g_IV256+8)));
+	_mm_storeu_si128(M128_CAST(ctx->cv_r+4), _mm_load_si128(CONST_M128_CAST(g_IV256+12)));
 #else
 	ctx->cv_l[0] = g_IV256[0];
 	ctx->cv_l[1] = g_IV256[1];
@@ -874,8 +863,8 @@ void LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::Restart()
 template <unsigned int T_AlgType, unsigned int T_DigestSize, unsigned int T_BlockSize>
 void LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::Update(const byte *input, size_t length)
 {
-    CRYPTOPP_ASSERT(input != NULLPTR);
-    CRYPTOPP_ASSERT(length);
+	CRYPTOPP_ASSERT(input != NULLPTR);
+	CRYPTOPP_ASSERT(length);
 
 	LSH256_Context ctx(m_state, T_AlgType, m_remainingBitLength);
 	lsh_err err = lsh256_update(&ctx, input, 8*length);
@@ -887,8 +876,8 @@ void LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::Update(const byte *input
 template <unsigned int T_AlgType, unsigned int T_DigestSize, unsigned int T_BlockSize>
 void LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::TruncatedFinal(byte *hash, size_t size)
 {
-    CRYPTOPP_ASSERT(hash != NULLPTR);
-    ThrowIfInvalidTruncatedSize(size);
+	CRYPTOPP_ASSERT(hash != NULLPTR);
+	ThrowIfInvalidTruncatedSize(size);
 
 	LSH256_Context ctx(m_state, T_AlgType, m_remainingBitLength);
 	lsh_err err;
