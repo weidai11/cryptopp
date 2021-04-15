@@ -1,11 +1,14 @@
 // lsh.h - written and placed in the public domain by Jeffrey Walton
-//         Based on the specification and source code provided by KISA.
-//         Also see https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
+//         Based on the specification and source code provided by
+//         Korea Internet & Security Agency (KISA) website. Also
+//         see https://seed.kisa.or.kr/kisa/algorithm/EgovLSHInfo.do
+//         and https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
 
 /// \file lsh.h
-/// \brief Classes for the LSH256 hash function
+/// \brief Classes for the LSH-256 hash functions
 /// \since Crypto++ 8.6
-
+/// \sa <A HREF="https://seed.kisa.or.kr/kisa/algorithm/EgovLSHInfo.do">LSH</A>
+///  on the Korea Internet & Security Agency (KISA) website.
 #ifndef CRYPTOPP_LSH256_H
 #define CRYPTOPP_LSH256_H
 
@@ -14,20 +17,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \brief LSH224 and LSH256 hash base class
-/// \details LSH256_Base is the base class for LSH 256-bit based hashes
+/// \brief LSH-224 and LSH-256 hash base class
+/// \details LSH256_Base is the base class for both LSH-224 and LSH-256
 /// \since Crypto++ 8.6
-template <unsigned int T_AlgType, unsigned int T_DigestSize, unsigned int T_BlockSize>
 class LSH256_Base : public HashTransformation
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize);
-	CRYPTOPP_CONSTANT(BLOCKSIZE = T_BlockSize);
-
 	virtual ~LSH256_Base() {}
 
-	unsigned int BlockSize() const { return BLOCKSIZE; }
-	unsigned int DigestSize() const { return DIGESTSIZE; }
+	unsigned int BlockSize() const { return m_blockSize; }
+	unsigned int DigestSize() const { return m_digestSize; }
 	unsigned int OptimalDataAlignment() const { return GetAlignmentOf<word32>(); }
 
 	void Restart();
@@ -35,6 +34,10 @@ public:
 	void TruncatedFinal(byte *hash, size_t size);
 
 	std::string AlgorithmProvider() const;
+
+protected:
+	LSH256_Base(unsigned int algType, unsigned int digestSize, unsigned int blockSize)
+		: m_algType(algType), m_digestSize(digestSize), m_blockSize(blockSize) {}
 
 protected:
 	// Working state is:
@@ -46,42 +49,44 @@ protected:
 	//   * submsg_o_r = 8 32-bit words
 	//   * last_block = 32 32-bit words (128 bytes)
 	FixedSizeSecBlock<word32, 80> m_state;
-	word32 m_remainingBitLength;
+	word32 m_algType, m_remainingBitLength;
+	word32 m_digestSize, m_blockSize;
 };
 
 /// \brief LSH-224 hash function
+/// \details LSH_TYPE_224 is the magic value 0x000001C defined in the lsh.cpp file.
+/// \sa <A HREF="https://seed.kisa.or.kr/kisa/algorithm/EgovLSHInfo.do">LSH</A>
+///  on the Korea Internet & Security Agency (KISA) website.
 /// \since Crypto++ 8.6
-class LSH224 : public LSH256_Base<0x000001C, 28, 64>
+class LSH224 : public LSH256_Base
 {
 public:
-	typedef LSH256_Base<0x000001C, 28, 64> ThisBase;
-
-	CRYPTOPP_CONSTANT(DIGESTSIZE = ThisBase::DIGESTSIZE);
-	CRYPTOPP_CONSTANT(BLOCKSIZE = ThisBase::BLOCKSIZE);
+	CRYPTOPP_CONSTANT(DIGESTSIZE = 28);
+	CRYPTOPP_CONSTANT(BLOCKSIZE = 64);
 
 	static std::string StaticAlgorithmName() { return "LSH-224"; }
 
 	/// \brief Construct a LSH-224
-	LSH224() { Restart(); }
+	LSH224() : LSH256_Base(0x000001C, 28, 64) { Restart(); }
 
 	std::string AlgorithmName() const { return StaticAlgorithmName(); }
 };
 
 /// \brief LSH-256 hash function
+/// \details LSH_TYPE_256 is the magic value 0x0000020 defined in the lsh.cpp file.
+/// \sa <A HREF="https://seed.kisa.or.kr/kisa/algorithm/EgovLSHInfo.do">LSH</A>
+///  on the Korea Internet & Security Agency (KISA) website.
 /// \since Crypto++ 8.6
-/// \details LSH_TYPE_224 is the magic value 0x0000020 defined in the lsh.cpp file.
-class LSH256 : public LSH256_Base<0x0000020, 32, 64>
+class LSH256 : public LSH256_Base
 {
 public:
-	typedef LSH256_Base<0x0000020, 32, 64> ThisBase;
-
-	CRYPTOPP_CONSTANT(DIGESTSIZE = ThisBase::DIGESTSIZE);
-	CRYPTOPP_CONSTANT(BLOCKSIZE = ThisBase::BLOCKSIZE);
+	CRYPTOPP_CONSTANT(DIGESTSIZE = 32);
+	CRYPTOPP_CONSTANT(BLOCKSIZE = 64);
 
 	static std::string StaticAlgorithmName() { return "LSH-256"; }
 
 	/// \brief Construct a LSH-256
-	LSH256() { Restart(); }
+	LSH256() : LSH256_Base(0x0000020, 32, 64) { Restart(); }
 
 	std::string AlgorithmName() const { return StaticAlgorithmName(); }
 };

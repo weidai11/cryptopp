@@ -1,6 +1,8 @@
 // lsh.cpp - written and placed in the public domain by Jeffrey Walton
-//           Based on the specification and source code provided by KISA.
-//           Also see https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
+//           Based on the specification and source code provided by
+//           Korea Internet & Security Agency (KISA) website. Also
+//           see https://seed.kisa.or.kr/kisa/algorithm/EgovLSHInfo.do
+//           and https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
 
 #include "pch.h"
 #include "config.h"
@@ -856,8 +858,7 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <unsigned int T_AlgType, unsigned int T_DigestSize, unsigned int T_BlockSize>
-std::string LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::AlgorithmProvider() const
+std::string LSH256_Base::AlgorithmProvider() const
 {
 #if defined(__SSE2__)
 	return "SSE2";
@@ -866,39 +867,36 @@ std::string LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::AlgorithmProvider
 #endif
 }
 
-template <unsigned int T_AlgType, unsigned int T_DigestSize, unsigned int T_BlockSize>
-void LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::Restart()
+void LSH256_Base::Restart()
 {
-	LSH256_Context ctx(m_state, T_AlgType, m_remainingBitLength);
+	LSH256_Context ctx(m_state, m_algType, m_remainingBitLength);
 	lsh_err err = lsh256_init(&ctx);
 
 	if (err != LSH_SUCCESS)
 		throw Exception(Exception::OTHER_ERROR, "LSH256_Base: lsh256_init failed");
 }
 
-template <unsigned int T_AlgType, unsigned int T_DigestSize, unsigned int T_BlockSize>
-void LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::Update(const byte *input, size_t length)
+void LSH256_Base::Update(const byte *input, size_t length)
 {
 	CRYPTOPP_ASSERT(input != NULLPTR);
 	CRYPTOPP_ASSERT(length);
 
-	LSH256_Context ctx(m_state, T_AlgType, m_remainingBitLength);
+	LSH256_Context ctx(m_state, m_algType, m_remainingBitLength);
 	lsh_err err = lsh256_update(&ctx, input, 8*length);
 
 	if (err != LSH_SUCCESS)
 		throw Exception(Exception::OTHER_ERROR, "LSH256_Base: lsh256_update failed");
 }
 
-template <unsigned int T_AlgType, unsigned int T_DigestSize, unsigned int T_BlockSize>
-void LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::TruncatedFinal(byte *hash, size_t size)
+void LSH256_Base::TruncatedFinal(byte *hash, size_t size)
 {
 	CRYPTOPP_ASSERT(hash != NULLPTR);
 	ThrowIfInvalidTruncatedSize(size);
 
-	LSH256_Context ctx(m_state, T_AlgType, m_remainingBitLength);
+	LSH256_Context ctx(m_state, m_algType, m_remainingBitLength);
 	lsh_err err;
 
-	if (size >= DIGESTSIZE)
+	if (size >= DigestSize())
 	{
 		err = lsh256_final(&ctx, hash);
 	}
@@ -918,9 +916,5 @@ void LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::TruncatedFinal(byte *has
 
     Restart();
 }
-
-// Explicit instantiations
-template class LSH256_Base<0x000001C, 28, 64>;
-template class LSH256_Base<0x0000020, 32, 64>;
 
 NAMESPACE_END
