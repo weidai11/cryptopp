@@ -1009,7 +1009,8 @@ bool Validate(int alg, bool thorough)
 	case 65: result = ValidateARIA(); break;
 	case 66: result = ValidateCamellia(); break;
 	case 67: result = ValidateWhirlpool(); break;
-	case 68: result = ValidateTTMAC(); break;
+	case 68: result = ValidateLSH(); break;
+	case 69: result = ValidateTTMAC(); break;
 	case 70: result = ValidateSalsa(); break;
 	case 71: result = ValidateChaCha(); break;
 	case 72: result = ValidateChaChaTLS(); break;

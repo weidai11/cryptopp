@@ -107,6 +107,8 @@ bool ValidateAll(bool thorough)
 	pass=ValidateSHAKE() && pass;
 	pass=ValidateSHAKE_XOF() && pass;
 
+	pass=ValidateLSH() && pass;
+
 	pass=ValidateHashDRBG() && pass;
 	pass=ValidateHmacDRBG() && pass;
 

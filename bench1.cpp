@@ -485,6 +485,8 @@ void BenchmarkUnkeyedAlgorithms(double t, double hertz)
 
 	std::cout << "\n<TBODY style=\"background: yellow;\">";
 	{
+		// BenchMarkByNameKeyLess<HashTransformation>("LSH-256");
+		// BenchMarkByNameKeyLess<HashTransformation>("LSH-512");
 		BenchMarkByNameKeyLess<HashTransformation>("CRC32");
 		BenchMarkByNameKeyLess<HashTransformation>("CRC32C");
 		BenchMarkByNameKeyLess<HashTransformation>("Adler32");
@@ -509,6 +511,8 @@ void BenchmarkUnkeyedAlgorithms(double t, double hertz)
 		BenchMarkByNameKeyLess<HashTransformation>("SM3");
 		BenchMarkByNameKeyLess<HashTransformation>("BLAKE2s");
 		BenchMarkByNameKeyLess<HashTransformation>("BLAKE2b");
+		BenchMarkByNameKeyLess<HashTransformation>("LSH-256");
+		// BenchMarkByNameKeyLess<HashTransformation>("LSH-512");
 	}
 
 	std::cout << "\n</TABLE>" << std::endl;

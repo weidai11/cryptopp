@@ -25,6 +25,7 @@
 #include "ripemd.h"
 #include "panama.h"
 #include "whrlpool.h"
+#include "lsh.h"
 
 #include "osrng.h"
 #include "drbg.h"
@@ -115,6 +116,8 @@ void RegisterFactories1()
 	RegisterDefaultFactoryFor<HashTransformation, SM3>();
 	RegisterDefaultFactoryFor<HashTransformation, BLAKE2s>();
 	RegisterDefaultFactoryFor<HashTransformation, BLAKE2b>();
+	RegisterDefaultFactoryFor<HashTransformation, LSH224>();
+	RegisterDefaultFactoryFor<HashTransformation, LSH256>();
 
 #ifdef BLOCKING_RNG_AVAILABLE
 	RegisterDefaultFactoryFor<RandomNumberGenerator, BlockingRng>();

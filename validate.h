@@ -60,6 +60,7 @@ bool ValidateTiger();
 bool ValidateRIPEMD();
 bool ValidatePanama();
 bool ValidateWhirlpool();
+bool ValidateLSH();
 
 bool ValidateSM3();
 bool ValidateBLAKE2s();

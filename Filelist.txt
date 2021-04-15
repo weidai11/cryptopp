@@ -204,6 +204,8 @@ lubyrack.h
 lea.cpp
 lea_simd.cpp
 lea.h
+lsh256.cpp
+lsh.h
 luc.cpp
 luc.h
 mars.cpp

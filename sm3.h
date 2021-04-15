@@ -29,7 +29,7 @@ class SM3 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SM
 public:
     /// \brief Initialize state array
     /// \param state the state of the hash
-    /// \details InitState sets a state array to SHA256 initial values
+    /// \details InitState sets a state array to SM3 initial values
     /// \details Hashes which derive from IteratedHashWithStaticTransform provide static
     ///   member functions InitState() and Transform(). External classes, like SEAL and MDC,
     ///   can initialize state with a user provided key and operate the hash on the data
