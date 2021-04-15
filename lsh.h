@@ -27,12 +27,14 @@ public:
 	virtual ~LSH256_Base() {}
 
 	unsigned int BlockSize() const { return BLOCKSIZE; }
-	unsigned int DigestSize() const {return DIGESTSIZE;}
-	unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word32>();}
+	unsigned int DigestSize() const { return DIGESTSIZE; }
+	unsigned int OptimalDataAlignment() const { return GetAlignmentOf<word32>(); }
 
 	void Restart();
 	void Update(const byte *input, size_t length);
 	void TruncatedFinal(byte *hash, size_t size);
+
+	std::string AlgorithmProvider() const;
 
 protected:
 	// Working state is:
@@ -60,7 +62,7 @@ public:
 	static std::string StaticAlgorithmName() { return "LSH-224"; }
 
 	/// \brief Construct a LSH-224
-	LSH224() {Restart();}
+	LSH224() { Restart(); }
 
 	std::string AlgorithmName() const { return StaticAlgorithmName(); }
 };

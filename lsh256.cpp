@@ -866,6 +866,16 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 
 template <unsigned int T_AlgType, unsigned int T_DigestSize, unsigned int T_BlockSize>
+std::string LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::AlgorithmProvider() const
+{
+#if defined(__SSE2__)
+	return "SSE2";
+#else
+	return "C++";
+#endif
+}
+
+template <unsigned int T_AlgType, unsigned int T_DigestSize, unsigned int T_BlockSize>
 void LSH256_Base<T_AlgType, T_DigestSize, T_BlockSize>::Restart()
 {
 	LSH256_Context ctx(m_state, T_AlgType, m_remainingBitLength);
