@@ -46,14 +46,14 @@ typedef word32 lsh_type;
 
 struct LSH256_Context
 {
+	// Magic layout: 'lsh_u32* state' begins at cv_l
 	LSH256_Context(word32* hashState, word32 algType, word32& remainingBitLength) :
 		algtype(algType), remain_databitlen(remainingBitLength),
-		state(hashState), cv_l(hashState+0), cv_r(hashState+8),
+		cv_l(hashState+0), cv_r(hashState+8),
 		last_block(reinterpret_cast<byte*>(hashState+48)) {}
 
 	lsh_type algtype;
 	lsh_u32& remain_databitlen;
-	lsh_u32* state;
 	lsh_u32* cv_l;
 	lsh_u32* cv_r;
 	lsh_u8*  last_block;
@@ -77,6 +77,7 @@ const unsigned int CONST_WORD_LEN = 8;
 const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
 const unsigned int WORD_BIT_LEN = 32;
 const unsigned int NUM_STEPS = 26;
+
 const unsigned int ROT_EVEN_ALPHA = 29;
 const unsigned int ROT_EVEN_BETA = 1;
 const unsigned int ROT_ODD_ALPHA = 5;
@@ -92,7 +93,6 @@ const unsigned int LSH_TYPE_256 = LSH_TYPE_256_256;
 /* LSH AlgType Macro */
 
 #define LSH_IS_LSH256(lsh_type_val)			(((lsh_type_val)&0xf0000)==0)
-#define LSH_IS_LSH512(lsh_type_val)			(((lsh_type_val)&0xf0000)==0x10000)
 
 #define LSH_GET_SMALL_HASHBIT(lsh_type_val)		((lsh_type_val)>>24)
 #define LSH_GET_HASHBYTE(lsh_type_val)			((lsh_type_val) & 0xffff)
@@ -574,7 +574,7 @@ inline void compress(LSH256_Context* ctx, const lsh_u32 pdMsgBlk[MSG_BLK_WORD_LE
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
-	LSH256_Internal  s_state(ctx->state);
+	LSH256_Internal  s_state(ctx->cv_l);
 	LSH256_Internal* i_state = &s_state;
 
 	const lsh_u32* const_v = NULL;
@@ -829,6 +829,9 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 
 lsh_err lsh256_final(LSH256_Context* ctx, lsh_u8* hashval)
 {
+	CRYPTOPP_ASSERT(ctx != NULLPTR);
+	CRYPTOPP_ASSERT(hashval != NULLPTR);
+
 	// We are byte oriented. remain_msg_bit will always be 0.
 	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
 	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;

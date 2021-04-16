@@ -118,6 +118,8 @@ void RegisterFactories1()
 	RegisterDefaultFactoryFor<HashTransformation, BLAKE2b>();
 	RegisterDefaultFactoryFor<HashTransformation, LSH224>();
 	RegisterDefaultFactoryFor<HashTransformation, LSH256>();
+	RegisterDefaultFactoryFor<HashTransformation, LSH384>();
+	RegisterDefaultFactoryFor<HashTransformation, LSH512>();
 
 #ifdef BLOCKING_RNG_AVAILABLE
 	RegisterDefaultFactoryFor<RandomNumberGenerator, BlockingRng>();

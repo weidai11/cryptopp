@@ -1,0 +1,12 @@
+AlgorithmType: MessageDigest
+Name: LSH-384
+Source: https://en.wikipedia.org/wiki/LSH_(hash_function)
+Message: "abc"
+Digest: 5F 34 4E FA A0 E4 3C CD 2E 5E 19 4D 60 39 79 4B 4F B4 31 F1 0F B4 B6 5F D4 5E 9D A4 EC DE 0F 27 B6 6E 8D BD FA 47 25 2E 0D 0B 74 1B FD 91 F9 FE
+Test: Verify
+#
+Name: LSH-512
+Source: https://en.wikipedia.org/wiki/LSH_(hash_function)
+Message: "abc"
+Digest: A3 D9 3C FE 60 DC 1A AC DD 3B D4 BE F0 A6 98 53 81 A3 96 C7 D4 9D 9F D1 77 79 56 97 C3 53 52 08 B5 C5 72 24 BE F2 10 84 D4 20 83 E9 5A 4B D8 EB 33 E8 69 81 2B 65 03 1C 42 88 19 A1 E7 CE 59 6D
+Test: Verify

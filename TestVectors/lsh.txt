@@ -1,0 +1,4 @@
+AlgorithmType: FileList
+Name: LSH test vectors
+Test: TestVectors/lsh256.txt
+Test: TestVectors/lsh512.txt
