@@ -176,10 +176,6 @@ MAYBE_CONSTEXPR lsh_uint g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
 * LSH: step constants
 * -------------------------------------------------------- */
 
-/* -------------------------------------------------------- *
-* LSH: step constants
-* -------------------------------------------------------- */
-
 MAYBE_CONSTEXPR lsh_u64 g_StepConstants[16 * NUM_STEPS] = {
 	0x97884283c938982aULL, 0xba1fca93533e2355ULL, 0xc519a2e87aeb1c03ULL, 0x9a0fc95462af17b1ULL,
 	0xfc3dda8ab019a82bULL, 0x02825d079a895407ULL, 0x79f2d0a7ee06a6f7ULL, 0xd76d15eed9fdf5feULL,
