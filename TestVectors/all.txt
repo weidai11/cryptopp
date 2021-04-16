@@ -28,7 +28,7 @@ Test: TestVectors/kalyna.txt
 Test: TestVectors/keccak.txt
 Test: TestVectors/lea.txt
 Test: TestVectors/lsh256.txt
-# Test: TestVectors/lsh512.txt
+Test: TestVectors/lsh512.txt
 Test: TestVectors/mars.txt
 Test: TestVectors/nr.txt
 Test: TestVectors/panama.txt
