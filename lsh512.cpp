@@ -332,10 +332,8 @@ inline void msg_exp_even(LSH512_Internal* i_state)
 	temp = _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+4), _mm_unpacklo_epi64(
 		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4))));
-
 	_mm_storeu_si128(M128_CAST(submsg_e_l+6), _mm_unpackhi_epi64(
 		temp, _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6))));
-
 	_mm_storeu_si128(M128_CAST(submsg_e_r+2),
 		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+2)), _MM_SHUFFLE(1,0,3,2)));
 
@@ -348,7 +346,6 @@ inline void msg_exp_even(LSH512_Internal* i_state)
 	temp = _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4));
 	_mm_storeu_si128(M128_CAST(submsg_e_r+4), _mm_unpacklo_epi64(
 		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4))));
-
 	_mm_storeu_si128(M128_CAST(submsg_e_r+6), _mm_unpackhi_epi64(
 		temp, _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6))));
 
