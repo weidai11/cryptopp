@@ -806,6 +806,7 @@ inline void compress(LSH512_Context* ctx, const lsh_u64 pdMsgBlk[MSG_BLK_WORD_LE
 inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
 {
 #if defined(__SSE2__)
+	// The IV's are aligned so we can use _mm_load_si128.
 	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_load_si128(CONST_M128_CAST(iv+0)));
 	_mm_storeu_si128(M128_CAST(cv_l+2), _mm_load_si128(CONST_M128_CAST(iv+2)));
 	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_load_si128(CONST_M128_CAST(iv+4)));
