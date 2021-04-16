@@ -593,7 +593,7 @@ inline void compress(LSH256_Context* ctx, const lsh_u32 pdMsgBlk[MSG_BLK_WORD_LE
 	mix<ROT_ODD_ALPHA, ROT_ODD_BETA>(cv_l, cv_r, const_v);
 	word_perm(cv_l, cv_r);
 
-	for (lsh_uint i = 1; i < NUM_STEPS / 2; i++)
+	for (size_t i = 1; i < NUM_STEPS / 2; i++)
 	{
 		msg_exp_even(i_state);
 		msg_add_even(cv_l, cv_r, i_state);
@@ -687,7 +687,7 @@ inline void fin(LSH256_Context* ctx)
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+4)),
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+4))));
 #else
-	for (lsh_uint i = 0; i < HASH_VAL_MAX_WORD_LEN; i++){
+	for (size_t i = 0; i < HASH_VAL_MAX_WORD_LEN; i++){
 		ctx->cv_l[i] = loadLE32(ctx->cv_l[i] ^ ctx->cv_r[i]);
 	}
 #endif
@@ -745,7 +745,7 @@ lsh_err lsh256_init(LSH256_Context* ctx)
 	ctx->cv_l[0] = LSH256_HASH_VAL_MAX_BYTE_LEN;
 	ctx->cv_l[1] = LSH_GET_HASHBIT(algtype);
 
-	for (lsh_uint i = 0; i < NUM_STEPS / 2; i++)
+	for (size_t i = 0; i < NUM_STEPS / 2; i++)
 	{
 		//Mix
 		load_sc(&const_v, i * 16);
@@ -756,7 +756,6 @@ lsh_err lsh256_init(LSH256_Context* ctx)
 		mix<ROT_ODD_ALPHA, ROT_ODD_BETA>(cv_l, cv_r, const_v);
 		word_perm(cv_l, cv_r);
 	}
-
 
 	return LSH_SUCCESS;
 }

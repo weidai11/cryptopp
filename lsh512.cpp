@@ -425,7 +425,8 @@ inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8]){
 	cv_r[3] = temp;
 };
 
-inline void mix(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 const_v[8], const int rot_alpha, const int rot_beta){
+inline void mix(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 const_v[8], const int rot_alpha, const int rot_beta)
+{
 	add_blk(cv_l, cv_r);
 	rotate_blk(cv_l, rot_alpha);
 	xor_with_const(cv_l, const_v);
@@ -458,7 +459,7 @@ inline void compress(LSH512_Context* ctx, const lsh_u64 pdMsgBlk[MSG_BLK_WORD_LE
 	mix(cv_l, cv_r, const_v, ROT_ODD_ALPHA, ROT_ODD_BETA);
 	word_perm(cv_l, cv_r);
 
-	for (lsh_uint i = 1; i < NUM_STEPS / 2; i++)
+	for (size_t i = 1; i < NUM_STEPS / 2; i++)
 	{
 		msg_exp_even(i_state);
 		msg_add_even(cv_l, cv_r, i_state);
@@ -476,7 +477,6 @@ inline void compress(LSH512_Context* ctx, const lsh_u64 pdMsgBlk[MSG_BLK_WORD_LE
 	msg_exp_even(i_state);
 	msg_add_even(cv_l, cv_r, i_state);
 }
-
 
 /* -------------------------------------------------------- */
 
@@ -564,7 +564,9 @@ inline void init512(LSH512_Context* ctx)
 
 inline void fin(LSH512_Context* ctx)
 {
-	for (lsh_uint i = 0; i < HASH_VAL_MAX_WORD_LEN; i++){
+	CRYPTOPP_ASSERT(ctx != NULLPTR);
+
+	for (size_t i = 0; i < HASH_VAL_MAX_WORD_LEN; i++){
 		ctx->cv_l[i] = loadLE64(ctx->cv_l[i] ^ ctx->cv_r[i]);
 	}
 }
@@ -592,6 +594,9 @@ inline void get_hash(LSH512_Context* ctx, lsh_u8 * pbHashVal)
 
 lsh_err lsh512_init(LSH512_Context* ctx)
 {
+	CRYPTOPP_ASSERT(ctx != NULLPTR);
+	CRYPTOPP_ASSERT(ctx->algtype != 0);
+
 	lsh_u32 algtype = ctx->algtype;
 	const lsh_u64* const_v = NULL;
 
@@ -614,7 +619,6 @@ lsh_err lsh512_init(LSH512_Context* ctx)
 		break;
 	}
 
-
 	lsh_u64* cv_l = ctx->cv_l;
 	lsh_u64* cv_r = ctx->cv_r;
 
@@ -623,7 +627,7 @@ lsh_err lsh512_init(LSH512_Context* ctx)
 	cv_l[0] = LSH512_HASH_VAL_MAX_BYTE_LEN;
 	cv_l[1] = LSH_GET_HASHBIT(algtype);
 
-	for (lsh_uint i = 0; i < NUM_STEPS / 2; i++)
+	for (size_t i = 0; i < NUM_STEPS / 2; i++)
 	{
 		//Mix
 		load_sc(&const_v, i * 16);
