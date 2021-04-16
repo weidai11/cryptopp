@@ -130,7 +130,7 @@ inline lsh_u64 loadLE64(lsh_u64 v) {
 	return ConditionalByteReverse(LITTLE_ENDIAN_ORDER, v);
 }
 
-lsh_u64 ROTL64(lsh_u64 x, lsh_u64 r) {
+lsh_u64 ROTL64(lsh_u64 x, lsh_u32 r) {
 	return rotlFixed(x, r);
 }
 
