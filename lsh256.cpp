@@ -10,7 +10,7 @@
 #include "lsh.h"
 #include "misc.h"
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 # include <emmintrin.h>
 # define M128_CAST(x) ((__m128i *)(void *)(x))
 # define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
@@ -193,7 +193,7 @@ inline void load_msg_blk(LSH256_Internal* i_state, const lsh_u32* msgblk)
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 	CRYPTOPP_ASSERT(msgblk != NULLPTR);
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+0),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+0)));
 	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+4),
@@ -255,7 +255,7 @@ inline void msg_exp_even(LSH256_Internal* i_state)
 	lsh_u32* submsg_o_l = i_state->submsg_o_l;
 	lsh_u32* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	_mm_storeu_si128(M128_CAST(submsg_e_l+0), _mm_add_epi32(
 		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+0)), _MM_SHUFFLE(3,2,1,0)),
 		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+0)), _MM_SHUFFLE(1,0,2,3))));
@@ -305,7 +305,7 @@ inline void msg_exp_odd(LSH256_Internal* i_state)
 	lsh_u32* submsg_o_l = i_state->submsg_o_l;
 	lsh_u32* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	_mm_storeu_si128(M128_CAST(submsg_o_l+0), _mm_add_epi32(
 		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+0)), _MM_SHUFFLE(3,2,1,0)),
 		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+0)), _MM_SHUFFLE(1,0,2,3))));
@@ -362,7 +362,7 @@ inline void msg_add_even(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
 	lsh_u32* submsg_e_l = i_state->submsg_e_l;
 	lsh_u32* submsg_e_r = i_state->submsg_e_r;
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l))));
@@ -396,7 +396,7 @@ inline void msg_add_odd(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
 	lsh_u32* submsg_o_l = i_state->submsg_o_l;
 	lsh_u32* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l))));
@@ -426,7 +426,7 @@ inline void add_blk(lsh_u32* cv_l, const lsh_u32* cv_r)
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_add_epi32(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(cv_r))));
@@ -455,7 +455,7 @@ inline void rotate_blk(lsh_u32 cv[8])
 		_mm_roti_epi32(_mm_loadu_si128(CONST_M128_CAST(cv)), R));
 	_mm_storeu_si128(M128_CAST(cv+4),
 		_mm_roti_epi32(_mm_loadu_si128(CONST_M128_CAST(cv+4)), R));
-#elif defined(__SSE2__)
+#elif defined(__SSE2__) || defined(_M_X64)
 	_mm_storeu_si128(M128_CAST(cv), _mm_or_si128(
 		_mm_slli_epi32(_mm_loadu_si128(CONST_M128_CAST(cv)), R),
 		_mm_srli_epi32(_mm_loadu_si128(CONST_M128_CAST(cv)), 32-R)));
@@ -479,7 +479,7 @@ inline void xor_with_const(lsh_u32* cv_l, const lsh_u32* const_v)
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(const_v != NULLPTR);
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(const_v))));
@@ -515,7 +515,7 @@ inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_shuffle_epi32(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l+0)), _MM_SHUFFLE(3,1,0,2)));
 	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_shuffle_epi32(
@@ -622,7 +622,7 @@ inline void compress(LSH256_Context* ctx, const lsh_u32 pdMsgBlk[MSG_BLK_WORD_LE
 
 inline void load_iv(word32* cv_l, word32* cv_r, const word32* iv)
 {
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	// The IV's are aligned so we can use _mm_load_si128.
 	_mm_storeu_si128(M128_CAST(cv_l+ 0), _mm_load_si128(CONST_M128_CAST(iv+ 0)));
 	_mm_storeu_si128(M128_CAST(cv_l+ 4), _mm_load_si128(CONST_M128_CAST(iv+ 4)));
@@ -670,7 +670,7 @@ inline void fin(LSH256_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+0)),
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+0))));
@@ -854,7 +854,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 std::string LSH256_Base::AlgorithmProvider() const
 {
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_X64)
 	return "SSE2";
 #else
 	return "C++";
