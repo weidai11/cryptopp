@@ -29,12 +29,7 @@ using CryptoPP::byte;
 using CryptoPP::word32;
 using CryptoPP::word64;
 using CryptoPP::rotlFixed;
-using CryptoPP::rotrFixed;
 using CryptoPP::rotlConstant;
-using CryptoPP::rotrConstant;
-
-using CryptoPP::LSH256;
-using CryptoPP::Exception;
 
 using CryptoPP::LITTLE_ENDIAN_ORDER;
 using CryptoPP::ConditionalByteReverse;
