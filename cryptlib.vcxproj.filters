@@ -272,6 +272,12 @@
     <ClCompile Include="lea_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lsh256.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lsh512.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="luc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -799,6 +805,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lsh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="luc.h">
