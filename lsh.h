@@ -66,7 +66,7 @@ public:
 	static std::string StaticAlgorithmName() { return "LSH-224"; }
 
 	/// \brief Construct a LSH-224
-	/// \details LSH_TYPE_224 is the magic value 0x000001C defined in the lsh.cpp file.
+	/// \details LSH_TYPE_224 is the magic value 0x000001C defined in lsh.cpp.
 	LSH224() : LSH256_Base(0x000001C, DIGESTSIZE, BLOCKSIZE) { Restart(); }
 
 	std::string AlgorithmName() const { return StaticAlgorithmName(); }
@@ -85,7 +85,7 @@ public:
 	static std::string StaticAlgorithmName() { return "LSH-256"; }
 
 	/// \brief Construct a LSH-256
-	/// \details LSH_TYPE_256 is the magic value 0x0000020 defined in the lsh.cpp file.
+	/// \details LSH_TYPE_256 is the magic value 0x0000020 defined in lsh.cpp.
 	LSH256() : LSH256_Base(0x0000020, DIGESTSIZE, BLOCKSIZE) { Restart(); }
 
 	std::string AlgorithmName() const { return StaticAlgorithmName(); }
@@ -140,7 +140,7 @@ public:
 	static std::string StaticAlgorithmName() { return "LSH-384"; }
 
 	/// \brief Construct a LSH-384
-	/// \details LSH_TYPE_384 is the magic value 0x0010030 defined in the lsh.cpp file.
+	/// \details LSH_TYPE_384 is the magic value 0x0010030 defined in lsh.cpp.
 	LSH384() : LSH512_Base(0x0010030, DIGESTSIZE, BLOCKSIZE) { Restart(); }
 
 	std::string AlgorithmName() const { return StaticAlgorithmName(); }
@@ -159,7 +159,7 @@ public:
 	static std::string StaticAlgorithmName() { return "LSH-512"; }
 
 	/// \brief Construct a LSH-512
-	/// \details LSH_TYPE_512 is the magic value 0x0010040 defined in the lsh.cpp file.
+	/// \details LSH_TYPE_512 is the magic value 0x0010040 defined in lsh.cpp.
 	LSH512() : LSH512_Base(0x0010040, DIGESTSIZE, BLOCKSIZE) { Restart(); }
 
 	std::string AlgorithmName() const { return StaticAlgorithmName(); }
