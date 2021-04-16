@@ -23,12 +23,6 @@
 # endif
 #endif
 
-#if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
-# if (CRYPTOPP_ARM_NEON_HEADER)
-#  include <arm_neon.h>
-# endif
-#endif
-
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
