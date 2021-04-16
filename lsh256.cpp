@@ -516,14 +516,14 @@ inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 
 #if defined(__SSE2__)
-	_mm_storeu_si128(M128_CAST(cv_l+0),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(cv_l+0)), _MM_SHUFFLE(3,1,0,2)));
-	_mm_storeu_si128(M128_CAST(cv_l+4),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(cv_l+4)), _MM_SHUFFLE(3,1,0,2)));
-	_mm_storeu_si128(M128_CAST(cv_r+0),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)), _MM_SHUFFLE(1,2,3,0)));
-	_mm_storeu_si128(M128_CAST(cv_r+4),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)), _MM_SHUFFLE(1,2,3,0)));
+	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(cv_l+0)), _MM_SHUFFLE(3,1,0,2)));
+	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(cv_l+4)), _MM_SHUFFLE(3,1,0,2)));
+	_mm_storeu_si128(M128_CAST(cv_r+0), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(cv_r+0)), _MM_SHUFFLE(1,2,3,0)));
+	_mm_storeu_si128(M128_CAST(cv_r+4), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(cv_r+4)), _MM_SHUFFLE(1,2,3,0)));
 
 	__m128i cv_l_temp = _mm_loadu_si128(CONST_M128_CAST(cv_l+0));
 	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_loadu_si128(CONST_M128_CAST(cv_l+4)));
@@ -814,6 +814,7 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 		ctx->last_block[databytelen] = data[databytelen] & ((0xff >> pos2) ^ 0xff);
 		ctx->remain_databitlen += pos2;
 	}
+
 	return LSH_SUCCESS;
 }
 

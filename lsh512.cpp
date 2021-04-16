@@ -407,32 +407,36 @@ inline void msg_exp_odd(LSH512_Internal* i_state)
 
 #if defined(__SSE2__)
 	__m128i temp;
-	_mm_storeu_si128(M128_CAST(submsg_o_l+2),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2)), _MM_SHUFFLE(1,0,3,2)));
+	_mm_storeu_si128(M128_CAST(submsg_o_l+2), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2)), _MM_SHUFFLE(1,0,3,2)));
 
 	temp = _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+0));
-	_mm_storeu_si128(M128_CAST(submsg_o_l+0), _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2)));
+	_mm_storeu_si128(M128_CAST(submsg_o_l+0),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2)));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+2), temp);
-	_mm_storeu_si128(M128_CAST(submsg_o_l+6),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+6)), _MM_SHUFFLE(1,0,3,2)));
+	_mm_storeu_si128(M128_CAST(submsg_o_l+6), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+6)), _MM_SHUFFLE(1,0,3,2)));
 
 	temp = _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+4), _mm_unpacklo_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+6)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4))));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+6), _mm_unpackhi_epi64(
 		temp, _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+6))));
-	_mm_storeu_si128(M128_CAST(submsg_o_r+2),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+2)), _MM_SHUFFLE(1,0,3,2)));
+	_mm_storeu_si128(M128_CAST(submsg_o_r+2), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+2)), _MM_SHUFFLE(1,0,3,2)));
 
 	temp = _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+0));
-	_mm_storeu_si128(M128_CAST(submsg_o_r+0), _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+2)));
+	_mm_storeu_si128(M128_CAST(submsg_o_r+0),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+2)));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+2), temp);
-	_mm_storeu_si128(M128_CAST(submsg_o_r+6),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+6)), _MM_SHUFFLE(1,0,3,2)));
+	_mm_storeu_si128(M128_CAST(submsg_o_r+6), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+6)), _MM_SHUFFLE(1,0,3,2)));
 
 	temp = _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+4), _mm_unpacklo_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+6)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4))));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+6), _mm_unpackhi_epi64(
 		temp, _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+6))));
 
@@ -693,8 +697,8 @@ inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 		_mm_loadu_si128(CONST_M128_CAST(cv_l+4))));
 	_mm_storeu_si128(M128_CAST(cv_l+6), _mm_unpackhi_epi64(
 		temp[0], _mm_loadu_si128(CONST_M128_CAST(cv_l+6))));
-	_mm_storeu_si128(M128_CAST(cv_r+2),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(cv_r+2)), _MM_SHUFFLE(1,0,3,2)));
+	_mm_storeu_si128(M128_CAST(cv_r+2), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(cv_r+2)), _MM_SHUFFLE(1,0,3,2)));
 
 	temp[0] = _mm_loadu_si128(CONST_M128_CAST(cv_r+0));
 	_mm_storeu_si128(M128_CAST(cv_r+0), _mm_unpacklo_epi64(
@@ -702,8 +706,8 @@ inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 		_mm_loadu_si128(CONST_M128_CAST(cv_r+2))));
 	_mm_storeu_si128(M128_CAST(cv_r+2), _mm_unpackhi_epi64(
 		_mm_loadu_si128(CONST_M128_CAST(cv_r+2)), temp[0]));
-	_mm_storeu_si128(M128_CAST(cv_r+6),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(cv_r+6)), _MM_SHUFFLE(1,0,3,2)));
+	_mm_storeu_si128(M128_CAST(cv_r+6), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(cv_r+6)), _MM_SHUFFLE(1,0,3,2)));
 
 	temp[0] = _mm_loadu_si128(CONST_M128_CAST(cv_r+4));
 	_mm_storeu_si128(M128_CAST(cv_r+4), _mm_unpacklo_epi64(
