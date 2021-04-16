@@ -52,7 +52,7 @@ public:
     /// \brief The algorithm name
     /// \return the algorithm name
     /// \details StaticAlgorithmName returns the algorithm's name as a static
-    ///   member function.
+    ///  member function.
     CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName()
         {return "XTS";}
 

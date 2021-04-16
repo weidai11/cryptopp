@@ -71,6 +71,12 @@ public:
 	/// \details LSH_256 uses LSH256_MSG_BLK_BYTE_LEN for block size, which is 128
 	CRYPTOPP_CONSTANT(BLOCKSIZE = LSH256_Base::BLOCKSIZE);
 
+	/// \brief The algorithm's name
+	/// \return the standard algorithm name
+	/// \details The standard algorithm name can be a name like <tt>AES</tt> or <tt>AES/GCM</tt>.
+	///  Some algorithms do not have standard names yet. For example, there is no standard
+	///  algorithm name for Shoup's ECIES.
+	/// \note StaticAlgorithmName is not universally implemented yet.
 	static std::string StaticAlgorithmName() { return "LSH-224"; }
 
 	/// \brief Construct a LSH-224
@@ -94,6 +100,12 @@ public:
 	/// \details LSH_256 uses LSH256_MSG_BLK_BYTE_LEN for block size, which is 128
 	CRYPTOPP_CONSTANT(BLOCKSIZE = LSH256_Base::BLOCKSIZE);
 
+	/// \brief The algorithm's name
+	/// \return the standard algorithm name
+	/// \details The standard algorithm name can be a name like <tt>AES</tt> or <tt>AES/GCM</tt>.
+	///  Some algorithms do not have standard names yet. For example, there is no standard
+	///  algorithm name for Shoup's ECIES.
+	/// \note StaticAlgorithmName is not universally implemented yet.
 	static std::string StaticAlgorithmName() { return "LSH-256"; }
 
 	/// \brief Construct a LSH-256
@@ -110,7 +122,7 @@ class LSH512_Base : public HashTransformation
 {
 public:
 	/// \brief Block size, in bytes
-	//// \details LSH_512 uses LSH512_MSG_BLK_BYTE_LEN for block size, which is 256
+	/// \details LSH_512 uses LSH512_MSG_BLK_BYTE_LEN for block size, which is 256
 	CRYPTOPP_CONSTANT(BLOCKSIZE = 256);
 
 	virtual ~LSH512_Base() {}
@@ -157,6 +169,12 @@ public:
 	/// \details LSH_512 uses LSH512_MSG_BLK_BYTE_LEN for block size, which is 256
 	CRYPTOPP_CONSTANT(BLOCKSIZE = LSH512_Base::BLOCKSIZE);
 
+	/// \brief The algorithm's name
+	/// \return the standard algorithm name
+	/// \details The standard algorithm name can be a name like <tt>AES</tt> or <tt>AES/GCM</tt>.
+	///  Some algorithms do not have standard names yet. For example, there is no standard
+	///  algorithm name for Shoup's ECIES.
+	/// \note StaticAlgorithmName is not universally implemented yet.
 	static std::string StaticAlgorithmName() { return "LSH-384"; }
 
 	/// \brief Construct a LSH-384
@@ -180,6 +198,12 @@ public:
 	/// \details LSH_512 uses LSH512_MSG_BLK_BYTE_LEN for block size, which is 256
 	CRYPTOPP_CONSTANT(BLOCKSIZE = LSH512_Base::BLOCKSIZE);
 
+	/// \brief The algorithm's name
+	/// \return the standard algorithm name
+	/// \details The standard algorithm name can be a name like <tt>AES</tt> or <tt>AES/GCM</tt>.
+	///  Some algorithms do not have standard names yet. For example, there is no standard
+	///  algorithm name for Shoup's ECIES.
+	/// \note StaticAlgorithmName is not universally implemented yet.
 	static std::string StaticAlgorithmName() { return "LSH-512"; }
 
 	/// \brief Construct a LSH-512
@@ -203,6 +227,12 @@ public:
 	/// \details LSH_512 uses LSH512_MSG_BLK_BYTE_LEN for block size, which is 256
 	CRYPTOPP_CONSTANT(BLOCKSIZE = LSH512_Base::BLOCKSIZE);
 
+	/// \brief The algorithm's name
+	/// \return the standard algorithm name
+	/// \details The standard algorithm name can be a name like <tt>AES</tt> or <tt>AES/GCM</tt>.
+	///  Some algorithms do not have standard names yet. For example, there is no standard
+	///  algorithm name for Shoup's ECIES.
+	/// \note StaticAlgorithmName is not universally implemented yet.
 	static std::string StaticAlgorithmName() { return "LSH-512-256"; }
 
 	/// \brief Construct a LSH-512-256
