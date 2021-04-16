@@ -806,14 +806,14 @@ inline void compress(LSH512_Context* ctx, const lsh_u64 pdMsgBlk[MSG_BLK_WORD_LE
 inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
 {
 #if defined(__SSE2__)
-	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_loadu_si128(CONST_M128_CAST(iv+0)));
-	_mm_storeu_si128(M128_CAST(cv_l+2), _mm_loadu_si128(CONST_M128_CAST(iv+2)));
-	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_loadu_si128(CONST_M128_CAST(iv+4)));
-	_mm_storeu_si128(M128_CAST(cv_l+6), _mm_loadu_si128(CONST_M128_CAST(iv+6)));
-	_mm_storeu_si128(M128_CAST(cv_r+0), _mm_loadu_si128(CONST_M128_CAST(iv+8)));
-	_mm_storeu_si128(M128_CAST(cv_r+2), _mm_loadu_si128(CONST_M128_CAST(iv+10)));
-	_mm_storeu_si128(M128_CAST(cv_r+4), _mm_loadu_si128(CONST_M128_CAST(iv+12)));
-	_mm_storeu_si128(M128_CAST(cv_r+6), _mm_loadu_si128(CONST_M128_CAST(iv+14)));
+	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_load_si128(CONST_M128_CAST(iv+0)));
+	_mm_storeu_si128(M128_CAST(cv_l+2), _mm_load_si128(CONST_M128_CAST(iv+2)));
+	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_load_si128(CONST_M128_CAST(iv+4)));
+	_mm_storeu_si128(M128_CAST(cv_l+6), _mm_load_si128(CONST_M128_CAST(iv+6)));
+	_mm_storeu_si128(M128_CAST(cv_r+0), _mm_load_si128(CONST_M128_CAST(iv+8)));
+	_mm_storeu_si128(M128_CAST(cv_r+2), _mm_load_si128(CONST_M128_CAST(iv+10)));
+	_mm_storeu_si128(M128_CAST(cv_r+4), _mm_load_si128(CONST_M128_CAST(iv+12)));
+	_mm_storeu_si128(M128_CAST(cv_r+6), _mm_load_si128(CONST_M128_CAST(iv+14)));
 #else
 	cv_l[0] = iv[0];
 	cv_l[1] = iv[1];
