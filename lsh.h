@@ -101,7 +101,7 @@ public:
 
 	unsigned int BlockSize() const { return m_blockSize; }
 	unsigned int DigestSize() const { return m_digestSize; }
-	unsigned int OptimalDataAlignment() const { return GetAlignmentOf<word32>(); }
+	unsigned int OptimalDataAlignment() const { return GetAlignmentOf<word64>(); }
 
 	void Restart();
 	void Update(const byte *input, size_t length);
