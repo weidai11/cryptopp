@@ -120,9 +120,9 @@ lsh_u32 ROTL(lsh_u32 x, lsh_u32 r) {
 	return rotlFixed(x, r);
 }
 
-lsh_u32 ROTR(lsh_u32 x, lsh_u32 r) {
-	return rotrFixed(x, r);
-}
+//lsh_u32 ROTR(lsh_u32 x, lsh_u32 r) {
+//	return rotrFixed(x, r);
+//}
 
 /* -------------------------------------------------------- *
 * LSH: iv
