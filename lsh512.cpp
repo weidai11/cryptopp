@@ -95,11 +95,21 @@ const unsigned int LSH_TYPE_512 = LSH_TYPE_512_512;
 
 /* LSH AlgType Macro */
 
-#define LSH_IS_LSH512(lsh_type_val)			(((lsh_type_val)&0xf0000)==0x10000)
+inline bool LSH_IS_LSH512(lsh_uint val) {
+	return val & 0xf0000 == 0x10000;
+}
 
-#define LSH_GET_SMALL_HASHBIT(lsh_type_val)		((lsh_type_val)>>24)
-#define LSH_GET_HASHBYTE(lsh_type_val)			((lsh_type_val) & 0xffff)
-#define LSH_GET_HASHBIT(lsh_type_val)			((LSH_GET_HASHBYTE(lsh_type_val)<<3)-LSH_GET_SMALL_HASHBIT(lsh_type_val))
+inline lsh_uint LSH_GET_SMALL_HASHBIT(lsh_uint val) {
+	return val >> 24;
+}
+
+inline lsh_uint LSH_GET_HASHBYTE(lsh_uint val) {
+	return val & 0xffff;
+}
+
+inline lsh_uint LSH_GET_HASHBIT(lsh_uint val) {
+	return (LSH_GET_HASHBYTE(val) << 3) - LSH_GET_SMALL_HASHBIT(val);
+}
 
 /* LSH Constants */
 
@@ -123,10 +133,6 @@ inline lsh_u64 loadLE64(lsh_u64 v) {
 lsh_u64 ROTL64(lsh_u64 x, lsh_u64 r) {
 	return rotlFixed(x, r);
 }
-
-//lsh_u64 ROTR64(lsh_u64 x, lsh_u64 r) {
-//	return rotrFixed(x, r);
-//}
 
 /* -------------------------------------------------------- *
 * LSH: iv
@@ -471,7 +477,7 @@ inline void msg_exp_odd(LSH512_Internal* i_state)
 #endif
 }
 
-inline void load_sc(const lsh_u64** p_const_v, lsh_uint i)
+inline void load_sc(const lsh_u64** p_const_v, size_t i)
 {
 	*p_const_v = &g_StepConstants[i];
 }
@@ -521,6 +527,7 @@ inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_st
 	cv_r[6] ^= submsg_e_r[6];  cv_r[7] ^= submsg_e_r[7];
 #endif
 }
+
 inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
@@ -1104,7 +1111,7 @@ void LSH512_Base::TruncatedFinal(byte *hash, size_t size)
 		// where a bit-length is added to the last output byte of the hash function.
 		// CRYPTOPP_ASSERT(0);
 
-		byte fullHash[HASH_VAL_MAX_WORD_LEN * sizeof(lsh_uint)];
+		byte fullHash[HASH_VAL_MAX_WORD_LEN * sizeof(lsh_u64)];
 		err = lsh512_final(&ctx, fullHash);
 		memcpy(hash, fullHash, size);
 	}

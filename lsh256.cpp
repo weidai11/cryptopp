@@ -92,11 +92,21 @@ const unsigned int LSH_TYPE_256 = LSH_TYPE_256_256;
 
 /* LSH AlgType Macro */
 
-#define LSH_IS_LSH256(lsh_type_val)			(((lsh_type_val)&0xf0000)==0)
+inline bool LSH_IS_LSH512(lsh_uint val) {
+	return val & 0xf0000 == 0;
+}
 
-#define LSH_GET_SMALL_HASHBIT(lsh_type_val)		((lsh_type_val)>>24)
-#define LSH_GET_HASHBYTE(lsh_type_val)			((lsh_type_val) & 0xffff)
-#define LSH_GET_HASHBIT(lsh_type_val)			((LSH_GET_HASHBYTE(lsh_type_val)<<3)-LSH_GET_SMALL_HASHBIT(lsh_type_val))
+inline lsh_uint LSH_GET_SMALL_HASHBIT(lsh_uint val) {
+	return val >> 24;
+}
+
+inline lsh_uint LSH_GET_HASHBYTE(lsh_uint val) {
+	return val & 0xffff;
+}
+
+inline lsh_uint LSH_GET_HASHBIT(lsh_uint val) {
+	return (LSH_GET_HASHBYTE(val) << 3) - LSH_GET_SMALL_HASHBIT(val);
+}
 
 /* LSH Constants */
 
@@ -120,10 +130,6 @@ inline lsh_u32 loadLE32(lsh_u32 v) {
 lsh_u32 ROTL(lsh_u32 x, lsh_u32 r) {
 	return rotlFixed(x, r);
 }
-
-//lsh_u32 ROTR(lsh_u32 x, lsh_u32 r) {
-//	return rotrFixed(x, r);
-//}
 
 /* -------------------------------------------------------- *
 * LSH: iv
@@ -340,7 +346,7 @@ inline void msg_exp_odd(LSH256_Internal* i_state)
 #endif
 }
 
-inline void load_sc(const lsh_u32** p_const_v, lsh_uint i)
+inline void load_sc(const lsh_u32** p_const_v, size_t i)
 {
 	CRYPTOPP_ASSERT(p_const_v != NULLPTR);
 
@@ -611,7 +617,6 @@ inline void compress(LSH256_Context* ctx, const lsh_u32 pdMsgBlk[MSG_BLK_WORD_LE
 	msg_exp_even(i_state);
 	msg_add_even(cv_l, cv_r, i_state);
 }
-
 
 /* -------------------------------------------------------- */
 
@@ -894,7 +899,7 @@ void LSH256_Base::TruncatedFinal(byte *hash, size_t size)
 		// where a bit-length is added to the last output byte of the hash function.
 		// CRYPTOPP_ASSERT(0);
 
-		byte fullHash[HASH_VAL_MAX_WORD_LEN * sizeof(lsh_uint)];
+		byte fullHash[HASH_VAL_MAX_WORD_LEN * sizeof(lsh_u32)];
 		err = lsh256_final(&ctx, fullHash);
 		memcpy(hash, fullHash, size);
 	}
