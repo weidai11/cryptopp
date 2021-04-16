@@ -51,17 +51,16 @@ typedef word32 lsh_type;
 
 struct LSH512_Context
 {
-	// Magic layout: 'lsh_u64* state' begins at cv_l
-	LSH512_Context(word64* hashState, word32 algType, word32& remainingBitLength) :
-		algtype(algType), remain_databitlen(remainingBitLength),
-		cv_l(hashState+0), cv_r(hashState+8),
-		last_block(reinterpret_cast<byte*>(hashState+48)) {}
+	LSH512_Context(word64* state, word32 algType, word32& remainingBitLength) :
+		cv_l(state+0), cv_r(state+8),
+		last_block(reinterpret_cast<byte*>(state+48)) ,
+		remain_databitlen(remainingBitLength), algtype(algType) {}
 
-	lsh_type algtype;
-	lsh_u32& remain_databitlen;
-	lsh_u64* cv_l;
+	lsh_u64* cv_l;  // start of our state block
 	lsh_u64* cv_r;
 	lsh_u8*  last_block;
+	lsh_u32& remain_databitlen;
+	lsh_type algtype;
 };
 
 struct LSH512_Internal

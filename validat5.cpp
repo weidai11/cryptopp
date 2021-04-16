@@ -528,7 +528,7 @@ bool ValidateWhirlpool()
 bool ValidateLSH()
 {
 	std::cout << "\nLSH validation suite running...\n";
-	return RunTestDataFile("TestVectors/lsh256.txt");
+	return RunTestDataFile("TestVectors/lsh.txt");
 }
 
 #ifdef CRYPTOPP_REMOVED
