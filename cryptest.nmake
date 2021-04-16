@@ -57,30 +57,29 @@
 
 LIB_SRCS = \
     cryptlib.cpp cpu.cpp integer.cpp 3way.cpp adler32.cpp algebra.cpp \
-    algparam.cpp allocate.cpp arc4.cpp aria.cpp aria_simd.cpp ariatab.cpp asn.cpp \
-    authenc.cpp base32.cpp base64.cpp basecode.cpp bfinit.cpp blake2.cpp \
-    blake2b_simd.cpp blake2s_simd.cpp blowfish.cpp blumshub.cpp camellia.cpp \
-    cast.cpp casts.cpp cbcmac.cpp ccm.cpp chacha.cpp chacha_avx.cpp \
-    chacha_simd.cpp chachapoly.cpp cham.cpp cham_simd.cpp channels.cpp \
-    cmac.cpp crc.cpp crc_simd.cpp darn.cpp default.cpp des.cpp dessp.cpp \
-    dh.cpp dh2.cpp dll.cpp donna_32.cpp donna_64.cpp donna_sse.cpp dsa.cpp \
-    eax.cpp ec2n.cpp eccrypto.cpp ecp.cpp elgamal.cpp emsa2.cpp eprecomp.cpp \
-    esign.cpp files.cpp filters.cpp fips140.cpp fipstest.cpp gcm.cpp \
-    gcm_simd.cpp gf256.cpp gf2_32.cpp gf2n.cpp gf2n_simd.cpp gfpcrypt.cpp \
-    gost.cpp gzip.cpp hc128.cpp hc256.cpp hex.cpp hight.cpp hmac.cpp \
-    hrtimer.cpp ida.cpp idea.cpp iterhash.cpp kalyna.cpp kalynatab.cpp \
-    keccak.cpp keccak_core.cpp keccak_simd.cpp lea.cpp lea_simd.cpp luc.cpp \
-    mars.cpp marss.cpp md2.cpp md4.cpp md5.cpp misc.cpp modes.cpp \
-    mqueue.cpp mqv.cpp nbtheory.cpp oaep.cpp osrng.cpp padlkrng.cpp \
-    panama.cpp pkcspad.cpp poly1305.cpp polynomi.cpp ppc_power7.cpp \
-    ppc_power8.cpp ppc_power9.cpp ppc_simd.cpp pssr.cpp pubkey.cpp queue.cpp \
-    rabbit.cpp rabin.cpp randpool.cpp rc2.cpp rc5.cpp rc6.cpp rdrand.cpp \
-    rdtables.cpp rijndael.cpp rijndael_simd.cpp ripemd.cpp rng.cpp rsa.cpp \
-    rw.cpp safer.cpp salsa.cpp scrypt.cpp seal.cpp seed.cpp serpent.cpp \
-    sha.cpp sha3.cpp sha_simd.cpp shacal2.cpp shacal2_simd.cpp shake.cpp \
-    shark.cpp sharkbox.cpp simeck.cpp simon.cpp \
-    simon128_simd.cpp skipjack.cpp sm3.cpp sm4.cpp \
-    sm4_simd.cpp sosemanuk.cpp speck.cpp speck128_simd.cpp \
+    algparam.cpp allocate.cpp arc4.cpp aria.cpp aria_simd.cpp ariatab.cpp \
+    asn.cpp authenc.cpp base32.cpp base64.cpp basecode.cpp bfinit.cpp \
+    blake2.cpp blake2b_simd.cpp blake2s_simd.cpp blowfish.cpp blumshub.cpp \
+    camellia.cpp cast.cpp casts.cpp cbcmac.cpp ccm.cpp chacha.cpp \
+    chacha_avx.cpp chacha_simd.cpp chachapoly.cpp cham.cpp cham_simd.cpp \
+    channels.cpp cmac.cpp crc.cpp crc_simd.cpp darn.cpp default.cpp des.cpp \
+    dessp.cpp dh.cpp dh2.cpp dll.cpp donna_32.cpp donna_64.cpp donna_sse.cpp \
+    dsa.cpp eax.cpp ec2n.cpp eccrypto.cpp ecp.cpp elgamal.cpp emsa2.cpp \
+    eprecomp.cpp esign.cpp files.cpp filters.cpp fips140.cpp fipstest.cpp \
+    gcm.cpp gcm_simd.cpp gf256.cpp gf2_32.cpp gf2n.cpp gf2n_simd.cpp \
+    gfpcrypt.cpp gost.cpp gzip.cpp hc128.cpp hc256.cpp hex.cpp hight.cpp \
+    hmac.cpp hrtimer.cpp ida.cpp idea.cpp iterhash.cpp kalyna.cpp \
+    kalynatab.cpp keccak.cpp keccak_core.cpp keccak_simd.cpp lea.cpp \
+    lea_simd.cpp lsh256.cpp lsh512.cpp luc.cpp mars.cpp marss.cpp md2.cpp \
+    md4.cpp md5.cpp misc.cpp modes.cpp mqueue.cpp mqv.cpp nbtheory.cpp \
+    oaep.cpp osrng.cpp padlkrng.cpp panama.cpp pkcspad.cpp poly1305.cpp \
+    polynomi.cpp pssr.cpp pubkey.cpp queue.cpp rabbit.cpp rabin.cpp \
+    randpool.cpp rc2.cpp rc5.cpp rc6.cpp rdrand.cpp rdtables.cpp \
+    rijndael.cpp rijndael_simd.cpp ripemd.cpp rng.cpp rsa.cpp rw.cpp \
+    safer.cpp salsa.cpp scrypt.cpp seal.cpp seed.cpp serpent.cpp sha.cpp \
+    sha3.cpp sha_simd.cpp shacal2.cpp shacal2_simd.cpp shake.cpp shark.cpp \
+    sharkbox.cpp simeck.cpp simon.cpp simon128_simd.cpp skipjack.cpp sm3.cpp \
+    sm4.cpp sm4_simd.cpp sosemanuk.cpp speck.cpp speck128_simd.cpp \
     square.cpp squaretb.cpp sse_simd.cpp strciphr.cpp tea.cpp tftables.cpp \
     threefish.cpp tiger.cpp tigertab.cpp ttmac.cpp tweetnacl.cpp twofish.cpp \
     vmac.cpp wake.cpp whrlpool.cpp xed25519.cpp xtr.cpp xtrcrypt.cpp xts.cpp \
@@ -88,30 +87,29 @@ LIB_SRCS = \
 
 LIB_OBJS = \
     cryptlib.obj cpu.obj integer.obj 3way.obj adler32.obj algebra.obj \
-    algparam.obj allocate.obj arc4.obj aria.obj aria_simd.obj ariatab.obj asn.obj \
-    authenc.obj base32.obj base64.obj basecode.obj bfinit.obj blake2.obj \
-    blake2b_simd.obj blake2s_simd.obj blowfish.obj blumshub.obj camellia.obj \
-    cast.obj casts.obj cbcmac.obj ccm.obj chacha.obj chacha_avx.obj \
-    chacha_simd.obj chachapoly.obj cham.obj cham_simd.obj channels.obj \
-    cmac.obj crc.obj crc_simd.obj darn.obj default.obj des.obj dessp.obj \
-    dh.obj dh2.obj dll.obj donna_32.obj donna_64.obj donna_sse.obj dsa.obj \
-    eax.obj ec2n.obj eccrypto.obj ecp.obj elgamal.obj emsa2.obj eprecomp.obj \
-    esign.obj files.obj filters.obj fips140.obj fipstest.obj gcm.obj \
-    gcm_simd.obj gf256.obj gf2_32.obj gf2n.obj gf2n_simd.obj gfpcrypt.obj \
-    gost.obj gzip.obj hc128.obj hc256.obj hex.obj hight.obj hmac.obj \
-    hrtimer.obj ida.obj idea.obj iterhash.obj kalyna.obj kalynatab.obj \
-    keccak.obj keccak_core.obj keccak_simd.obj lea.obj lea_simd.obj luc.obj \
-    mars.obj marss.obj md2.obj md4.obj md5.obj misc.obj modes.obj \
-    mqueue.obj mqv.obj nbtheory.obj oaep.obj osrng.obj padlkrng.obj \
-    panama.obj pkcspad.obj poly1305.obj polynomi.obj ppc_power7.obj \
-    ppc_power8.obj ppc_power9.obj ppc_simd.obj pssr.obj pubkey.obj queue.obj \
-    rabbit.obj rabin.obj randpool.obj rc2.obj rc5.obj rc6.obj rdrand.obj \
-    rdtables.obj rijndael.obj rijndael_simd.obj ripemd.obj rng.obj rsa.obj \
-    rw.obj safer.obj salsa.obj scrypt.obj seal.obj seed.obj serpent.obj \
-    sha.obj sha3.obj sha_simd.obj shacal2.obj shacal2_simd.obj shake.obj \
-    shark.obj sharkbox.obj simeck.obj simon.obj \
-    simon128_simd.obj skipjack.obj sm3.obj sm4.obj \
-    sm4_simd.obj sosemanuk.obj speck.obj speck128_simd.obj \
+    algparam.obj allocate.obj arc4.obj aria.obj aria_simd.obj ariatab.obj \
+    asn.obj authenc.obj base32.obj base64.obj basecode.obj bfinit.obj \
+    blake2.obj blake2b_simd.obj blake2s_simd.obj blowfish.obj blumshub.obj \
+    camellia.obj cast.obj casts.obj cbcmac.obj ccm.obj chacha.obj \
+    chacha_avx.obj chacha_simd.obj chachapoly.obj cham.obj cham_simd.obj \
+    channels.obj cmac.obj crc.obj crc_simd.obj darn.obj default.obj des.obj \
+    dessp.obj dh.obj dh2.obj dll.obj donna_32.obj donna_64.obj donna_sse.obj \
+    dsa.obj eax.obj ec2n.obj eccrypto.obj ecp.obj elgamal.obj emsa2.obj \
+    eprecomp.obj esign.obj files.obj filters.obj fips140.obj fipstest.obj \
+    gcm.obj gcm_simd.obj gf256.obj gf2_32.obj gf2n.obj gf2n_simd.obj \
+    gfpcrypt.obj gost.obj gzip.obj hc128.obj hc256.obj hex.obj hight.obj \
+    hmac.obj hrtimer.obj ida.obj idea.obj iterhash.obj kalyna.obj \
+    kalynatab.obj keccak.obj keccak_core.obj keccak_simd.obj lea.obj \
+    lea_simd.obj lsh256.obj lsh512.obj luc.obj mars.obj marss.obj md2.obj \
+    md4.obj md5.obj misc.obj modes.obj mqueue.obj mqv.obj nbtheory.obj \
+    oaep.obj osrng.obj padlkrng.obj panama.obj pkcspad.obj poly1305.obj \
+    polynomi.obj pssr.obj pubkey.obj queue.obj rabbit.obj rabin.obj \
+    randpool.obj rc2.obj rc5.obj rc6.obj rdrand.obj rdtables.obj \
+    rijndael.obj rijndael_simd.obj ripemd.obj rng.obj rsa.obj rw.obj \
+    safer.obj salsa.obj scrypt.obj seal.obj seed.obj serpent.obj sha.obj \
+    sha3.obj sha_simd.obj shacal2.obj shacal2_simd.obj shake.obj shark.obj \
+    sharkbox.obj simeck.obj simon.obj simon128_simd.obj skipjack.obj sm3.obj \
+    sm4.obj sm4_simd.obj sosemanuk.obj speck.obj speck128_simd.obj \
     square.obj squaretb.obj sse_simd.obj strciphr.obj tea.obj tftables.obj \
     threefish.obj tiger.obj tigertab.obj ttmac.obj tweetnacl.obj twofish.obj \
     vmac.obj wake.obj whrlpool.obj xed25519.obj xtr.obj xtrcrypt.obj xts.obj \
