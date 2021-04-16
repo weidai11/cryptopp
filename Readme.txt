@@ -28,9 +28,9 @@ Currently the library contains the following algorithms:
                                    Poly1305, Poly1305 (IETF), SipHash, Two-Track-MAC,
                                    VMAC
 
-                                   BLAKE2s, BLAKE2b, Keccack (F1600), SHA-1,
-                   hash functions  SHA-2 (224/256/384/512), SHA-3 (224/256/384/512),
-                                   SHAKE (128/256), SipHash, SM3, Tiger,
+                                   BLAKE2s, BLAKE2b, Keccack (F1600), LSH (256/512),
+                   hash functions  SHA-1, SHA-2 (224/256/384/512), SHA-3 (224/256),
+                                   SHA-3 (384/512), SHAKE (128/256), SipHash, SM3, Tiger,
                                    RIPEMD (128/160/256/320), WHIRLPOOL
 
                                    RSA, DSA, Deterministic DSA, ElGamal,
@@ -76,8 +76,8 @@ Other features include:
   * A high level interface for most of the above, using a filter/pipeline
     metaphor
   * benchmarks and validation testing
-  * x86, x64 (x86-64), x32 (ILP32), ARM-32, Aarch32, Aarch64 and Power8 in-core code
-    for the commonly used algorithms
+  * x86, x64 (x86-64), x32 (ILP32), ARM-32, Aarch32, Aarch64 and Power8
+    in-core code for the commonly used algorithms
       + run-time CPU feature detection and code selection
       + supports GCC-style and MSVC-style inline assembly, and MASM for x64
       + x86, x64 (x86-64), x32 provides MMX, SSE2, and SSE4 implementations

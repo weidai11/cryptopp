@@ -204,6 +204,9 @@ lubyrack.h
 lea.cpp
 lea_simd.cpp
 lea.h
+lsh256.cpp
+lsh512.cpp
+lsh.h
 luc.cpp
 luc.h
 mars.cpp
@@ -525,6 +528,10 @@ TestVectors/hmac.txt
 TestVectors/kalyna.txt
 TestVectors/keccak.txt
 TestVectors/lea.txt
+TestVectors/lsh.txt
+TestVectors/lsh256.txt
+TestVectors/lsh512.txt
+TestVectors/lsh512_256.txt
 TestVectors/mars.txt
 TestVectors/nr.txt
 TestVectors/panama.txt

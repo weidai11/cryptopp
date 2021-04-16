@@ -27,6 +27,8 @@ Test: TestVectors/hmac.txt
 Test: TestVectors/kalyna.txt
 Test: TestVectors/keccak.txt
 Test: TestVectors/lea.txt
+Test: TestVectors/lsh256.txt
+Test: TestVectors/lsh512.txt
 Test: TestVectors/mars.txt
 Test: TestVectors/nr.txt
 Test: TestVectors/panama.txt
@@ -61,4 +63,3 @@ Test: TestVectors/vmac.txt
 Test: TestVectors/wake.txt
 Test: TestVectors/whrlpool.txt
 Test: TestVectors/xts.txt
-
