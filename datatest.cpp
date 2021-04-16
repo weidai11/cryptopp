@@ -1248,6 +1248,10 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 				lastAlgName = algName;
 			}
 
+			// In the old days each loop ran one test. Later, things were modified to run the
+			// the same test twice. Some tests are run with both a StringSource and a FileSource
+			// to catch FileSource specific errors. currentTests and deltaTests (below) keep
+			// the book keeping in order.
 			unsigned int currentTests = totalTests;
 
 			try
