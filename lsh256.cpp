@@ -615,34 +615,38 @@ inline void compress(LSH256_Context* ctx, const lsh_u32 pdMsgBlk[MSG_BLK_WORD_LE
 
 /* -------------------------------------------------------- */
 
+inline void load_iv(word32* cv_l, word32* cv_r, const word32* iv)
+{
+#if defined(__SSE2__)
+	_mm_storeu_si128(M128_CAST(cv_l+ 0), _mm_loadu_si128(CONST_M128_CAST(iv+ 0)));
+	_mm_storeu_si128(M128_CAST(cv_l+ 4), _mm_loadu_si128(CONST_M128_CAST(iv+ 4)));
+	_mm_storeu_si128(M128_CAST(cv_r+ 0), _mm_loadu_si128(CONST_M128_CAST(iv+ 8)));
+	_mm_storeu_si128(M128_CAST(cv_r+ 4), _mm_loadu_si128(CONST_M128_CAST(iv+12)));
+#else
+	cv_l[0] = iv[0];
+	cv_l[1] = iv[1];
+	cv_l[2] = iv[2];
+	cv_l[3] = iv[3];
+	cv_l[4] = iv[4];
+	cv_l[5] = iv[5];
+	cv_l[6] = iv[6];
+	cv_l[7] = iv[7];
+	cv_r[0] = iv[8];
+	cv_r[1] = iv[9];
+	cv_r[2] = iv[10];
+	cv_r[3] = iv[11];
+	cv_r[4] = iv[12];
+	cv_r[5] = iv[13];
+	cv_r[6] = iv[14];
+	cv_r[7] = iv[15];
+#endif
+}
+
 inline void init224(LSH256_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
-#if defined(__SSE2__)
-	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_load_si128(CONST_M128_CAST(g_IV224+0)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_l+4), _mm_load_si128(CONST_M128_CAST(g_IV224+4)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_r+0), _mm_load_si128(CONST_M128_CAST(g_IV224+8)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_r+4), _mm_load_si128(CONST_M128_CAST(g_IV224+12)));
-#else
-	ctx->cv_l[0] = g_IV224[0];
-	ctx->cv_l[1] = g_IV224[1];
-	ctx->cv_l[2] = g_IV224[2];
-	ctx->cv_l[3] = g_IV224[3];
-	ctx->cv_l[4] = g_IV224[4];
-	ctx->cv_l[5] = g_IV224[5];
-	ctx->cv_l[6] = g_IV224[6];
-	ctx->cv_l[7] = g_IV224[7];
-	ctx->cv_r[0] = g_IV224[8];
-	ctx->cv_r[1] = g_IV224[9];
-	ctx->cv_r[2] = g_IV224[10];
-	ctx->cv_r[3] = g_IV224[11];
-	ctx->cv_r[4] = g_IV224[12];
-	ctx->cv_r[5] = g_IV224[13];
-	ctx->cv_r[6] = g_IV224[14];
-	ctx->cv_r[7] = g_IV224[15];
-#endif
-
+	load_iv(ctx->cv_l, ctx->cv_r, g_IV224);
 	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u32));
 }
 
@@ -650,30 +654,7 @@ inline void init256(LSH256_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
-#if defined(__SSE2__)
-	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_load_si128(CONST_M128_CAST(g_IV256+0)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_l+4), _mm_load_si128(CONST_M128_CAST(g_IV256+4)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_r+0), _mm_load_si128(CONST_M128_CAST(g_IV256+8)));
-	_mm_storeu_si128(M128_CAST(ctx->cv_r+4), _mm_load_si128(CONST_M128_CAST(g_IV256+12)));
-#else
-	ctx->cv_l[0] = g_IV256[0];
-	ctx->cv_l[1] = g_IV256[1];
-	ctx->cv_l[2] = g_IV256[2];
-	ctx->cv_l[3] = g_IV256[3];
-	ctx->cv_l[4] = g_IV256[4];
-	ctx->cv_l[5] = g_IV256[5];
-	ctx->cv_l[6] = g_IV256[6];
-	ctx->cv_l[7] = g_IV256[7];
-	ctx->cv_r[0] = g_IV256[8];
-	ctx->cv_r[1] = g_IV256[9];
-	ctx->cv_r[2] = g_IV256[10];
-	ctx->cv_r[3] = g_IV256[11];
-	ctx->cv_r[4] = g_IV256[12];
-	ctx->cv_r[5] = g_IV256[13];
-	ctx->cv_r[6] = g_IV256[14];
-	ctx->cv_r[7] = g_IV256[15];
-#endif
-
+	load_iv(ctx->cv_l, ctx->cv_r, g_IV256);
 	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u32));
 }
 

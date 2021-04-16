@@ -803,91 +803,66 @@ inline void compress(LSH512_Context* ctx, const lsh_u64 pdMsgBlk[MSG_BLK_WORD_LE
 
 /* -------------------------------------------------------- */
 
+inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
+{
+#if defined(__SSE2__)
+	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_loadu_si128(CONST_M128_CAST(iv+0)));
+	_mm_storeu_si128(M128_CAST(cv_l+2), _mm_loadu_si128(CONST_M128_CAST(iv+2)));
+	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_loadu_si128(CONST_M128_CAST(iv+4)));
+	_mm_storeu_si128(M128_CAST(cv_l+6), _mm_loadu_si128(CONST_M128_CAST(iv+6)));
+	_mm_storeu_si128(M128_CAST(cv_r+0), _mm_loadu_si128(CONST_M128_CAST(iv+8)));
+	_mm_storeu_si128(M128_CAST(cv_r+2), _mm_loadu_si128(CONST_M128_CAST(iv+10)));
+	_mm_storeu_si128(M128_CAST(cv_r+4), _mm_loadu_si128(CONST_M128_CAST(iv+12)));
+	_mm_storeu_si128(M128_CAST(cv_r+6), _mm_loadu_si128(CONST_M128_CAST(iv+14)));
+#else
+	cv_l[0] = iv[0];
+	cv_l[1] = iv[1];
+	cv_l[2] = iv[2];
+	cv_l[3] = iv[3];
+	cv_l[4] = iv[4];
+	cv_l[5] = iv[5];
+	cv_l[6] = iv[6];
+	cv_l[7] = iv[7];
+	cv_r[0] = iv[8];
+	cv_r[1] = iv[9];
+	cv_r[2] = iv[10];
+	cv_r[3] = iv[11];
+	cv_r[4] = iv[12];
+	cv_r[5] = iv[13];
+	cv_r[6] = iv[14];
+	cv_r[7] = iv[15];
+#endif
+}
+
 inline void init224(LSH512_Context* ctx)
 {
-	ctx->cv_l[0] = g_IV224[0];
-	ctx->cv_l[1] = g_IV224[1];
-	ctx->cv_l[2] = g_IV224[2];
-	ctx->cv_l[3] = g_IV224[3];
-	ctx->cv_l[4] = g_IV224[4];
-	ctx->cv_l[5] = g_IV224[5];
-	ctx->cv_l[6] = g_IV224[6];
-	ctx->cv_l[7] = g_IV224[7];
-	ctx->cv_r[0] = g_IV224[8];
-	ctx->cv_r[1] = g_IV224[9];
-	ctx->cv_r[2] = g_IV224[10];
-	ctx->cv_r[3] = g_IV224[11];
-	ctx->cv_r[4] = g_IV224[12];
-	ctx->cv_r[5] = g_IV224[13];
-	ctx->cv_r[6] = g_IV224[14];
-	ctx->cv_r[7] = g_IV224[15];
+	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+	load_iv(ctx->cv_l, ctx->cv_r, g_IV224);
 	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 inline void init256(LSH512_Context* ctx)
 {
-	ctx->cv_l[0] = g_IV256[0];
-	ctx->cv_l[1] = g_IV256[1];
-	ctx->cv_l[2] = g_IV256[2];
-	ctx->cv_l[3] = g_IV256[3];
-	ctx->cv_l[4] = g_IV256[4];
-	ctx->cv_l[5] = g_IV256[5];
-	ctx->cv_l[6] = g_IV256[6];
-	ctx->cv_l[7] = g_IV256[7];
-	ctx->cv_r[0] = g_IV256[8];
-	ctx->cv_r[1] = g_IV256[9];
-	ctx->cv_r[2] = g_IV256[10];
-	ctx->cv_r[3] = g_IV256[11];
-	ctx->cv_r[4] = g_IV256[12];
-	ctx->cv_r[5] = g_IV256[13];
-	ctx->cv_r[6] = g_IV256[14];
-	ctx->cv_r[7] = g_IV256[15];
+	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+	load_iv(ctx->cv_l, ctx->cv_r, g_IV256);
 	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 inline void init384(LSH512_Context* ctx)
 {
-	ctx->cv_l[0] = g_IV384[0];
-	ctx->cv_l[1] = g_IV384[1];
-	ctx->cv_l[2] = g_IV384[2];
-	ctx->cv_l[3] = g_IV384[3];
-	ctx->cv_l[4] = g_IV384[4];
-	ctx->cv_l[5] = g_IV384[5];
-	ctx->cv_l[6] = g_IV384[6];
-	ctx->cv_l[7] = g_IV384[7];
-	ctx->cv_r[0] = g_IV384[8];
-	ctx->cv_r[1] = g_IV384[9];
-	ctx->cv_r[2] = g_IV384[10];
-	ctx->cv_r[3] = g_IV384[11];
-	ctx->cv_r[4] = g_IV384[12];
-	ctx->cv_r[5] = g_IV384[13];
-	ctx->cv_r[6] = g_IV384[14];
-	ctx->cv_r[7] = g_IV384[15];
+	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+	load_iv(ctx->cv_l, ctx->cv_r, g_IV384);
 	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 inline void init512(LSH512_Context* ctx)
 {
-	ctx->cv_l[0] = g_IV512[0];
-	ctx->cv_l[1] = g_IV512[1];
-	ctx->cv_l[2] = g_IV512[2];
-	ctx->cv_l[3] = g_IV512[3];
-	ctx->cv_l[4] = g_IV512[4];
-	ctx->cv_l[5] = g_IV512[5];
-	ctx->cv_l[6] = g_IV512[6];
-	ctx->cv_l[7] = g_IV512[7];
-	ctx->cv_r[0] = g_IV512[8];
-	ctx->cv_r[1] = g_IV512[9];
-	ctx->cv_r[2] = g_IV512[10];
-	ctx->cv_r[3] = g_IV512[11];
-	ctx->cv_r[4] = g_IV512[12];
-	ctx->cv_r[5] = g_IV512[13];
-	ctx->cv_r[6] = g_IV512[14];
-	ctx->cv_r[7] = g_IV512[15];
+	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+	load_iv(ctx->cv_l, ctx->cv_r, g_IV512);
 	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
@@ -897,9 +872,24 @@ inline void fin(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+#if defined(__SSE2__)
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_xor_si128(
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+0)),
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+0))));
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+2), _mm_xor_si128(
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+2)),
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+2))));
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+4), _mm_xor_si128(
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+4)),
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+4))));
+	_mm_storeu_si128(M128_CAST(ctx->cv_l+6), _mm_xor_si128(
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+6)),
+		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+6))));
+#else
 	for (size_t i = 0; i < HASH_VAL_MAX_WORD_LEN; i++){
 		ctx->cv_l[i] = loadLE64(ctx->cv_l[i] ^ ctx->cv_r[i]);
 	}
+#endif
 }
 
 /* -------------------------------------------------------- */
