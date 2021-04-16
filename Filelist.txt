@@ -531,6 +531,7 @@ TestVectors/lea.txt
 TestVectors/lsh.txt
 TestVectors/lsh256.txt
 TestVectors/lsh512.txt
+TestVectors/lsh512_256.txt
 TestVectors/mars.txt
 TestVectors/nr.txt
 TestVectors/panama.txt

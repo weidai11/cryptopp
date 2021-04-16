@@ -165,6 +165,25 @@ public:
 	std::string AlgorithmName() const { return StaticAlgorithmName(); }
 };
 
+/// \brief LSH-512-256 hash function
+/// \sa <A HREF="https://seed.kisa.or.kr/kisa/algorithm/EgovLSHInfo.do">LSH</A>
+///  on the Korea Internet & Security Agency (KISA) website.
+/// \since Crypto++ 8.6
+class LSH512_256 : public LSH512_Base
+{
+public:
+	CRYPTOPP_CONSTANT(DIGESTSIZE = 32);
+	CRYPTOPP_CONSTANT(BLOCKSIZE = 128);
+
+	static std::string StaticAlgorithmName() { return "LSH-512-256"; }
+
+	/// \brief Construct a LSH-512-256
+	/// \details LSH_TYPE_512_256 is the magic value 0x0010020 defined in lsh.cpp.
+	LSH512_256() : LSH512_Base(0x0010020, DIGESTSIZE, BLOCKSIZE) { Restart(); }
+
+	std::string AlgorithmName() const { return StaticAlgorithmName(); }
+};
+
 NAMESPACE_END
 
 #endif  // CRYPTOPP_LSH_H

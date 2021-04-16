@@ -1,0 +1,6 @@
+AlgorithmType: MessageDigest
+Name: LSH-512-256
+Source: https://en.wikipedia.org/wiki/LSH_(hash_function)
+Message: "abc"
+Digest: CD 89 23 10 53 26 02 33 2B 61 3F 1E C1 1A 69 62 FC A6 1E A0 9E CF FC D4 BC F7 58 58 D8 02 ED EC
+Test: Verify

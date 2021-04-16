@@ -120,6 +120,7 @@ void RegisterFactories1()
 	RegisterDefaultFactoryFor<HashTransformation, LSH256>();
 	RegisterDefaultFactoryFor<HashTransformation, LSH384>();
 	RegisterDefaultFactoryFor<HashTransformation, LSH512>();
+	RegisterDefaultFactoryFor<HashTransformation, LSH512_256>();
 
 #ifdef BLOCKING_RNG_AVAILABLE
 	RegisterDefaultFactoryFor<RandomNumberGenerator, BlockingRng>();
