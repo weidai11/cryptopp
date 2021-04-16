@@ -47,12 +47,13 @@ typedef word32 lsh_type;
 struct LSH256_Context
 {
 	LSH256_Context(word32* state, word32 algType, word32& remainingBitLength) :
-		cv_l(state+0), cv_r(state+8),
+		cv_l(state+0), cv_r(state+8), sub_msgs(state+16),
 		last_block(reinterpret_cast<byte*>(state+48)) ,
 		remain_databitlen(remainingBitLength), algtype(algType) {}
 
 	lsh_u32* cv_l;  // start of our state block
 	lsh_u32* cv_r;
+	lsh_u32* sub_msgs;
 	lsh_u8*  last_block;
 	lsh_u32& remain_databitlen;
 	lsh_type algtype;
@@ -641,6 +642,8 @@ inline void init224(LSH256_Context* ctx)
 	ctx->cv_r[6] = g_IV224[14];
 	ctx->cv_r[7] = g_IV224[15];
 #endif
+
+	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u32));
 }
 
 inline void init256(LSH256_Context* ctx)
@@ -670,6 +673,8 @@ inline void init256(LSH256_Context* ctx)
 	ctx->cv_r[6] = g_IV256[14];
 	ctx->cv_r[7] = g_IV256[15];
 #endif
+
+	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u32));
 }
 
 /* -------------------------------------------------------- */

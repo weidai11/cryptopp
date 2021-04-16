@@ -49,12 +49,13 @@ typedef word32 lsh_type;
 struct LSH512_Context
 {
 	LSH512_Context(word64* state, word32 algType, word32& remainingBitLength) :
-		cv_l(state+0), cv_r(state+8),
+		cv_l(state+0), cv_r(state+8), sub_msgs(state+16),
 		last_block(reinterpret_cast<byte*>(state+48)) ,
 		remain_databitlen(remainingBitLength), algtype(algType) {}
 
 	lsh_u64* cv_l;  // start of our state block
 	lsh_u64* cv_r;
+	lsh_u64* sub_msgs;
 	lsh_u8*  last_block;
 	lsh_u32& remain_databitlen;
 	lsh_type algtype;
@@ -820,6 +821,8 @@ inline void init224(LSH512_Context* ctx)
 	ctx->cv_r[5] = g_IV224[13];
 	ctx->cv_r[6] = g_IV224[14];
 	ctx->cv_r[7] = g_IV224[15];
+
+	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 inline void init256(LSH512_Context* ctx)
@@ -840,6 +843,8 @@ inline void init256(LSH512_Context* ctx)
 	ctx->cv_r[5] = g_IV256[13];
 	ctx->cv_r[6] = g_IV256[14];
 	ctx->cv_r[7] = g_IV256[15];
+
+	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 inline void init384(LSH512_Context* ctx)
@@ -860,6 +865,8 @@ inline void init384(LSH512_Context* ctx)
 	ctx->cv_r[5] = g_IV384[13];
 	ctx->cv_r[6] = g_IV384[14];
 	ctx->cv_r[7] = g_IV384[15];
+
+	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 inline void init512(LSH512_Context* ctx)
@@ -880,6 +887,8 @@ inline void init512(LSH512_Context* ctx)
 	ctx->cv_r[5] = g_IV512[13];
 	ctx->cv_r[6] = g_IV512[14];
 	ctx->cv_r[7] = g_IV512[15];
+
+	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 /* -------------------------------------------------------- */
