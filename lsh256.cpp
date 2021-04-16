@@ -95,7 +95,6 @@ const unsigned int LSH_TYPE_256_224 = 0x000001C;
 // const unsigned int LSH_TYPE_224 = LSH_TYPE_256_224;
 // const unsigned int LSH_TYPE_256 = LSH_TYPE_256_256;
 
-
 /* LSH AlgType Macro */
 
 inline bool LSH_IS_LSH512(lsh_uint val) {
