@@ -74,8 +74,8 @@ struct LSH512_Internal
 };
 
 const unsigned int MSG_BLK_WORD_LEN = 32;
-const unsigned int CV_WORD_LENN = 16;
-const unsigned int CONST_WORD_LENN = 8;
+// const unsigned int CV_WORD_LEN = 16;
+// const unsigned int CONST_WORD_LEN = 8;
 const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
 const unsigned int NUM_STEPS = 28;
 
@@ -89,14 +89,14 @@ const unsigned int LSH_TYPE_512_384 = 0x0010030;
 const unsigned int LSH_TYPE_512_256 = 0x0010020;
 const unsigned int LSH_TYPE_512_224 = 0x001001C;
 
-const unsigned int LSH_TYPE_384 = LSH_TYPE_512_384;
-const unsigned int LSH_TYPE_512 = LSH_TYPE_512_512;
+// const unsigned int LSH_TYPE_384 = LSH_TYPE_512_384;
+// const unsigned int LSH_TYPE_512 = LSH_TYPE_512_512;
 
 
 /* LSH AlgType Macro */
 
 inline bool LSH_IS_LSH512(lsh_uint val) {
-	return val & 0xf0000 == 0x10000;
+	return (val & 0xf0000) == 0x10000;
 }
 
 inline lsh_uint LSH_GET_SMALL_HASHBIT(lsh_uint val) {
@@ -114,15 +114,15 @@ inline lsh_uint LSH_GET_HASHBIT(lsh_uint val) {
 /* LSH Constants */
 
 const unsigned int LSH512_MSG_BLK_BYTE_LEN = 256;
-const unsigned int LSH512_MSG_BLK_BIT_LEN = 2048;
-const unsigned int LSH512_CV_BYTE_LEN = 128;
+// const unsigned int LSH512_MSG_BLK_BIT_LEN = 2048;
+// const unsigned int LSH512_CV_BYTE_LEN = 128;
 const unsigned int LSH512_HASH_VAL_MAX_BYTE_LEN = 64;
 
 /* Error Code */
 
 const unsigned int LSH_SUCCESS = 0x0;
-const unsigned int LSH_ERR_NULL_PTR = 0x2401;
-const unsigned int LSH_ERR_INVALID_ALGTYPE = 0x2402;
+// const unsigned int LSH_ERR_NULL_PTR = 0x2401;
+// const unsigned int LSH_ERR_INVALID_ALGTYPE = 0x2402;
 const unsigned int LSH_ERR_INVALID_DATABITLEN = 0x2403;
 const unsigned int LSH_ERR_INVALID_STATE = 0x2404;
 
