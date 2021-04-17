@@ -10,16 +10,24 @@
 #include "lsh.h"
 #include "misc.h"
 
-#if defined(__SSE2__) || defined(_M_X64)
+#ifndef CRYPTOPP_DISABLE_ASM
+# if defined(__SSE2__) || defined(_M_X64)
+#  define CRYPTOPP_LSH512_ASM_AVAILABLE 1
+# endif
+#endif
+
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 # include <emmintrin.h>
 # define M128_CAST(x) ((__m128i *)(void *)(x))
 # define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 #endif
 
-#if defined(__XOP__)
-# include <ammintrin.h>
-# if defined(__GNUC__)
-#  include <x86intrin.h>
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+# if defined(__XOP__)
+#  include <ammintrin.h>
+#  if defined(__GNUC__)
+#   include <x86intrin.h>
+#  endif
 # endif
 #endif
 
@@ -237,75 +245,80 @@ MAYBE_CONSTEXPR lsh_u64 g_StepConstants[16 * NUM_STEPS] = {
 
 inline void load_msg_blk(LSH512_Internal* i_state, const lsh_u64 * msgblk)
 {
-#if defined(__SSE2__) || defined(_M_X64)
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+0),
+	lsh_u64* submsg_e_l = i_state->submsg_e_l;
+	lsh_u64* submsg_e_r = i_state->submsg_e_r;
+	lsh_u64* submsg_o_l = i_state->submsg_o_l;
+	lsh_u64* submsg_o_r = i_state->submsg_o_r;
+
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+	_mm_storeu_si128(M128_CAST(submsg_e_l+0),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+0)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+2),
+	_mm_storeu_si128(M128_CAST(submsg_e_l+2),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+2)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+4),
+	_mm_storeu_si128(M128_CAST(submsg_e_l+4),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+4)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_l+6),
+	_mm_storeu_si128(M128_CAST(submsg_e_l+6),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+6)));
 
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_r+0),
+	_mm_storeu_si128(M128_CAST(submsg_e_r+0),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+8)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_r+2),
+	_mm_storeu_si128(M128_CAST(submsg_e_r+2),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+10)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_r+4),
+	_mm_storeu_si128(M128_CAST(submsg_e_r+4),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+12)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_e_r+8),
+	_mm_storeu_si128(M128_CAST(submsg_e_r+6),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+14)));
 
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_l+0),
+	_mm_storeu_si128(M128_CAST(submsg_o_l+0),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+16)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_l+2),
+	_mm_storeu_si128(M128_CAST(submsg_o_l+2),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+18)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_l+4),
+	_mm_storeu_si128(M128_CAST(submsg_o_l+4),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+20)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_l+6),
+	_mm_storeu_si128(M128_CAST(submsg_o_l+6),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+22)));
 
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_r+0),
+	_mm_storeu_si128(M128_CAST(submsg_o_r+0),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+24)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_r+2),
+	_mm_storeu_si128(M128_CAST(submsg_o_r+2),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+26)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_r+4),
+	_mm_storeu_si128(M128_CAST(submsg_o_r+4),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+28)));
-	_mm_storeu_si128(M128_CAST(i_state->submsg_o_r+6),
+	_mm_storeu_si128(M128_CAST(submsg_o_r+6),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+30)));
 #else
-	i_state->submsg_e_l[0] = loadLE64(msgblk[0]);
-	i_state->submsg_e_l[1] = loadLE64(msgblk[1]);
-	i_state->submsg_e_l[2] = loadLE64(msgblk[2]);
-	i_state->submsg_e_l[3] = loadLE64(msgblk[3]);
-	i_state->submsg_e_l[4] = loadLE64(msgblk[4]);
-	i_state->submsg_e_l[5] = loadLE64(msgblk[5]);
-	i_state->submsg_e_l[6] = loadLE64(msgblk[6]);
-	i_state->submsg_e_l[7] = loadLE64(msgblk[7]);
-	i_state->submsg_e_r[0] = loadLE64(msgblk[8]);
-	i_state->submsg_e_r[1] = loadLE64(msgblk[9]);
-	i_state->submsg_e_r[2] = loadLE64(msgblk[10]);
-	i_state->submsg_e_r[3] = loadLE64(msgblk[11]);
-	i_state->submsg_e_r[4] = loadLE64(msgblk[12]);
-	i_state->submsg_e_r[5] = loadLE64(msgblk[13]);
-	i_state->submsg_e_r[6] = loadLE64(msgblk[14]);
-	i_state->submsg_e_r[7] = loadLE64(msgblk[15]);
-	i_state->submsg_o_l[0] = loadLE64(msgblk[16]);
-	i_state->submsg_o_l[1] = loadLE64(msgblk[17]);
-	i_state->submsg_o_l[2] = loadLE64(msgblk[18]);
-	i_state->submsg_o_l[3] = loadLE64(msgblk[19]);
-	i_state->submsg_o_l[4] = loadLE64(msgblk[20]);
-	i_state->submsg_o_l[5] = loadLE64(msgblk[21]);
-	i_state->submsg_o_l[6] = loadLE64(msgblk[22]);
-	i_state->submsg_o_l[7] = loadLE64(msgblk[23]);
-	i_state->submsg_o_r[0] = loadLE64(msgblk[24]);
-	i_state->submsg_o_r[1] = loadLE64(msgblk[25]);
-	i_state->submsg_o_r[2] = loadLE64(msgblk[26]);
-	i_state->submsg_o_r[3] = loadLE64(msgblk[27]);
-	i_state->submsg_o_r[4] = loadLE64(msgblk[28]);
-	i_state->submsg_o_r[5] = loadLE64(msgblk[29]);
-	i_state->submsg_o_r[6] = loadLE64(msgblk[30]);
-	i_state->submsg_o_r[7] = loadLE64(msgblk[31]);
+	submsg_e_l[0] = loadLE64(msgblk[0]);
+	submsg_e_l[1] = loadLE64(msgblk[1]);
+	submsg_e_l[2] = loadLE64(msgblk[2]);
+	submsg_e_l[3] = loadLE64(msgblk[3]);
+	submsg_e_l[4] = loadLE64(msgblk[4]);
+	submsg_e_l[5] = loadLE64(msgblk[5]);
+	submsg_e_l[6] = loadLE64(msgblk[6]);
+	submsg_e_l[7] = loadLE64(msgblk[7]);
+	submsg_e_r[0] = loadLE64(msgblk[8]);
+	submsg_e_r[1] = loadLE64(msgblk[9]);
+	submsg_e_r[2] = loadLE64(msgblk[10]);
+	submsg_e_r[3] = loadLE64(msgblk[11]);
+	submsg_e_r[4] = loadLE64(msgblk[12]);
+	submsg_e_r[5] = loadLE64(msgblk[13]);
+	submsg_e_r[6] = loadLE64(msgblk[14]);
+	submsg_e_r[7] = loadLE64(msgblk[15]);
+	submsg_o_l[0] = loadLE64(msgblk[16]);
+	submsg_o_l[1] = loadLE64(msgblk[17]);
+	submsg_o_l[2] = loadLE64(msgblk[18]);
+	submsg_o_l[3] = loadLE64(msgblk[19]);
+	submsg_o_l[4] = loadLE64(msgblk[20]);
+	submsg_o_l[5] = loadLE64(msgblk[21]);
+	submsg_o_l[6] = loadLE64(msgblk[22]);
+	submsg_o_l[7] = loadLE64(msgblk[23]);
+	submsg_o_r[0] = loadLE64(msgblk[24]);
+	submsg_o_r[1] = loadLE64(msgblk[25]);
+	submsg_o_r[2] = loadLE64(msgblk[26]);
+	submsg_o_r[3] = loadLE64(msgblk[27]);
+	submsg_o_r[4] = loadLE64(msgblk[28]);
+	submsg_o_r[5] = loadLE64(msgblk[29]);
+	submsg_o_r[6] = loadLE64(msgblk[30]);
+	submsg_o_r[7] = loadLE64(msgblk[31]);
 #endif
 }
 
@@ -318,7 +331,7 @@ inline void msg_exp_even(LSH512_Internal* i_state)
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	__m128i temp;
 	_mm_storeu_si128(M128_CAST(submsg_e_l+2),
 		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+2)), _MM_SHUFFLE(1,0,3,2)));
@@ -399,7 +412,7 @@ inline void msg_exp_odd(LSH512_Internal* i_state)
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	__m128i temp;
 	_mm_storeu_si128(M128_CAST(submsg_o_l+2), _mm_shuffle_epi32(
 		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2)), _MM_SHUFFLE(1,0,3,2)));
@@ -441,7 +454,7 @@ inline void msg_exp_odd(LSH512_Internal* i_state)
 	_mm_storeu_si128(M128_CAST(submsg_o_l+4), _mm_add_epi64(
 		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4))));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+6), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+5)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+5))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+6))));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+0), _mm_add_epi64(
 		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+0)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+0))));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+2), _mm_add_epi64(
@@ -489,7 +502,7 @@ inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_st
 	lsh_u64* submsg_e_l = i_state->submsg_e_l;
 	lsh_u64* submsg_e_r = i_state->submsg_e_r;
 
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l))));
@@ -535,7 +548,7 @@ inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_sta
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l))));
@@ -574,7 +587,7 @@ inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_sta
 
 inline void add_blk(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 {
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_add_epi64(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(cv_r))));
@@ -602,7 +615,7 @@ inline void add_blk(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 template <unsigned int R>
 inline void rotate_blk(lsh_u64 cv[8])
 {
-#if defined(__XOP__)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE) && defined(__XOP__)
 	_mm_storeu_si128(M128_CAST(cv),
 		_mm_roti_epi64(_mm_loadu_si128(CONST_M128_CAST(cv)), R));
 	_mm_storeu_si128(M128_CAST(cv+2),
@@ -611,7 +624,7 @@ inline void rotate_blk(lsh_u64 cv[8])
 		_mm_roti_epi64(_mm_loadu_si128(CONST_M128_CAST(cv+4)), R));
 	_mm_storeu_si128(M128_CAST(cv+6),
 		_mm_roti_epi64(_mm_loadu_si128(CONST_M128_CAST(cv+6)), R));
-#elif defined(__SSE2__) || defined(_M_X64)
+#elif defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv), _mm_or_si128(
 		_mm_slli_epi64(_mm_loadu_si128(CONST_M128_CAST(cv)), R),
 		_mm_srli_epi64(_mm_loadu_si128(CONST_M128_CAST(cv)), 64-R)));
@@ -638,7 +651,7 @@ inline void rotate_blk(lsh_u64 cv[8])
 
 inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64* const_v)
 {
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(const_v))));
@@ -676,7 +689,7 @@ inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 
 inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 {
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	__m128i temp[2];
 	temp[0] = _mm_loadu_si128(CONST_M128_CAST(cv_l+0));
 	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_unpacklo_epi64(
@@ -803,7 +816,7 @@ inline void compress(LSH512_Context* ctx, const lsh_u64 pdMsgBlk[MSG_BLK_WORD_LE
 
 inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
 {
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	// The IV's are aligned so we can use _mm_load_si128.
 	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_load_si128(CONST_M128_CAST(iv+0)));
 	_mm_storeu_si128(M128_CAST(cv_l+2), _mm_load_si128(CONST_M128_CAST(iv+2)));
@@ -871,7 +884,7 @@ inline void fin(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+0)),
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+0))));
@@ -1063,7 +1076,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 std::string LSH512_Base::AlgorithmProvider() const
 {
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 	return "SSE2";
 #else
 	return "C++";
