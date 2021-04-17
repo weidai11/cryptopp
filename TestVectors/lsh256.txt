@@ -736,6 +736,8 @@ Comment: All 0's test vector, size 65536
 Message: r65536 00
 Digest: b8d7b5cb 26377eb2 f25a522e 9eb38d1d 85a5fb5c 833173b4 b7d03a83
 Test: Verify
+
+AlgorithmType: MessageDigest
 Name: LSH-256
 Source: gen_lsh256.cpp, https://github.com/noloader/cryptopp-test
 #
