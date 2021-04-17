@@ -10,8 +10,9 @@
 #include "lsh.h"
 #include "misc.h"
 
+// Only enable the intrinsics for 64-bit machines
 #ifndef CRYPTOPP_DISABLE_ASM
-# if defined(__SSE2__) || defined(_M_X64)
+# if defined(__SSE2__) && (defined(__amd64__) || defined(_M_X64))
 #  define CRYPTOPP_LSH256_ASM_AVAILABLE 1
 # endif
 #endif
