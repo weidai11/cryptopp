@@ -22,10 +22,12 @@
 # define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 #endif
 
-#if defined(__XOP__)
-# include <ammintrin.h>
-# if defined(__GNUC__)
-#  include <x86intrin.h>
+#if defined(CRYPTOPP_LSH256_ASM_AVAILABLE)
+# if defined(__XOP__)
+#  include <ammintrin.h>
+#  if defined(__GNUC__)
+#   include <x86intrin.h>
+#  endif
 # endif
 #endif
 
