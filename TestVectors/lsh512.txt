@@ -1,6 +1,6 @@
 AlgorithmType: MessageDigest
 Name: LSH-384
-Source: gen_lsh512.cpp, https://github.com/noloader/cryptopp-test
+Source: gen_lsh512.cpp, https://github.com/noloader/cryptopp-test/lsh
 #
 Comment: random test vector, size 0
 Message:
