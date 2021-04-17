@@ -40,8 +40,10 @@ using CryptoPP::word64;
 using CryptoPP::rotlFixed;
 using CryptoPP::rotlConstant;
 
-using CryptoPP::LITTLE_ENDIAN_ORDER;
+using CryptoPP::GetBlock;
+using CryptoPP::LittleEndian;
 using CryptoPP::ConditionalByteReverse;
+using CryptoPP::LITTLE_ENDIAN_ORDER;
 
 typedef byte lsh_u8;
 typedef word32 lsh_u32;
@@ -77,7 +79,8 @@ struct LSH512_Internal
 	lsh_u64* submsg_o_r; /* odd right sub-message  */
 };
 
-const unsigned int MSG_BLK_WORD_LEN = 32;
+// const unsigned int MSG_BLK_WORD_LEN = 32;
+const unsigned int MSG_BLK_BYTE_LEN = 32*8;
 const unsigned int CV_WORD_LEN = 16;
 // const unsigned int CONST_WORD_LEN = 8;
 const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
@@ -244,7 +247,8 @@ MAYBE_CONSTEXPR lsh_u64 g_StepConstants[16 * NUM_STEPS] = {
 	W64LIT(0x682f81c73efdda0d), W64LIT(0x2fb55925d71d268d), W64LIT(0xcc392d2901e58a3d), W64LIT(0xaa666ab975724a42)
 };
 
-inline void load_msg_blk(LSH512_Internal* i_state, const lsh_u64 * msgblk)
+// Original code relied upon unaligned lsh_u64 buffer
+inline void load_msg_blk(LSH512_Internal* i_state, const lsh_u8* msgblk)
 {
 	lsh_u64* submsg_e_l = i_state->submsg_e_l;
 	lsh_u64* submsg_e_r = i_state->submsg_e_r;
@@ -255,71 +259,46 @@ inline void load_msg_blk(LSH512_Internal* i_state, const lsh_u64 * msgblk)
 	_mm_storeu_si128(M128_CAST(submsg_e_l+0),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+0)));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+2),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+2)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+16)));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+4),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+4)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+32)));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+6),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+6)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+48)));
 
 	_mm_storeu_si128(M128_CAST(submsg_e_r+0),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+8)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+64)));
 	_mm_storeu_si128(M128_CAST(submsg_e_r+2),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+10)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+80)));
 	_mm_storeu_si128(M128_CAST(submsg_e_r+4),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+12)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+96)));
 	_mm_storeu_si128(M128_CAST(submsg_e_r+6),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+14)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+112)));
 
 	_mm_storeu_si128(M128_CAST(submsg_o_l+0),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+16)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+128)));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+2),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+18)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+144)));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+4),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+20)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+160)));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+6),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+22)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+176)));
 
 	_mm_storeu_si128(M128_CAST(submsg_o_r+0),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+24)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+192)));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+2),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+26)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+208)));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+4),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+28)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+224)));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+6),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+30)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+240)));
 #else
-	submsg_e_l[0] = loadLE64(msgblk[0]);
-	submsg_e_l[1] = loadLE64(msgblk[1]);
-	submsg_e_l[2] = loadLE64(msgblk[2]);
-	submsg_e_l[3] = loadLE64(msgblk[3]);
-	submsg_e_l[4] = loadLE64(msgblk[4]);
-	submsg_e_l[5] = loadLE64(msgblk[5]);
-	submsg_e_l[6] = loadLE64(msgblk[6]);
-	submsg_e_l[7] = loadLE64(msgblk[7]);
-	submsg_e_r[0] = loadLE64(msgblk[8]);
-	submsg_e_r[1] = loadLE64(msgblk[9]);
-	submsg_e_r[2] = loadLE64(msgblk[10]);
-	submsg_e_r[3] = loadLE64(msgblk[11]);
-	submsg_e_r[4] = loadLE64(msgblk[12]);
-	submsg_e_r[5] = loadLE64(msgblk[13]);
-	submsg_e_r[6] = loadLE64(msgblk[14]);
-	submsg_e_r[7] = loadLE64(msgblk[15]);
-	submsg_o_l[0] = loadLE64(msgblk[16]);
-	submsg_o_l[1] = loadLE64(msgblk[17]);
-	submsg_o_l[2] = loadLE64(msgblk[18]);
-	submsg_o_l[3] = loadLE64(msgblk[19]);
-	submsg_o_l[4] = loadLE64(msgblk[20]);
-	submsg_o_l[5] = loadLE64(msgblk[21]);
-	submsg_o_l[6] = loadLE64(msgblk[22]);
-	submsg_o_l[7] = loadLE64(msgblk[23]);
-	submsg_o_r[0] = loadLE64(msgblk[24]);
-	submsg_o_r[1] = loadLE64(msgblk[25]);
-	submsg_o_r[2] = loadLE64(msgblk[26]);
-	submsg_o_r[3] = loadLE64(msgblk[27]);
-	submsg_o_r[4] = loadLE64(msgblk[28]);
-	submsg_o_r[5] = loadLE64(msgblk[29]);
-	submsg_o_r[6] = loadLE64(msgblk[30]);
-	submsg_o_r[7] = loadLE64(msgblk[31]);
+	typedef GetBlock<word64, LittleEndian, false> InBlock;
+	InBlock input(msgblk);
+
+	input(submsg_e_l[0])(submsg_e_l[1])(submsg_e_l[2])(submsg_e_l[3])(submsg_e_l[4])(submsg_e_l[5])(submsg_e_l[6])(submsg_e_l[7])
+		(submsg_e_r[0])(submsg_e_r[1])(submsg_e_r[2])(submsg_e_r[3])(submsg_e_r[4])(submsg_e_r[5])(submsg_e_r[6])(submsg_e_r[7])
+		(submsg_o_l[0])(submsg_o_l[1])(submsg_o_l[2])(submsg_o_l[3])(submsg_o_l[4])(submsg_o_l[5])(submsg_o_l[6])(submsg_o_l[7])
+		(submsg_o_r[0])(submsg_o_r[1])(submsg_o_r[2])(submsg_o_r[3])(submsg_o_r[4])(submsg_o_r[5])(submsg_o_r[6])(submsg_o_r[7]);
 #endif
 }
 
@@ -759,6 +738,10 @@ inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 #endif
 };
 
+/* -------------------------------------------------------- *
+* step function
+* -------------------------------------------------------- */
+
 template <unsigned int Alpha, unsigned int Beta>
 inline void mix(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 const_v[8])
 {
@@ -771,7 +754,11 @@ inline void mix(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 const_v[8])
 	rotate_msg_gamma(cv_r);
 }
 
-inline void compress(LSH512_Context* ctx, const lsh_u64 pdMsgBlk[MSG_BLK_WORD_LEN])
+/* -------------------------------------------------------- *
+* compression function
+* -------------------------------------------------------- */
+
+inline void compress(LSH512_Context* ctx, const lsh_u8 pdMsgBlk[MSG_BLK_BYTE_LEN])
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
@@ -907,7 +894,7 @@ inline void fin(LSH512_Context* ctx)
 
 /* -------------------------------------------------------- */
 
-inline void get_hash(LSH512_Context* ctx, lsh_u8 * pbHashVal)
+inline void get_hash(LSH512_Context* ctx, lsh_u8* pbHashVal)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(ctx->algtype != 0);
@@ -976,7 +963,7 @@ lsh_err lsh512_init(LSH512_Context* ctx)
 	return LSH_SUCCESS;
 }
 
-lsh_err lsh512_update(LSH512_Context* ctx, const lsh_u8 * data, size_t databitlen)
+lsh_err lsh512_update(LSH512_Context* ctx, const lsh_u8* data, size_t databitlen)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(data != NULLPTR);
@@ -1015,7 +1002,7 @@ lsh_err lsh512_update(LSH512_Context* ctx, const lsh_u8 * data, size_t databitle
 	if (remain_msg_byte > 0){
 		lsh_uint more_byte = LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte;
 		memcpy(ctx->last_block + remain_msg_byte, data, more_byte);
-		compress(ctx, (lsh_u64*)ctx->last_block);
+		compress(ctx, ctx->last_block);
 		data += more_byte;
 		databytelen -= more_byte;
 		remain_msg_byte = 0;
@@ -1024,7 +1011,7 @@ lsh_err lsh512_update(LSH512_Context* ctx, const lsh_u8 * data, size_t databitle
 
 	while (databytelen >= LSH512_MSG_BLK_BYTE_LEN)
 	{
-		compress(ctx, (lsh_u64*)data);
+		compress(ctx, data);
 		data += LSH512_MSG_BLK_BYTE_LEN;
 		databytelen -= LSH512_MSG_BLK_BYTE_LEN;
 	}
@@ -1063,7 +1050,7 @@ lsh_err lsh512_final(LSH512_Context* ctx, lsh_u8* hashval)
 	}
 	memset(ctx->last_block + remain_msg_byte + 1, 0, LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
 
-	compress(ctx, (lsh_u64*)ctx->last_block);
+	compress(ctx, ctx->last_block);
 
 	fin(ctx);
 	get_hash(ctx, hashval);

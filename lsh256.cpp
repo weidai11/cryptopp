@@ -39,8 +39,10 @@ using CryptoPP::word32;
 using CryptoPP::rotlFixed;
 using CryptoPP::rotlConstant;
 
-using CryptoPP::LITTLE_ENDIAN_ORDER;
+using CryptoPP::GetBlock;
+using CryptoPP::LittleEndian;
 using CryptoPP::ConditionalByteReverse;
+using CryptoPP::LITTLE_ENDIAN_ORDER;
 
 typedef byte lsh_u8;
 typedef word32 lsh_u32;
@@ -75,7 +77,8 @@ struct LSH256_Internal
 	lsh_u32* submsg_o_r; /* odd right sub-message  */
 };
 
-const unsigned int MSG_BLK_WORD_LEN = 32;
+// const unsigned int MSG_BLK_WORD_LEN = 32;
+const unsigned int MSG_BLK_BYTE_LEN = 32*4;
 const unsigned int CV_WORD_LEN = 16;
 const unsigned int CONST_WORD_LEN = 8;
 const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
@@ -191,7 +194,8 @@ MAYBE_CONSTEXPR lsh_u32 g_StepConstants[CONST_WORD_LEN * NUM_STEPS] = {
 	0x592c0f3b, 0x947c5f77, 0x6fff49b9, 0xf71a7e5a, 0x1de8c0f5, 0xc2569600, 0xc4e4ac8c, 0x823c9ce1
 };
 
-inline void load_msg_blk(LSH256_Internal* i_state, const lsh_u32* msgblk)
+// Original code relied upon unaligned lsh_u32 buffer
+inline void load_msg_blk(LSH256_Internal* i_state, const lsh_u8* msgblk)
 {
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 	CRYPTOPP_ASSERT(msgblk != NULLPTR);
@@ -205,52 +209,27 @@ inline void load_msg_blk(LSH256_Internal* i_state, const lsh_u32* msgblk)
 	_mm_storeu_si128(M128_CAST(submsg_e_l+0),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+0)));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+4),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+4)));
-	_mm_storeu_si128(M128_CAST(submsg_e_r+0),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+8)));
-	_mm_storeu_si128(M128_CAST(submsg_e_r+4),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+12)));
-	_mm_storeu_si128(M128_CAST(submsg_o_l+0),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+16)));
+	_mm_storeu_si128(M128_CAST(submsg_e_r+0),
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+32)));
+	_mm_storeu_si128(M128_CAST(submsg_e_r+4),
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+48)));
+	_mm_storeu_si128(M128_CAST(submsg_o_l+0),
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+64)));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+4),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+20)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+80)));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+0),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+24)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+96)));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+4),
-		_mm_loadu_si128(CONST_M128_CAST(msgblk+28)));
+		_mm_loadu_si128(CONST_M128_CAST(msgblk+112)));
 #else
-	submsg_e_l[0] = loadLE32(msgblk[0]);
-	submsg_e_l[1] = loadLE32(msgblk[1]);
-	submsg_e_l[2] = loadLE32(msgblk[2]);
-	submsg_e_l[3] = loadLE32(msgblk[3]);
-	submsg_e_l[4] = loadLE32(msgblk[4]);
-	submsg_e_l[5] = loadLE32(msgblk[5]);
-	submsg_e_l[6] = loadLE32(msgblk[6]);
-	submsg_e_l[7] = loadLE32(msgblk[7]);
-	submsg_e_r[0] = loadLE32(msgblk[8]);
-	submsg_e_r[1] = loadLE32(msgblk[9]);
-	submsg_e_r[2] = loadLE32(msgblk[10]);
-	submsg_e_r[3] = loadLE32(msgblk[11]);
-	submsg_e_r[4] = loadLE32(msgblk[12]);
-	submsg_e_r[5] = loadLE32(msgblk[13]);
-	submsg_e_r[6] = loadLE32(msgblk[14]);
-	submsg_e_r[7] = loadLE32(msgblk[15]);
-	submsg_o_l[0] = loadLE32(msgblk[16]);
-	submsg_o_l[1] = loadLE32(msgblk[17]);
-	submsg_o_l[2] = loadLE32(msgblk[18]);
-	submsg_o_l[3] = loadLE32(msgblk[19]);
-	submsg_o_l[4] = loadLE32(msgblk[20]);
-	submsg_o_l[5] = loadLE32(msgblk[21]);
-	submsg_o_l[6] = loadLE32(msgblk[22]);
-	submsg_o_l[7] = loadLE32(msgblk[23]);
-	submsg_o_r[0] = loadLE32(msgblk[24]);
-	submsg_o_r[1] = loadLE32(msgblk[25]);
-	submsg_o_r[2] = loadLE32(msgblk[26]);
-	submsg_o_r[3] = loadLE32(msgblk[27]);
-	submsg_o_r[4] = loadLE32(msgblk[28]);
-	submsg_o_r[5] = loadLE32(msgblk[29]);
-	submsg_o_r[6] = loadLE32(msgblk[30]);
-	submsg_o_r[7] = loadLE32(msgblk[31]);
+	typedef GetBlock<word32, LittleEndian, false> InBlock;
+	InBlock input(msgblk);
+
+	input(submsg_e_l[0])(submsg_e_l[1])(submsg_e_l[2])(submsg_e_l[3])(submsg_e_l[4])(submsg_e_l[5])(submsg_e_l[6])(submsg_e_l[7])
+		(submsg_e_r[0])(submsg_e_r[1])(submsg_e_r[2])(submsg_e_r[3])(submsg_e_r[4])(submsg_e_r[5])(submsg_e_r[6])(submsg_e_r[7])
+		(submsg_o_l[0])(submsg_o_l[1])(submsg_o_l[2])(submsg_o_l[3])(submsg_o_l[4])(submsg_o_l[5])(submsg_o_l[6])(submsg_o_l[7])
+		(submsg_o_r[0])(submsg_o_r[1])(submsg_o_r[2])(submsg_o_r[3])(submsg_o_r[4])(submsg_o_r[5])(submsg_o_r[6])(submsg_o_r[7]);
 #endif
 }
 
@@ -584,7 +563,8 @@ inline void mix(lsh_u32* cv_l, lsh_u32* cv_r, const lsh_u32* const_v)
 /* -------------------------------------------------------- *
 * compression function
 * -------------------------------------------------------- */
-inline void compress(LSH256_Context* ctx, const lsh_u32 pdMsgBlk[MSG_BLK_WORD_LEN])
+
+inline void compress(LSH256_Context* ctx, const lsh_u8 pdMsgBlk[MSG_BLK_BYTE_LEN])
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
@@ -799,7 +779,7 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 	if (remain_msg_byte > 0){
 		lsh_uint more_byte = LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte;
 		memcpy(ctx->last_block + remain_msg_byte, data, more_byte);
-		compress(ctx, (lsh_u32*)ctx->last_block);
+		compress(ctx, ctx->last_block);
 		data += more_byte;
 		databytelen -= more_byte;
 		remain_msg_byte = 0;
@@ -808,7 +788,7 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 
 	while (databytelen >= LSH256_MSG_BLK_BYTE_LEN)
 	{
-		compress(ctx, (lsh_u32*)data);
+		compress(ctx, data);
 		data += LSH256_MSG_BLK_BYTE_LEN;
 		databytelen -= LSH256_MSG_BLK_BYTE_LEN;
 	}
@@ -848,7 +828,7 @@ lsh_err lsh256_final(LSH256_Context* ctx, lsh_u8* hashval)
 	}
 	memset(ctx->last_block + remain_msg_byte + 1, 0, LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
 
-	compress(ctx, (lsh_u32*)ctx->last_block);
+	compress(ctx, ctx->last_block);
 
 	fin(ctx);
 	get_hash(ctx, hashval);
