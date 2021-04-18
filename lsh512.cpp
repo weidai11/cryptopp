@@ -12,18 +12,15 @@
 
 // Only enable the intrinsics for 64-bit machines
 #ifndef CRYPTOPP_DISABLE_ASM
-# if defined(__SSE2__) && (defined(__amd64__) || defined(_M_X64))
-#  define CRYPTOPP_LSH512_ASM_AVAILABLE 1
+# if (defined(__SSE2__) && defined(__amd64__)) || (defined(_MSC_VER) && defined(_M_X64))
+#  define CRYPTOPP_LSH512_SSE2_AVAILABLE 1
 # endif
 #endif
 
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 # include <emmintrin.h>
 # define M128_CAST(x) ((__m128i *)(void *)(x))
 # define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
-#endif
-
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
 # if defined(__XOP__)
 #  include <ammintrin.h>
 #  if defined(__GNUC__)
@@ -79,8 +76,14 @@ struct LSH512_Internal
 	lsh_u64* submsg_o_r; /* odd right sub-message  */
 };
 
+/* LSH Constants */
+
+const unsigned int LSH512_MSG_BLK_BYTE_LEN = 256;
+// const unsigned int LSH512_MSG_BLK_BIT_LEN = 2048;
+// const unsigned int LSH512_CV_BYTE_LEN = 128;
+const unsigned int LSH512_HASH_VAL_MAX_BYTE_LEN = 64;
+
 // const unsigned int MSG_BLK_WORD_LEN = 32;
-const unsigned int MSG_BLK_BYTE_LEN = 32*8;
 const unsigned int CV_WORD_LEN = 16;
 // const unsigned int CONST_WORD_LEN = 8;
 const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
@@ -99,6 +102,14 @@ const unsigned int LSH_TYPE_512_224 = 0x001001C;
 // const unsigned int LSH_TYPE_384 = LSH_TYPE_512_384;
 // const unsigned int LSH_TYPE_512 = LSH_TYPE_512_512;
 
+/* Error Code */
+
+const unsigned int LSH_SUCCESS = 0x0;
+// const unsigned int LSH_ERR_NULL_PTR = 0x2401;
+// const unsigned int LSH_ERR_INVALID_ALGTYPE = 0x2402;
+const unsigned int LSH_ERR_INVALID_DATABITLEN = 0x2403;
+const unsigned int LSH_ERR_INVALID_STATE = 0x2404;
+
 /* LSH AlgType Macro */
 
 inline bool LSH_IS_LSH512(lsh_uint val) {
@@ -116,21 +127,6 @@ inline lsh_uint LSH_GET_HASHBYTE(lsh_uint val) {
 inline lsh_uint LSH_GET_HASHBIT(lsh_uint val) {
 	return (LSH_GET_HASHBYTE(val) << 3) - LSH_GET_SMALL_HASHBIT(val);
 }
-
-/* LSH Constants */
-
-const unsigned int LSH512_MSG_BLK_BYTE_LEN = 256;
-// const unsigned int LSH512_MSG_BLK_BIT_LEN = 2048;
-// const unsigned int LSH512_CV_BYTE_LEN = 128;
-const unsigned int LSH512_HASH_VAL_MAX_BYTE_LEN = 64;
-
-/* Error Code */
-
-const unsigned int LSH_SUCCESS = 0x0;
-// const unsigned int LSH_ERR_NULL_PTR = 0x2401;
-// const unsigned int LSH_ERR_INVALID_ALGTYPE = 0x2402;
-const unsigned int LSH_ERR_INVALID_DATABITLEN = 0x2403;
-const unsigned int LSH_ERR_INVALID_STATE = 0x2404;
 
 inline lsh_u64 loadLE64(lsh_u64 v) {
 	return ConditionalByteReverse(LITTLE_ENDIAN_ORDER, v);
@@ -255,7 +251,7 @@ inline void load_msg_blk(LSH512_Internal* i_state, const lsh_u8* msgblk)
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(submsg_e_l+0),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+0)));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+2),
@@ -311,7 +307,7 @@ inline void msg_exp_even(LSH512_Internal* i_state)
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	__m128i temp;
 	_mm_storeu_si128(M128_CAST(submsg_e_l+2),
 		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+2)), _MM_SHUFFLE(1,0,3,2)));
@@ -392,7 +388,7 @@ inline void msg_exp_odd(LSH512_Internal* i_state)
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	__m128i temp;
 	_mm_storeu_si128(M128_CAST(submsg_o_l+2), _mm_shuffle_epi32(
 		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2)), _MM_SHUFFLE(1,0,3,2)));
@@ -482,7 +478,7 @@ inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_st
 	lsh_u64* submsg_e_l = i_state->submsg_e_l;
 	lsh_u64* submsg_e_r = i_state->submsg_e_r;
 
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l))));
@@ -528,7 +524,7 @@ inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_sta
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l))));
@@ -567,7 +563,7 @@ inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_sta
 
 inline void add_blk(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 {
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_add_epi64(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(cv_r))));
@@ -595,7 +591,7 @@ inline void add_blk(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 template <unsigned int R>
 inline void rotate_blk(lsh_u64 cv[8])
 {
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE) && defined(__XOP__)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE) && defined(__XOP__)
 	_mm_storeu_si128(M128_CAST(cv),
 		_mm_roti_epi64(_mm_loadu_si128(CONST_M128_CAST(cv)), R));
 	_mm_storeu_si128(M128_CAST(cv+2),
@@ -604,7 +600,7 @@ inline void rotate_blk(lsh_u64 cv[8])
 		_mm_roti_epi64(_mm_loadu_si128(CONST_M128_CAST(cv+4)), R));
 	_mm_storeu_si128(M128_CAST(cv+6),
 		_mm_roti_epi64(_mm_loadu_si128(CONST_M128_CAST(cv+6)), R));
-#elif defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv), _mm_or_si128(
 		_mm_slli_epi64(_mm_loadu_si128(CONST_M128_CAST(cv)), R),
 		_mm_srli_epi64(_mm_loadu_si128(CONST_M128_CAST(cv)), 64-R)));
@@ -631,7 +627,7 @@ inline void rotate_blk(lsh_u64 cv[8])
 
 inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64* const_v)
 {
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(const_v))));
@@ -669,7 +665,7 @@ inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 
 inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 {
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	__m128i temp[2];
 	temp[0] = _mm_loadu_si128(CONST_M128_CAST(cv_l+0));
 	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_unpacklo_epi64(
@@ -758,7 +754,7 @@ inline void mix(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 const_v[8])
 * compression function
 * -------------------------------------------------------- */
 
-inline void compress(LSH512_Context* ctx, const lsh_u8 pdMsgBlk[MSG_BLK_BYTE_LEN])
+inline void compress(LSH512_Context* ctx, const lsh_u8 pdMsgBlk[LSH512_MSG_BLK_BYTE_LEN])
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
@@ -804,7 +800,7 @@ inline void compress(LSH512_Context* ctx, const lsh_u8 pdMsgBlk[MSG_BLK_BYTE_LEN
 
 inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
 {
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	// The IV's are aligned so we can use _mm_load_si128.
 	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_load_si128(CONST_M128_CAST(iv+0)));
 	_mm_storeu_si128(M128_CAST(cv_l+2), _mm_load_si128(CONST_M128_CAST(iv+2)));
@@ -872,7 +868,7 @@ inline void fin(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+0)),
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+0))));
@@ -1064,7 +1060,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 std::string LSH512_Base::AlgorithmProvider() const
 {
-#if defined(CRYPTOPP_LSH512_ASM_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	return "SSE2";
 #else
 	return "C++";
