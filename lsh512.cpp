@@ -66,12 +66,17 @@
 # include <immintrin.h>
 #endif
 
-#if (CRYPTOPP_GCC_VERSION >= 40800) || defined(__clang__)
-# include <x86intrin.h>
-# define GCC_HAVE_TARGET 1
-# define GCC_TARGET_DEFAULT __attribute__ ((target ("default")))
-# define GCC_TARGET_SSSE3   __attribute__ ((target ("ssse3")))
-#else
+// https://stackoverflow.com/q/39958935
+#if defined(__i386__) || defined(__i686__) || defined(__amd64__)
+# if (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 70000)
+#  include <x86intrin.h>
+#  define GCC_HAVE_TARGET 1
+#  define GCC_TARGET_DEFAULT __attribute__ ((target ("default")))
+#  define GCC_TARGET_SSSE3   __attribute__ ((target ("ssse3")))
+# endif
+#endif
+
+#ifndef GCC_TARGET_DEFAULT
 # define GCC_TARGET_DEFAULT
 #endif
 
