@@ -683,8 +683,7 @@ inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 
-	// Don't use AVX2 here. It is 0.5 cpb slower.
-#if 0 // defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
+#if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
 	__m256i temp;
 	temp = _mm256_shuffle_epi32(
 		_mm256_loadu_si256(CONST_M256_CAST(cv_l)), _MM_SHUFFLE(3,1,0,2));
