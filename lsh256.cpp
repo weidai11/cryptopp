@@ -62,9 +62,10 @@
 # define CONST_M256_CAST(x) ((const __m256i *)(const void *)(x))
 #endif
 
-// https://stackoverflow.com/q/39958935
+// Should work for Clang 7 and above: https://stackoverflow.com/q/39958935.
+// But Clang 10 is broke: https://bugs.llvm.org/show_bug.cgi?id=50025.
 #if defined(__i386__) || defined(__i686__) || defined(__amd64__)
-# if (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 70000)
+# if (CRYPTOPP_GCC_VERSION >= 40800)
 #  include <x86intrin.h>
 #  define GCC_HAVE_TARGET 1
 #  define GCC_TARGET_DEFAULT __attribute__ ((target ("default")))
