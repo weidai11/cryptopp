@@ -12,6 +12,10 @@
 // the end of Restart(), Update() or Final(). That mistake costs
 // about 3 cpb.
 
+// There's a fair amount of AVX2 code because _mm256_or_si256,
+// _mm256_xor_si256 and _mm256_add_epi64 are AVX2. There's no way
+// to avoid AVX2 for the simple operations.
+
 // TODO: cut-over to a *_simd.cpp file for proper runtime dispatching.
 
 #include "pch.h"
@@ -770,7 +774,7 @@ inline void add_blk(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 template <unsigned int R>
 inline void rotate_blk(lsh_u64 cv[8])
 {
-#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(cv), _mm256_or_si256(
 		_mm256_slli_epi64(_mm256_loadu_si256(CONST_M256_CAST(cv)), R),
 		_mm256_srli_epi64(_mm256_loadu_si256(CONST_M256_CAST(cv)), 64-R)));
