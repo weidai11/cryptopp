@@ -4,6 +4,16 @@
 //           see https://seed.kisa.or.kr/kisa/algorithm/EgovLSHInfo.do
 //           and https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
 
+// The source file below uses GCC's function multiversioning to
+// speed up a rotate. When the rotate is performed with the SSE
+// unit there's a 2.5 to 3.0 cpb profit. AVX and AVX2 code paths
+// slow down with multiversioning. It looks like GCC inserts calls
+// to zeroupper() in each AVX function rather than deferring until
+// the end of Restart(), Update() or Final(). That mistake costs
+// about 3 cpb.
+
+// TODO: cut-over to a *_simd.cpp file for proper runtime dispatching.
+
 #include "pch.h"
 #include "config.h"
 
@@ -14,6 +24,15 @@
 #ifndef CRYPTOPP_DISABLE_ASM
 # if (defined(__SSE2__) && defined(__amd64__)) || (defined(_MSC_VER) && defined(_M_X64))
 #  define CRYPTOPP_LSH512_SSE2_AVAILABLE 1
+# endif
+# if (defined(__SSSE3__) && defined(__amd64__))
+#  define CRYPTOPP_LSH512_SSSE3_AVAILABLE 1
+# endif
+# if (defined(__AVX__) && defined(__amd64__))
+#  define CRYPTOPP_LSH512_AVX_AVAILABLE 1
+# endif
+# if (defined(__AVX2__) && defined(__amd64__))
+#  define CRYPTOPP_LSH512_AVX2_AVAILABLE 1
 # endif
 #endif
 
@@ -27,6 +46,29 @@
 #   include <x86intrin.h>
 #  endif
 # endif
+#endif
+
+#if defined(CRYPTOPP_LSH512_SSSE3_AVAILABLE)
+# include <tmmintrin.h>
+#endif
+
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+# include <immintrin.h>
+# define M256_CAST(x) ((__m256i *)(void *)(x))
+# define CONST_M256_CAST(x) ((const __m256i *)(const void *)(x))
+#endif
+
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+# include <immintrin.h>
+#endif
+
+#if (CRYPTOPP_GCC_VERSION >= 40800) || defined(__clang__)
+# include <x86intrin.h>
+# define GCC_HAVE_TARGET 1
+# define GCC_TARGET_DEFAULT __attribute__ ((target ("default")))
+# define GCC_TARGET_SSSE3   __attribute__ ((target ("ssse3")))
+#else
+# define GCC_TARGET_DEFAULT
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -75,6 +117,15 @@ struct LSH512_Internal
 	lsh_u64* submsg_o_l; /* odd left sub-message   */
 	lsh_u64* submsg_o_r; /* odd right sub-message  */
 };
+
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+struct AVX_Cleanup
+{
+	~AVX_Cleanup() {
+		_mm256_zeroupper();
+	}
+};
+#endif
 
 /* LSH Constants */
 
@@ -251,7 +302,28 @@ inline void load_msg_blk(LSH512_Internal* i_state, const lsh_u8* msgblk)
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(submsg_e_l+0),
+		_mm256_loadu_si256(CONST_M256_CAST(msgblk+0)));
+	_mm256_storeu_si256(M256_CAST(submsg_e_l+4),
+		_mm256_loadu_si256(CONST_M256_CAST(msgblk+32)));
+
+	_mm256_storeu_si256(M256_CAST(submsg_e_r+0),
+		_mm256_loadu_si256(CONST_M256_CAST(msgblk+64)));
+	_mm256_storeu_si256(M256_CAST(submsg_e_r+4),
+		_mm256_loadu_si256(CONST_M256_CAST(msgblk+96)));
+
+	_mm256_storeu_si256(M256_CAST(submsg_o_l+0),
+		_mm256_loadu_si256(CONST_M256_CAST(msgblk+128)));
+	_mm256_storeu_si256(M256_CAST(submsg_o_l+4),
+		_mm256_loadu_si256(CONST_M256_CAST(msgblk+160)));
+
+	_mm256_storeu_si256(M256_CAST(submsg_o_r+0),
+		_mm256_loadu_si256(CONST_M256_CAST(msgblk+192)));
+	_mm256_storeu_si256(M256_CAST(submsg_o_r+4),
+		_mm256_loadu_si256(CONST_M256_CAST(msgblk+224)));
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(submsg_e_l+0),
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+0)));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+2),
@@ -289,12 +361,16 @@ inline void load_msg_blk(LSH512_Internal* i_state, const lsh_u8* msgblk)
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+240)));
 #else
 	typedef GetBlock<word64, LittleEndian, false> InBlock;
-	InBlock input(msgblk);
 
-	input(submsg_e_l[0])(submsg_e_l[1])(submsg_e_l[2])(submsg_e_l[3])(submsg_e_l[4])(submsg_e_l[5])(submsg_e_l[6])(submsg_e_l[7])
-		(submsg_e_r[0])(submsg_e_r[1])(submsg_e_r[2])(submsg_e_r[3])(submsg_e_r[4])(submsg_e_r[5])(submsg_e_r[6])(submsg_e_r[7])
-		(submsg_o_l[0])(submsg_o_l[1])(submsg_o_l[2])(submsg_o_l[3])(submsg_o_l[4])(submsg_o_l[5])(submsg_o_l[6])(submsg_o_l[7])
-		(submsg_o_r[0])(submsg_o_r[1])(submsg_o_r[2])(submsg_o_r[3])(submsg_o_r[4])(submsg_o_r[5])(submsg_o_r[6])(submsg_o_r[7]);
+	InBlock input(msgblk);
+	input(submsg_e_l[0])(submsg_e_l[1])(submsg_e_l[2])(submsg_e_l[3])
+		(submsg_e_l[4])(submsg_e_l[5])(submsg_e_l[6])(submsg_e_l[7])
+		(submsg_e_r[0])(submsg_e_r[1])(submsg_e_r[2])(submsg_e_r[3])
+		(submsg_e_r[4])(submsg_e_r[5])(submsg_e_r[6])(submsg_e_r[7])
+		(submsg_o_l[0])(submsg_o_l[1])(submsg_o_l[2])(submsg_o_l[3])
+		(submsg_o_l[4])(submsg_o_l[5])(submsg_o_l[6])(submsg_o_l[7])
+		(submsg_o_r[0])(submsg_o_r[1])(submsg_o_r[2])(submsg_o_r[3])
+		(submsg_o_r[4])(submsg_o_r[5])(submsg_o_r[6])(submsg_o_r[7]);
 #endif
 }
 
@@ -307,53 +383,88 @@ inline void msg_exp_even(LSH512_Internal* i_state)
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(submsg_e_l+0),
+		_mm256_add_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+0)),
+			_mm256_permute4x64_epi64(
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+0)), _MM_SHUFFLE(1,0,2,3))));
+	_mm256_storeu_si256(M256_CAST(submsg_e_l+4),
+		_mm256_add_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+4)),
+			_mm256_permute4x64_epi64(
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+4)), _MM_SHUFFLE(2,1,0,3))));
+	_mm256_storeu_si256(M256_CAST(submsg_e_r+0),
+		_mm256_add_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+0)),
+			_mm256_permute4x64_epi64(
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+0)), _MM_SHUFFLE(1,0,2,3))));
+	_mm256_storeu_si256(M256_CAST(submsg_e_r+4),
+		_mm256_add_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+4)),
+			_mm256_permute4x64_epi64(
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+4)), _MM_SHUFFLE(2,1,0,3))));
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	__m128i temp;
-	_mm_storeu_si128(M128_CAST(submsg_e_l+2),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+2)), _MM_SHUFFLE(1,0,3,2)));
+	_mm_storeu_si128(M128_CAST(submsg_e_l+2), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+2)), _MM_SHUFFLE(1,0,3,2)));
 
 	temp = _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+0));
-	_mm_storeu_si128(M128_CAST(submsg_e_l+0), _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+2)));
+	_mm_storeu_si128(M128_CAST(submsg_e_l+0),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+2)));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+2), temp);
-	_mm_storeu_si128(M128_CAST(submsg_e_l+6),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6)), _MM_SHUFFLE(1,0,3,2)));
+	_mm_storeu_si128(M128_CAST(submsg_e_l+6), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6)), _MM_SHUFFLE(1,0,3,2)));
 
 	temp = _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+4), _mm_unpacklo_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4))));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+6), _mm_unpackhi_epi64(
 		temp, _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6))));
-	_mm_storeu_si128(M128_CAST(submsg_e_r+2),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+2)), _MM_SHUFFLE(1,0,3,2)));
+	_mm_storeu_si128(M128_CAST(submsg_e_r+2), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+2)), _MM_SHUFFLE(1,0,3,2)));
 
 	temp = _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+0));
-	_mm_storeu_si128(M128_CAST(submsg_e_r+0), _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+2)));
+	_mm_storeu_si128(M128_CAST(submsg_e_r+0),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+2)));
 	_mm_storeu_si128(M128_CAST(submsg_e_r+2), temp);
-	_mm_storeu_si128(M128_CAST(submsg_e_r+6),
-		_mm_shuffle_epi32(_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6)), _MM_SHUFFLE(1,0,3,2)));
+	_mm_storeu_si128(M128_CAST(submsg_e_r+6), _mm_shuffle_epi32(
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6)), _MM_SHUFFLE(1,0,3,2)));
 
 	temp = _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4));
 	_mm_storeu_si128(M128_CAST(submsg_e_r+4), _mm_unpacklo_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4))));
 	_mm_storeu_si128(M128_CAST(submsg_e_r+6), _mm_unpackhi_epi64(
 		temp, _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6))));
 
 	_mm_storeu_si128(M128_CAST(submsg_e_l+0), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+0)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+0))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+0)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+0))));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+2), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+2))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+2))));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+4), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4))));
 	_mm_storeu_si128(M128_CAST(submsg_e_l+6), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+6)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6))));
+
 	_mm_storeu_si128(M128_CAST(submsg_e_r+0), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+0)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+0))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+0)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+0))));
 	_mm_storeu_si128(M128_CAST(submsg_e_r+2), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+2)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+2))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+2)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+2))));
 	_mm_storeu_si128(M128_CAST(submsg_e_r+4), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4))));
 	_mm_storeu_si128(M128_CAST(submsg_e_r+6), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+6)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6))));
 #else
 	lsh_u64 temp;
 	temp = submsg_e_l[0];
@@ -388,7 +499,30 @@ inline void msg_exp_odd(LSH512_Internal* i_state)
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(submsg_o_l+0),
+		_mm256_add_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+0)),
+			_mm256_permute4x64_epi64(
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+0)), _MM_SHUFFLE(1,0,2,3))));
+	_mm256_storeu_si256(M256_CAST(submsg_o_l+4),
+		_mm256_add_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+4)),
+			_mm256_permute4x64_epi64(
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+4)), _MM_SHUFFLE(2,1,0,3))));
+
+	_mm256_storeu_si256(M256_CAST(submsg_o_r+0),
+		_mm256_add_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+0)),
+			_mm256_permute4x64_epi64(
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+0)), _MM_SHUFFLE(1,0,2,3))));
+	_mm256_storeu_si256(M256_CAST(submsg_o_r+4),
+		_mm256_add_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+4)),
+			_mm256_permute4x64_epi64(
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+4)), _MM_SHUFFLE(2,1,0,3))));
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	__m128i temp;
 	_mm_storeu_si128(M128_CAST(submsg_o_l+2), _mm_shuffle_epi32(
 		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2)), _MM_SHUFFLE(1,0,3,2)));
@@ -424,21 +558,30 @@ inline void msg_exp_odd(LSH512_Internal* i_state)
 		temp, _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+6))));
 
 	_mm_storeu_si128(M128_CAST(submsg_o_l+0), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+0)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+0))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+0)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+0))));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+2), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+2)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+2)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+2))));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+4), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4))));
 	_mm_storeu_si128(M128_CAST(submsg_o_l+6), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_l+6))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+6)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+6))));
+
 	_mm_storeu_si128(M128_CAST(submsg_o_r+0), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+0)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+0))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+0)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+0))));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+2), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+2)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+2))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+2)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+2))));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+4), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4))));
 	_mm_storeu_si128(M128_CAST(submsg_o_r+6), _mm_add_epi64(
-		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6)), _mm_loadu_si128(CONST_M128_CAST(submsg_o_r+6))));
+		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6)),
+		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+6))));
 #else
 	lsh_u64 temp;
 	temp = submsg_o_l[0];
@@ -469,7 +612,7 @@ inline void load_sc(const lsh_u64** p_const_v, size_t i)
 	*p_const_v = &g_StepConstants[i];
 }
 
-inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_state)
+inline void msg_add_even(lsh_u64* cv_l, lsh_u64* cv_r, LSH512_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
@@ -478,7 +621,21 @@ inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_st
 	lsh_u64* submsg_e_l = i_state->submsg_e_l;
 	lsh_u64* submsg_e_r = i_state->submsg_e_r;
 
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(cv_l), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l)),
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l))));
+	_mm256_storeu_si256(M256_CAST(cv_r), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_r)),
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r))));
+	_mm256_storeu_si256(M256_CAST(cv_l+4), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l+4)),
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+4))));
+	_mm256_storeu_si256(M256_CAST(cv_r+4), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_r+4)),
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+4))));
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(submsg_e_l))));
@@ -515,7 +672,7 @@ inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_st
 #endif
 }
 
-inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_state)
+inline void msg_add_odd(lsh_u64* cv_l, lsh_u64* cv_r, LSH512_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
@@ -524,7 +681,21 @@ inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_sta
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(cv_l), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l)),
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l))));
+	_mm256_storeu_si256(M256_CAST(cv_r), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_r)),
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r))));
+	_mm256_storeu_si256(M256_CAST(cv_l+4), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l+4)),
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+4))));
+	_mm256_storeu_si256(M256_CAST(cv_r+4), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_r+4)),
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+4))));
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(submsg_o_l))));
@@ -563,7 +734,15 @@ inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_sta
 
 inline void add_blk(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 {
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(cv_l), _mm256_add_epi64(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l)),
+		_mm256_loadu_si256(CONST_M256_CAST(cv_r))));
+	_mm256_storeu_si256(M256_CAST(cv_l+4), _mm256_add_epi64(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l+4)),
+		_mm256_loadu_si256(CONST_M256_CAST(cv_r+4))));
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_add_epi64(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(cv_r))));
@@ -591,7 +770,15 @@ inline void add_blk(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 template <unsigned int R>
 inline void rotate_blk(lsh_u64 cv[8])
 {
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE) && defined(__XOP__)
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(cv), _mm256_or_si256(
+		_mm256_slli_epi64(_mm256_loadu_si256(CONST_M256_CAST(cv)), R),
+		_mm256_srli_epi64(_mm256_loadu_si256(CONST_M256_CAST(cv)), 64-R)));
+	_mm256_storeu_si256(M256_CAST(cv+4), _mm256_or_si256(
+		_mm256_slli_epi64(_mm256_loadu_si256(CONST_M256_CAST(cv+4)), R),
+		_mm256_srli_epi64(_mm256_loadu_si256(CONST_M256_CAST(cv+4)), 64-R)));
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE) && defined(__XOP__)
 	_mm_storeu_si128(M128_CAST(cv),
 		_mm_roti_epi64(_mm_loadu_si128(CONST_M128_CAST(cv)), R));
 	_mm_storeu_si128(M128_CAST(cv+2),
@@ -600,6 +787,7 @@ inline void rotate_blk(lsh_u64 cv[8])
 		_mm_roti_epi64(_mm_loadu_si128(CONST_M128_CAST(cv+4)), R));
 	_mm_storeu_si128(M128_CAST(cv+6),
 		_mm_roti_epi64(_mm_loadu_si128(CONST_M128_CAST(cv+6)), R));
+
 #elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv), _mm_or_si128(
 		_mm_slli_epi64(_mm_loadu_si128(CONST_M128_CAST(cv)), R),
@@ -627,7 +815,15 @@ inline void rotate_blk(lsh_u64 cv[8])
 
 inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64* const_v)
 {
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(cv_l), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l)),
+		_mm256_loadu_si256(CONST_M256_CAST(const_v))));
+	_mm256_storeu_si256(M256_CAST(cv_l+4), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l+4)),
+		_mm256_loadu_si256(CONST_M256_CAST(const_v+4))));
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(const_v))));
@@ -652,8 +848,49 @@ inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64* const_v)
 #endif
 }
 
-inline void rotate_msg_gamma(lsh_u64 cv_r[8])
+#if defined(GCC_HAVE_TARGET)
+GCC_TARGET_SSSE3
+inline void rotate_msg_gamma(lsh_u64* cv_r)
 {
+	CRYPTOPP_ASSERT(cv_r != NULLPTR);
+
+	// g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
+	_mm_storeu_si128(M128_CAST(cv_r+0),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)),
+			_mm_set_epi8(13,12,11,10, 9,8,15,14, 7,6,5,4, 3,2,1,0)));
+	_mm_storeu_si128(M128_CAST(cv_r+2),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+2)),
+			_mm_set_epi8(9,8,15,14, 13,12,11,10, 3,2,1,0, 7,6,5,4)));
+	_mm_storeu_si128(M128_CAST(cv_r+4),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
+			_mm_set_epi8(12,11,10,9, 8,15,14,13, 6,5,4,3, 2,1,0,7)));
+	_mm_storeu_si128(M128_CAST(cv_r+6),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+6)),
+			_mm_set_epi8(8,15,14,13, 12,11,10,9, 2,1,0,7, 6,5,4,3)));
+}
+#endif
+
+GCC_TARGET_DEFAULT
+inline void rotate_msg_gamma(lsh_u64* cv_r)
+{
+	CRYPTOPP_ASSERT(cv_r != NULLPTR);
+
+#if defined(CRYPTOPP_LSH512_SSSE3_AVAILABLE)
+	// g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
+	_mm_storeu_si128(M128_CAST(cv_r+0),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)),
+			_mm_set_epi8(13,12,11,10, 9,8,15,14, 7,6,5,4, 3,2,1,0)));
+	_mm_storeu_si128(M128_CAST(cv_r+2),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+2)),
+			_mm_set_epi8(9,8,15,14, 13,12,11,10, 3,2,1,0, 7,6,5,4)));
+	_mm_storeu_si128(M128_CAST(cv_r+4),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
+			_mm_set_epi8(12,11,10,9, 8,15,14,13, 6,5,4,3, 2,1,0,7)));
+	_mm_storeu_si128(M128_CAST(cv_r+6),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+6)),
+			_mm_set_epi8(8,15,14,13, 12,11,10,9, 2,1,0,7, 6,5,4,3)));
+
+#else
 	cv_r[1] = ROTL64(cv_r[1], g_gamma512[1]);
 	cv_r[2] = ROTL64(cv_r[2], g_gamma512[2]);
 	cv_r[3] = ROTL64(cv_r[3], g_gamma512[3]);
@@ -661,11 +898,38 @@ inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 	cv_r[5] = ROTL64(cv_r[5], g_gamma512[5]);
 	cv_r[6] = ROTL64(cv_r[6], g_gamma512[6]);
 	cv_r[7] = ROTL64(cv_r[7], g_gamma512[7]);
+#endif
 }
 
-inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
+inline void word_perm(lsh_u64* cv_l, lsh_u64* cv_r)
 {
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+	CRYPTOPP_ASSERT(cv_l != NULLPTR);
+	CRYPTOPP_ASSERT(cv_r != NULLPTR);
+
+	// Don't use AVX2 here. It is 0.4 cpb slower.
+#if 0 // defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+	__m256i temp[2];
+	_mm256_storeu_si256(M256_CAST(cv_l+0), _mm256_permute4x64_epi64(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l+0)), _MM_SHUFFLE(3,1,0,2)));
+	_mm256_storeu_si256(M256_CAST(cv_l+4), _mm256_permute4x64_epi64(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l+4)), _MM_SHUFFLE(3,1,0,2)));
+	_mm256_storeu_si256(M256_CAST(cv_r+0), _mm256_permute4x64_epi64(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_r+0)), _MM_SHUFFLE(1,2,3,0)));
+	_mm256_storeu_si256(M256_CAST(cv_r+4), _mm256_permute4x64_epi64(
+		_mm256_loadu_si256(CONST_M256_CAST(cv_r+4)), _MM_SHUFFLE(1,2,3,0)));
+
+	temp[0] = _mm256_loadu_si256(CONST_M256_CAST(cv_l+0));
+	temp[1] = _mm256_loadu_si256(CONST_M256_CAST(cv_r+0));
+
+	_mm256_storeu_si256(M256_CAST(cv_l+0),
+		_mm256_loadu_si256(CONST_M256_CAST(cv_l+4)));
+	_mm256_storeu_si256(M256_CAST(cv_l+4),
+		_mm256_loadu_si256(CONST_M256_CAST(cv_r+4)));
+
+	_mm256_storeu_si256(M256_CAST(cv_r+0), temp[0]);
+	_mm256_storeu_si256(M256_CAST(cv_r+4), temp[1]);
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	__m128i temp[2];
 	temp[0] = _mm_loadu_si128(CONST_M128_CAST(cv_l+0));
 	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_unpacklo_epi64(
@@ -702,12 +966,18 @@ inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 	temp[0] = _mm_loadu_si128(CONST_M128_CAST(cv_l+0));
 	temp[1] = _mm_loadu_si128(CONST_M128_CAST(cv_l+2));
 
-	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_loadu_si128(CONST_M128_CAST(cv_l+4)));
-	_mm_storeu_si128(M128_CAST(cv_l+2), _mm_loadu_si128(CONST_M128_CAST(cv_l+6)));
-	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_loadu_si128(CONST_M128_CAST(cv_r+4)));
-	_mm_storeu_si128(M128_CAST(cv_l+6), _mm_loadu_si128(CONST_M128_CAST(cv_r+6)));
-	_mm_storeu_si128(M128_CAST(cv_r+4), _mm_loadu_si128(CONST_M128_CAST(cv_r+0)));
-	_mm_storeu_si128(M128_CAST(cv_r+6), _mm_loadu_si128(CONST_M128_CAST(cv_r+2)));
+	_mm_storeu_si128(M128_CAST(cv_l+0),
+		_mm_loadu_si128(CONST_M128_CAST(cv_l+4)));
+	_mm_storeu_si128(M128_CAST(cv_l+2),
+		_mm_loadu_si128(CONST_M128_CAST(cv_l+6)));
+	_mm_storeu_si128(M128_CAST(cv_l+4),
+		_mm_loadu_si128(CONST_M128_CAST(cv_r+4)));
+	_mm_storeu_si128(M128_CAST(cv_l+6),
+		_mm_loadu_si128(CONST_M128_CAST(cv_r+6)));
+	_mm_storeu_si128(M128_CAST(cv_r+4),
+		_mm_loadu_si128(CONST_M128_CAST(cv_r+0)));
+	_mm_storeu_si128(M128_CAST(cv_r+6),
+		_mm_loadu_si128(CONST_M128_CAST(cv_r+2)));
 
 	_mm_storeu_si128(M128_CAST(cv_r+0), temp[0]);
 	_mm_storeu_si128(M128_CAST(cv_r+2), temp[1]);
@@ -800,16 +1070,34 @@ inline void compress(LSH512_Context* ctx, const lsh_u8 pdMsgBlk[LSH512_MSG_BLK_B
 
 inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
 {
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
-	// The IV's are aligned so we can use _mm_load_si128.
-	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_load_si128(CONST_M128_CAST(iv+0)));
-	_mm_storeu_si128(M128_CAST(cv_l+2), _mm_load_si128(CONST_M128_CAST(iv+2)));
-	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_load_si128(CONST_M128_CAST(iv+4)));
-	_mm_storeu_si128(M128_CAST(cv_l+6), _mm_load_si128(CONST_M128_CAST(iv+6)));
-	_mm_storeu_si128(M128_CAST(cv_r+0), _mm_load_si128(CONST_M128_CAST(iv+8)));
-	_mm_storeu_si128(M128_CAST(cv_r+2), _mm_load_si128(CONST_M128_CAST(iv+10)));
-	_mm_storeu_si128(M128_CAST(cv_r+4), _mm_load_si128(CONST_M128_CAST(iv+12)));
-	_mm_storeu_si128(M128_CAST(cv_r+6), _mm_load_si128(CONST_M128_CAST(iv+14)));
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(cv_l+0),
+		_mm256_loadu_si256(CONST_M256_CAST(iv+0)));
+	_mm256_storeu_si256(M256_CAST(cv_l+4),
+		_mm256_loadu_si256(CONST_M256_CAST(iv+4)));
+	_mm256_storeu_si256(M256_CAST(cv_r+0),
+		_mm256_loadu_si256(CONST_M256_CAST(iv+8)));
+	_mm256_storeu_si256(M256_CAST(cv_r+4),
+		_mm256_loadu_si256(CONST_M256_CAST(iv+12)));
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+	// The IV's are 16-byte aligned so we can use _mm_load_si128.
+	_mm_storeu_si128(M128_CAST(cv_l+0),
+		_mm_load_si128(CONST_M128_CAST(iv+0)));
+	_mm_storeu_si128(M128_CAST(cv_l+2),
+		_mm_load_si128(CONST_M128_CAST(iv+2)));
+	_mm_storeu_si128(M128_CAST(cv_l+4),
+		_mm_load_si128(CONST_M128_CAST(iv+4)));
+	_mm_storeu_si128(M128_CAST(cv_l+6),
+		_mm_load_si128(CONST_M128_CAST(iv+6)));
+	_mm_storeu_si128(M128_CAST(cv_r+0),
+		_mm_load_si128(CONST_M128_CAST(iv+8)));
+	_mm_storeu_si128(M128_CAST(cv_r+2),
+		_mm_load_si128(CONST_M128_CAST(iv+10)));
+	_mm_storeu_si128(M128_CAST(cv_r+4),
+		_mm_load_si128(CONST_M128_CAST(iv+12)));
+	_mm_storeu_si128(M128_CAST(cv_r+6),
+		_mm_load_si128(CONST_M128_CAST(iv+14)));
 #else
 	cv_l[0] = iv[0];
 	cv_l[1] = iv[1];
@@ -830,36 +1118,76 @@ inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
 #endif
 }
 
+inline void zero_submsgs(LSH512_Context* ctx)
+{
+	lsh_u64* sub_msgs = ctx->sub_msgs;
+
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(sub_msgs+ 0),
+		_mm256_setzero_si256());
+	_mm256_storeu_si256(M256_CAST(sub_msgs+ 4),
+		_mm256_setzero_si256());
+	_mm256_storeu_si256(M256_CAST(sub_msgs+ 8),
+		_mm256_setzero_si256());
+	_mm256_storeu_si256(M256_CAST(sub_msgs+12),
+		_mm256_setzero_si256());
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+	_mm_storeu_si128(M128_CAST(sub_msgs+ 0),
+		_mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+ 2),
+		_mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+ 4),
+		_mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+ 6),
+		_mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+ 8),
+		_mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+10),
+		_mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+12),
+		_mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+14),
+		_mm_setzero_si128());
+#else
+	memset(sub_msgs, 0x00, 32*sizeof(lsh_u64));
+#endif
+}
+
 inline void init224(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, g_IV224);
-	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 inline void init256(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, g_IV256);
-	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 inline void init384(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, g_IV384);
-	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 inline void init512(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	AVX_Cleanup cleanup();
+#endif
+
+	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, g_IV512);
-	memset(ctx->sub_msgs, 0x00, 32*sizeof(lsh_u64));
 }
 
 /* -------------------------------------------------------- */
@@ -868,7 +1196,15 @@ inline void fin(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(ctx->cv_l+0), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_l+0)),
+		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_r+0))));
+	_mm256_storeu_si256(M256_CAST(ctx->cv_l+4), _mm256_xor_si256(
+		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_l+4)),
+		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_r+4))));
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+0)),
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_r+0))));
@@ -913,6 +1249,10 @@ lsh_err lsh512_init(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(ctx->algtype != 0);
+
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	AVX_Cleanup cleanup();
+#endif
 
 	lsh_u32 algtype = ctx->algtype;
 	const lsh_u64* const_v = NULL;
@@ -969,6 +1309,10 @@ lsh_err lsh512_update(LSH512_Context* ctx, const lsh_u8* data, size_t databitlen
 	if (databitlen == 0){
 		return LSH_SUCCESS;
 	}
+
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	AVX_Cleanup cleanup();
+#endif
 
 	size_t databytelen = databitlen >> 3;
 	lsh_uint pos2 = databitlen & 0x7;
@@ -1046,6 +1390,10 @@ lsh_err lsh512_final(LSH512_Context* ctx, lsh_u8* hashval)
 	}
 	memset(ctx->last_block + remain_msg_byte + 1, 0, LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
 
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	AVX_Cleanup cleanup();
+#endif
+
 	compress(ctx, ctx->last_block);
 
 	fin(ctx);
@@ -1060,7 +1408,13 @@ NAMESPACE_BEGIN(CryptoPP)
 
 std::string LSH512_Base::AlgorithmProvider() const
 {
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+	return "AVX2";
+#elif defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	return "AVX";
+#elif defined(CRYPTOPP_LSH512_SSSE3_AVAILABLE)
+	return "SSSE3";
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	return "SSE2";
 #else
 	return "C++";
