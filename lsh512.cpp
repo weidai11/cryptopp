@@ -70,21 +70,6 @@
 # include <immintrin.h>
 #endif
 
-// Should work for Clang 7 and above: https://stackoverflow.com/q/39958935.
-// But Clang 10 is broke: https://bugs.llvm.org/show_bug.cgi?id=50025.
-#if defined(__i386__) || defined(__i686__) || defined(__amd64__)
-# if (CRYPTOPP_GCC_VERSION >= 40800)
-#  include <x86intrin.h>
-#  define GCC_HAVE_TARGET 1
-#  define GCC_TARGET_DEFAULT __attribute__ ((target ("default")))
-#  define GCC_TARGET_SSSE3   __attribute__ ((target ("ssse3")))
-# endif
-#endif
-
-#ifndef GCC_TARGET_DEFAULT
-# define GCC_TARGET_DEFAULT
-#endif
-
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
@@ -862,8 +847,8 @@ inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64* const_v)
 #endif
 }
 
-#if defined(GCC_HAVE_TARGET)
-GCC_TARGET_SSSE3
+#if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
+CRYPTOPP_TARGET_SSSE3
 inline void rotate_msg_gamma(lsh_u64* cv_r)
 {
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
@@ -884,7 +869,7 @@ inline void rotate_msg_gamma(lsh_u64* cv_r)
 }
 #endif
 
-GCC_TARGET_DEFAULT
+CRYPTOPP_TARGET_DEFAULT
 inline void rotate_msg_gamma(lsh_u64* cv_r)
 {
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);

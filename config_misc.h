@@ -191,4 +191,19 @@
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
+// Should work for Clang 7 and above: https://stackoverflow.com/q/39958935.
+// But Clang 10 is broke: https://bugs.llvm.org/show_bug.cgi?id=50025.
+#if defined(__i386__) || defined(__i686__) || defined(__amd64__)
+# if (CRYPTOPP_GCC_VERSION >= 40800)
+#  include <x86intrin.h>
+#  define CRYPTOPP_HAVE_ATTRIBUTE_TARGET 1
+#  define CRYPTOPP_TARGET_DEFAULT __attribute__ ((target ("default")))
+#  define CRYPTOPP_TARGET_SSSE3   __attribute__ ((target ("ssse3")))
+# endif
+#endif
+
+#ifndef CRYPTOPP_TARGET_DEFAULT
+# define CRYPTOPP_TARGET_DEFAULT
+#endif
+
 #endif  // CRYPTOPP_CONFIG_MISC_H
