@@ -12,6 +12,10 @@
 // the end of Restart(), Update() or Final(). That mistake costs
 // about 3 cpb.
 
+// Function multiversioning does not work with Clang. Enabling it for
+// LLVM Clang 7.0 and above resulted in linker errors. Also see
+// https://bugs.llvm.org/show_bug.cgi?id=50025.
+
 // There's a fair amount of AVX2 code because _mm256_or_si256,
 // _mm256_xor_si256 and _mm256_add_epi64 are AVX2. There's no way
 // to avoid AVX2 for the simple operations.
