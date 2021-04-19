@@ -193,8 +193,9 @@
 
 // Should work for Clang 7 and above: https://stackoverflow.com/q/39958935.
 // But Clang 10 is broke: https://bugs.llvm.org/show_bug.cgi?id=50025.
+// And GCC only works on Linux. It pukes on Apple and Solaris platforms.
 #if defined(__i386__) || defined(__i686__) || defined(__amd64__)
-# if (CRYPTOPP_GCC_VERSION >= 40800)
+# if defined(__linux__) && (CRYPTOPP_GCC_VERSION >= 40800)
 #  include <x86intrin.h>
 #  define CRYPTOPP_HAVE_ATTRIBUTE_TARGET 1
 #  define CRYPTOPP_TARGET_DEFAULT __attribute__ ((target ("default")))
