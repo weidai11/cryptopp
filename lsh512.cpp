@@ -70,6 +70,14 @@
 # include <immintrin.h>
 #endif
 
+#if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
+# include <x86intrin.h>
+# undef M128_CAST
+# undef CONST_M128_CAST
+# define M128_CAST(x) ((__m128i *)(void *)(x))
+# define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
