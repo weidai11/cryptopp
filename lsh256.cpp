@@ -953,7 +953,7 @@ lsh_err lsh256_init(LSH256_Context* ctx)
 	CRYPTOPP_ASSERT(ctx->algtype != 0);
 
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-	AVX_Cleanup cleanup();
+	AVX_Cleanup cleanup;
 #endif
 
 	lsh_u32 algtype = ctx->algtype;
@@ -1009,7 +1009,7 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 	}
 
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-	AVX_Cleanup cleanup();
+	AVX_Cleanup cleanup;
 #endif
 
 	size_t databytelen = databitlen >> 3;
@@ -1091,7 +1091,7 @@ lsh_err lsh256_final(LSH256_Context* ctx, lsh_u8* hashval)
 	memset(ctx->last_block + remain_msg_byte + 1, 0, LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
 
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-	AVX_Cleanup cleanup();
+	AVX_Cleanup cleanup;
 #endif
 
 	compress(ctx, ctx->last_block);

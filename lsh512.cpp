@@ -1190,7 +1190,7 @@ inline void init512(LSH512_Context* ctx)
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
 #if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
-	AVX_Cleanup cleanup();
+	AVX_Cleanup cleanup;
 #endif
 
 	zero_submsgs(ctx);
@@ -1258,7 +1258,7 @@ lsh_err lsh512_init(LSH512_Context* ctx)
 	CRYPTOPP_ASSERT(ctx->algtype != 0);
 
 #if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
-	AVX_Cleanup cleanup();
+	AVX_Cleanup cleanup;
 #endif
 
 	lsh_u32 algtype = ctx->algtype;
@@ -1318,7 +1318,7 @@ lsh_err lsh512_update(LSH512_Context* ctx, const lsh_u8* data, size_t databitlen
 	}
 
 #if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
-	AVX_Cleanup cleanup();
+	AVX_Cleanup cleanup;
 #endif
 
 	size_t databytelen = databitlen >> 3;
@@ -1398,7 +1398,7 @@ lsh_err lsh512_final(LSH512_Context* ctx, lsh_u8* hashval)
 	memset(ctx->last_block + remain_msg_byte + 1, 0, LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
 
 #if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
-	AVX_Cleanup cleanup();
+	AVX_Cleanup cleanup;
 #endif
 
 	compress(ctx, ctx->last_block);
