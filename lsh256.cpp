@@ -128,6 +128,15 @@ struct AVX_Cleanup
 };
 #endif
 
+// error: '_mm256_set_m128i' was not declared in this scope?
+#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
+inline __m256i _MM256_SET_M128I(__m128i hi, __m128i lo)
+{
+	return _mm256_insertf128_si256 (
+		_mm256_castsi128_si256(lo), hi, 1);
+}
+#endif
+
 /* LSH Constants */
 
 const unsigned int LSH256_MSG_BLK_BYTE_LEN = 128;
@@ -317,7 +326,7 @@ inline void msg_exp_even(LSH256_Internal* i_state)
 			_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4)), _MM_SHUFFLE(3,2,1,0)),
 		_mm_shuffle_epi32(
 			_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4)), _MM_SHUFFLE(2,1,0,3)));
-	_mm256_storeu_si256(M256_CAST(submsg_e_l+0), _mm256_set_m128i(hi, lo));
+	_mm256_storeu_si256(M256_CAST(submsg_e_l+0), _MM256_SET_M128I(hi, lo));
 
 	lo = _mm_add_epi32(
 		_mm_shuffle_epi32(
@@ -329,7 +338,7 @@ inline void msg_exp_even(LSH256_Internal* i_state)
 			_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4)), _MM_SHUFFLE(3,2,1,0)),
 		_mm_shuffle_epi32(
 			_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4)), _MM_SHUFFLE(2,1,0,3)));
-	_mm256_storeu_si256(M256_CAST(submsg_e_r+0), _mm256_set_m128i(hi, lo));
+	_mm256_storeu_si256(M256_CAST(submsg_e_r+0), _MM256_SET_M128I(hi, lo));
 
 #elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(submsg_e_l+0), _mm_add_epi32(
@@ -400,7 +409,7 @@ inline void msg_exp_odd(LSH256_Internal* i_state)
 			_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4)), _MM_SHUFFLE(3,2,1,0)),
 		_mm_shuffle_epi32(
 			_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4)), _MM_SHUFFLE(2,1,0,3)));
-	_mm256_storeu_si256(M256_CAST(submsg_o_l+0), _mm256_set_m128i(hi, lo));
+	_mm256_storeu_si256(M256_CAST(submsg_o_l+0), _MM256_SET_M128I(hi, lo));
 
 	lo = _mm_add_epi32(
 		_mm_shuffle_epi32(
@@ -412,7 +421,7 @@ inline void msg_exp_odd(LSH256_Internal* i_state)
 			_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4)), _MM_SHUFFLE(3,2,1,0)),
 		_mm_shuffle_epi32(
 			_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4)), _MM_SHUFFLE(2,1,0,3)));
-	_mm256_storeu_si256(M256_CAST(submsg_o_r+0), _mm256_set_m128i(hi, lo));
+	_mm256_storeu_si256(M256_CAST(submsg_o_r+0), _MM256_SET_M128I(hi, lo));
 
 #elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(submsg_o_l+0), _mm_add_epi32(
@@ -713,11 +722,11 @@ inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 		_mm256_loadu_si256(CONST_M256_CAST(cv_r)), _MM_SHUFFLE(1,2,3,0));
 
 	_mm256_storeu_si256(M256_CAST(cv_l),
-		_mm256_set_m128i(
+		_MM256_SET_M128I(
 			_mm256_extractf128_si256(left, 1),
 			_mm256_extractf128_si256(right, 1)));
 	_mm256_storeu_si256(M256_CAST(cv_r),
-		_mm256_set_m128i(
+		_MM256_SET_M128I(
 			_mm256_extractf128_si256(left, 0),
 			_mm256_extractf128_si256(right, 0)));
 
