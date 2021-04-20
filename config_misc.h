@@ -197,12 +197,14 @@
 // Not available on Apple and Solaris platforms. Also see
 // https://sourceware.org/glibc/wiki/GNU_IFUNC and
 // https://gcc.gnu.org/onlinedocs/gcc/Function-Multiversioning.html.
-#if defined(__i386__) || defined(__i686__) || defined(__amd64__)
-# if defined(__linux__) && (CRYPTOPP_GCC_VERSION >= 40800)
-#  include <x86intrin.h>
-#  define CRYPTOPP_HAVE_ATTRIBUTE_TARGET 1
-#  define CRYPTOPP_TARGET_DEFAULT __attribute__ ((target ("default")))
-#  define CRYPTOPP_TARGET_SSSE3   __attribute__ ((target ("ssse3")))
+#if !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__i386__) || defined(__i686__) || defined(__amd64__)
+#  if defined(__linux__) && (CRYPTOPP_GCC_VERSION >= 40800)
+#   include <x86intrin.h>
+#   define CRYPTOPP_HAVE_ATTRIBUTE_TARGET 1
+#   define CRYPTOPP_TARGET_DEFAULT __attribute__ ((target ("default")))
+#   define CRYPTOPP_TARGET_SSSE3   __attribute__ ((target ("ssse3")))
+#  endif
 # endif
 #endif
 
