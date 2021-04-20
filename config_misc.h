@@ -191,9 +191,12 @@
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-// Should work for Clang 7 and above: https://stackoverflow.com/q/39958935.
-// But Clang 10 is broke: https://bugs.llvm.org/show_bug.cgi?id=50025.
-// And GCC only works on Linux. It pukes on Apple and Solaris platforms.
+// Requires ifunc support: GCC 4.8, Binutils 2.20.1 and libc 2.11.1.
+// Should work for Clang 7 and above: https://stackoverflow.com/q/39958935,
+// but fails with Clang 10: https://bugs.llvm.org/show_bug.cgi?id=50025.
+// Not available on Apple and Solaris platforms. Also see
+// https://sourceware.org/glibc/wiki/GNU_IFUNC and
+// https://gcc.gnu.org/onlinedocs/gcc/Function-Multiversioning.html.
 #if defined(__i386__) || defined(__i686__) || defined(__amd64__)
 # if defined(__linux__) && (CRYPTOPP_GCC_VERSION >= 40800)
 #  include <x86intrin.h>
