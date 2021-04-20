@@ -261,14 +261,6 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
 
 #if defined(CRYPTOPP_SSSE3_AVAILABLE)
 
-// Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
-#ifndef M128_CAST
-# define M128_CAST(x) ((__m128i *)(void *)(x))
-#endif
-#ifndef CONST_M128_CAST
-# define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
-#endif
-
 // GCC double casts, https://www.spinics.net/lists/gcchelp/msg47735.html
 #ifndef DOUBLE_CAST
 # define DOUBLE_CAST(x) ((double *)(void *)(x))

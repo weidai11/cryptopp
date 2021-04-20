@@ -44,10 +44,6 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 #endif  // CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
-// Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
-#define M128_CAST(x) ((__m128i *)(void *)(x))
-#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
-
 word16 GCM_Base::s_reductionTable[256];
 volatile bool GCM_Base::s_reductionTableInitialized = false;
 

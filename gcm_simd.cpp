@@ -56,8 +56,6 @@
 #endif
 
 // Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
-#define M128_CAST(x) ((__m128i *)(void *)(x))
-#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 #define UINT64_CAST(x) ((uint64_t *)(void *)(x))
 #define CONST_UINT64_CAST(x) ((const uint64_t *)(const void *)(x))
 

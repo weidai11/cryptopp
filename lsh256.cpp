@@ -46,8 +46,6 @@
 
 #if defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 # include <emmintrin.h>
-# define M128_CAST(x) ((__m128i *)(void *)(x))
-# define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 # if defined(__XOP__)
 #  include <ammintrin.h>
 #  if defined(__GNUC__)
@@ -62,16 +60,10 @@
 
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
 # include <immintrin.h>
-# define M256_CAST(x) ((__m256i *)(void *)(x))
-# define CONST_M256_CAST(x) ((const __m256i *)(const void *)(x))
 #endif
 
 #if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
 # include <x86intrin.h>
-# undef M128_CAST
-# undef CONST_M128_CAST
-# define M128_CAST(x) ((__m128i *)(void *)(x))
-# define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN

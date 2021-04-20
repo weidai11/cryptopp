@@ -211,6 +211,12 @@
 # undef CRYPTOPP_CLMUL_AVAILABLE
 #endif
 
+// Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
+#define M128_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+#define M256_CAST(x) ((__m256i *)(void *)(x))
+#define CONST_M256_CAST(x) ((const __m256i *)(const void *)(x))
+
 #endif  // CRYPTOPP_DISABLE_ASM
 
 #endif  // X86, X32, X64

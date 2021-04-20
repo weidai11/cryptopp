@@ -23,10 +23,6 @@
 # include <arm_acle.h>
 #endif
 
-// Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
-#define M128_CAST(x) ((__m128i *)(void *)(x))
-#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
-
 // Squash MS LNK4221 and libtool warnings
 extern const char ARIA_SIMD_FNAME[] = __FILE__;
 
