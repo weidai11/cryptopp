@@ -379,6 +379,13 @@ then
     echo '#endif'
   fi
 
+  echo ''
+  echo '// Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670'
+  echo '#define M128_CAST(x) ((__m128i *)(void *)(x))'
+  echo '#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))'
+  echo '#define M256_CAST(x) ((__m256i *)(void *)(x))'
+  echo '#define CONST_M256_CAST(x) ((const __m256i *)(const void *)(x))'
+
   } >> config_asm.h.new
 
 fi
