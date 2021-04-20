@@ -36,6 +36,9 @@
 # if (defined(__SSSE3__) && defined(__amd64__))
 #  define CRYPTOPP_LSH512_SSSE3_AVAILABLE 1
 # endif
+# if (defined(__XOP__) && defined(__amd64__))
+#  define CRYPTOPP_LSH512_XOP_AVAILABLE 1
+# endif
 # if (defined(__AVX__) && defined(__amd64__))
 #  define CRYPTOPP_LSH512_AVX_AVAILABLE 1
 # endif
@@ -44,18 +47,15 @@
 # endif
 #endif
 
-#if defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
-# include <emmintrin.h>
-# if defined(__XOP__)
-#  include <ammintrin.h>
-#  if defined(__GNUC__)
-#   include <x86intrin.h>
-#  endif
-# endif
-#endif
-
 #if defined(CRYPTOPP_LSH512_SSSE3_AVAILABLE)
 # include <tmmintrin.h>
+#endif
+
+#if defined(CRYPTOPP_LSH512_XOP_AVAILABLE)
+# include <ammintrin.h>
+# if defined(__GNUC__)
+#  include <x86intrin.h>
+# endif
 #endif
 
 #if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
@@ -67,6 +67,10 @@
 #endif
 
 #if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
+# include <x86intrin.h>
+#endif
+
+#if defined(__GNUC__)
 # include <x86intrin.h>
 #endif
 
@@ -777,7 +781,7 @@ inline void rotate_blk(lsh_u64 cv[8])
 		_mm256_slli_epi64(_mm256_loadu_si256(CONST_M256_CAST(cv+4)), R),
 		_mm256_srli_epi64(_mm256_loadu_si256(CONST_M256_CAST(cv+4)), 64-R)));
 
-#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE) && defined(__XOP__)
+#elif defined(CRYPTOPP_LSH512_XOP_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv),
 		_mm_roti_epi64(_mm_loadu_si128(CONST_M128_CAST(cv)), R));
 	_mm_storeu_si128(M128_CAST(cv+2),
