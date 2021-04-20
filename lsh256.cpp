@@ -51,15 +51,15 @@
 # include <emmintrin.h>
 #endif
 
+#if defined(CRYPTOPP_LSH256_SSSE3_AVAILABLE)
+# include <tmmintrin.h>
+#endif
+
 #if defined(CRYPTOPP_LSH256_XOP_AVAILABLE)
 # include <ammintrin.h>
 # if defined(__GNUC__)
 #  include <x86intrin.h>
 # endif
-#endif
-
-#if defined(CRYPTOPP_LSH256_SSSE3_AVAILABLE)
-# include <tmmintrin.h>
 #endif
 
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
@@ -315,30 +315,20 @@ inline void msg_exp_even(LSH256_Internal* i_state)
 	lsh_u32* submsg_o_l = i_state->submsg_o_l;
 	lsh_u32* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-	__m128i lo = _mm_add_epi32(
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+0)), _MM_SHUFFLE(3,2,1,0)),
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+0)), _MM_SHUFFLE(1,0,2,3)));
-	__m128i hi = _mm_add_epi32(
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4)), _MM_SHUFFLE(3,2,1,0)),
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4)), _MM_SHUFFLE(2,1,0,3)));
-	_mm256_storeu_si256(M256_CAST(submsg_e_l+0), _MM256_SET_M128I(hi, lo));
-
-	lo = _mm_add_epi32(
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+0)), _MM_SHUFFLE(3,2,1,0)),
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+0)), _MM_SHUFFLE(1,0,2,3)));
-	hi = _mm_add_epi32(
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4)), _MM_SHUFFLE(3,2,1,0)),
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4)), _MM_SHUFFLE(2,1,0,3)));
-	_mm256_storeu_si256(M256_CAST(submsg_e_r+0), _MM256_SET_M128I(hi, lo));
+	//submsg_e_l[0] = ADD(submsg_o_l[0], SHUFFLE8(submsg_e_l[0], perm_step));
+	//submsg_e_r[0] = ADD(submsg_o_r[0], SHUFFLE8(submsg_e_r[0], perm_step));
+	//0x0f0e0d0c, 0x0b0a0908, 0x03020100, 0x07060504, 0x1f1e1d1c, 0x13121110, 0x17161514, 0x1b1a1918
+#if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
+	__m256i mask = _mm256_set_epi32(0x1b1a1918, 0x17161514, 0x13121110,
+		0x1f1e1d1c, 0x07060504, 0x03020100, 0x0b0a0908, 0x0f0e0d0c);
+	_mm256_storeu_si256(M256_CAST(submsg_e_l+0), _mm256_add_epi32(
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+0)),
+		_mm256_shuffle_epi8(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+0)), mask)));
+	_mm256_storeu_si256(M256_CAST(submsg_e_r+0), _mm256_add_epi32(
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+0)),
+		_mm256_shuffle_epi8(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+0)), mask)));
 
 #elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(submsg_e_l+0), _mm_add_epi32(
@@ -398,30 +388,20 @@ inline void msg_exp_odd(LSH256_Internal* i_state)
 	lsh_u32* submsg_o_l = i_state->submsg_o_l;
 	lsh_u32* submsg_o_r = i_state->submsg_o_r;
 
-#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-	__m128i lo = _mm_add_epi32(
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+0)), _MM_SHUFFLE(3,2,1,0)),
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+0)), _MM_SHUFFLE(1,0,2,3)));
-	__m128i hi = _mm_add_epi32(
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_e_l+4)), _MM_SHUFFLE(3,2,1,0)),
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_o_l+4)), _MM_SHUFFLE(2,1,0,3)));
-	_mm256_storeu_si256(M256_CAST(submsg_o_l+0), _MM256_SET_M128I(hi, lo));
-
-	lo = _mm_add_epi32(
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+0)), _MM_SHUFFLE(3,2,1,0)),
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+0)), _MM_SHUFFLE(1,0,2,3)));
-	hi = _mm_add_epi32(
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+4)), _MM_SHUFFLE(3,2,1,0)),
-		_mm_shuffle_epi32(
-			_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4)), _MM_SHUFFLE(2,1,0,3)));
-	_mm256_storeu_si256(M256_CAST(submsg_o_r+0), _MM256_SET_M128I(hi, lo));
+	//submsg_o_l[0] = ADD(submsg_e_l[0], SHUFFLE8(submsg_o_l[0], perm_step));
+	//submsg_o_r[0] = ADD(submsg_e_r[0], SHUFFLE8(submsg_o_r[0], perm_step));
+	//0x0f0e0d0c, 0x0b0a0908, 0x03020100, 0x07060504, 0x1f1e1d1c, 0x13121110, 0x17161514, 0x1b1a1918
+#if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
+	__m256i mask = _mm256_set_epi32(0x1b1a1918, 0x17161514, 0x13121110,
+		0x1f1e1d1c, 0x07060504, 0x03020100, 0x0b0a0908, 0x0f0e0d0c);
+	_mm256_storeu_si256(M256_CAST(submsg_o_l+0), _mm256_add_epi32(
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+0)),
+		_mm256_shuffle_epi8(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+0)), mask)));
+	_mm256_storeu_si256(M256_CAST(submsg_o_r+0), _mm256_add_epi32(
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+0)),
+		_mm256_shuffle_epi8(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+0)), mask)));
 
 #elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(submsg_o_l+0), _mm_add_epi32(
