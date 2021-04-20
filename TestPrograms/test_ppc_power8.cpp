@@ -17,7 +17,7 @@
 // XL C++ on AIX does not define CRYPTO and does not
 // provide an option to set it. We have to set it
 // for the code below. This define must stay in
-// sync with the define in test_ppc_power8.cxx
+// sync with the define in test_ppc_power8.cpp
 #if defined(_AIX) && defined(_ARCH_PWR8) && defined(__xlC__)
 # define __CRYPTO__ 1
 #endif

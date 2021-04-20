@@ -51,7 +51,7 @@ if [[ (-z "$INSTALL_RESULTS") ]]; then
 fi
 
 if [[ -z "$test_prog" ]]; then
-    test_prog="TestPrograms/test_cxx.cxx"
+    test_prog="TestPrograms/test_cxx.cpp"
 fi
 
 # Remove previous test results

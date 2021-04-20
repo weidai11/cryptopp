@@ -1,11 +1,11 @@
-// dump2def.cxx - Written and placed in public domain by Jeffrey Walton
+// dump2def.cpp - Written and placed in public domain by Jeffrey Walton
 //                Create a module definitions file from a dumpbin file.
 //                dump2def can be used to create a list of exports from
 //                a static library. Then, the exports can used to build
 //                a dynamic link library with the same exports.
 //
 //    If you wish to compile this source file using cl.exe, then:
-//      cl.exe /DNDEBUG /Oi /Oy /O2 /Zi /TP /GR /EHsc /MT dump2def.cxx
+//      cl.exe /DNDEBUG /Oi /Oy /O2 /Zi /TP /GR /EHsc /MT dump2def.cpp
 //
 //    The intended workflow in Crypto++ is:
 //
