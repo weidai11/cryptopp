@@ -315,9 +315,6 @@ inline void msg_exp_even(LSH256_Internal* i_state)
 	lsh_u32* submsg_o_l = i_state->submsg_o_l;
 	lsh_u32* submsg_o_r = i_state->submsg_o_r;
 
-	//submsg_e_l[0] = ADD(submsg_o_l[0], SHUFFLE8(submsg_e_l[0], perm_step));
-	//submsg_e_r[0] = ADD(submsg_o_r[0], SHUFFLE8(submsg_e_r[0], perm_step));
-	//0x0f0e0d0c, 0x0b0a0908, 0x03020100, 0x07060504, 0x1f1e1d1c, 0x13121110, 0x17161514, 0x1b1a1918
 #if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
 	__m256i mask = _mm256_set_epi32(0x1b1a1918, 0x17161514, 0x13121110,
 		0x1f1e1d1c, 0x07060504, 0x03020100, 0x0b0a0908, 0x0f0e0d0c);
@@ -388,9 +385,6 @@ inline void msg_exp_odd(LSH256_Internal* i_state)
 	lsh_u32* submsg_o_l = i_state->submsg_o_l;
 	lsh_u32* submsg_o_r = i_state->submsg_o_r;
 
-	//submsg_o_l[0] = ADD(submsg_e_l[0], SHUFFLE8(submsg_o_l[0], perm_step));
-	//submsg_o_r[0] = ADD(submsg_e_r[0], SHUFFLE8(submsg_o_r[0], perm_step));
-	//0x0f0e0d0c, 0x0b0a0908, 0x03020100, 0x07060504, 0x1f1e1d1c, 0x13121110, 0x17161514, 0x1b1a1918
 #if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
 	__m256i mask = _mm256_set_epi32(0x1b1a1918, 0x17161514, 0x13121110,
 		0x1f1e1d1c, 0x07060504, 0x03020100, 0x0b0a0908, 0x0f0e0d0c);

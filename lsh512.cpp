@@ -387,26 +387,22 @@ inline void msg_exp_even(LSH512_Internal* i_state)
 	lsh_u64* submsg_o_r = i_state->submsg_o_r;
 
 #if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
-	_mm256_storeu_si256(M256_CAST(submsg_e_l+0),
-		_mm256_add_epi64(
-			_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+0)),
-			_mm256_permute4x64_epi64(
-				_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+0)), _MM_SHUFFLE(1,0,2,3))));
-	_mm256_storeu_si256(M256_CAST(submsg_e_l+4),
-		_mm256_add_epi64(
-			_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+4)),
-			_mm256_permute4x64_epi64(
-				_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+4)), _MM_SHUFFLE(2,1,0,3))));
-	_mm256_storeu_si256(M256_CAST(submsg_e_r+0),
-		_mm256_add_epi64(
-			_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+0)),
-			_mm256_permute4x64_epi64(
-				_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+0)), _MM_SHUFFLE(1,0,2,3))));
-	_mm256_storeu_si256(M256_CAST(submsg_e_r+4),
-		_mm256_add_epi64(
-			_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+4)),
-			_mm256_permute4x64_epi64(
-				_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+4)), _MM_SHUFFLE(2,1,0,3))));
+	_mm256_storeu_si256(M256_CAST(submsg_e_l+0), _mm256_add_epi64(
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+0)),
+		_mm256_permute4x64_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+0)), _MM_SHUFFLE(1,0,2,3))));
+	_mm256_storeu_si256(M256_CAST(submsg_e_l+4), _mm256_add_epi64(
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+4)),
+		_mm256_permute4x64_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+4)), _MM_SHUFFLE(2,1,0,3))));
+	_mm256_storeu_si256(M256_CAST(submsg_e_r+0), _mm256_add_epi64(
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+0)),
+		_mm256_permute4x64_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+0)), _MM_SHUFFLE(1,0,2,3))));
+	_mm256_storeu_si256(M256_CAST(submsg_e_r+4), _mm256_add_epi64(
+		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+4)),
+		_mm256_permute4x64_epi64(
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+4)), _MM_SHUFFLE(2,1,0,3))));
 
 #elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
 	__m128i temp;
