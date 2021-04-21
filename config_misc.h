@@ -201,12 +201,14 @@
 // https://sourceware.org/glibc/wiki/GNU_IFUNC and
 // https://gcc.gnu.org/onlinedocs/gcc/Function-Multiversioning.html.
 #if !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__i386__) || defined(__i686__) || defined(__amd64__)
-#  if defined(__linux__) && (CRYPTOPP_GCC_VERSION >= 80000)
-#   include <x86intrin.h>
-#   define CRYPTOPP_HAVE_ATTRIBUTE_TARGET 1
-#   define CRYPTOPP_TARGET_DEFAULT __attribute__ ((target ("default")))
-#   define CRYPTOPP_TARGET_SSSE3   __attribute__ ((target ("ssse3")))
+# if defined(__linux__)
+#  if defined(__i386__) || defined(__i686__) || defined(__amd64__)
+#   if (CRYPTOPP_GCC_VERSION >= 80000) || (CRYPTOPP_LLVM_CLANG_VERSION >= 130000)
+#    include <x86intrin.h>
+#    define CRYPTOPP_HAVE_ATTRIBUTE_TARGET 1
+#    define CRYPTOPP_TARGET_DEFAULT __attribute__ ((target ("default")))
+#    define CRYPTOPP_TARGET_SSSE3   __attribute__ ((target ("ssse3")))
+#   endif
 #  endif
 # endif
 #endif
