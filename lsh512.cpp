@@ -33,18 +33,24 @@
 # if (defined(__SSE2__) && defined(__amd64__)) || (defined(_MSC_VER) && defined(_M_X64))
 #  define CRYPTOPP_LSH512_SSE2_AVAILABLE 1
 # endif
-# if (defined(__SSSE3__) && defined(__amd64__))
+# if defined(__SSSE3__) && defined(__amd64__)
 #  define CRYPTOPP_LSH512_SSSE3_AVAILABLE 1
 # endif
-# if (defined(__XOP__) && defined(__amd64__))
+# if defined(__XOP__) && defined(__amd64__)
 #  define CRYPTOPP_LSH512_XOP_AVAILABLE 1
 # endif
-# if (defined(__AVX__) && defined(__amd64__))
+# if defined(__AVX__) && defined(__amd64__)
 #  define CRYPTOPP_LSH512_AVX_AVAILABLE 1
 # endif
-# if (defined(__AVX2__) && defined(__amd64__))
+# if defined(__AVX2__) && defined(__amd64__)
 #  define CRYPTOPP_LSH512_AVX2_AVAILABLE 1
 # endif
+#endif
+
+// Apple and broken compile with -march=native when AVX2 is available.
+// https://travis-ci.org/github/noloader/cryptopp/jobs/767844407
+#if defined(__AVX2__) && defined(CRYPTOPP_APPLE_CLANG_VERSION))
+# undef CRYPTOPP_LSH256_AVX2_AVAILABLE
 #endif
 
 #if defined(CRYPTOPP_LSH512_SSSE3_AVAILABLE)
