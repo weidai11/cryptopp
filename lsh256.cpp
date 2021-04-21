@@ -76,7 +76,7 @@
 # include <x86intrin.h>
 #endif
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && defined(__amd64__)
 # include <x86intrin.h>
 #endif
 
