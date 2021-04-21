@@ -830,6 +830,7 @@ inline void load_iv(word32* cv_l, word32* cv_r, const word32* iv)
 		_mm256_loadu_si256(CONST_M256_CAST(iv+0)));
 	_mm256_storeu_si256(M256_CAST(cv_r+0),
 		_mm256_loadu_si256(CONST_M256_CAST(iv+8)));
+
 #elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 	// The IV's are 16-byte aligned so we can use _mm_load_si128.
 	_mm_storeu_si128(M128_CAST(cv_l+ 0),
@@ -867,11 +868,13 @@ inline void zero_submsgs(LSH256_Context* ctx)
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(sub_msgs+0), _mm256_setzero_si256());
 	_mm256_storeu_si256(M256_CAST(sub_msgs+8), _mm256_setzero_si256());
+
 #elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(sub_msgs+ 0), _mm_setzero_si128());
 	_mm_storeu_si128(M128_CAST(sub_msgs+ 4), _mm_setzero_si128());
 	_mm_storeu_si128(M128_CAST(sub_msgs+ 8), _mm_setzero_si128());
 	_mm_storeu_si128(M128_CAST(sub_msgs+12), _mm_setzero_si128());
+
 #else
 	memset(sub_msgs, 0x00, 32*sizeof(lsh_u32));
 #endif
@@ -915,6 +918,7 @@ inline void fin(LSH256_Context* ctx)
 	_mm256_storeu_si256(M256_CAST(ctx->cv_l+0), _mm256_xor_si256(
 		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_l+0)),
 		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_r+0))));
+
 #elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(ctx->cv_l+0), _mm_xor_si128(
 		_mm_loadu_si128(CONST_M128_CAST(ctx->cv_l+0)),
@@ -1153,8 +1157,9 @@ void LSH256_Base::TruncatedFinal(byte *hash, size_t size)
 	}
 	else
 	{
-		// TODO: determine if LSH256 supports truncated hashes. See the code in get_hash(),
-		// where a bit-length is added to the last output byte of the hash function.
+		// TODO: determine if LSH256 supports truncated hashes. See the code
+		// in get_hash(), where a bit-length is added to the last output
+		// byte of the hash function.
 		// CRYPTOPP_ASSERT(0);
 
 		byte fullHash[HASH_VAL_MAX_WORD_LEN * sizeof(lsh_u32)];
