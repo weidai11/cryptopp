@@ -47,12 +47,6 @@
 # endif
 #endif
 
-// Apple and broken compile with -march=native when AVX2 is available.
-// https://travis-ci.org/github/noloader/cryptopp/jobs/767844407
-#if defined(__AVX2__) && defined(CRYPTOPP_APPLE_CLANG_VERSION)
-# undef CRYPTOPP_LSH256_AVX2_AVAILABLE
-#endif
-
 #if defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 # include <emmintrin.h>
 #endif
@@ -554,7 +548,7 @@ inline void add_blk(lsh_u32* cv_l, const lsh_u32* cv_r)
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 
-#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
+#if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(cv_l), _mm256_add_epi32(
 		_mm256_loadu_si256(CONST_M256_CAST(cv_l)),
 		_mm256_loadu_si256(CONST_M256_CAST(cv_r))));

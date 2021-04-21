@@ -47,12 +47,6 @@
 # endif
 #endif
 
-// Apple and broken compile with -march=native when AVX2 is available.
-// https://travis-ci.org/github/noloader/cryptopp/jobs/767844407
-#if defined(__AVX2__) && defined(CRYPTOPP_APPLE_CLANG_VERSION)
-# undef CRYPTOPP_LSH256_AVX2_AVAILABLE
-#endif
-
 #if defined(CRYPTOPP_LSH512_SSSE3_AVAILABLE)
 # include <tmmintrin.h>
 #endif
