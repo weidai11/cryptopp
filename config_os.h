@@ -27,9 +27,10 @@
 // It is OK to remove the hard stop below, but you are on your own.
 // After building the library be sure to run self tests described
 // https://www.cryptopp.com/wiki/Release_Process#Self_Tests
-// Some relevant bug reports can be found at:
-// * Clang: http://github.com/weidai11/cryptopp/issues/147
-#if (defined(_MSC_VER) && defined(__clang__) && !(defined( __clang_analyzer__)) && !defined(__INTEL_LLVM_COMPILER))
+// The problems with Clang pretending to be other compilers is
+// discussed at http://github.com/weidai11/cryptopp/issues/147.
+#if (defined(_MSC_VER) && defined(__clang__) && \
+   !(defined( __clang_analyzer__)) && !defined(__INTEL_LLVM_COMPILER))
 # error: "Unsupported configuration"
 #endif
 
