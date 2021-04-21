@@ -120,7 +120,9 @@ struct LSH256_Internal
 };
 
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-// Clear upper bits on entry and exit
+// Zero the upper 128 bits of all YMM registers
+// on entry and exit. It avoids AVX state
+// transition penalties when saving state.
 struct AVX_Cleanup
 {
 	AVX_Cleanup() {
@@ -210,13 +212,13 @@ lsh_u32 ROTL(lsh_u32 x, lsh_u32 r) {
 # define MAYBE_CONSTEXPR const
 #endif
 
-CRYPTOPP_ALIGN_DATA(16)
+CRYPTOPP_ALIGN_DATA(32)
 MAYBE_CONSTEXPR lsh_u32 g_IV224[CV_WORD_LEN] = {
 	0x068608D3, 0x62D8F7A7, 0xD76652AB, 0x4C600A43, 0xBDC40AA8, 0x1ECA0B68, 0xDA1A89BE, 0x3147D354,
 	0x707EB4F9, 0xF65B3862, 0x6B0B2ABE, 0x56B8EC0A, 0xCF237286, 0xEE0D1727, 0x33636595, 0x8BB8D05F,
 };
 
-CRYPTOPP_ALIGN_DATA(16)
+CRYPTOPP_ALIGN_DATA(32)
 MAYBE_CONSTEXPR lsh_u32 g_IV256[CV_WORD_LEN] = {
 	0x46a10f1f, 0xfddce486, 0xb41443a8, 0x198e6b9d, 0x3304388d, 0xb0f5a3c7, 0xb36061c4, 0x7adbd553,
 	0x105d5378, 0x2f74de54, 0x5c2f2d95, 0xf2553fbe, 0x8051357a, 0x138668c8, 0x47aa4484, 0xe01afb41
@@ -825,14 +827,14 @@ inline void compress(LSH256_Context* ctx, const lsh_u8 pdMsgBlk[LSH256_MSG_BLK_B
 
 inline void load_iv(word32* cv_l, word32* cv_r, const word32* iv)
 {
+	// The IV's are 32-byte aligned so we can use aligned loads.
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(cv_l+0),
-		_mm256_loadu_si256(CONST_M256_CAST(iv+0)));
+		_mm256_load_si256(CONST_M256_CAST(iv+0)));
 	_mm256_storeu_si256(M256_CAST(cv_r+0),
-		_mm256_loadu_si256(CONST_M256_CAST(iv+8)));
+		_mm256_load_si256(CONST_M256_CAST(iv+8)));
 
 #elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
-	// The IV's are 16-byte aligned so we can use _mm_load_si128.
 	_mm_storeu_si128(M128_CAST(cv_l+ 0),
 		_mm_load_si128(CONST_M128_CAST(iv+ 0)));
 	_mm_storeu_si128(M128_CAST(cv_l+ 4),
