@@ -1128,6 +1128,29 @@ inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
 #endif
 }
 
+inline void zero_iv(lsh_u64* cv_l, lsh_u64* cv_r)
+{
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	_mm256_storeu_si256(M256_CAST(cv_l+0), _mm256_setzero_si256());
+	_mm256_storeu_si256(M256_CAST(cv_l+4), _mm256_setzero_si256());
+	_mm256_storeu_si256(M256_CAST(cv_r+0), _mm256_setzero_si256());
+	_mm256_storeu_si256(M256_CAST(cv_r+4), _mm256_setzero_si256());
+
+#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(cv_l+2), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(cv_l+6), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(cv_r+0), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(cv_r+2), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(cv_r+4), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(cv_r+6), _mm_setzero_si128());
+#else
+	memset(cv_l, 0, 8*sizeof(lsh_u64));
+	memset(cv_r, 0, 8*sizeof(lsh_u64));
+#endif
+}
+
 inline void zero_submsgs(LSH512_Context* ctx)
 {
 	lsh_u64* sub_msgs = ctx->sub_msgs;
@@ -1300,15 +1323,13 @@ lsh_err lsh512_init(LSH512_Context* ctx)
 	lsh_u64* cv_l = ctx->cv_l;
 	lsh_u64* cv_r = ctx->cv_r;
 
-	memset(cv_l, 0, 8 * sizeof(lsh_u64));
-	memset(cv_r, 0, 8 * sizeof(lsh_u64));
-
-	cv_l[0] = LSH512_HASH_VAL_MAX_BYTE_LEN;
-	cv_l[1] = LSH_GET_HASHBIT(algtype);
-
 #if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
 	AVX_Cleanup cleanup;
 #endif
+
+	zero_iv(cv_l, cv_r);
+	cv_l[0] = LSH512_HASH_VAL_MAX_BYTE_LEN;
+	cv_l[1] = LSH_GET_HASHBIT(algtype);
 
 	for (size_t i = 0; i < NUM_STEPS / 2; i++)
 	{
