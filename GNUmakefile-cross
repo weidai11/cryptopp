@@ -237,6 +237,10 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(strip $(HAVE_OPT)),0)
     CHACHA_FLAG = $(SSE2_FLAG)
   else
+    # Make does not have useful debugging facilities. Show the user
+    # what happened by compiling again without the pipe.
+    $(info Running make again to see what failed)
+    $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT))
     SSE2_FLAG =
   endif
 
@@ -417,7 +421,14 @@ ifeq ($(DETECT_FEATURES),1)
     SPECK128_FLAG = $(NEON_FLAG)
     SM4_FLAG = $(NEON_FLAG)
   else
+    # Make does not have useful debugging facilities. Show the user
+    # what happened by compiling again without the pipe.
+    $(info Running make again to see what failed)
+    $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT))
     NEON_FLAG =
+  endif
+
+  ifeq ($(NEON_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
@@ -477,7 +488,14 @@ ifeq ($(DETECT_FEATURES),1)
     SPECK128_FLAG = $(ASIMD_FLAG)
     SM4_FLAG = $(ASIMD_FLAG)
   else
+    # Make does not have useful debugging facilities. Show the user
+    # what happened by compiling again without the pipe.
+    $(info Running make again to see what failed)
+    $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT))
     ASIMD_FLAG =
+  endif
+
+  ifeq ($(ASIMD_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 

@@ -274,6 +274,10 @@ ifeq ($(DETECT_FEATURES),1)
     CHACHA_FLAG = $(SSE2_FLAG)
     SUN_LDFLAGS += $(SSE2_FLAG)
   else
+    # Make does not have useful debugging facilities. Show the user
+    # what happened by compiling again without the pipe.
+    $(info Running make again to see what failed)
+    $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT))
     SSE2_FLAG =
   endif
 
@@ -477,6 +481,14 @@ ifeq ($(DETECT_FEATURES),1)
     SPECK128_FLAG = -march=armv7-a -mfpu=neon
     SM4_FLAG = -march=armv7-a -mfpu=neon
   else
+    # Make does not have useful debugging facilities. Show the user
+    # what happened by compiling again without the pipe.
+    $(info Running make again to see what failed)
+    $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT))
+    NEON_FLAG =
+  endif
+
+  ifeq ($(NEON_FLAG),)
     CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
@@ -522,6 +534,14 @@ ifeq ($(DETECT_FEATURES),1)
     SPECK128_FLAG = -march=armv8-a
     SM4_FLAG = -march=armv8-a
   else
+    # Make does not have useful debugging facilities. Show the user
+    # what happened by compiling again without the pipe.
+    $(info Running make again to see what failed)
+    $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT))
+    ASIMD_FLAG =
+  endif
+
+  ifneq ($(ASIMD_FLAG),)
     CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
@@ -722,6 +742,10 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(strip $(HAVE_OPT)),0)
     ALTIVEC_FLAG := $(ALTIVEC_FLAG)
   else
+    # Make does not have useful debugging facilities. Show the user
+    # what happened by compiling again without the pipe.
+    $(info Running make again to see what failed)
+    $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT))
     ALTIVEC_FLAG =
   endif
 
