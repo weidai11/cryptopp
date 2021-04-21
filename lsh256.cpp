@@ -120,8 +120,12 @@ struct LSH256_Internal
 };
 
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
+// Clear upper bits on entry and exit
 struct AVX_Cleanup
 {
+	AVX_Cleanup() {
+		_mm256_zeroupper();
+	}
 	~AVX_Cleanup() {
 		_mm256_zeroupper();
 	}
@@ -782,6 +786,10 @@ inline void compress(LSH256_Context* ctx, const lsh_u8 pdMsgBlk[LSH256_MSG_BLK_B
 	lsh_u32* cv_l = ctx->cv_l;
 	lsh_u32* cv_r = ctx->cv_r;
 
+#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
+
 	load_msg_blk(i_state, pdMsgBlk);
 
 	msg_add_even(cv_l, cv_r, i_state);
@@ -873,6 +881,10 @@ inline void init224(LSH256_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
+
 	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, g_IV224);
 }
@@ -880,6 +892,10 @@ inline void init224(LSH256_Context* ctx)
 inline void init256(LSH256_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
+
+#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
 
 	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, g_IV256);
@@ -890,6 +906,10 @@ inline void init256(LSH256_Context* ctx)
 inline void fin(LSH256_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
+
+#if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
 
 #if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(ctx->cv_l+0), _mm256_xor_si256(
@@ -935,13 +955,8 @@ lsh_err lsh256_init(LSH256_Context* ctx)
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(ctx->algtype != 0);
 
-#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-	AVX_Cleanup cleanup;
-#endif
-
 	lsh_u32 algtype = ctx->algtype;
 	const lsh_u32* const_v = NULL;
-
 	ctx->remain_databitlen = 0;
 
 	switch (algtype)
@@ -964,6 +979,10 @@ lsh_err lsh256_init(LSH256_Context* ctx)
 
 	ctx->cv_l[0] = LSH256_HASH_VAL_MAX_BYTE_LEN;
 	ctx->cv_l[1] = LSH_GET_HASHBIT(algtype);
+
+#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
 
 	for (size_t i = 0; i < NUM_STEPS / 2; i++)
 	{
@@ -991,17 +1010,13 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 		return LSH_SUCCESS;
 	}
 
-#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-	AVX_Cleanup cleanup;
-#endif
-
 	size_t databytelen = databitlen >> 3;
 	lsh_uint pos2 = databitlen & 0x7;
 
 	// We are byte oriented. remain_msg_bit will always be 0.
 	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
 	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
-	lsh_uint remain_msg_bit = 0;
+	const lsh_uint remain_msg_bit = 0;
 
 	if (remain_msg_byte >= LSH256_MSG_BLK_BYTE_LEN){
 		return LSH_ERR_INVALID_STATE;
@@ -1033,6 +1048,9 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 
 	while (databytelen >= LSH256_MSG_BLK_BYTE_LEN)
 	{
+		// This call to compress caused some trouble.
+		// The data pointer can become unaligned in the
+		// previous block.
 		compress(ctx, data);
 		data += LSH256_MSG_BLK_BYTE_LEN;
 		databytelen -= LSH256_MSG_BLK_BYTE_LEN;
@@ -1059,7 +1077,7 @@ lsh_err lsh256_final(LSH256_Context* ctx, lsh_u8* hashval)
 	// We are byte oriented. remain_msg_bit will always be 0.
 	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
 	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
-	lsh_uint remain_msg_bit = 0;
+	const lsh_uint remain_msg_bit = 0;
 
 	if (remain_msg_byte >= LSH256_MSG_BLK_BYTE_LEN){
 		return LSH_ERR_INVALID_STATE;
@@ -1072,10 +1090,6 @@ lsh_err lsh256_final(LSH256_Context* ctx, lsh_u8* hashval)
 		ctx->last_block[remain_msg_byte] = 0x80;
 	}
 	memset(ctx->last_block + remain_msg_byte + 1, 0, LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
-
-#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-	AVX_Cleanup cleanup;
-#endif
 
 	compress(ctx, ctx->last_block);
 

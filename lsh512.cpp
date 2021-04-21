@@ -122,8 +122,12 @@ struct LSH512_Internal
 };
 
 #if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+// Clear upper bits on entry and exit
 struct AVX_Cleanup
 {
+	AVX_Cleanup() {
+		_mm256_zeroupper();
+	}
 	~AVX_Cleanup() {
 		_mm256_zeroupper();
 	}
@@ -1034,6 +1038,10 @@ inline void compress(LSH512_Context* ctx, const lsh_u8 pdMsgBlk[LSH512_MSG_BLK_B
 	lsh_u64 *cv_l = ctx->cv_l;
 	lsh_u64 *cv_r = ctx->cv_r;
 
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
+
 	load_msg_blk(i_state, pdMsgBlk);
 
 	msg_add_even(cv_l, cv_r, i_state);
@@ -1157,6 +1165,10 @@ inline void init224(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
+
 	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, g_IV224);
 }
@@ -1165,6 +1177,10 @@ inline void init256(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
+
 	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, g_IV256);
 }
@@ -1172,6 +1188,10 @@ inline void init256(LSH512_Context* ctx)
 inline void init384(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
+
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
 
 	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, g_IV384);
@@ -1194,6 +1214,10 @@ inline void init512(LSH512_Context* ctx)
 inline void fin(LSH512_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
+
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
 
 #if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(ctx->cv_l+0), _mm256_xor_si256(
@@ -1249,13 +1273,8 @@ lsh_err lsh512_init(LSH512_Context* ctx)
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(ctx->algtype != 0);
 
-#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
-	AVX_Cleanup cleanup;
-#endif
-
 	lsh_u32 algtype = ctx->algtype;
 	const lsh_u64* const_v = NULL;
-
 	ctx->remain_databitlen = 0;
 
 	switch (algtype){
@@ -1280,8 +1299,13 @@ lsh_err lsh512_init(LSH512_Context* ctx)
 
 	memset(cv_l, 0, 8 * sizeof(lsh_u64));
 	memset(cv_r, 0, 8 * sizeof(lsh_u64));
+
 	cv_l[0] = LSH512_HASH_VAL_MAX_BYTE_LEN;
 	cv_l[1] = LSH_GET_HASHBIT(algtype);
+
+#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+	AVX_Cleanup cleanup;
+#endif
 
 	for (size_t i = 0; i < NUM_STEPS / 2; i++)
 	{
@@ -1309,17 +1333,13 @@ lsh_err lsh512_update(LSH512_Context* ctx, const lsh_u8* data, size_t databitlen
 		return LSH_SUCCESS;
 	}
 
-#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
-	AVX_Cleanup cleanup;
-#endif
-
 	size_t databytelen = databitlen >> 3;
 	lsh_uint pos2 = databitlen & 0x7;
 
 	// We are byte oriented. remain_msg_bit will always be 0.
 	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
 	// remain_msg_bit = ctx->remain_databitlen & 7;
-	lsh_uint remain_msg_bit = 0;
+	const lsh_uint remain_msg_bit = 0;
 
 	if (remain_msg_byte >= LSH512_MSG_BLK_BYTE_LEN){
 		return LSH_ERR_INVALID_STATE;
@@ -1350,6 +1370,9 @@ lsh_err lsh512_update(LSH512_Context* ctx, const lsh_u8* data, size_t databitlen
 
 	while (databytelen >= LSH512_MSG_BLK_BYTE_LEN)
 	{
+		// This call to compress caused some trouble.
+		// The data pointer can become unaligned in the
+		// previous block.
 		compress(ctx, data);
 		data += LSH512_MSG_BLK_BYTE_LEN;
 		databytelen -= LSH512_MSG_BLK_BYTE_LEN;
@@ -1375,7 +1398,7 @@ lsh_err lsh512_final(LSH512_Context* ctx, lsh_u8* hashval)
 	// We are byte oriented. remain_msg_bit will always be 0.
 	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
 	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
-	lsh_uint remain_msg_bit = 0;
+	const lsh_uint remain_msg_bit = 0;
 
 	if (remain_msg_byte >= LSH512_MSG_BLK_BYTE_LEN){
 		return LSH_ERR_INVALID_STATE;
@@ -1388,10 +1411,6 @@ lsh_err lsh512_final(LSH512_Context* ctx, lsh_u8* hashval)
 		ctx->last_block[remain_msg_byte] = 0x80;
 	}
 	memset(ctx->last_block + remain_msg_byte + 1, 0, LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
-
-#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
-	AVX_Cleanup cleanup;
-#endif
 
 	compress(ctx, ctx->last_block);
 
