@@ -869,14 +869,20 @@ inline void zero_submsgs(LSH256_Context* ctx)
 	lsh_u32* sub_msgs = ctx->sub_msgs;
 
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-	_mm256_storeu_si256(M256_CAST(sub_msgs+0), _mm256_setzero_si256());
-	_mm256_storeu_si256(M256_CAST(sub_msgs+8), _mm256_setzero_si256());
+	_mm256_storeu_si256(M256_CAST(sub_msgs+ 0), _mm256_setzero_si256());
+	_mm256_storeu_si256(M256_CAST(sub_msgs+ 8), _mm256_setzero_si256());
+	_mm256_storeu_si256(M256_CAST(sub_msgs+12), _mm256_setzero_si256());
+	_mm256_storeu_si256(M256_CAST(sub_msgs+16), _mm256_setzero_si256());
 
 #elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(sub_msgs+ 0), _mm_setzero_si128());
 	_mm_storeu_si128(M128_CAST(sub_msgs+ 4), _mm_setzero_si128());
 	_mm_storeu_si128(M128_CAST(sub_msgs+ 8), _mm_setzero_si128());
 	_mm_storeu_si128(M128_CAST(sub_msgs+12), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+16), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+20), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+24), _mm_setzero_si128());
+	_mm_storeu_si128(M128_CAST(sub_msgs+28), _mm_setzero_si128());
 
 #else
 	memset(sub_msgs, 0x00, 32*sizeof(lsh_u32));
