@@ -145,7 +145,7 @@ const unsigned int LSH512_HASH_VAL_MAX_BYTE_LEN = 64;
 
 // const unsigned int MSG_BLK_WORD_LEN = 32;
 const unsigned int CV_WORD_LEN = 16;
-// const unsigned int CONST_WORD_LEN = 8;
+const unsigned int CONST_WORD_LEN = 8;
 const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
 const unsigned int NUM_STEPS = 28;
 
@@ -244,7 +244,7 @@ MAYBE_CONSTEXPR lsh_uint g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
 * LSH: step constants
 * -------------------------------------------------------- */
 
-MAYBE_CONSTEXPR lsh_u64 g_StepConstants[16 * NUM_STEPS] = {
+MAYBE_CONSTEXPR lsh_u64 g_StepConstants[CONST_WORD_LEN * NUM_STEPS] = {
 	W64LIT(0x97884283c938982a), W64LIT(0xba1fca93533e2355), W64LIT(0xc519a2e87aeb1c03), W64LIT(0x9a0fc95462af17b1),
 	W64LIT(0xfc3dda8ab019a82b), W64LIT(0x02825d079a895407), W64LIT(0x79f2d0a7ee06a6f7), W64LIT(0xd76d15eed9fdf5fe),
 	W64LIT(0x1fcac64d01d0c2c1), W64LIT(0xd9ea5de69161790f), W64LIT(0xdebc8b6366071fc8), W64LIT(0xa9d91db711c6c94b),
