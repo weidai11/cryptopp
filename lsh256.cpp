@@ -694,22 +694,6 @@ inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 		_mm256_permute2x128_si256(temp,
 			_mm256_loadu_si256(CONST_M256_CAST(cv_r)), _MM_SHUFFLE(0,2,0,0)));
 
-	// Don't use AVX here. It is 0.8 cpb slower.
-#elif 0 // defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
-	__m256i left  = _mm256_shuffle_epi32(
-		_mm256_loadu_si256(CONST_M256_CAST(cv_l)), _MM_SHUFFLE(3,1,0,2));
-	__m256i right = _mm256_shuffle_epi32(
-		_mm256_loadu_si256(CONST_M256_CAST(cv_r)), _MM_SHUFFLE(1,2,3,0));
-
-	_mm256_storeu_si256(M256_CAST(cv_l),
-		_MM256_SET_M128I(
-			_mm256_extractf128_si256(left, 1),
-			_mm256_extractf128_si256(right, 1)));
-	_mm256_storeu_si256(M256_CAST(cv_r),
-		_MM256_SET_M128I(
-			_mm256_extractf128_si256(left, 0),
-			_mm256_extractf128_si256(right, 0)));
-
 #elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_shuffle_epi32(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l+0)), _MM_SHUFFLE(3,1,0,2)));
@@ -865,21 +849,15 @@ inline void load_iv(word32* cv_l, word32* cv_r, const word32* iv)
 
 inline void zero_iv(lsh_u32* cv_l, lsh_u32* cv_r)
 {
-#if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
+#if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(cv_l+0), _mm256_setzero_si256());
-	_mm256_storeu_si256(M256_CAST(cv_l+4), _mm256_setzero_si256());
 	_mm256_storeu_si256(M256_CAST(cv_r+0), _mm256_setzero_si256());
-	_mm256_storeu_si256(M256_CAST(cv_r+4), _mm256_setzero_si256());
 
-#elif defined(CRYPTOPP_LSH512_SSE2_AVAILABLE)
+#elif defined(CRYPTOPP_LSH256_SSE2_AVAILABLE)
 	_mm_storeu_si128(M128_CAST(cv_l+0), _mm_setzero_si128());
-	_mm_storeu_si128(M128_CAST(cv_l+2), _mm_setzero_si128());
 	_mm_storeu_si128(M128_CAST(cv_l+4), _mm_setzero_si128());
-	_mm_storeu_si128(M128_CAST(cv_l+6), _mm_setzero_si128());
 	_mm_storeu_si128(M128_CAST(cv_r+0), _mm_setzero_si128());
-	_mm_storeu_si128(M128_CAST(cv_r+2), _mm_setzero_si128());
 	_mm_storeu_si128(M128_CAST(cv_r+4), _mm_setzero_si128());
-	_mm_storeu_si128(M128_CAST(cv_r+6), _mm_setzero_si128());
 #else
 	memset(cv_l, 0x00, 8*sizeof(lsh_u32));
 	memset(cv_r, 0x00, 8*sizeof(lsh_u32));
