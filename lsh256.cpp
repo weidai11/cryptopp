@@ -31,19 +31,19 @@
 // Only enable the intrinsics for 64-bit machines
 #ifndef CRYPTOPP_DISABLE_ASM
 # if (defined(__SSE2__) && defined(__amd64__)) || (defined(_MSC_VER) && defined(_M_X64))
-#  define CRYPTOPP_LSH512_SSE2_AVAILABLE 1
+#  define CRYPTOPP_LSH256_SSE2_AVAILABLE 1
 # endif
 # if defined(__SSSE3__) && defined(__amd64__)
-#  define CRYPTOPP_LSH512_SSSE3_AVAILABLE 1
+#  define CRYPTOPP_LSH256_SSSE3_AVAILABLE 1
 # endif
 # if defined(__XOP__) && defined(__amd64__)
-#  define CRYPTOPP_LSH512_XOP_AVAILABLE 1
+#  define CRYPTOPP_LSH256_XOP_AVAILABLE 1
 # endif
 # if defined(__AVX__) && defined(__amd64__)
-#  define CRYPTOPP_LSH512_AVX_AVAILABLE 1
+#  define CRYPTOPP_LSH256_AVX_AVAILABLE 1
 # endif
 # if defined(__AVX2__) && defined(__amd64__)
-#  define CRYPTOPP_LSH512_AVX2_AVAILABLE 1
+#  define CRYPTOPP_LSH256_AVX2_AVAILABLE 1
 # endif
 #endif
 
