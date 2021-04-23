@@ -73,7 +73,7 @@
 # include <x86intrin.h>
 #endif
 
-// Use GCC_VERSION to avoid Clang, ICC and other imposters
+// Use GCC_VERSION to avoid Clang, ICC and other impostors
 #if defined(CRYPTOPP_GCC_VERSION)
 # define CRYPTOPP_WORKAROUND_AVX2_BUG 1
 #endif
@@ -618,8 +618,6 @@ inline void load_sc(const lsh_u64** p_const_v, size_t i)
 
 inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_state)
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 	lsh_u64* submsg_e_l = i_state->submsg_e_l;
@@ -678,8 +676,6 @@ inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_st
 
 inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_state)
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;

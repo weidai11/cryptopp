@@ -73,7 +73,7 @@
 # include <x86intrin.h>
 #endif
 
-// Use GCC_VERSION to avoid Clang, ICC and other imposters
+// Use GCC_VERSION to avoid Clang, ICC and other impostors
 #if defined(CRYPTOPP_GCC_VERSION)
 # define CRYPTOPP_WORKAROUND_AVX2_BUG 1
 #endif
@@ -261,7 +261,6 @@ const lsh_u32 g_StepConstants[CONST_WORD_LEN * NUM_STEPS] = {
 inline void load_msg_blk(LSH256_Internal* i_state, const lsh_u8 msgblk[LSH256_MSG_BLK_BYTE_LEN])
 {
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
-	CRYPTOPP_ASSERT(msgblk != NULLPTR);
 
 	lsh_u32* submsg_e_l = i_state->submsg_e_l;
 	lsh_u32* submsg_e_r = i_state->submsg_e_r;
@@ -461,8 +460,6 @@ inline void load_sc(const lsh_u32** p_const_v, size_t i)
 
 inline void msg_add_even(lsh_u32 cv_l[8], lsh_u32 cv_r[8], LSH256_Internal* i_state)
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 	lsh_u32* submsg_e_l = i_state->submsg_e_l;
@@ -503,8 +500,6 @@ inline void msg_add_even(lsh_u32 cv_l[8], lsh_u32 cv_r[8], LSH256_Internal* i_st
 
 inline void msg_add_odd(lsh_u32 cv_l[8], lsh_u32 cv_r[8], LSH256_Internal* i_state)
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 	lsh_u32* submsg_o_l = i_state->submsg_o_l;
@@ -545,9 +540,6 @@ inline void msg_add_odd(lsh_u32 cv_l[8], lsh_u32 cv_r[8], LSH256_Internal* i_sta
 
 inline void add_blk(lsh_u32 cv_l[8], const lsh_u32 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 #if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(cv_l), _mm256_add_epi32(
 		_mm256_loadu_si256(CONST_M256_CAST(cv_l)),
@@ -575,8 +567,6 @@ inline void add_blk(lsh_u32 cv_l[8], const lsh_u32 cv_r[8])
 template <unsigned int R>
 inline void rotate_blk(lsh_u32 cv[8])
 {
-	CRYPTOPP_ASSERT(cv != NULLPTR);
-
 #if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(cv), _mm256_or_si256(
 		_mm256_slli_epi32(_mm256_loadu_si256(CONST_M256_CAST(cv)), R),
@@ -609,9 +599,6 @@ inline void rotate_blk(lsh_u32 cv[8])
 
 inline void xor_with_const(lsh_u32 cv_l[8], const lsh_u32 const_v[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(const_v != NULLPTR);
-
 #if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(cv_l), _mm256_xor_si256(
 		_mm256_loadu_si256(CONST_M256_CAST(cv_l)),
@@ -683,11 +670,8 @@ inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 }
 #endif  // CRYPTOPP_LSH256_AVX2_AVAILABLE
 
-inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
+inline void word_perm(lsh_u32 cv_l[8], lsh_u32 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 #if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
 	__m256i temp;
 	temp = _mm256_shuffle_epi32(
@@ -750,10 +734,8 @@ inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 * -------------------------------------------------------- */
 
 template <unsigned int Alpha, unsigned int Beta>
-inline void mix(lsh_u32* cv_l, lsh_u32* cv_r, const lsh_u32* const_v)
+inline void mix(lsh_u32 cv_l[8], lsh_u32 cv_r[8], const lsh_u32 const_v[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 	CRYPTOPP_ASSERT(const_v != NULLPTR);
 
 	add_blk(cv_l, cv_r);
@@ -817,7 +799,7 @@ inline void compress(LSH256_Context* ctx, const lsh_u8 pdMsgBlk[LSH256_MSG_BLK_B
 
 /* -------------------------------------------------------- */
 
-inline void load_iv(word32* cv_l, word32* cv_r, const word32* iv)
+inline void load_iv(lsh_u32 cv_l[8], lsh_u32 cv_r[8], const lsh_u32 iv[16])
 {
 	// The IV's are 32-byte aligned so we can use aligned loads.
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
@@ -855,7 +837,7 @@ inline void load_iv(word32* cv_l, word32* cv_r, const word32* iv)
 #endif
 }
 
-inline void zero_iv(lsh_u32* cv_l, lsh_u32* cv_r)
+inline void zero_iv(lsh_u32 cv_l[8], lsh_u32 cv_r[8])
 {
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(cv_l+0), _mm256_setzero_si256());
