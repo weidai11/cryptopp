@@ -16,9 +16,11 @@
 // LLVM Clang 7.0 and above resulted in linker errors. Also see
 // https://bugs.llvm.org/show_bug.cgi?id=50025.
 
-// There's a fair amount of AVX2 code because _mm256_or_si256,
-// _mm256_xor_si256 and _mm256_add_epi32 are AVX2. There's no way
-// to avoid AVX2 for the simple operations.
+// We are hitting some sort of GCC bug in the AVX2 code path. Clang
+// is OK on the AVX2 code path. When we enable AVX2 for rotate_msg_gamma,
+// msg_exp_even and msg_exp_odd, then GCC arrives at the wrong result.
+// Making any one of the functions SSE2 clears the problem. See
+// CRYPTOPP_WORKAROUND_AVX2_BUG below.
 
 // TODO: cut-over to a *_simd.cpp file for proper runtime dispatching.
 
@@ -57,9 +59,6 @@
 
 #if defined(CRYPTOPP_LSH256_XOP_AVAILABLE)
 # include <ammintrin.h>
-# if defined(__GNUC__)
-#  include <x86intrin.h>
-# endif
 #endif
 
 #if defined(CRYPTOPP_LSH256_AVX_AVAILABLE)
@@ -72,6 +71,11 @@
 
 #if defined(__GNUC__) && defined(__amd64__)
 # include <x86intrin.h>
+#endif
+
+// Use GCC_VERSION to avoid Clang, ICC and other imposters
+#if defined(CRYPTOPP_GCC_VERSION)
+# define CRYPTOPP_WORKAROUND_AVX2_BUG 1
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -254,7 +258,7 @@ const lsh_u32 g_StepConstants[CONST_WORD_LEN * NUM_STEPS] = {
 };
 
 // Original code relied upon unaligned lsh_u32 buffer
-inline void load_msg_blk(LSH256_Internal* i_state, const lsh_u8* msgblk)
+inline void load_msg_blk(LSH256_Internal* i_state, const lsh_u8 msgblk[LSH256_MSG_BLK_BYTE_LEN])
 {
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 	CRYPTOPP_ASSERT(msgblk != NULLPTR);
@@ -316,8 +320,9 @@ inline void msg_exp_even(LSH256_Internal* i_state)
 	lsh_u32* submsg_o_r = i_state->submsg_o_r;
 
 #if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
-	__m256i mask = _mm256_set_epi32(0x1b1a1918, 0x17161514, 0x13121110,
-		0x1f1e1d1c, 0x07060504, 0x03020100, 0x0b0a0908, 0x0f0e0d0c);
+	const __m256i mask = _mm256_set_epi32(0x1b1a1918, 0x17161514,
+		0x13121110, 0x1f1e1d1c, 0x07060504, 0x03020100, 0x0b0a0908, 0x0f0e0d0c);
+
 	_mm256_storeu_si256(M256_CAST(submsg_e_l+0), _mm256_add_epi32(
 		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+0)),
 		_mm256_shuffle_epi8(
@@ -386,8 +391,9 @@ inline void msg_exp_odd(LSH256_Internal* i_state)
 	lsh_u32* submsg_o_r = i_state->submsg_o_r;
 
 #if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)
-	__m256i mask = _mm256_set_epi32(0x1b1a1918, 0x17161514, 0x13121110,
-		0x1f1e1d1c, 0x07060504, 0x03020100, 0x0b0a0908, 0x0f0e0d0c);
+	const __m256i mask = _mm256_set_epi32(0x1b1a1918, 0x17161514,
+		0x13121110, 0x1f1e1d1c, 0x07060504, 0x03020100, 0x0b0a0908, 0x0f0e0d0c);
+
 	_mm256_storeu_si256(M256_CAST(submsg_o_l+0), _mm256_add_epi32(
 		_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+0)),
 		_mm256_shuffle_epi8(
@@ -453,7 +459,7 @@ inline void load_sc(const lsh_u32** p_const_v, size_t i)
 	*p_const_v = &g_StepConstants[i];
 }
 
-inline void msg_add_even(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
+inline void msg_add_even(lsh_u32 cv_l[8], lsh_u32 cv_r[8], LSH256_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
@@ -495,7 +501,7 @@ inline void msg_add_even(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
 #endif
 }
 
-inline void msg_add_odd(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
+inline void msg_add_odd(lsh_u32 cv_l[8], lsh_u32 cv_r[8], LSH256_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
@@ -537,7 +543,7 @@ inline void msg_add_odd(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
 #endif
 }
 
-inline void add_blk(lsh_u32* cv_l, const lsh_u32* cv_r)
+inline void add_blk(lsh_u32 cv_l[8], const lsh_u32 cv_r[8])
 {
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
@@ -601,7 +607,7 @@ inline void rotate_blk(lsh_u32 cv[8])
 #endif
 }
 
-inline void xor_with_const(lsh_u32* cv_l, const lsh_u32* const_v)
+inline void xor_with_const(lsh_u32 cv_l[8], const lsh_u32 const_v[8])
 {
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(const_v != NULLPTR);
@@ -630,12 +636,21 @@ inline void xor_with_const(lsh_u32* cv_l, const lsh_u32* const_v)
 #endif
 }
 
-#if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
-CRYPTOPP_TARGET_SSSE3
-inline void rotate_msg_gamma(lsh_u32* cv_r)
+#if defined(CRYPTOPP_LSH256_AVX2_AVAILABLE)  && !defined(CRYPTOPP_WORKAROUND_AVX2_BUG)
+inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
+	// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
+	_mm256_storeu_si256(M256_CAST(cv_r+0),
+		_mm256_shuffle_epi8(_mm256_loadu_si256(CONST_M256_CAST(cv_r+0)),
+			_mm256_set_epi8(
+				/* hi lane */ 15,14,13,12, 10,9,8,11, 5,4,7,6, 0,3,2,1,
+				/* lo lane */ 12,15,14,13, 9,8,11,10, 6,5,4,7, 3,2,1,0)));
+}
+#else  // CRYPTOPP_LSH256_AVX2_AVAILABLE
+# if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
+CRYPTOPP_TARGET_SSSE3
+inline void rotate_msg_gamma(lsh_u32 cv_r[8])
+{
 	// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
 	_mm_storeu_si128(M128_CAST(cv_r+0),
 		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)),
@@ -644,21 +659,19 @@ inline void rotate_msg_gamma(lsh_u32* cv_r)
 		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
 			_mm_set_epi8(15,14,13,12, 10,9,8,11, 5,4,7,6, 0,3,2,1)));
 }
-#endif
+# endif
 
 CRYPTOPP_TARGET_DEFAULT
-inline void rotate_msg_gamma(lsh_u32* cv_r)
+inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 #if defined(CRYPTOPP_LSH256_SSSE3_AVAILABLE)
-	// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
 	_mm_storeu_si128(M128_CAST(cv_r+0),
 		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)),
 			_mm_set_epi8(12,15,14,13, 9,8,11,10, 6,5,4,7, 3,2,1,0)));
 	_mm_storeu_si128(M128_CAST(cv_r+4),
 		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
 			_mm_set_epi8(15,14,13,12, 10,9,8,11, 5,4,7,6, 0,3,2,1)));
+
 #else
 	cv_r[1] = rotlFixed(cv_r[1], g_gamma256[1]);
 	cv_r[2] = rotlFixed(cv_r[2], g_gamma256[2]);
@@ -668,6 +681,7 @@ inline void rotate_msg_gamma(lsh_u32* cv_r)
 	cv_r[6] = rotlFixed(cv_r[6], g_gamma256[6]);
 #endif
 }
+#endif  // CRYPTOPP_LSH256_AVX2_AVAILABLE
 
 inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 {
@@ -1125,6 +1139,8 @@ std::string LSH256_Base::AlgorithmProvider() const
 
 void LSH256_Base::Restart()
 {
+	m_remainingBitLength = 0;
+
 	LSH256_Context ctx(m_state, m_algType, m_remainingBitLength);
 	lsh_err err = lsh256_init(&ctx);
 
