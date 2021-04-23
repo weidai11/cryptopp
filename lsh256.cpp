@@ -16,11 +16,11 @@
 // LLVM Clang 7.0 and above resulted in linker errors. Also see
 // https://bugs.llvm.org/show_bug.cgi?id=50025.
 
-// We are hitting some sort of GCC bug in the AVX2 code path. Clang
-// is OK on the AVX2 code path. When we enable AVX2 for rotate_msg_gamma,
-// msg_exp_even and msg_exp_odd, then GCC arrives at the wrong result.
-// Making any one of the functions SSE2 clears the problem. See
-// CRYPTOPP_WORKAROUND_AVX2_BUG below.
+// We are hitting some sort of GCC bug in the LSH256 AVX2 code path.
+// Clang is OK on the AVX2 code path. When we enable AVX2 for
+// rotate_msg_gamma, msg_exp_even and msg_exp_odd, then GCC arrives
+// at the wrong result. Making any one of the functions SSE2 clears
+// the problem. See CRYPTOPP_WORKAROUND_AVX2_BUG below.
 
 // TODO: cut-over to a *_simd.cpp file for proper runtime dispatching.
 
@@ -963,7 +963,7 @@ inline void get_hash(LSH256_Context* ctx, lsh_u8* pbHashVal)
 	lsh_uint hash_val_bit_len = LSH_GET_SMALL_HASHBIT(algtype);
 
 	// Multiplying by sizeof(lsh_u8) looks odd...
-	memcpy(pbHashVal, ctx->cv_l, sizeof(lsh_u8) * hash_val_byte_len);
+	memcpy(pbHashVal, ctx->cv_l, hash_val_byte_len);
 	if (hash_val_bit_len){
 		pbHashVal[hash_val_byte_len-1] &= (((lsh_u8)0xff) << hash_val_bit_len);
 	}

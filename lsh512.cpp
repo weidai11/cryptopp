@@ -16,9 +16,11 @@
 // LLVM Clang 7.0 and above resulted in linker errors. Also see
 // https://bugs.llvm.org/show_bug.cgi?id=50025.
 
-// There's a fair amount of AVX2 code because _mm256_or_si256,
-// _mm256_xor_si256 and _mm256_add_epi64 are AVX2. There's no way
-// to avoid AVX2 for the simple operations.
+// We are hitting some sort of GCC bug in the LSH256 AVX2 code path.
+// Clang is OK on the AVX2 code path. When we enable AVX2 for
+// rotate_msg_gamma, msg_exp_even and msg_exp_odd, then GCC arrives
+// at the wrong result. Making any one of the functions SSE2 clears
+// the problem. See CRYPTOPP_WORKAROUND_AVX2_BUG below.
 
 // TODO: cut-over to a *_simd.cpp file for proper runtime dispatching.
 
@@ -53,9 +55,6 @@
 
 #if defined(CRYPTOPP_LSH512_XOP_AVAILABLE)
 # include <ammintrin.h>
-# if defined(__GNUC__)
-#  include <x86intrin.h>
-# endif
 #endif
 
 #if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
@@ -72,6 +71,11 @@
 
 #if defined(__GNUC__) && defined(__amd64__)
 # include <x86intrin.h>
+#endif
+
+// Use GCC_VERSION to avoid Clang, ICC and other imposters
+#if defined(CRYPTOPP_GCC_VERSION)
+# define CRYPTOPP_WORKAROUND_AVX2_BUG 1
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -299,7 +303,7 @@ const lsh_u64 g_StepConstants[CONST_WORD_LEN * NUM_STEPS] = {
 };
 
 // Original code relied upon unaligned lsh_u64 buffer
-inline void load_msg_blk(LSH512_Internal* i_state, const lsh_u8* msgblk)
+inline void load_msg_blk(LSH512_Internal* i_state, const lsh_u8 msgblk[LSH512_MSG_BLK_BYTE_LEN])
 {
 	lsh_u64* submsg_e_l = i_state->submsg_e_l;
 	lsh_u64* submsg_e_r = i_state->submsg_e_r;
@@ -612,7 +616,7 @@ inline void load_sc(const lsh_u64** p_const_v, size_t i)
 	*p_const_v = &g_StepConstants[i];
 }
 
-inline void msg_add_even(lsh_u64* cv_l, lsh_u64* cv_r, LSH512_Internal* i_state)
+inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
@@ -672,7 +676,7 @@ inline void msg_add_even(lsh_u64* cv_l, lsh_u64* cv_r, LSH512_Internal* i_state)
 #endif
 }
 
-inline void msg_add_odd(lsh_u64* cv_l, lsh_u64* cv_r, LSH512_Internal* i_state)
+inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(cv_l != NULLPTR);
 	CRYPTOPP_ASSERT(cv_r != NULLPTR);
@@ -813,7 +817,7 @@ inline void rotate_blk(lsh_u64 cv[8])
 #endif
 }
 
-inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64* const_v)
+inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64 const_v[8])
 {
 #if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(cv_l), _mm256_xor_si256(
@@ -848,12 +852,28 @@ inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64* const_v)
 #endif
 }
 
-#if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
-CRYPTOPP_TARGET_SSSE3
-inline void rotate_msg_gamma(lsh_u64* cv_r)
+#if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
+inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
+	// g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
+	_mm256_storeu_si256(M256_CAST(cv_r+0),
+		_mm256_shuffle_epi8(
+			_mm256_loadu_si256(CONST_M256_CAST(cv_r+0)),
+			_mm256_set_epi8(
+				/* hi lane */ 9,8,15,14, 13,12,11,10, 3,2,1,0, 7,6,5,4,
+				/* lo lane */ 13,12,11,10, 9,8,15,14, 7,6,5,4, 3,2,1,0)));
+	_mm256_storeu_si256(M256_CAST(cv_r+4),
+		_mm256_shuffle_epi8(
+			_mm256_loadu_si256(CONST_M256_CAST(cv_r+4)),
+			_mm256_set_epi8(
+				/* hi lane */ 8,15,14,13, 12,11,10,9, 2,1,0,7, 6,5,4,3,
+				/* lo lane */ 12,11,10,9, 8,15,14,13, 6,5,4,3, 2,1,0,7)));
+}
+#else  // CRYPTOPP_LSH512_AVX2_AVAILABLE
+# if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
+CRYPTOPP_TARGET_SSSE3
+inline void rotate_msg_gamma(lsh_u64 cv_r[8])
+{
 	// g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
 	_mm_storeu_si128(M128_CAST(cv_r+0),
 		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)),
@@ -868,13 +888,11 @@ inline void rotate_msg_gamma(lsh_u64* cv_r)
 		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+6)),
 			_mm_set_epi8(8,15,14,13, 12,11,10,9, 2,1,0,7, 6,5,4,3)));
 }
-#endif
+# endif
 
 CRYPTOPP_TARGET_DEFAULT
-inline void rotate_msg_gamma(lsh_u64* cv_r)
+inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 #if defined(CRYPTOPP_LSH512_SSSE3_AVAILABLE)
 	// g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
 	_mm_storeu_si128(M128_CAST(cv_r+0),
@@ -900,12 +918,10 @@ inline void rotate_msg_gamma(lsh_u64* cv_r)
 	cv_r[7] = ROTL64(cv_r[7], g_gamma512[7]);
 #endif
 }
+#endif  // CRYPTOPP_LSH512_AVX2_AVAILABLE
 
-inline void word_perm(lsh_u64* cv_l, lsh_u64* cv_r)
+inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 #if defined(CRYPTOPP_LSH512_AVX2_AVAILABLE)
 	__m256i temp[2];
 	_mm256_storeu_si256(M256_CAST(cv_l+0), _mm256_permute4x64_epi64(
@@ -1071,7 +1087,7 @@ inline void compress(LSH512_Context* ctx, const lsh_u8 pdMsgBlk[LSH512_MSG_BLK_B
 
 /* -------------------------------------------------------- */
 
-inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
+inline void load_iv(word64 cv_l[8], word64 cv_r[8], const word64 iv[16])
 {
 	// The IV's are 32-byte aligned so we can use aligned loads.
 
@@ -1122,7 +1138,7 @@ inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
 #endif
 }
 
-inline void zero_iv(lsh_u64* cv_l, lsh_u64* cv_r)
+inline void zero_iv(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 {
 #if defined(CRYPTOPP_LSH512_AVX_AVAILABLE)
 	_mm256_storeu_si256(M256_CAST(cv_l+0), _mm256_setzero_si256());
@@ -1280,7 +1296,7 @@ inline void get_hash(LSH512_Context* ctx, lsh_u8* pbHashVal)
 	lsh_uint hash_val_bit_len = LSH_GET_SMALL_HASHBIT(algtype);
 
 	// Multiplying by sizeof(lsh_u8) looks odd...
-	memcpy(pbHashVal, ctx->cv_l, sizeof(lsh_u8) * hash_val_byte_len);
+	memcpy(pbHashVal, ctx->cv_l, hash_val_byte_len);
 	if (hash_val_bit_len){
 		pbHashVal[hash_val_byte_len-1] &= (((lsh_u8)0xff) << hash_val_bit_len);
 	}
@@ -1459,6 +1475,8 @@ std::string LSH512_Base::AlgorithmProvider() const
 
 void LSH512_Base::Restart()
 {
+	m_remainingBitLength = 0;
+
 	LSH512_Context ctx(m_state, m_algType, m_remainingBitLength);
 	lsh_err err = lsh512_init(&ctx);
 
