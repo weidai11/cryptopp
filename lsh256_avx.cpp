@@ -5,8 +5,9 @@
 //           and https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
 
 // The source file below uses GCC's function multiversioning to
-// speed up a rotate. When the rotate is performed with the SSE
-// unit there's a 2.5 to 3.0 cpb profit.
+// speed up a rotate when SSE is available. When the rotate is
+// performed with the SSE unit there's a 2.5 to 3.0 cpb profit.
+// When AVX is available multiversioning is not used.
 
 // Function multiversioning does not work with GCC 4.8 through 7.5.
 // We have lots of failed compiles on test machines and Travis.
@@ -21,17 +22,10 @@
 // Clang is OK on the AVX2 code path. We believe it is GCC Issue
 // 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. We
 // have to use SSE2 until GCC provides a workaround or fix. Also
-// see CRYPTOPP_WORKAROUND_LSH_AVX2_BUG below.
+// see CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG below.
 
 #include "pch.h"
 #include "config.h"
-
-// Use GCC_VERSION to avoid Clang, ICC and other impostors
-// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
-#if defined(CRYPTOPP_WORKAROUND_LSH_AVX2_BUG)
-# undef CRYPTOPP_AVX_AVAILABLE
-# undef CRYPTOPP_AVX2_AVAILABLE
-#endif
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
 
@@ -152,17 +146,30 @@ struct LSH256_AVX2_Internal
 	lsh_u32* submsg_o_r; /* odd right sub-message  */
 };
 
-// Zero the upper 128 bits of all YMM registers
-// on entry and exit. It avoids AVX state
-// transition penalties when saving state.
+// Zero the upper 128 bits of all YMM registers on exit.
+// It avoids AVX state transition penalties when saving state.
+// There are two flavors due to GCC bug 82735. AVX_Cleanup
+// is fine grained, and can be used near a group of small
+// inline functions to keep the cleanup close to the AVX code,
+// like mix_avx2() and rotate_avx2(). AVX_BuggyCleanup is
+// coarse grained and is used at the end of a large function
+// block, like Update() or Final().
 struct AVX_Cleanup
 {
-	AVX_Cleanup() {
-		_mm256_zeroupper();
-	}
+#ifndef CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG
 	~AVX_Cleanup() {
 		_mm256_zeroupper();
 	}
+#endif
+};
+
+struct AVX_BuggyCleanup
+{
+#ifdef CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG
+	~AVX_BuggyCleanup() {
+		_mm256_zeroupper();
+	}
+#endif
 };
 
 // const word32 g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
@@ -316,7 +323,7 @@ inline void xor_with_const(lsh_u32 cv_l[8], const lsh_u32 const_v[8])
 		_mm256_loadu_si256(CONST_M256_CAST(const_v))));
 }
 
-inline void rotate_msg_gamma_avx2(lsh_u32 cv_r[8])
+inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 {
 #if defined(WORKAROUND_GCC_AVX2_BUG)
 	// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
@@ -364,7 +371,7 @@ inline void mix(lsh_u32 cv_l[8], lsh_u32 cv_r[8], const lsh_u32 const_v[8])
 	add_blk(cv_r, cv_l);
 	rotate_blk<Beta>(cv_r);
 	add_blk(cv_l, cv_r);
-	rotate_msg_gamma_avx2(cv_r);
+	rotate_msg_gamma(cv_r);
 }
 
 /* -------------------------------------------------------- *
@@ -648,8 +655,10 @@ NAMESPACE_BEGIN(CryptoPP)
 extern
 void LSH256_Base_Restart_AVX2(word32* state)
 {
-	state[RemainingBits] = 0;
+	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+	AVX_BuggyCleanup cleanup;
 
+	state[RemainingBits] = 0;
 	LSH256_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh256_init_avx2(&ctx);
 
@@ -660,6 +669,9 @@ void LSH256_Base_Restart_AVX2(word32* state)
 extern
 void LSH256_Base_Update_AVX2(word32* state, const byte *input, size_t size)
 {
+	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+	AVX_BuggyCleanup cleanup;
+
 	LSH256_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh256_update_avx2(&ctx, input, 8*size);
 
@@ -670,6 +682,9 @@ void LSH256_Base_Update_AVX2(word32* state, const byte *input, size_t size)
 extern
 void LSH256_Base_TruncatedFinal_AVX2(word32* state, byte *hash, size_t size)
 {
+	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+	AVX_BuggyCleanup cleanup;
+
 	LSH256_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh256_final_avx2(&ctx, hash);
 

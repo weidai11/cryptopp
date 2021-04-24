@@ -8,7 +8,7 @@
 // Clang is OK on the AVX2 code path. We believe it is GCC Issue
 // 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. We
 // have to use SSE2 until GCC provides a workaround or fix. Also
-// see CRYPTOPP_WORKAROUND_LSH_AVX2_BUG below.
+// see CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG below.
 
 /// \file lsh.h
 /// \brief Classes for the LSH hash functions
@@ -23,8 +23,9 @@
 
 // Use GCC_VERSION to avoid Clang, ICC and other impostors
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+// TODO: find an upper bound on buggy GCC versions.
 #if defined(CRYPTOPP_GCC_VERSION)
-# define CRYPTOPP_WORKAROUND_LSH_AVX2_BUG 1
+# define CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG 1
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

@@ -5,8 +5,9 @@
 //           and https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
 
 // The source file below uses GCC's function multiversioning to
-// speed up a rotate. When the rotate is performed with the SSE
-// unit there's a 2.5 to 3.0 cpb profit.
+// speed up a rotate when SSE is available. When the rotate is
+// performed with the SSE unit there's a 2.5 to 3.0 cpb profit.
+// When AVX is available multiversioning is not used.
 
 // Function multiversioning does not work with GCC 4.8 through 7.5.
 // We have lots of failed compiles on test machines and Travis.
@@ -21,7 +22,7 @@
 // Clang is OK on the AVX2 code path. We believe it is GCC Issue
 // 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. We
 // have to use SSE2 until GCC provides a workaround or fix. Also
-// see CRYPTOPP_WORKAROUND_LSH_AVX2_BUG below.
+// see CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG below.
 
 
 #include "pch.h"
@@ -30,13 +31,6 @@
 #include "lsh.h"
 #include "cpu.h"
 #include "misc.h"
-
-// Use GCC_VERSION to avoid Clang, ICC and other impostors
-// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
-#if defined(CRYPTOPP_WORKAROUND_LSH_AVX2_BUG)
-# undef CRYPTOPP_AVX_AVAILABLE
-# undef CRYPTOPP_AVX2_AVAILABLE
-#endif
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -439,7 +433,7 @@ inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64* const_v)
 	cv_l[7] ^= const_v[7];
 }
 
-inline void rotate_msg_gamma_cxx(lsh_u64 cv_r[8])
+inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 {
 	cv_r[1] = ROTL64(cv_r[1], g_gamma512[1]);
 	cv_r[2] = ROTL64(cv_r[2], g_gamma512[2]);
@@ -486,7 +480,7 @@ inline void mix(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 const_v[8])
 	add_blk(cv_r, cv_l);
 	rotate_blk<Beta>(cv_r);
 	add_blk(cv_l, cv_r);
-	rotate_msg_gamma_cxx(cv_r);
+	rotate_msg_gamma(cv_r);
 }
 
 /* -------------------------------------------------------- *

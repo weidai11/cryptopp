@@ -5,8 +5,9 @@
 //           and https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
 
 // The source file below uses GCC's function multiversioning to
-// speed up a rotate. When the rotate is performed with the SSE
-// unit there's a 2.5 to 3.0 cpb profit.
+// speed up a rotate when SSE is available. When the rotate is
+// performed with the SSE unit there's a 2.5 to 3.0 cpb profit.
+// When AVX is available multiversioning is not used.
 
 // Function multiversioning does not work with GCC 4.8 through 7.5.
 // We have lots of failed compiles on test machines and Travis.
@@ -21,17 +22,10 @@
 // Clang is OK on the AVX2 code path. We believe it is GCC Issue
 // 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. We
 // have to use SSE2 until GCC provides a workaround or fix. Also
-// see CRYPTOPP_WORKAROUND_LSH_AVX2_BUG below.
+// see CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG below.
 
 #include "pch.h"
 #include "config.h"
-
-// Use GCC_VERSION to avoid Clang, ICC and other impostors
-// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
-#if defined(CRYPTOPP_WORKAROUND_LSH_AVX2_BUG)
-# undef CRYPTOPP_AVX_AVAILABLE
-# undef CRYPTOPP_AVX2_AVAILABLE
-#endif
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
 
@@ -159,17 +153,30 @@ struct LSH512_AVX2_Internal
 	lsh_u64* submsg_o_r; /* odd right sub-message  */
 };
 
-// Zero the upper 128 bits of all YMM registers
-// on entry and exit. It avoids AVX state
-// transition penalties when saving state.
+// Zero the upper 128 bits of all YMM registers on exit.
+// It avoids AVX state transition penalties when saving state.
+// There are two flavors due to GCC bug 82735. AVX_Cleanup
+// is fine grained, and can be used near a group of small
+// inline functions to keep the cleanup close to the AVX code,
+// like mix_avx2() and rotate_avx2(). AVX_BuggyCleanup is
+// coarse grained and is used at the end of a large function
+// block, like Update() or Final().
 struct AVX_Cleanup
 {
-	AVX_Cleanup() {
-		_mm256_zeroupper();
-	}
+#ifndef CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG
 	~AVX_Cleanup() {
 		_mm256_zeroupper();
 	}
+#endif
+};
+
+struct AVX_BuggyCleanup
+{
+#ifdef CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG
+	~AVX_BuggyCleanup() {
+		_mm256_zeroupper();
+	}
+#endif
 };
 
 // const lsh_u32 g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
@@ -241,19 +248,24 @@ inline void msg_exp_even(LSH512_AVX2_Internal* i_state)
 	_mm256_storeu_si256(M256_CAST(submsg_e_l+0), _mm256_add_epi64(
 		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+0)),
 		_mm256_permute4x64_epi64(
-			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+0)), _MM_SHUFFLE(1,0,2,3))));
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+0)),
+			_MM_SHUFFLE(1,0,2,3))));
 	_mm256_storeu_si256(M256_CAST(submsg_e_l+4), _mm256_add_epi64(
 		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+4)),
 		_mm256_permute4x64_epi64(
-			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+4)), _MM_SHUFFLE(2,1,0,3))));
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+4)),
+			_MM_SHUFFLE(2,1,0,3))));
+
 	_mm256_storeu_si256(M256_CAST(submsg_e_r+0), _mm256_add_epi64(
 		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+0)),
 		_mm256_permute4x64_epi64(
-			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+0)), _MM_SHUFFLE(1,0,2,3))));
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+0)),
+			_MM_SHUFFLE(1,0,2,3))));
 	_mm256_storeu_si256(M256_CAST(submsg_e_r+4), _mm256_add_epi64(
 		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+4)),
 		_mm256_permute4x64_epi64(
-			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+4)), _MM_SHUFFLE(2,1,0,3))));
+			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+4)),
+			_MM_SHUFFLE(2,1,0,3))));
 }
 
 inline void msg_exp_odd(LSH512_AVX2_Internal* i_state)
@@ -269,23 +281,27 @@ inline void msg_exp_odd(LSH512_AVX2_Internal* i_state)
 		_mm256_add_epi64(
 			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+0)),
 			_mm256_permute4x64_epi64(
-				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+0)), _MM_SHUFFLE(1,0,2,3))));
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+0)),
+				_MM_SHUFFLE(1,0,2,3))));
 	_mm256_storeu_si256(M256_CAST(submsg_o_l+4),
 		_mm256_add_epi64(
 			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+4)),
 			_mm256_permute4x64_epi64(
-				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+4)), _MM_SHUFFLE(2,1,0,3))));
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+4)),
+				_MM_SHUFFLE(2,1,0,3))));
 
 	_mm256_storeu_si256(M256_CAST(submsg_o_r+0),
 		_mm256_add_epi64(
 			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+0)),
 			_mm256_permute4x64_epi64(
-				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+0)), _MM_SHUFFLE(1,0,2,3))));
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+0)),
+				_MM_SHUFFLE(1,0,2,3))));
 	_mm256_storeu_si256(M256_CAST(submsg_o_r+4),
 		_mm256_add_epi64(
 			_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r+4)),
 			_mm256_permute4x64_epi64(
-				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+4)), _MM_SHUFFLE(2,1,0,3))));
+				_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r+4)),
+				_MM_SHUFFLE(2,1,0,3))));
 }
 
 inline void load_sc(const lsh_u64** p_const_v, size_t i)
@@ -306,6 +322,7 @@ inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_AVX2_Internal*
 	_mm256_storeu_si256(M256_CAST(cv_r), _mm256_xor_si256(
 		_mm256_loadu_si256(CONST_M256_CAST(cv_r)),
 		_mm256_loadu_si256(CONST_M256_CAST(submsg_e_r))));
+
 	_mm256_storeu_si256(M256_CAST(cv_l+4), _mm256_xor_si256(
 		_mm256_loadu_si256(CONST_M256_CAST(cv_l+4)),
 		_mm256_loadu_si256(CONST_M256_CAST(submsg_e_l+4))));
@@ -327,6 +344,7 @@ inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_AVX2_Internal* 
 	_mm256_storeu_si256(M256_CAST(cv_r), _mm256_xor_si256(
 		_mm256_loadu_si256(CONST_M256_CAST(cv_r)),
 		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_r))));
+
 	_mm256_storeu_si256(M256_CAST(cv_l+4), _mm256_xor_si256(
 		_mm256_loadu_si256(CONST_M256_CAST(cv_l+4)),
 		_mm256_loadu_si256(CONST_M256_CAST(submsg_o_l+4))));
@@ -366,7 +384,7 @@ inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64 const_v[8])
 		_mm256_loadu_si256(CONST_M256_CAST(const_v+4))));
 }
 
-inline void rotate_msg_gamma_avx2(lsh_u64 cv_r[8])
+inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 {
 	// g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
 	_mm256_storeu_si256(M256_CAST(cv_r+0),
@@ -420,7 +438,7 @@ inline void mix(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 const_v[8])
 	add_blk(cv_r, cv_l);
 	rotate_blk<Beta>(cv_r);
 	add_blk(cv_l, cv_r);
-	rotate_msg_gamma_avx2(cv_r);
+	rotate_msg_gamma(cv_r);
 }
 
 /* -------------------------------------------------------- *
@@ -480,6 +498,7 @@ inline void load_iv(word64 cv_l[8], word64 cv_r[8], const word64 iv[16])
 		_mm256_load_si256(CONST_M256_CAST(iv+0)));
 	_mm256_storeu_si256(M256_CAST(cv_l+4),
 		_mm256_load_si256(CONST_M256_CAST(iv+4)));
+
 	_mm256_storeu_si256(M256_CAST(cv_r+0),
 		_mm256_load_si256(CONST_M256_CAST(iv+8)));
 	_mm256_storeu_si256(M256_CAST(cv_r+4),
@@ -502,6 +521,7 @@ inline void zero_submsgs(LSH512_AVX2_Context* ctx)
 		_mm256_setzero_si256());
 	_mm256_storeu_si256(M256_CAST(sub_msgs+ 4),
 		_mm256_setzero_si256());
+
 	_mm256_storeu_si256(M256_CAST(sub_msgs+ 8),
 		_mm256_setzero_si256());
 	_mm256_storeu_si256(M256_CAST(sub_msgs+12),
@@ -559,6 +579,7 @@ inline void fin(LSH512_AVX2_Context* ctx)
 	_mm256_storeu_si256(M256_CAST(ctx->cv_l+0), _mm256_xor_si256(
 		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_l+0)),
 		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_r+0))));
+
 	_mm256_storeu_si256(M256_CAST(ctx->cv_l+4), _mm256_xor_si256(
 		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_l+4)),
 		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_r+4))));
@@ -740,8 +761,10 @@ NAMESPACE_BEGIN(CryptoPP)
 extern
 void LSH512_Base_Restart_AVX2(word64* state)
 {
-	state[RemainingBits] = 0;
+	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+	AVX_BuggyCleanup cleanup;
 
+	state[RemainingBits] = 0;
 	LSH512_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh512_init_avx2(&ctx);
 
@@ -752,6 +775,9 @@ void LSH512_Base_Restart_AVX2(word64* state)
 extern
 void LSH512_Base_Update_AVX2(word64* state, const byte *input, size_t size)
 {
+	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+	AVX_BuggyCleanup cleanup;
+
 	LSH512_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh512_update_avx2(&ctx, input, 8*size);
 
@@ -762,6 +788,9 @@ void LSH512_Base_Update_AVX2(word64* state, const byte *input, size_t size)
 extern
 void LSH512_Base_TruncatedFinal_AVX2(word64* state, byte *hash, size_t size)
 {
+	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+	AVX_BuggyCleanup cleanup;
+
 	LSH512_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh512_final_avx2(&ctx, hash);
 
