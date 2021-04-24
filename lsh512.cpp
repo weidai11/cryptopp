@@ -884,7 +884,7 @@ void LSH512_Base::TruncatedFinal(byte *hash, size_t size)
 	// TODO: determine if LSH512 supports truncated hashes. See the code
 	// in get_hash(), where a bit-length is added to the last output
 	// byte of the hash function.
-	byte fullHash[HASH_VAL_MAX_WORD_LEN * sizeof(lsh_u64)];
+	byte fullHash[LSH512_HASH_VAL_MAX_BYTE_LEN];
 	bool copyOut = (size < DigestSize());
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE)

@@ -703,7 +703,7 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_AVX2_AVAILABLE)
+#if defined(CRYPTOPP_AVX2_AVAILABLE) && (CRYPTOPP_BOOL_X64 == 1)
 	extern void LSH256_Base_Restart_AVX2(word32* state);
 	extern void LSH256_Base_Update_AVX2(word32* state, const byte *input, size_t size);
 	extern void LSH256_Base_TruncatedFinal_AVX2(word32* state, byte *hash, size_t size);
@@ -808,7 +808,7 @@ void LSH256_Base::TruncatedFinal(byte *hash, size_t size)
 	// TODO: determine if LSH256 supports truncated hashes. See the code
 	// in get_hash(), where a bit-length is added to the last output
 	// byte of the hash function.
-	byte fullHash[HASH_VAL_MAX_WORD_LEN * sizeof(lsh_u32)];
+	byte fullHash[LSH256_HASH_VAL_MAX_BYTE_LEN];
 	bool copyOut = (size < DigestSize());
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
