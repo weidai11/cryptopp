@@ -851,7 +851,7 @@ void LSH512_Base::Restart()
 void LSH512_Base::Update(const byte *input, size_t size)
 {
 	CRYPTOPP_ASSERT(input != NULLPTR);
-	CRYPTOPP_ASSERT(length);
+	CRYPTOPP_ASSERT(size);
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
 	if (HasAVX2())
