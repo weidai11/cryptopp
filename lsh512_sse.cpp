@@ -518,6 +518,7 @@ inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 	_mm_storeu_si128(M128_CAST(cv_r+2),
 		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+2)),
 			_mm_set_epi8(9,8,15,14, 13,12,11,10, 3,2,1,0, 7,6,5,4)));
+
 	_mm_storeu_si128(M128_CAST(cv_r+4),
 		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
 			_mm_set_epi8(12,11,10,9, 8,15,14,13, 6,5,4,3, 2,1,0,7)));
@@ -530,6 +531,23 @@ inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 CRYPTOPP_TARGET_DEFAULT
 inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 {
+	// The first MacBooks were Core2's with SSE4.1
+#if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(__APPLE__)
+	// g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
+	_mm_storeu_si128(M128_CAST(cv_r+0),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)),
+			_mm_set_epi8(13,12,11,10, 9,8,15,14, 7,6,5,4, 3,2,1,0)));
+	_mm_storeu_si128(M128_CAST(cv_r+2),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+2)),
+			_mm_set_epi8(9,8,15,14, 13,12,11,10, 3,2,1,0, 7,6,5,4)));
+
+	_mm_storeu_si128(M128_CAST(cv_r+4),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
+			_mm_set_epi8(12,11,10,9, 8,15,14,13, 6,5,4,3, 2,1,0,7)));
+	_mm_storeu_si128(M128_CAST(cv_r+6),
+		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+6)),
+			_mm_set_epi8(8,15,14,13, 12,11,10,9, 2,1,0,7, 6,5,4,3)));
+#else
 	cv_r[1] = ROTL64(cv_r[1], g_gamma512[1]);
 	cv_r[2] = ROTL64(cv_r[2], g_gamma512[2]);
 	cv_r[3] = ROTL64(cv_r[3], g_gamma512[3]);
@@ -537,6 +555,7 @@ inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 	cv_r[5] = ROTL64(cv_r[5], g_gamma512[5]);
 	cv_r[6] = ROTL64(cv_r[6], g_gamma512[6]);
 	cv_r[7] = ROTL64(cv_r[7], g_gamma512[7]);
+#endif
 }
 
 inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])

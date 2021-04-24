@@ -382,7 +382,20 @@ inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 CRYPTOPP_TARGET_DEFAULT
 inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 {
-#if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(_MSC_VER)
+	// The first MacBooks were Core2's with SSE4.1
+#if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(__APPLE__)
+	if (true)
+	{
+		// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
+		_mm_storeu_si128(M128_CAST(cv_r+0),
+			_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)),
+				_mm_set_epi8(12,15,14,13, 9,8,11,10, 6,5,4,7, 3,2,1,0)));
+		_mm_storeu_si128(M128_CAST(cv_r+4),
+			_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
+				_mm_set_epi8(15,14,13,12, 10,9,8,11, 5,4,7,6, 0,3,2,1)));
+	}
+	else
+#elif defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(_MSC_VER)
 	if (HasSSSE3())
 	{
 		// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
