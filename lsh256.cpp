@@ -31,7 +31,7 @@
 
 // Use GCC_VERSION to avoid Clang, ICC and other impostors
 #if defined(CRYPTOPP_GCC_VERSION)
-# define CRYPTOPP_WORKAROUND_AVX2_BUG 1
+// # define CRYPTOPP_WORKAROUND_AVX2_BUG 1
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN

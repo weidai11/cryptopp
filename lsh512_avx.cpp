@@ -159,7 +159,7 @@ struct LSH512_AVX2_Internal
 struct AVX_Cleanup
 {
 	AVX_Cleanup() {
-		_mm256_zeroupper();
+		// _mm256_zeroupper();
 	}
 	~AVX_Cleanup() {
 		_mm256_zeroupper();
