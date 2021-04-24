@@ -948,10 +948,10 @@ void LSH512_Base_Restart_SSE2(word64* state)
 }
 
 extern
-void LSH512_Base_Update_SSE2(word64* state, const byte *input, size_t length)
+void LSH512_Base_Update_SSE2(word64* state, const byte *input, size_t size)
 {
 	LSH512_SSE2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
-	lsh_err err = lsh512_update_sse2(&ctx, input, 8*length);
+	lsh_err err = lsh512_update_sse2(&ctx, input, 8*size);
 
 	if (err != LSH_SUCCESS)
 		throw Exception(Exception::OTHER_ERROR, "LSH512_Base: lsh512_update_sse2 failed");

@@ -17,7 +17,7 @@
 // will work with Clang 13.0 and above due to Issue 50025. Also see
 // https://bugs.llvm.org/show_bug.cgi?id=50025.
 
-// We are hitting some sort of GCC bug in the LSH256 AVX2 code path.
+// We are hitting some sort of GCC bug in the LSH AVX2 code path.
 // Clang is OK on the AVX2 code path. When we enable AVX2 for
 // Update() GCC arrives at incorrect results. We have to use SSE2
 // Update(). See CRYPTOPP_WORKAROUND_AVX2_BUG below.
@@ -709,12 +709,12 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
 	extern void LSH256_Base_Restart_AVX2(word32* state);
-	extern void LSH256_Base_Update_AVX2(word32* state, const byte *input, size_t length);
+	extern void LSH256_Base_Update_AVX2(word32* state, const byte *input, size_t size);
 	extern void LSH256_Base_TruncatedFinal_AVX2(word32* state, byte *hash, size_t size);
 #endif
 #if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 	extern void LSH256_Base_Restart_SSE2(word32* state);
-	extern void LSH256_Base_Update_SSE2(word32* state, const byte *input, size_t length);
+	extern void LSH256_Base_Update_SSE2(word32* state, const byte *input, size_t size);
 	extern void LSH256_Base_TruncatedFinal_SSE2(word32* state, byte *hash, size_t size);
 #endif
 
@@ -727,10 +727,10 @@ void LSH256_Base_Restart_CXX(word32* state)
 		throw Exception(Exception::OTHER_ERROR, "LSH256_Base: lsh256_init failed");
 }
 
-void LSH256_Base_Update_CXX(word32* state, const byte *input, size_t length)
+void LSH256_Base_Update_CXX(word32* state, const byte *input, size_t size)
 {
 	LSH256_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
-	lsh_err err = lsh256_update(&ctx, input, 8*length);
+	lsh_err err = lsh256_update(&ctx, input, 8*size);
 
 	if (err != LSH_SUCCESS)
 		throw Exception(Exception::OTHER_ERROR, "LSH256_Base: lsh256_update failed");

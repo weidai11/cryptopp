@@ -17,12 +17,23 @@
 // will work with Clang 13.0 and above due to Issue 50025. Also see
 // https://bugs.llvm.org/show_bug.cgi?id=50025.
 
+// We are hitting some sort of GCC bug in the LSH AVX2 code path.
+// Clang is OK on the AVX2 code path. When we enable AVX2 for
+// Update() GCC arrives at incorrect results. We have to use SSE2
+// Update(). See CRYPTOPP_WORKAROUND_AVX2_BUG below.
+
+
 #include "pch.h"
 #include "config.h"
 
 #include "lsh.h"
 #include "cpu.h"
 #include "misc.h"
+
+// Use GCC_VERSION to avoid Clang, ICC and other imposters
+#if defined(CRYPTOPP_GCC_VERSION)
+# define CRYPTOPP_WORKAROUND_AVX2_BUG 1
+#endif
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -772,12 +783,12 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
 	extern void LSH512_Base_Restart_AVX2(word64* state);
-	extern void LSH512_Base_Update_AVX2(word64* state, const byte *input, size_t length);
+	extern void LSH512_Base_Update_AVX2(word64* state, const byte *input, size_t size);
 	extern void LSH512_Base_TruncatedFinal_AVX2(word64* state, byte *hash, size_t size);
 #endif
 #if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 	extern void LSH512_Base_Restart_SSE2(word64* state);
-	extern void LSH512_Base_Update_SSE2(word64* state, const byte *input, size_t length);
+	extern void LSH512_Base_Update_SSE2(word64* state, const byte *input, size_t size);
 	extern void LSH512_Base_TruncatedFinal_SSE2(word64* state, byte *hash, size_t size);
 #endif
 
@@ -813,10 +824,10 @@ void LSH512_Base_Restart_CXX(word64* state)
 		throw Exception(Exception::OTHER_ERROR, "LSH512_Base: lsh512_init failed");
 }
 
-void LSH512_Base_Update_CXX(word64* state, const byte *input, size_t length)
+void LSH512_Base_Update_CXX(word64* state, const byte *input, size_t size)
 {
 	LSH512_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
-	lsh_err err = lsh512_update(&ctx, input, 8*length);
+	lsh_err err = lsh512_update(&ctx, input, 8*size);
 
 	if (err != LSH_SUCCESS)
 		throw Exception(Exception::OTHER_ERROR, "LSH512_Base: lsh512_update failed");
@@ -878,7 +889,7 @@ void LSH512_Base::TruncatedFinal(byte *hash, size_t size)
 	byte fullHash[HASH_VAL_MAX_WORD_LEN * sizeof(lsh_u64)];
 	bool copyOut = (size < DigestSize());
 
-#if defined(CRYPTOPP_AVX2_AVAILABLE)
+#if defined(CRYPTOPP_AVX2_AVAILABLE) && !defined(CRYPTOPP_WORKAROUND_AVX2_BUG)
 	if (HasAVX2())
 		LSH512_Base_TruncatedFinal_AVX2(m_state, copyOut ? fullHash : hash, size);
 	else

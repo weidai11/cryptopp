@@ -34,7 +34,7 @@ public:
 	unsigned int OptimalDataAlignment() const { return GetAlignmentOf<word32>(); }
 
 	void Restart();
-	void Update(const byte *input, size_t length);
+	void Update(const byte *input, size_t size);
 	void TruncatedFinal(byte *hash, size_t size);
 
 	std::string AlgorithmProvider() const;
@@ -134,7 +134,7 @@ public:
 	unsigned int OptimalDataAlignment() const { return GetAlignmentOf<word64>(); }
 
 	void Restart();
-	void Update(const byte *input, size_t length);
+	void Update(const byte *input, size_t size);
 	void TruncatedFinal(byte *hash, size_t size);
 
 	std::string AlgorithmProvider() const;

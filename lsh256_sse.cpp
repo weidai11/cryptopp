@@ -726,10 +726,10 @@ void LSH256_Base_Restart_SSE2(word32* state)
 }
 
 extern
-void LSH256_Base_Update_SSE2(word32* state, const byte *input, size_t length)
+void LSH256_Base_Update_SSE2(word32* state, const byte *input, size_t size)
 {
 	LSH256_SSE2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
-	lsh_err err = lsh256_sse2_update(&ctx, input, 8*length);
+	lsh_err err = lsh256_sse2_update(&ctx, input, 8*size);
 
 	if (err != LSH_SUCCESS)
 		throw Exception(Exception::OTHER_ERROR, "LSH256_Base: lsh256_sse2_update failed");
