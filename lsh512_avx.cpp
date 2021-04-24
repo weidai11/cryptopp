@@ -40,10 +40,6 @@
 # include <immintrin.h>
 #endif
 
-#if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
-# include <x86intrin.h>
-#endif
-
 #if defined(__GNUC__) && defined(__amd64__)
 # include <x86intrin.h>
 #endif
