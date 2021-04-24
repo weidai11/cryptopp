@@ -716,6 +716,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 void LSH256_Base_Restart_CXX(word32* state)
 {
+	state[RemainingBits] = 0;
 	LSH256_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh256_init(&ctx);
 

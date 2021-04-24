@@ -815,7 +815,6 @@ std::string LSH512_Base::AlgorithmProvider() const
 void LSH512_Base_Restart_CXX(word64* state)
 {
 	state[RemainingBits] = 0;
-
 	LSH512_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh512_init(&ctx);
 

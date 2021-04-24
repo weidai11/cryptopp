@@ -727,6 +727,7 @@ NAMESPACE_BEGIN(CryptoPP)
 extern
 void LSH256_Base_Restart_SSE2(word32* state)
 {
+	state[RemainingBits] = 0;
 	LSH256_SSE2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh256_sse2_init(&ctx);
 

@@ -941,7 +941,6 @@ extern
 void LSH512_Base_Restart_SSE2(word64* state)
 {
 	state[RemainingBits] = 0;
-
 	LSH512_SSE2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh512_init_sse2(&ctx);
 
