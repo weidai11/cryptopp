@@ -30,7 +30,7 @@
 #include "cpu.h"
 #include "misc.h"
 
-// Use GCC_VERSION to avoid Clang, ICC and other imposters
+// Use GCC_VERSION to avoid Clang, ICC and other impostors
 #if defined(CRYPTOPP_GCC_VERSION)
 # define CRYPTOPP_WORKAROUND_AVX2_BUG 1
 #endif
@@ -889,7 +889,7 @@ void LSH512_Base::TruncatedFinal(byte *hash, size_t size)
 	byte fullHash[HASH_VAL_MAX_WORD_LEN * sizeof(lsh_u64)];
 	bool copyOut = (size < DigestSize());
 
-#if defined(CRYPTOPP_AVX2_AVAILABLE) && !defined(CRYPTOPP_WORKAROUND_AVX2_BUG)
+#if defined(CRYPTOPP_AVX2_AVAILABLE)
 	if (HasAVX2())
 		LSH512_Base_TruncatedFinal_AVX2(m_state, copyOut ? fullHash : hash, size);
 	else

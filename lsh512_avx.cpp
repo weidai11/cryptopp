@@ -18,7 +18,7 @@
 
 // We are hitting some sort of GCC bug in the LSH256 AVX2 code path.
 // Clang is OK on the AVX2 code path. When we enable AVX2 for
-// rotate_msg_gamma, msg_exp_even and msg_exp_odd, then GCC arrives
+// rotate_msg_gamma_avx2, msg_exp_even and msg_exp_odd, then GCC arrives
 // at the wrong result. Making any one of the functions SSE2 clears
 // the problem. See CRYPTOPP_WORKAROUND_AVX2_BUG below.
 
@@ -360,7 +360,7 @@ inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64 const_v[8])
 		_mm256_loadu_si256(CONST_M256_CAST(const_v+4))));
 }
 
-inline void rotate_msg_gamma(lsh_u64 cv_r[8])
+inline void rotate_msg_gamma_avx2(lsh_u64 cv_r[8])
 {
 	// g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
 	_mm256_storeu_si256(M256_CAST(cv_r+0),
@@ -414,7 +414,7 @@ inline void mix(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 const_v[8])
 	add_blk(cv_r, cv_l);
 	rotate_blk<Beta>(cv_r);
 	add_blk(cv_l, cv_r);
-	rotate_msg_gamma(cv_r);
+	rotate_msg_gamma_avx2(cv_r);
 }
 
 /* -------------------------------------------------------- *

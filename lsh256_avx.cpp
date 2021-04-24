@@ -308,7 +308,7 @@ inline void xor_with_const(lsh_u32 cv_l[8], const lsh_u32 const_v[8])
 		_mm256_loadu_si256(CONST_M256_CAST(const_v))));
 }
 
-inline void rotate_msg_gamma(lsh_u32 cv_r[8])
+inline void rotate_msg_gamma_avx2(lsh_u32 cv_r[8])
 {
 #if defined(WORKAROUND_GCC_AVX2_BUG)
 	// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
@@ -356,7 +356,7 @@ inline void mix(lsh_u32 cv_l[8], lsh_u32 cv_r[8], const lsh_u32 const_v[8])
 	add_blk(cv_r, cv_l);
 	rotate_blk<Beta>(cv_r);
 	add_blk(cv_l, cv_r);
-	rotate_msg_gamma(cv_r);
+	rotate_msg_gamma_avx2(cv_r);
 }
 
 /* -------------------------------------------------------- *

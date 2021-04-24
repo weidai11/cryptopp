@@ -313,6 +313,10 @@ x64dll.obj: x64dll.asm
 !IF "$(PLATFORM)" == "x64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "amd64" || "$(PLATFORM)" == "x86" || "$(PLATFORM)" == "X86"
 chacha_avx.obj:
 	$(CXX) $(CXXFLAGS) /arch:AVX /c chacha_avx.cpp
+lsh256_avx.obj:
+	$(CXX) $(CXXFLAGS) /arch:AVX /c lsh256_avx.cpp
+lsh512_avx.obj:
+	$(CXX) $(CXXFLAGS) /arch:AVX /c lsh512_avx.cpp
 !endif
 
 # For testing cryptopp.dll and CRYPTOPP_IMPORTS

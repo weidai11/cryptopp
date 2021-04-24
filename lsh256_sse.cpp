@@ -360,7 +360,7 @@ inline void xor_with_const(lsh_u32* cv_l, const lsh_u32* const_v)
 
 #if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
 CRYPTOPP_TARGET_SSSE3
-inline void rotate_msg_gamma(lsh_u32 cv_r[8])
+inline void rotate_msg_gamma_sse2(lsh_u32 cv_r[8])
 {
 	// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
 	_mm_storeu_si128(M128_CAST(cv_r+0),
@@ -373,7 +373,7 @@ inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 #endif
 
 CRYPTOPP_TARGET_DEFAULT
-inline void rotate_msg_gamma(lsh_u32 cv_r[8])
+inline void rotate_msg_gamma_sse2(lsh_u32 cv_r[8])
 {
 #if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(_MSC_VER)
 	if (HasSSSE3())
@@ -432,7 +432,7 @@ inline void mix(lsh_u32 cv_l[8], lsh_u32 cv_r[8], const lsh_u32 const_v[8])
 	add_blk(cv_r, cv_l);
 	rotate_blk<Beta>(cv_r);
 	add_blk(cv_l, cv_r);
-	rotate_msg_gamma(cv_r);
+	rotate_msg_gamma_sse2(cv_r);
 }
 
 /* -------------------------------------------------------- *
