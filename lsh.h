@@ -6,9 +6,8 @@
 
 // We are hitting some sort of GCC bug in the LSH AVX2 code path.
 // Clang is OK on the AVX2 code path. We believe it is GCC Issue
-// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. We
-// have to use SSE2 until GCC provides a workaround or fix. Also
-// see CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG below.
+// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. It
+// makes using zeroupper a little tricky.
 
 /// \file lsh.h
 /// \brief Classes for the LSH hash functions
@@ -21,11 +20,10 @@
 #include "cryptlib.h"
 #include "secblock.h"
 
-// Use GCC_VERSION to avoid Clang, ICC and other impostors
-// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
-// TODO: find an upper bound on buggy GCC versions.
-#if defined(CRYPTOPP_GCC_VERSION)
-# define CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG 1
+// Enable SSE2 and AVX2 for 64-bit machines.
+// 32-bit machines slow down with SSE2.
+#if (CRYPTOPP_BOOL_X32) || (CRYPTOPP_BOOL_X64)
+# define CRYPTOPP_ENABLE_64BIT_SSE 1
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

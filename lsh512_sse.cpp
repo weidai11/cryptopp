@@ -20,17 +20,16 @@
 
 // We are hitting some sort of GCC bug in the LSH AVX2 code path.
 // Clang is OK on the AVX2 code path. We believe it is GCC Issue
-// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. We
-// have to use SSE2 until GCC provides a workaround or fix. Also
-// see CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG below.
+// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. It
+// makes using zeroupper a little tricky.
 
 #include "pch.h"
 #include "config.h"
 
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-
 #include "lsh.h"
 #include "misc.h"
+
+#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 
 #if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include <emmintrin.h>
@@ -970,4 +969,4 @@ void LSH512_Base_TruncatedFinal_SSE2(word64* state, byte *hash, size_t size)
 
 NAMESPACE_END
 
-#endif   // CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE

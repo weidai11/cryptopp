@@ -20,17 +20,16 @@
 
 // We are hitting some sort of GCC bug in the LSH AVX2 code path.
 // Clang is OK on the AVX2 code path. We believe it is GCC Issue
-// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. We
-// have to use SSE2 until GCC provides a workaround or fix. Also
-// see CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG below.
+// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. It
+// makes using zeroupper a little tricky.
 
 #include "pch.h"
 #include "config.h"
 
-#if defined(CRYPTOPP_AVX2_AVAILABLE)
-
 #include "lsh.h"
 #include "misc.h"
+
+#if defined(CRYPTOPP_AVX2_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 
 #if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include <emmintrin.h>
@@ -148,28 +147,14 @@ struct LSH256_AVX2_Internal
 
 // Zero the upper 128 bits of all YMM registers on exit.
 // It avoids AVX state transition penalties when saving state.
-// There are two flavors due to GCC bug 82735. AVX_Cleanup
-// is fine grained, and can be used near a group of small
-// inline functions to keep the cleanup close to the AVX code,
-// like mix_avx2() and rotate_avx2(). AVX_BuggyCleanup is
-// coarse grained and is used at the end of a large function
-// block, like Update() or Final().
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735
+// makes using zeroupper a little tricky.
+
 struct AVX_Cleanup
 {
-#ifndef CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG
 	~AVX_Cleanup() {
 		_mm256_zeroupper();
 	}
-#endif
-};
-
-struct AVX_BuggyCleanup
-{
-#ifdef CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG
-	~AVX_BuggyCleanup() {
-		_mm256_zeroupper();
-	}
-#endif
 };
 
 // const word32 g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
@@ -389,8 +374,6 @@ inline void compress(LSH256_AVX2_Context* ctx, const lsh_u8 pdMsgBlk[LSH256_MSG_
 	lsh_u32* cv_l = ctx->cv_l;
 	lsh_u32* cv_r = ctx->cv_r;
 
-	AVX_Cleanup cleanup;
-
 	load_msg_blk(i_state, pdMsgBlk);
 
 	msg_add_even(cv_l, cv_r, i_state);
@@ -453,8 +436,6 @@ inline void init224(LSH256_AVX2_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
-	AVX_Cleanup cleanup;
-
 	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, LSH256_IV224);
 }
@@ -462,8 +443,6 @@ inline void init224(LSH256_AVX2_Context* ctx)
 inline void init256(LSH256_AVX2_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
-
-	AVX_Cleanup cleanup;
 
 	zero_submsgs(ctx);
 	load_iv(ctx->cv_l, ctx->cv_r, LSH256_IV256);
@@ -474,8 +453,6 @@ inline void init256(LSH256_AVX2_Context* ctx)
 inline void fin(LSH256_AVX2_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
-
-	AVX_Cleanup cleanup;
 
 	_mm256_storeu_si256(M256_CAST(ctx->cv_l+0), _mm256_xor_si256(
 		_mm256_loadu_si256(CONST_M256_CAST(ctx->cv_l+0)),
@@ -526,8 +503,6 @@ lsh_err lsh256_init_avx2(LSH256_AVX2_Context* ctx)
 
 	lsh_u32* cv_l = ctx->cv_l;
 	lsh_u32* cv_r = ctx->cv_r;
-
-	AVX_Cleanup cleanup;
 
 	zero_iv(cv_l, cv_r);
 	cv_l[0] = LSH256_HASH_VAL_MAX_BYTE_LEN;
@@ -656,7 +631,7 @@ extern
 void LSH256_Base_Restart_AVX2(word32* state)
 {
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
-	AVX_BuggyCleanup cleanup;
+	AVX_Cleanup cleanup;
 
 	state[RemainingBits] = 0;
 	LSH256_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
@@ -670,7 +645,7 @@ extern
 void LSH256_Base_Update_AVX2(word32* state, const byte *input, size_t size)
 {
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
-	AVX_BuggyCleanup cleanup;
+	AVX_Cleanup cleanup;
 
 	LSH256_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh256_update_avx2(&ctx, input, 8*size);
@@ -683,7 +658,7 @@ extern
 void LSH256_Base_TruncatedFinal_AVX2(word32* state, byte *hash, size_t size)
 {
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
-	AVX_BuggyCleanup cleanup;
+	AVX_Cleanup cleanup;
 
 	LSH256_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh256_final_avx2(&ctx, hash);

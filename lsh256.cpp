@@ -20,9 +20,8 @@
 
 // We are hitting some sort of GCC bug in the LSH AVX2 code path.
 // Clang is OK on the AVX2 code path. We believe it is GCC Issue
-// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. We
-// have to use SSE2 until GCC provides a workaround or fix. Also
-// see CRYPTOPP_WORKAROUND_GCC_AVX_ZEROUPPER_BUG below.
+// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. It
+// makes using zeroupper a little tricky.
 
 #include "pch.h"
 #include "config.h"
@@ -703,15 +702,17 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_AVX2_AVAILABLE)
+#if defined(CRYPTOPP_ENABLE_64BIT_SSE)
+# if defined(CRYPTOPP_AVX2_AVAILABLE)
 	extern void LSH256_Base_Restart_AVX2(word32* state);
 	extern void LSH256_Base_Update_AVX2(word32* state, const byte *input, size_t size);
 	extern void LSH256_Base_TruncatedFinal_AVX2(word32* state, byte *hash, size_t size);
-#endif
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+# endif
+# if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 	extern void LSH256_Base_Restart_SSE2(word32* state);
 	extern void LSH256_Base_Update_SSE2(word32* state, const byte *input, size_t size);
 	extern void LSH256_Base_TruncatedFinal_SSE2(word32* state, byte *hash, size_t size);
+# endif
 #endif
 
 void LSH256_Base_Restart_CXX(word32* state)
@@ -744,6 +745,7 @@ void LSH256_Base_TruncatedFinal_CXX(word32* state, byte *hash, size_t size)
 
 std::string LSH256_Base::AlgorithmProvider() const
 {
+#if defined(CRYPTOPP_ENABLE_64BIT_SSE)
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
 	if (HasAVX2())
 		return "AVX2";
@@ -761,18 +763,19 @@ std::string LSH256_Base::AlgorithmProvider() const
 		return "SSE2";
 	else
 #endif
+#endif  // CRYPTOPP_ENABLE_64BIT_SSE
 
 	return "C++";
 }
 
 void LSH256_Base::Restart()
 {
-#if defined(CRYPTOPP_AVX2_AVAILABLE)
+#if defined(CRYPTOPP_AVX2_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 	if (HasAVX2())
 		LSH256_Base_Restart_AVX2(m_state);
 	else
 #endif
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 	if (HasSSE2())
 		LSH256_Base_Restart_SSE2(m_state);
 	else
@@ -786,12 +789,12 @@ void LSH256_Base::Update(const byte *input, size_t size)
 	CRYPTOPP_ASSERT(input != NULLPTR);
 	CRYPTOPP_ASSERT(size);
 
-#if defined(CRYPTOPP_AVX2_AVAILABLE)
+#if defined(CRYPTOPP_AVX2_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 	if (HasAVX2())
 		LSH256_Base_Update_AVX2(m_state, input, size);
 	else
 #endif
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 	if (HasSSE2())
 		LSH256_Base_Update_SSE2(m_state, input, size);
 	else
@@ -811,12 +814,12 @@ void LSH256_Base::TruncatedFinal(byte *hash, size_t size)
 	byte fullHash[LSH256_HASH_VAL_MAX_BYTE_LEN];
 	bool copyOut = (size < DigestSize());
 
-#if defined(CRYPTOPP_AVX2_AVAILABLE)
+#if defined(CRYPTOPP_AVX2_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 	if (HasAVX2())
 		LSH256_Base_TruncatedFinal_AVX2(m_state, copyOut ? fullHash : hash, size);
 	else
 #endif
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 	if (HasSSE2())
 		LSH256_Base_TruncatedFinal_SSE2(m_state, copyOut ? fullHash : hash, size);
 	else
