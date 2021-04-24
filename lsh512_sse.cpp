@@ -36,8 +36,10 @@
 # include <emmintrin.h>
 #endif
 
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
-# include <tmmintrin.h>
+#if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
+# if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#  include <tmmintrin.h>
+# endif
 #endif
 
 #if defined(CRYPTOPP_XOP_AVAILABLE)
