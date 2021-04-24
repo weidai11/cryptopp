@@ -380,8 +380,7 @@ inline void xor_with_const(lsh_u32 cv_l[8], const lsh_u32 const_v[8])
 	cv_l[7] ^= const_v[7];
 }
 
-CRYPTOPP_TARGET_DEFAULT
-inline void rotate_msg_gamma(lsh_u32 cv_r[8])
+inline void rotate_msg_gamma_cxx(lsh_u32 cv_r[8])
 {
 	cv_r[1] = rotlFixed(cv_r[1], g_gamma256[1]);
 	cv_r[2] = rotlFixed(cv_r[2], g_gamma256[2]);
@@ -427,7 +426,7 @@ inline void mix(lsh_u32 cv_l[8], lsh_u32 cv_r[8], const lsh_u32 const_v[8])
 	add_blk(cv_r, cv_l);
 	rotate_blk<Beta>(cv_r);
 	add_blk(cv_l, cv_r);
-	rotate_msg_gamma(cv_r);
+	rotate_msg_gamma_cxx(cv_r);
 }
 
 /* -------------------------------------------------------- *

@@ -436,7 +436,7 @@ inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64* const_v)
 	cv_l[7] ^= const_v[7];
 }
 
-inline void rotate_msg_gamma(lsh_u64 cv_r[8])
+inline void rotate_msg_gamma_cxx(lsh_u64 cv_r[8])
 {
 	cv_r[1] = ROTL64(cv_r[1], g_gamma512[1]);
 	cv_r[2] = ROTL64(cv_r[2], g_gamma512[2]);
@@ -483,7 +483,7 @@ inline void mix(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 const_v[8])
 	add_blk(cv_r, cv_l);
 	rotate_blk<Beta>(cv_r);
 	add_blk(cv_l, cv_r);
-	rotate_msg_gamma(cv_r);
+	rotate_msg_gamma_cxx(cv_r);
 }
 
 /* -------------------------------------------------------- *
