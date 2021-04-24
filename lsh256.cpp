@@ -18,9 +18,10 @@
 // https://bugs.llvm.org/show_bug.cgi?id=50025.
 
 // We are hitting some sort of GCC bug in the LSH AVX2 code path.
-// Clang is OK on the AVX2 code path. When we enable AVX2 for
-// Update() GCC arrives at incorrect results. We have to use SSE2
-// Update(). See CRYPTOPP_WORKAROUND_AVX2_BUG below.
+// Clang is OK on the AVX2 code path. We believe it is GCC Issue
+// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. We
+// have to use SSE2 until GCC provides a workaround or fix. Also
+// see CRYPTOPP_WORKAROUND_LSH_AVX2_BUG below.
 
 #include "pch.h"
 #include "config.h"
@@ -30,8 +31,10 @@
 #include "misc.h"
 
 // Use GCC_VERSION to avoid Clang, ICC and other impostors
-#if defined(CRYPTOPP_GCC_VERSION)
-// # define CRYPTOPP_WORKAROUND_AVX2_BUG 1
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+#if defined(CRYPTOPP_WORKAROUND_LSH_AVX2_BUG)
+# undef CRYPTOPP_AVX_AVAILABLE
+# undef CRYPTOPP_AVX2_AVAILABLE
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -786,7 +789,7 @@ void LSH256_Base::Update(const byte *input, size_t size)
 	CRYPTOPP_ASSERT(input != NULLPTR);
 	CRYPTOPP_ASSERT(size);
 
-#if defined(CRYPTOPP_AVX2_AVAILABLE) && !defined(CRYPTOPP_WORKAROUND_AVX2_BUG)
+#if defined(CRYPTOPP_AVX2_AVAILABLE)
 	if (HasAVX2())
 		LSH256_Base_Update_AVX2(m_state, input, size);
 	else

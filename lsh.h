@@ -4,6 +4,12 @@
 //         see https://seed.kisa.or.kr/kisa/algorithm/EgovLSHInfo.do
 //         and https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
 
+// We are hitting some sort of GCC bug in the LSH AVX2 code path.
+// Clang is OK on the AVX2 code path. We believe it is GCC Issue
+// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. We
+// have to use SSE2 until GCC provides a workaround or fix. Also
+// see CRYPTOPP_WORKAROUND_LSH_AVX2_BUG below.
+
 /// \file lsh.h
 /// \brief Classes for the LSH hash functions
 /// \since Crypto++ 8.6
@@ -14,6 +20,12 @@
 
 #include "cryptlib.h"
 #include "secblock.h"
+
+// Use GCC_VERSION to avoid Clang, ICC and other impostors
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+#if defined(CRYPTOPP_GCC_VERSION)
+# define CRYPTOPP_WORKAROUND_LSH_AVX2_BUG 1
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
