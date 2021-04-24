@@ -41,7 +41,7 @@ public:
 
 protected:
 	LSH256_Base(unsigned int algType, unsigned int digestSize)
-		: m_algType(algType), m_digestSize(digestSize) {}
+		: m_digestSize(digestSize) { m_state[80] = algType; }
 
 protected:
 	// Working state is:
@@ -52,8 +52,10 @@ protected:
 	//   * submsg_o_l = 8 32-bit words
 	//   * submsg_o_r = 8 32-bit words
 	//   * last_block = 32 32-bit words (128 bytes)
-	FixedSizeSecBlock<word32, 80> m_state;
-	word32 m_algType, m_remainingBitLength;
+	//   * algType
+	//   * remainingBitLength
+	FixedSizeSecBlock<word32, 80+2> m_state;
+	// word32 m_algType, m_remainingBitLength;
 	word32 m_digestSize;
 };
 
@@ -139,7 +141,7 @@ public:
 
 protected:
 	LSH512_Base(unsigned int algType, unsigned int digestSize)
-		: m_algType(algType), m_digestSize(digestSize) {}
+		: m_digestSize(digestSize) { m_state[80] = algType; }
 
 protected:
 	// Working state is:
@@ -150,8 +152,10 @@ protected:
 	//   * submsg_o_l = 8 64-bit words
 	//   * submsg_o_r = 8 64-bit words
 	//   * last_block = 32 64-bit words (256 bytes)
-	FixedSizeSecBlock<word64, 80> m_state;
-	word32 m_algType, m_remainingBitLength;
+	//   * algType
+	//   * remainingBitLength
+	FixedSizeSecBlock<word64, 80+2> m_state;
+	// word32 m_algType, m_remainingBitLength;
 	word32 m_digestSize;
 };
 

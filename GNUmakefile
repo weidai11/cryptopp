@@ -354,6 +354,8 @@ ifeq ($(DETECT_FEATURES),1)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CHACHA_AVX2_FLAG = $(AVX2_FLAG)
+    LSH256_AVX2_FLAG = $(AVX2_FLAG)
+    LSH512_AVX2_FLAG = $(AVX2_FLAG)
     SUN_LDFLAGS += $(AVX2_FLAG)
   else
     AVX2_FLAG =
@@ -1617,6 +1619,22 @@ keccak_simd.o : keccak_simd.cpp
 # SSSE3 available
 lea_simd.o : lea_simd.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(LEA_FLAG) -c) $<
+
+# SSE2 on i686
+lsh256_sse.o : lsh256_sse.cpp
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SSE2_FLAG) -c) $<
+
+# AVX2 available
+lsh256_avx.o : lsh256_avx.cpp
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(LSH256_AVX2_FLAG) -c) $<
+
+# SSE2 on i686
+lsh512_sse.o : lsh512_sse.cpp
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SSE2_FLAG) -c) $<
+
+# AVX2 available
+lsh512_avx.o : lsh512_avx.cpp
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(LSH512_AVX2_FLAG) -c) $<
 
 # NEON available
 neon_simd.o : neon_simd.cpp
