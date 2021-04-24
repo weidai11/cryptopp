@@ -703,7 +703,7 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_AVX2_AVAILABLE) && (CRYPTOPP_BOOL_X64 == 1)
+#if defined(CRYPTOPP_AVX2_AVAILABLE)
 	extern void LSH256_Base_Restart_AVX2(word32* state);
 	extern void LSH256_Base_Update_AVX2(word32* state, const byte *input, size_t size);
 	extern void LSH256_Base_TruncatedFinal_AVX2(word32* state, byte *hash, size_t size);
