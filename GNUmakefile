@@ -122,7 +122,9 @@ else ifeq ($(findstring clean,$(MAKECMDGOALS)),clean)
   DETECT_FEATURES := 0
 else ifeq ($(findstring distclean,$(MAKECMDGOALS)),distclean)
   DETECT_FEATURES := 0
-else ifeq ($(findstring distclean,$(MAKECMDGOALS)),trim)
+else ifeq ($(findstring trim,$(MAKECMDGOALS)),trim)
+  DETECT_FEATURES := 0
+else ifeq ($(findstring zip,$(MAKECMDGOALS)),zip)
   DETECT_FEATURES := 0
 endif
 
