@@ -274,6 +274,8 @@ ifeq ($(DETECT_FEATURES),1)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CHACHA_FLAG = $(SSE2_FLAG)
+    LSH256_FLAG = $(SSE2_FLAG)
+    LSH512_FLAG = $(SSE2_FLAG)
     SUN_LDFLAGS += $(SSE2_FLAG)
   else
     # Make does not have useful debugging facilities. Show the user
@@ -296,6 +298,12 @@ ifeq ($(DETECT_FEATURES),1)
     SUN_LDFLAGS += $(SSSE3_FLAG)
   else
     SSSE3_FLAG =
+  endif
+
+  # The first Apple MacBooks were Core2's with SSE4.1
+  ifneq ($(IS_DARWIN),0)
+    LSH256_FLAG = $(SSSE3_FLAG)
+    LSH512_FLAG = $(SSSE3_FLAG)
   endif
 
   TPROG = TestPrograms/test_x86_sse41.cpp
@@ -1624,7 +1632,7 @@ lea_simd.o : lea_simd.cpp
 
 # SSE2 on i686
 lsh256_sse.o : lsh256_sse.cpp
-	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SSE2_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(LSH256_FLAG) -c) $<
 
 # AVX2 available
 lsh256_avx.o : lsh256_avx.cpp
@@ -1632,7 +1640,7 @@ lsh256_avx.o : lsh256_avx.cpp
 
 # SSE2 on i686
 lsh512_sse.o : lsh512_sse.cpp
-	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SSE2_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(LSH512_FLAG) -c) $<
 
 # AVX2 available
 lsh512_avx.o : lsh512_avx.cpp
