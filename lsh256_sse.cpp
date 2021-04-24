@@ -280,8 +280,6 @@ inline void load_sc(const lsh_u32** p_const_v, size_t i)
 
 inline void msg_add_even(lsh_u32 cv_l[8], lsh_u32 cv_r[8], LSH256_SSE2_Internal* i_state)
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 	lsh_u32* submsg_e_l = i_state->submsg_e_l;
@@ -322,11 +320,8 @@ inline void msg_add_odd(lsh_u32 cv_l[8], lsh_u32 cv_r[8], LSH256_SSE2_Internal* 
 		_mm_loadu_si128(CONST_M128_CAST(submsg_o_r+4))));
 }
 
-inline void add_blk(lsh_u32* cv_l, const lsh_u32* cv_r)
+inline void add_blk(lsh_u32 cv_l[8], const lsh_u32 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 	_mm_storeu_si128(M128_CAST(cv_l), _mm_add_epi32(
 		_mm_loadu_si128(CONST_M128_CAST(cv_l)),
 		_mm_loadu_si128(CONST_M128_CAST(cv_r))));
@@ -429,12 +424,8 @@ inline void word_perm(lsh_u32 cv_l[8], lsh_u32 cv_r[8])
 * -------------------------------------------------------- */
 
 template <unsigned int Alpha, unsigned int Beta>
-inline void mix(lsh_u32* cv_l, lsh_u32* cv_r, const lsh_u32* const_v)
+inline void mix(lsh_u32 cv_l[8], lsh_u32 cv_r[8], const lsh_u32 const_v[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-	CRYPTOPP_ASSERT(const_v != NULLPTR);
-
 	add_blk(cv_l, cv_r);
 	rotate_blk<Alpha>(cv_l);
 	xor_with_const(cv_l, const_v);

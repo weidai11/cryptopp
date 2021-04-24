@@ -354,10 +354,8 @@ inline void load_sc(const lsh_u64** p_const_v, size_t i)
 	*p_const_v = &LSH512_StepConstants[i];
 }
 
-inline void msg_add_even(lsh_u64* cv_l, lsh_u64* cv_r, LSH512_Internal* i_state)
+inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_state)
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 	lsh_u64* submsg_e_l = i_state->submsg_e_l;
@@ -373,10 +371,8 @@ inline void msg_add_even(lsh_u64* cv_l, lsh_u64* cv_r, LSH512_Internal* i_state)
 	cv_r[6] ^= submsg_e_r[6];  cv_r[7] ^= submsg_e_r[7];
 }
 
-inline void msg_add_odd(lsh_u64* cv_l, lsh_u64* cv_r, LSH512_Internal* i_state)
+inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_Internal* i_state)
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 	lsh_u64* submsg_o_l = i_state->submsg_o_l;
@@ -429,10 +425,8 @@ inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64* const_v)
 	cv_l[7] ^= const_v[7];
 }
 
-inline void rotate_msg_gamma(lsh_u64* cv_r)
+inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 	cv_r[1] = ROTL64(cv_r[1], g_gamma512[1]);
 	cv_r[2] = ROTL64(cv_r[2], g_gamma512[2]);
 	cv_r[3] = ROTL64(cv_r[3], g_gamma512[3]);
@@ -442,11 +436,8 @@ inline void rotate_msg_gamma(lsh_u64* cv_r)
 	cv_r[7] = ROTL64(cv_r[7], g_gamma512[7]);
 }
 
-inline void word_perm(lsh_u64* cv_l, lsh_u64* cv_r)
+inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 	lsh_u64 temp;
 	temp = cv_l[0];
 	cv_l[0] = cv_l[6];
@@ -532,7 +523,7 @@ inline void compress(LSH512_Context* ctx, const lsh_u8 pdMsgBlk[LSH512_MSG_BLK_B
 
 /* -------------------------------------------------------- */
 
-inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
+inline void load_iv(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 iv[16])
 {
 	cv_l[0] = iv[0];
 	cv_l[1] = iv[1];
@@ -552,7 +543,7 @@ inline void load_iv(word64* cv_l, word64* cv_r, const word64* iv)
 	cv_r[7] = iv[15];
 }
 
-inline void zero_iv(lsh_u64* cv_l, lsh_u64* cv_r)
+inline void zero_iv(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 {
 	memset(cv_l, 0, 8*sizeof(lsh_u64));
 	memset(cv_r, 0, 8*sizeof(lsh_u64));

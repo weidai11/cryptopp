@@ -216,10 +216,9 @@ lsh_u32 ROTL(lsh_u32 x, lsh_u32 r) {
 }
 
 // Original code relied upon unaligned lsh_u32 buffer
-inline void load_msg_blk(LSH256_Internal* i_state, const lsh_u8* msgblk)
+inline void load_msg_blk(LSH256_Internal* i_state, const lsh_u8 msgblk[LSH256_MSG_BLK_BYTE_LEN])
 {
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
-	CRYPTOPP_ASSERT(msgblk != NULLPTR);
 
 	lsh_u32* submsg_e_l = i_state->submsg_e_l;
 	lsh_u32* submsg_e_r = i_state->submsg_e_r;
@@ -310,10 +309,8 @@ inline void load_sc(const lsh_u32** p_const_v, size_t i)
 	*p_const_v = &LSH256_StepConstants[i];
 }
 
-inline void msg_add_even(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
+inline void msg_add_even(lsh_u32 cv_l[8], lsh_u32 cv_r[8], LSH256_Internal* i_state)
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 	lsh_u32* submsg_e_l = i_state->submsg_e_l;
@@ -329,10 +326,8 @@ inline void msg_add_even(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
 	cv_r[6] ^= submsg_e_r[6];  cv_r[7] ^= submsg_e_r[7];
 }
 
-inline void msg_add_odd(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
+inline void msg_add_odd(lsh_u32 cv_l[8], lsh_u32 cv_r[8], LSH256_Internal* i_state)
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
 	lsh_u32* submsg_o_l = i_state->submsg_o_l;
@@ -348,11 +343,8 @@ inline void msg_add_odd(lsh_u32* cv_l, lsh_u32* cv_r, LSH256_Internal* i_state)
 	cv_r[6] ^= submsg_o_r[6];  cv_r[7] ^= submsg_o_r[7];
 }
 
-inline void add_blk(lsh_u32* cv_l, const lsh_u32* cv_r)
+inline void add_blk(lsh_u32 cv_l[8], lsh_u32 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 	cv_l[0] += cv_r[0];
 	cv_l[1] += cv_r[1];
 	cv_l[2] += cv_r[2];
@@ -366,8 +358,6 @@ inline void add_blk(lsh_u32* cv_l, const lsh_u32* cv_r)
 template <unsigned int R>
 inline void rotate_blk(lsh_u32 cv[8])
 {
-	CRYPTOPP_ASSERT(cv != NULLPTR);
-
 	cv[0] = rotlConstant<R>(cv[0]);
 	cv[1] = rotlConstant<R>(cv[1]);
 	cv[2] = rotlConstant<R>(cv[2]);
@@ -378,11 +368,8 @@ inline void rotate_blk(lsh_u32 cv[8])
 	cv[7] = rotlConstant<R>(cv[7]);
 }
 
-inline void xor_with_const(lsh_u32* cv_l, const lsh_u32* const_v)
+inline void xor_with_const(lsh_u32 cv_l[8], const lsh_u32 const_v[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(const_v != NULLPTR);
-
 	cv_l[0] ^= const_v[0];
 	cv_l[1] ^= const_v[1];
 	cv_l[2] ^= const_v[2];
@@ -394,10 +381,8 @@ inline void xor_with_const(lsh_u32* cv_l, const lsh_u32* const_v)
 }
 
 CRYPTOPP_TARGET_DEFAULT
-inline void rotate_msg_gamma(lsh_u32* cv_r)
+inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 	cv_r[1] = rotlFixed(cv_r[1], g_gamma256[1]);
 	cv_r[2] = rotlFixed(cv_r[2], g_gamma256[2]);
 	cv_r[3] = rotlFixed(cv_r[3], g_gamma256[3]);
@@ -406,11 +391,8 @@ inline void rotate_msg_gamma(lsh_u32* cv_r)
 	cv_r[6] = rotlFixed(cv_r[6], g_gamma256[6]);
 }
 
-inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
+inline void word_perm(lsh_u32 cv_l[8], lsh_u32 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 	lsh_u32 temp;
 	temp = cv_l[0];
 	cv_l[0] = cv_l[6];
@@ -437,12 +419,8 @@ inline void word_perm(lsh_u32* cv_l, lsh_u32* cv_r)
 * -------------------------------------------------------- */
 
 template <unsigned int Alpha, unsigned int Beta>
-inline void mix(lsh_u32* cv_l, lsh_u32* cv_r, const lsh_u32* const_v)
+inline void mix(lsh_u32 cv_l[8], lsh_u32 cv_r[8], const lsh_u32 const_v[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-	CRYPTOPP_ASSERT(const_v != NULLPTR);
-
 	add_blk(cv_l, cv_r);
 	rotate_blk<Alpha>(cv_l);
 	xor_with_const(cv_l, const_v);
@@ -500,11 +478,8 @@ inline void compress(LSH256_Context* ctx, const lsh_u8 pdMsgBlk[LSH256_MSG_BLK_B
 
 /* -------------------------------------------------------- */
 
-inline void load_iv(word32* cv_l, word32* cv_r, const word32* iv)
+inline void load_iv(lsh_u32 cv_l[8], lsh_u32 cv_r[8], const lsh_u32 iv[16])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 	cv_l[0] = iv[0];
 	cv_l[1] = iv[1];
 	cv_l[2] = iv[2];
@@ -523,11 +498,8 @@ inline void load_iv(word32* cv_l, word32* cv_r, const word32* iv)
 	cv_r[7] = iv[15];
 }
 
-inline void zero_iv(lsh_u32* cv_l, lsh_u32* cv_r)
+inline void zero_iv(lsh_u32 cv_l[8], lsh_u32 cv_r[8])
 {
-	CRYPTOPP_ASSERT(cv_l != NULLPTR);
-	CRYPTOPP_ASSERT(cv_r != NULLPTR);
-
 	memset(cv_l, 0x00, 8*sizeof(lsh_u32));
 	memset(cv_r, 0x00, 8*sizeof(lsh_u32));
 }
