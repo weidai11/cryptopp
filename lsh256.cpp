@@ -748,10 +748,12 @@ std::string LSH256_Base::AlgorithmProvider() const
 		return "AVX2";
 	else
 #endif
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
+# if defined(CRYPTOPP_SSSE3_AVAILABLE)
 	if (HasSSSE3())
 		return "SSSE3";
 	else
+# endif
 #endif
 #if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 	if (HasSSE2())
