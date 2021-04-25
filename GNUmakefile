@@ -1635,7 +1635,7 @@ keccak_simd.o : keccak_simd.cpp
 lea_simd.o : lea_simd.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(LEA_FLAG) -c) $<
 
-# SSE2 on i686
+# SSSE3 available
 lsh256_sse.o : lsh256_sse.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(LSH256_FLAG) -c) $<
 
@@ -1643,7 +1643,7 @@ lsh256_sse.o : lsh256_sse.cpp
 lsh256_avx.o : lsh256_avx.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(LSH256_AVX2_FLAG) -c) $<
 
-# SSE2 on i686
+# SSSE3 available
 lsh512_sse.o : lsh512_sse.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(LSH512_FLAG) -c) $<
 
