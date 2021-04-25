@@ -117,14 +117,14 @@ struct LSH512_AVX2_Context
 		cv_l(state+0), cv_r(state+8), sub_msgs(state+16),
 		last_block(reinterpret_cast<byte*>(state+48)),
 		remain_databitlen(remainingBitLength),
-		algtype(static_cast<lsh_type>(algType)) {}
+		alg_type(static_cast<lsh_type>(algType)) {}
 
 	lsh_u64* cv_l;  // start of our state block
 	lsh_u64* cv_r;
 	lsh_u64* sub_msgs;
 	lsh_u8*  last_block;
 	lsh_u64& remain_databitlen;
-	lsh_type algtype;
+	lsh_type alg_type;
 };
 
 struct LSH512_AVX2_Internal
@@ -550,12 +550,12 @@ inline void fin(LSH512_AVX2_Context* ctx)
 inline void get_hash(LSH512_AVX2_Context* ctx, lsh_u8* pbHashVal)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
-	CRYPTOPP_ASSERT(ctx->algtype != 0);
+	CRYPTOPP_ASSERT(ctx->alg_type != 0);
 	CRYPTOPP_ASSERT(pbHashVal != NULLPTR);
 
-	lsh_uint algtype = ctx->algtype;
-	lsh_uint hash_val_byte_len = LSH_GET_HASHBYTE(algtype);
-	lsh_uint hash_val_bit_len = LSH_GET_SMALL_HASHBIT(algtype);
+	lsh_uint alg_type = ctx->alg_type;
+	lsh_uint hash_val_byte_len = LSH_GET_HASHBYTE(alg_type);
+	lsh_uint hash_val_bit_len = LSH_GET_SMALL_HASHBIT(alg_type);
 
 	// Multiplying by sizeof(lsh_u8) looks odd...
 	memcpy(pbHashVal, ctx->cv_l, hash_val_byte_len);
@@ -569,16 +569,16 @@ inline void get_hash(LSH512_AVX2_Context* ctx, lsh_u8* pbHashVal)
 lsh_err lsh512_init_avx2(LSH512_AVX2_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
-	CRYPTOPP_ASSERT(ctx->algtype != 0);
+	CRYPTOPP_ASSERT(ctx->alg_type != 0);
 
-	lsh_u32 algtype = ctx->algtype;
+	lsh_u32 alg_type = ctx->alg_type;
 	const lsh_u64* const_v = NULL;
 	ctx->remain_databitlen = 0;
 
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
 	AVX_Cleanup cleanup;
 
-	switch (algtype){
+	switch (alg_type){
 	case LSH_TYPE_512_512:
 		init512(ctx);
 		return LSH_SUCCESS;
@@ -600,7 +600,7 @@ lsh_err lsh512_init_avx2(LSH512_AVX2_Context* ctx)
 
 	zero_iv(cv_l, cv_r);
 	cv_l[0] = LSH512_HASH_VAL_MAX_BYTE_LEN;
-	cv_l[1] = LSH_GET_HASHBIT(algtype);
+	cv_l[1] = LSH_GET_HASHBIT(alg_type);
 
 	for (size_t i = 0; i < NUM_STEPS / 2; i++)
 	{
@@ -622,7 +622,7 @@ lsh_err lsh512_update_avx2(LSH512_AVX2_Context* ctx, const lsh_u8* data, size_t 
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(data != NULLPTR);
 	CRYPTOPP_ASSERT(databitlen % 8 == 0);
-	CRYPTOPP_ASSERT(ctx->algtype != 0);
+	CRYPTOPP_ASSERT(ctx->alg_type != 0);
 
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
 	AVX_Cleanup cleanup;

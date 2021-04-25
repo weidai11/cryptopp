@@ -117,14 +117,14 @@ struct LSH256_SSE2_Context
 		cv_l(state+0), cv_r(state+8), sub_msgs(state+16),
 		last_block(reinterpret_cast<byte*>(state+48)),
 		remain_databitlen(remainingBitLength),
-		algtype(static_cast<lsh_type>(algType)) {}
+		alg_type(static_cast<lsh_type>(algType)) {}
 
 	lsh_u32* cv_l;  // start of our state block
 	lsh_u32* cv_r;
 	lsh_u32* sub_msgs;
 	lsh_u8*  last_block;
 	lsh_u32& remain_databitlen;
-	lsh_type algtype;
+	lsh_type alg_type;
 };
 
 struct LSH256_SSE2_Internal
@@ -541,12 +541,12 @@ inline void fin(LSH256_SSE2_Context* ctx)
 inline void get_hash(LSH256_SSE2_Context* ctx, lsh_u8* pbHashVal)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
-	CRYPTOPP_ASSERT(ctx->algtype != 0);
+	CRYPTOPP_ASSERT(ctx->alg_type != 0);
 	CRYPTOPP_ASSERT(pbHashVal != NULLPTR);
 
-	lsh_uint algtype = ctx->algtype;
-	lsh_uint hash_val_byte_len = LSH_GET_HASHBYTE(algtype);
-	lsh_uint hash_val_bit_len = LSH_GET_SMALL_HASHBIT(algtype);
+	lsh_uint alg_type = ctx->alg_type;
+	lsh_uint hash_val_byte_len = LSH_GET_HASHBYTE(alg_type);
+	lsh_uint hash_val_bit_len = LSH_GET_SMALL_HASHBIT(alg_type);
 
 	// Multiplying by sizeof(lsh_u8) looks odd...
 	memcpy(pbHashVal, ctx->cv_l, hash_val_byte_len);
@@ -560,13 +560,13 @@ inline void get_hash(LSH256_SSE2_Context* ctx, lsh_u8* pbHashVal)
 lsh_err lsh256_sse2_init(LSH256_SSE2_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
-	CRYPTOPP_ASSERT(ctx->algtype != 0);
+	CRYPTOPP_ASSERT(ctx->alg_type != 0);
 
-	lsh_u32 algtype = ctx->algtype;
+	lsh_u32 alg_type = ctx->alg_type;
 	const lsh_u32* const_v = NULL;
 	ctx->remain_databitlen = 0;
 
-	switch (algtype)
+	switch (alg_type)
 	{
 	case LSH_TYPE_256_256:
 		init256(ctx);
@@ -583,7 +583,7 @@ lsh_err lsh256_sse2_init(LSH256_SSE2_Context* ctx)
 
 	zero_iv(cv_l, cv_r);
 	cv_l[0] = LSH256_HASH_VAL_MAX_BYTE_LEN;
-	cv_l[1] = LSH_GET_HASHBIT(algtype);
+	cv_l[1] = LSH_GET_HASHBIT(alg_type);
 
 	for (size_t i = 0; i < NUM_STEPS / 2; i++)
 	{
@@ -605,7 +605,7 @@ lsh_err lsh256_sse2_update(LSH256_SSE2_Context* ctx, const lsh_u8* data, size_t 
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(data != NULLPTR);
 	CRYPTOPP_ASSERT(databitlen % 8 == 0);
-	CRYPTOPP_ASSERT(ctx->algtype != 0);
+	CRYPTOPP_ASSERT(ctx->alg_type != 0);
 
 	if (databitlen == 0){
 		return LSH_SUCCESS;
