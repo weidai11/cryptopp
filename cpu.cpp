@@ -1355,7 +1355,8 @@ inline bool CPU_QuerySHA512()
 // Power9 random number generator
 inline bool CPU_QueryDARN()
 {
-	// Power9 and ISA 3.0 provide DARN.
+	// Power9 and ISA 3.0 provide DARN. It looks like
+	// Glibc offers PPC_FEATURE2_DARN.
 #if defined(__linux__) && defined(PPC_FEATURE2_ARCH_3_00)
 	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_3_00) != 0)
 		return true;
