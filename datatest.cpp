@@ -241,15 +241,15 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 		}
 		else if (s1.substr(0, 2) == "0x")
 		{
-			std::string::size_type pos = s1.find(' ');
-			StringSource(s1.substr(2, pos), true, new HexDecoder(new StringSink(s2)));
-			s1 = s1.substr(STDMIN(pos, s1.length()));
+			std::string::size_type n = s1.find(' ');
+			StringSource(s1.substr(2, n), true, new HexDecoder(new StringSink(s2)));
+			s1 = s1.substr(STDMIN(n, s1.length()));
 		}
 		else
 		{
-			std::string::size_type pos = s1.find(' ');
-			StringSource(s1.substr(0, pos), true, new HexDecoder(new StringSink(s2)));
-			s1 = s1.substr(STDMIN(pos, s1.length()));
+			std::string::size_type n = s1.find(' ');
+			StringSource(s1.substr(0, n), true, new HexDecoder(new StringSink(s2)));
+			s1 = s1.substr(STDMIN(n, s1.length()));
 		}
 
 		while (repeat--)
@@ -850,8 +850,8 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 	if (encrypted != ciphertext)
 	{
 		std::cout << "\nincorrectly encrypted: ";
-		StringSource ss(encrypted, false, new HexEncoder(new FileSink(std::cout)));
-		ss.Pump(2048); ss.Flush(false);
+		StringSource sss(encrypted, false, new HexEncoder(new FileSink(std::cout)));
+		sss.Pump(2048); sss.Flush(false);
 		std::cout << "\n";
 		SignalTestFailure();
 	}
@@ -867,8 +867,8 @@ void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overri
 	if (decrypted != plaintext)
 	{
 		std::cout << "\nincorrectly decrypted: ";
-		StringSource ss(decrypted, false, new HexEncoder(new FileSink(std::cout)));
-		ss.Pump(256); ss.Flush(false);
+		StringSource sss(decrypted, false, new HexEncoder(new FileSink(std::cout)));
+		sss.Pump(256); sss.Flush(false);
 		std::cout << "\n";
 		SignalTestFailure();
 	}
