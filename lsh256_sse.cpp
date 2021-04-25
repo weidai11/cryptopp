@@ -13,6 +13,7 @@
 #include "config.h"
 
 #include "lsh.h"
+#include "cpu.h"
 #include "misc.h"
 
 #if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
