@@ -294,22 +294,12 @@ inline void xor_with_const(lsh_u32 cv_l[8], const lsh_u32 const_v[8])
 
 inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 {
-#if defined(WORKAROUND_GCC_AVX2_BUG)
-	// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
-	_mm_storeu_si128(M128_CAST(cv_r+0),
-		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)),
-			_mm_set_epi8(12,15,14,13, 9,8,11,10, 6,5,4,7, 3,2,1,0)));
-	_mm_storeu_si128(M128_CAST(cv_r+4),
-		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
-			_mm_set_epi8(15,14,13,12, 10,9,8,11, 5,4,7,6, 0,3,2,1)));
-#else
 	// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
 	_mm256_storeu_si256(M256_CAST(cv_r+0),
 		_mm256_shuffle_epi8(_mm256_loadu_si256(CONST_M256_CAST(cv_r+0)),
 			_mm256_set_epi8(
 				/* hi lane */ 15,14,13,12, 10,9,8,11, 5,4,7,6, 0,3,2,1,
 				/* lo lane */ 12,15,14,13, 9,8,11,10, 6,5,4,7, 3,2,1,0)));
-#endif
 }
 
 inline void word_perm(lsh_u32 cv_l[8], lsh_u32 cv_r[8])
