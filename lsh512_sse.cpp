@@ -4,20 +4,6 @@
 //           see https://seed.kisa.or.kr/kisa/algorithm/EgovLSHInfo.do
 //           and https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
 
-// The source file below uses GCC's function multiversioning to
-// speed up a rotate when SSE is available. When the rotate is
-// performed with the SSE unit there's a 2.5 to 3.0 cpb profit.
-// When AVX is available multiversioning is not used.
-
-// Function multiversioning does not work with GCC 4.8 through 7.5.
-// We have lots of failed compiles on test machines and Travis.
-// It appears to work as expected around GCC 8 or GCC 9.
-
-// Function multiversioning does not work with Clang. Enabling it for
-// LLVM Clang 7.0 and above resulted in linker errors. We think it
-// will work with Clang 13.0 and above due to Issue 50025. Also see
-// https://bugs.llvm.org/show_bug.cgi?id=50025.
-
 // We are hitting some sort of GCC bug in the LSH AVX2 code path.
 // Clang is OK on the AVX2 code path. We believe it is GCC Issue
 // 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. It
