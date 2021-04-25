@@ -1281,7 +1281,7 @@ inline bool CPU_QueryAES()
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
 		return true;
-#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_VEC_CRYPTO)
+#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_HAS_VEC_CRYPTO)
 	unsigned long cpufeatures;
 	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures))
 		return false;
@@ -1300,7 +1300,7 @@ inline bool CPU_QueryPMULL()
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
 		return true;
-#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_VEC_CRYPTO)
+#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_HAS_VEC_CRYPTO)
 	unsigned long cpufeatures;
 	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures))
 		return false;
@@ -1319,7 +1319,7 @@ inline bool CPU_QuerySHA256()
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
 		return true;
-#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_VEC_CRYPTO)
+#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_HAS_VEC_CRYPTO)
 	unsigned long cpufeatures;
 	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures))
 		return false;
@@ -1337,7 +1337,7 @@ inline bool CPU_QuerySHA512()
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
 		return true;
-#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_VEC_CRYPTO)
+#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_HAS_VEC_CRYPTO)
 	unsigned long cpufeatures;
 	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures))
 		return false;
