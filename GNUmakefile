@@ -306,6 +306,12 @@ ifeq ($(DETECT_FEATURES),1)
       SSSE3_FLAG =
     endif
 
+    # The first Apple MacBooks were Core2's with SSE4.1
+    ifneq ($(IS_DARWIN),0)
+      LSH256_FLAG = $(SSSE3_FLAG)
+      LSH512_FLAG = $(SSSE3_FLAG)
+    endif
+
     TPROG = TestPrograms/test_x86_sse41.cpp
     TOPT = $(SSE41_FLAG)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
