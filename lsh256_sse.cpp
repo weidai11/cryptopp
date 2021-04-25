@@ -35,7 +35,7 @@
 # include <emmintrin.h>
 #endif
 
-#if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
+#if defined(_MSC_VER) || defined(__SSSE3__)
 # if defined(CRYPTOPP_SSSE3_AVAILABLE)
 #  include <tmmintrin.h>
 # endif
@@ -43,10 +43,6 @@
 
 #if defined(CRYPTOPP_XOP_AVAILABLE)
 # include <ammintrin.h>
-#endif
-
-#if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
-# include <x86intrin.h>
 #endif
 
 #if defined(__GNUC__) && defined(__amd64__)
@@ -365,25 +361,10 @@ inline void xor_with_const(lsh_u32* cv_l, const lsh_u32* const_v)
 		_mm_loadu_si128(CONST_M128_CAST(const_v+4))));
 }
 
-#if defined(CRYPTOPP_HAVE_ATTRIBUTE_TARGET)
-CRYPTOPP_TARGET_SSSE3
 inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 {
-	// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
-	_mm_storeu_si128(M128_CAST(cv_r+0),
-		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)),
-			_mm_set_epi8(12,15,14,13, 9,8,11,10, 6,5,4,7, 3,2,1,0)));
-	_mm_storeu_si128(M128_CAST(cv_r+4),
-		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+4)),
-			_mm_set_epi8(15,14,13,12, 10,9,8,11, 5,4,7,6, 0,3,2,1)));
-}
-#endif
-
-CRYPTOPP_TARGET_DEFAULT
-inline void rotate_msg_gamma(lsh_u32 cv_r[8])
-{
-	// The first MacBooks were Core2's with SSE4.1
-#if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(__APPLE__)
+	// The first Intel MacBooks were Core2's with SSE4.1
+#if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(__SSSE3__)
 	if (true)
 	{
 		// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
