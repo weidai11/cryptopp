@@ -631,10 +631,11 @@ lsh_err lsh512_update_avx2(LSH512_AVX2_Context* ctx, const lsh_u8* data, size_t 
 		return LSH_SUCCESS;
 	}
 
+	// We are byte oriented. tail bits will always be 0.
 	size_t databytelen = databitlen >> 3;
-	lsh_uint pos2 = databitlen & 0x7;
+	// lsh_uint pos2 = databitlen & 0x7;
+	const size_t pos2 = 0;
 
-	// We are byte oriented. remain_msg_bit will always be 0.
 	size_t remain_msg_byte = static_cast<size_t>(ctx->remain_databitlen >> 3);
 	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
 	const size_t remain_msg_bit = 0;
@@ -696,7 +697,7 @@ lsh_err lsh512_final_avx2(LSH512_AVX2_Context* ctx, lsh_u8* hashval)
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
 	AVX_Cleanup cleanup;
 
-	// We are byte oriented. remain_msg_bit will always be 0.
+	// We are byte oriented. tail bits will always be 0.
 	size_t remain_msg_byte = static_cast<size_t>(ctx->remain_databitlen >> 3);
 	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
 	const size_t remain_msg_bit = 0;
