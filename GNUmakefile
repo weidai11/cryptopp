@@ -541,7 +541,7 @@ ifeq ($(DETECT_FEATURES),1)
     ASIMD_FLAG =
   endif
 
-  ifneq ($(ASIMD_FLAG),)
+  ifeq ($(ASIMD_FLAG),)
     CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
