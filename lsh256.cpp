@@ -696,10 +696,10 @@ NAMESPACE_BEGIN(CryptoPP)
 	extern void LSH256_Base_Update_AVX2(word32* state, const byte *input, size_t size);
 	extern void LSH256_Base_TruncatedFinal_AVX2(word32* state, byte *hash, size_t size);
 # endif
-# if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-	extern void LSH256_Base_Restart_SSE2(word32* state);
-	extern void LSH256_Base_Update_SSE2(word32* state, const byte *input, size_t size);
-	extern void LSH256_Base_TruncatedFinal_SSE2(word32* state, byte *hash, size_t size);
+# if defined(CRYPTOPP_SSSE3_AVAILABLE)
+	extern void LSH256_Base_Restart_SSSE3(word32* state);
+	extern void LSH256_Base_Update_SSSE3(word32* state, const byte *input, size_t size);
+	extern void LSH256_Base_TruncatedFinal_SSSE3(word32* state, byte *hash, size_t size);
 # endif
 #endif
 
@@ -739,9 +739,9 @@ std::string LSH256_Base::AlgorithmProvider() const
 		return "AVX2";
 	else
 #endif
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-	if (HasSSE2())
-		return "SSE2";
+#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+	if (HasSSSE3())
+		return "SSSE3";
 	else
 #endif
 #endif  // CRYPTOPP_ENABLE_64BIT_SSE
@@ -756,9 +756,9 @@ void LSH256_Base::Restart()
 		LSH256_Base_Restart_AVX2(m_state);
 	else
 #endif
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
-	if (HasSSE2())
-		LSH256_Base_Restart_SSE2(m_state);
+#if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
+	if (HasSSSE3())
+		LSH256_Base_Restart_SSSE3(m_state);
 	else
 #endif
 
@@ -775,9 +775,9 @@ void LSH256_Base::Update(const byte *input, size_t size)
 		LSH256_Base_Update_AVX2(m_state, input, size);
 	else
 #endif
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
-	if (HasSSE2())
-		LSH256_Base_Update_SSE2(m_state, input, size);
+#if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
+	if (HasSSSE3())
+		LSH256_Base_Update_SSSE3(m_state, input, size);
 	else
 #endif
 
@@ -800,9 +800,9 @@ void LSH256_Base::TruncatedFinal(byte *hash, size_t size)
 		LSH256_Base_TruncatedFinal_AVX2(m_state, copyOut ? fullHash : hash, size);
 	else
 #endif
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
-	if (HasSSE2())
-		LSH256_Base_TruncatedFinal_SSE2(m_state, copyOut ? fullHash : hash, size);
+#if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
+	if (HasSSSE3())
+		LSH256_Base_TruncatedFinal_SSSE3(m_state, copyOut ? fullHash : hash, size);
 	else
 #endif
 

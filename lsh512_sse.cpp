@@ -15,16 +15,11 @@
 #include "lsh.h"
 #include "misc.h"
 
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
+#if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if defined(CRYPTOPP_SSSE3_AVAILABLE)
 # include <emmintrin.h>
-#endif
-
-#if defined(_MSC_VER) || defined(__SSSE3__)
-# if defined(CRYPTOPP_SSSE3_AVAILABLE)
-#  include <tmmintrin.h>
-# endif
+# include <tmmintrin.h>
 #endif
 
 #if defined(CRYPTOPP_XOP_AVAILABLE)
@@ -117,9 +112,9 @@ typedef word32 lsh_uint;
 typedef word32 lsh_err;
 typedef word32 lsh_type;
 
-struct LSH512_SSE2_Context
+struct LSH512_SSSE3_Context
 {
-	LSH512_SSE2_Context(word64* state, word64 algType, word64& remainingBitLength) :
+	LSH512_SSSE3_Context(word64* state, word64 algType, word64& remainingBitLength) :
 		cv_l(state+0), cv_r(state+8), sub_msgs(state+16),
 		last_block(reinterpret_cast<byte*>(state+48)),
 		remain_databitlen(remainingBitLength),
@@ -133,9 +128,9 @@ struct LSH512_SSE2_Context
 	lsh_type alg_type;
 };
 
-struct LSH512_SSE2_Internal
+struct LSH512_SSSE3_Internal
 {
-	LSH512_SSE2_Internal(word64* state) :
+	LSH512_SSSE3_Internal(word64* state) :
 		submsg_e_l(state+16), submsg_e_r(state+24),
 		submsg_o_l(state+32), submsg_o_r(state+40) { }
 
@@ -174,7 +169,7 @@ lsh_u64 ROTL64(lsh_u64 x, lsh_u32 r) {
 }
 
 // Original code relied upon unaligned lsh_u64 buffer
-inline void load_msg_blk(LSH512_SSE2_Internal* i_state, const lsh_u8 msgblk[LSH512_MSG_BLK_BYTE_LEN])
+inline void load_msg_blk(LSH512_SSSE3_Internal* i_state, const lsh_u8 msgblk[LSH512_MSG_BLK_BYTE_LEN])
 {
 	lsh_u64* submsg_e_l = i_state->submsg_e_l;
 	lsh_u64* submsg_e_r = i_state->submsg_e_r;
@@ -218,7 +213,7 @@ inline void load_msg_blk(LSH512_SSE2_Internal* i_state, const lsh_u8 msgblk[LSH5
 		_mm_loadu_si128(CONST_M128_CAST(msgblk+240)));
 }
 
-inline void msg_exp_even(LSH512_SSE2_Internal* i_state)
+inline void msg_exp_even(LSH512_SSSE3_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
@@ -288,7 +283,7 @@ inline void msg_exp_even(LSH512_SSE2_Internal* i_state)
 		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6))));
 }
 
-inline void msg_exp_odd(LSH512_SSE2_Internal* i_state)
+inline void msg_exp_odd(LSH512_SSSE3_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
@@ -363,7 +358,7 @@ inline void load_sc(const lsh_u64** p_const_v, size_t i)
 	*p_const_v = &LSH512_StepConstants[i];
 }
 
-inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_SSE2_Internal* i_state)
+inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_SSSE3_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
@@ -396,7 +391,7 @@ inline void msg_add_even(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_SSE2_Internal*
 		_mm_loadu_si128(CONST_M128_CAST(submsg_e_r+6))));
 }
 
-inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_SSE2_Internal* i_state)
+inline void msg_add_odd(lsh_u64 cv_l[8], lsh_u64 cv_r[8], LSH512_SSSE3_Internal* i_state)
 {
 	CRYPTOPP_ASSERT(i_state != NULLPTR);
 
@@ -492,8 +487,6 @@ inline void xor_with_const(lsh_u64 cv_l[8], const lsh_u64 const_v[8])
 
 inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 {
-	// The first Intel MacBooks were Core2's with SSE4.1
-#if defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(__SSSE3__)
 	// g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
 	_mm_storeu_si128(M128_CAST(cv_r+0),
 		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+0)),
@@ -508,15 +501,6 @@ inline void rotate_msg_gamma(lsh_u64 cv_r[8])
 	_mm_storeu_si128(M128_CAST(cv_r+6),
 		_mm_shuffle_epi8(_mm_loadu_si128(CONST_M128_CAST(cv_r+6)),
 			_mm_set_epi8(8,15,14,13, 12,11,10,9, 2,1,0,7, 6,5,4,3)));
-#else
-	cv_r[1] = ROTL64(cv_r[1], g_gamma512[1]);
-	cv_r[2] = ROTL64(cv_r[2], g_gamma512[2]);
-	cv_r[3] = ROTL64(cv_r[3], g_gamma512[3]);
-	cv_r[4] = ROTL64(cv_r[4], g_gamma512[4]);
-	cv_r[5] = ROTL64(cv_r[5], g_gamma512[5]);
-	cv_r[6] = ROTL64(cv_r[6], g_gamma512[6]);
-	cv_r[7] = ROTL64(cv_r[7], g_gamma512[7]);
-#endif
 }
 
 inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
@@ -594,12 +578,12 @@ inline void mix(lsh_u64 cv_l[8], lsh_u64 cv_r[8], const lsh_u64 const_v[8])
 * compression function
 * -------------------------------------------------------- */
 
-inline void compress(LSH512_SSE2_Context* ctx, const lsh_u8 pdMsgBlk[LSH512_MSG_BLK_BYTE_LEN])
+inline void compress(LSH512_SSSE3_Context* ctx, const lsh_u8 pdMsgBlk[LSH512_MSG_BLK_BYTE_LEN])
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
-	LSH512_SSE2_Internal  s_state(ctx->cv_l);
-	LSH512_SSE2_Internal* i_state = &s_state;
+	LSH512_SSSE3_Internal  s_state(ctx->cv_l);
+	LSH512_SSSE3_Internal* i_state = &s_state;
 
 	const lsh_u64* const_v = NULL;
 	lsh_u64 *cv_l = ctx->cv_l;
@@ -671,7 +655,7 @@ inline void zero_iv(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 	_mm_storeu_si128(M128_CAST(cv_r+6), _mm_setzero_si128());
 }
 
-inline void zero_submsgs(LSH512_SSE2_Context* ctx)
+inline void zero_submsgs(LSH512_SSSE3_Context* ctx)
 {
 	lsh_u64* sub_msgs = ctx->sub_msgs;
 
@@ -693,7 +677,7 @@ inline void zero_submsgs(LSH512_SSE2_Context* ctx)
 		_mm_setzero_si128());
 }
 
-inline void init224(LSH512_SSE2_Context* ctx)
+inline void init224(LSH512_SSSE3_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
@@ -701,7 +685,7 @@ inline void init224(LSH512_SSE2_Context* ctx)
 	load_iv(ctx->cv_l, ctx->cv_r, LSH512_IV224);
 }
 
-inline void init256(LSH512_SSE2_Context* ctx)
+inline void init256(LSH512_SSSE3_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
@@ -709,7 +693,7 @@ inline void init256(LSH512_SSE2_Context* ctx)
 	load_iv(ctx->cv_l, ctx->cv_r, LSH512_IV256);
 }
 
-inline void init384(LSH512_SSE2_Context* ctx)
+inline void init384(LSH512_SSSE3_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
@@ -717,7 +701,7 @@ inline void init384(LSH512_SSE2_Context* ctx)
 	load_iv(ctx->cv_l, ctx->cv_r, LSH512_IV384);
 }
 
-inline void init512(LSH512_SSE2_Context* ctx)
+inline void init512(LSH512_SSSE3_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
@@ -727,7 +711,7 @@ inline void init512(LSH512_SSE2_Context* ctx)
 
 /* -------------------------------------------------------- */
 
-inline void fin(LSH512_SSE2_Context* ctx)
+inline void fin(LSH512_SSSE3_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
@@ -747,7 +731,7 @@ inline void fin(LSH512_SSE2_Context* ctx)
 
 /* -------------------------------------------------------- */
 
-inline void get_hash(LSH512_SSE2_Context* ctx, lsh_u8* pbHashVal)
+inline void get_hash(LSH512_SSSE3_Context* ctx, lsh_u8* pbHashVal)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(ctx->alg_type != 0);
@@ -766,7 +750,7 @@ inline void get_hash(LSH512_SSE2_Context* ctx, lsh_u8* pbHashVal)
 
 /* -------------------------------------------------------- */
 
-lsh_err lsh512_init_sse2(LSH512_SSE2_Context* ctx)
+lsh_err lsh512_init_ssse3(LSH512_SSSE3_Context* ctx)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(ctx->alg_type != 0);
@@ -814,7 +798,7 @@ lsh_err lsh512_init_sse2(LSH512_SSE2_Context* ctx)
 	return LSH_SUCCESS;
 }
 
-lsh_err lsh512_update_sse2(LSH512_SSE2_Context* ctx, const lsh_u8* data, size_t databitlen)
+lsh_err lsh512_update_ssse3(LSH512_SSSE3_Context* ctx, const lsh_u8* data, size_t databitlen)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(data != NULLPTR);
@@ -883,7 +867,7 @@ lsh_err lsh512_update_sse2(LSH512_SSE2_Context* ctx, const lsh_u8* data, size_t 
 	return LSH_SUCCESS;
 }
 
-lsh_err lsh512_final_sse2(LSH512_SSE2_Context* ctx, lsh_u8* hashval)
+lsh_err lsh512_final_ssse3(LSH512_SSSE3_Context* ctx, lsh_u8* hashval)
 {
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(hashval != NULLPTR);
@@ -918,36 +902,36 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 
 extern
-void LSH512_Base_Restart_SSE2(word64* state)
+void LSH512_Base_Restart_SSSE3(word64* state)
 {
 	state[RemainingBits] = 0;
-	LSH512_SSE2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
-	lsh_err err = lsh512_init_sse2(&ctx);
+	LSH512_SSSE3_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
+	lsh_err err = lsh512_init_ssse3(&ctx);
 
 	if (err != LSH_SUCCESS)
-		throw Exception(Exception::OTHER_ERROR, "LSH512_Base: lsh512_init_sse2 failed");
+		throw Exception(Exception::OTHER_ERROR, "LSH512_Base: lsh512_init_ssse3 failed");
 }
 
 extern
-void LSH512_Base_Update_SSE2(word64* state, const byte *input, size_t size)
+void LSH512_Base_Update_SSSE3(word64* state, const byte *input, size_t size)
 {
-	LSH512_SSE2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
-	lsh_err err = lsh512_update_sse2(&ctx, input, 8*size);
+	LSH512_SSSE3_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
+	lsh_err err = lsh512_update_ssse3(&ctx, input, 8*size);
 
 	if (err != LSH_SUCCESS)
-		throw Exception(Exception::OTHER_ERROR, "LSH512_Base: lsh512_update_sse2 failed");
+		throw Exception(Exception::OTHER_ERROR, "LSH512_Base: lsh512_update_ssse3 failed");
 }
 
 extern
-void LSH512_Base_TruncatedFinal_SSE2(word64* state, byte *hash, size_t)
+void LSH512_Base_TruncatedFinal_SSSE3(word64* state, byte *hash, size_t)
 {
-	LSH512_SSE2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
-	lsh_err err = lsh512_final_sse2(&ctx, hash);
+	LSH512_SSSE3_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
+	lsh_err err = lsh512_final_ssse3(&ctx, hash);
 
 	if (err != LSH_SUCCESS)
-		throw Exception(Exception::OTHER_ERROR, "LSH512_Base: lsh512_final_sse2 failed");
+		throw Exception(Exception::OTHER_ERROR, "LSH512_Base: lsh512_final_ssse3 failed");
 }
 
 NAMESPACE_END
 
-#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#endif  // CRYPTOPP_SSSE3_AVAILABLE

@@ -237,8 +237,6 @@ ifeq ($(DETECT_FEATURES),1)
   HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CHACHA_FLAG = $(SSE2_FLAG)
-    LSH256_FLAG = $(SSE2_FLAG)
-    LSH512_FLAG = $(SSE2_FLAG)
   else
     # Make does not have useful debugging facilities. Show the user
     # what happened by compiling again without the pipe.
@@ -251,6 +249,7 @@ ifeq ($(DETECT_FEATURES),1)
     CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
+  # Need SSE2 or higher for these tests
   ifneq ($(SSE2_FLAG),)
     TPROG = TestPrograms/test_x86_ssse3.cpp
     TOPT = $(SSSE3_FLAG)
@@ -260,17 +259,18 @@ ifeq ($(DETECT_FEATURES),1)
       CHAM_FLAG = $(SSSE3_FLAG)
       KECCAK_FLAG = $(SSSE3_FLAG)
       LEA_FLAG = $(SSSE3_FLAG)
+      LSH256_FLAG = $(SSSE3_FLAG)
+      LSH512_FLAG = $(SSSE3_FLAG)
       SIMON128_FLAG = $(SSSE3_FLAG)
       SPECK128_FLAG = $(SSSE3_FLAG)
-      SUN_LDFLAGS += $(SSSE3_FLAG)
     else
       SSSE3_FLAG =
     endif
 
     # The first Apple MacBooks were Core2's with SSE4.1
     ifneq ($(IS_DARWIN),0)
-      LSH256_FLAG = $(SSSE3_FLAG)
-      LSH512_FLAG = $(SSSE3_FLAG)
+      # Add SSE2 algo's here as required
+      # They get a free upgrade
     endif
 
     TPROG = TestPrograms/test_x86_sse41.cpp
@@ -279,7 +279,6 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       BLAKE2B_FLAG = $(SSE41_FLAG)
       BLAKE2S_FLAG = $(SSE41_FLAG)
-      SUN_LDFLAGS += $(SSE41_FLAG)
     else
       SSE41_FLAG =
     endif
@@ -289,7 +288,6 @@ ifeq ($(DETECT_FEATURES),1)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       CRC_FLAG = $(SSE42_FLAG)
-      SUN_LDFLAGS += $(SSE42_FLAG)
     else
       SSE42_FLAG =
     endif
@@ -300,7 +298,6 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       GCM_FLAG = $(SSSE3_FLAG) $(CLMUL_FLAG)
       GF2N_FLAG = $(CLMUL_FLAG)
-      SUN_LDFLAGS += $(CLMUL_FLAG)
     else
       CLMUL_FLAG =
     endif
@@ -311,7 +308,6 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       AES_FLAG = $(SSE41_FLAG) $(AESNI_FLAG)
       SM4_FLAG = $(SSSE3_FLAG) $(AESNI_FLAG)
-      SUN_LDFLAGS += $(AESNI_FLAG)
     else
       AESNI_FLAG =
     endif
@@ -321,7 +317,6 @@ ifeq ($(DETECT_FEATURES),1)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       # XXX_FLAG = $(AVX_FLAG)
-      SUN_LDFLAGS += $(AVX_FLAG)
     else
       AVX_FLAG =
     endif
@@ -331,7 +326,8 @@ ifeq ($(DETECT_FEATURES),1)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       CHACHA_AVX2_FLAG = $(AVX2_FLAG)
-      SUN_LDFLAGS += $(AVX2_FLAG)
+      LSH256_AVX2_FLAG = $(AVX2_FLAG)
+      LSH512_AVX2_FLAG = $(AVX2_FLAG)
     else
       AVX2_FLAG =
     endif
@@ -341,13 +337,8 @@ ifeq ($(DETECT_FEATURES),1)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG = $(SSE42_FLAG) $(SHANI_FLAG)
-      SUN_LDFLAGS += $(SHANI_FLAG)
     else
       SHANI_FLAG =
-    endif
-
-    ifeq ($(SUN_COMPILER),1)
-      CRYPTOPP_LDFLAGS += $(SUN_LDFLAGS)
     endif
 
     ifeq ($(SSE3_FLAG),)

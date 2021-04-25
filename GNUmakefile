@@ -275,8 +275,6 @@ ifeq ($(DETECT_FEATURES),1)
   HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CHACHA_FLAG = $(SSE2_FLAG)
-    LSH256_FLAG = $(SSE2_FLAG)
-    LSH512_FLAG = $(SSE2_FLAG)
     SUN_LDFLAGS += $(SSE2_FLAG)
   else
     # Make does not have useful debugging facilities. Show the user
@@ -290,7 +288,9 @@ ifeq ($(DETECT_FEATURES),1)
     CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
+  # Need SSE2 or higher for these tests
   ifneq ($(SSE2_FLAG),)
+
     TPROG = TestPrograms/test_x86_ssse3.cpp
     TOPT = $(SSSE3_FLAG)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
@@ -299,6 +299,8 @@ ifeq ($(DETECT_FEATURES),1)
       CHAM_FLAG = $(SSSE3_FLAG)
       KECCAK_FLAG = $(SSSE3_FLAG)
       LEA_FLAG = $(SSSE3_FLAG)
+      LSH256_FLAG = $(SSSE3_FLAG)
+      LSH512_FLAG = $(SSSE3_FLAG)
       SIMON128_FLAG = $(SSSE3_FLAG)
       SPECK128_FLAG = $(SSSE3_FLAG)
       SUN_LDFLAGS += $(SSSE3_FLAG)
@@ -308,8 +310,8 @@ ifeq ($(DETECT_FEATURES),1)
 
     # The first Apple MacBooks were Core2's with SSE4.1
     ifneq ($(IS_DARWIN),0)
-      LSH256_FLAG = $(SSSE3_FLAG)
-      LSH512_FLAG = $(SSSE3_FLAG)
+      # Add SSE2 algo's here as required
+      # They get a free upgrade
     endif
 
     TPROG = TestPrograms/test_x86_sse41.cpp
@@ -370,6 +372,8 @@ ifeq ($(DETECT_FEATURES),1)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       CHACHA_AVX2_FLAG = $(AVX2_FLAG)
+      LSH256_AVX2_FLAG = $(AVX2_FLAG)
+      LSH512_AVX2_FLAG = $(AVX2_FLAG)
       SUN_LDFLAGS += $(AVX2_FLAG)
     else
       AVX2_FLAG =

@@ -17,7 +17,7 @@
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if defined(CRYPTOPP_SSSE3_AVAILABLE)
 # include <emmintrin.h>
 #endif
 
