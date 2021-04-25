@@ -624,7 +624,7 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 	}
 
 	if (remain_msg_byte > 0){
-		lsh_uint more_byte = LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte;
+		size_t more_byte = LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte;
 		memcpy(ctx->last_block + remain_msg_byte, data, more_byte);
 		compress(ctx, ctx->last_block);
 		data += more_byte;
