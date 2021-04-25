@@ -364,7 +364,7 @@ inline void rotate_msg_gamma(lsh_u32 cv_r[8])
 	}
 	else
 #elif defined(CRYPTOPP_SSSE3_AVAILABLE) && defined(_MSC_VER)
-	if (HasSSSE3())
+	if (CryptoPP::HasSSSE3())
 	{
 		// g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
 		_mm_storeu_si128(M128_CAST(cv_r+0),
