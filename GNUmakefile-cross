@@ -205,9 +205,10 @@ ifeq ($(DETECT_FEATURES),1)
   ifneq ($(strip $(TCXXFLAGS)),)
     $(info Using testing flags: $(TCXXFLAGS))
   endif
+  TCOMMAND = $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT)
   #TPROG = TestPrograms/test_cxx.cpp
   #$(info Testing compile... )
-  #$(info $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 1>/dev/null))
+  #$(info $(shell $(TCOMMAND)))
 endif
 
 # For the previous messages
@@ -233,14 +234,14 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sse2.cpp
   TOPT = $(SSE2_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CHACHA_FLAG = $(SSE2_FLAG)
   else
     # Make does not have useful debugging facilities. Show the user
     # what happened by compiling again without the pipe.
     $(info Running make again to see what failed)
-    $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT))
+    $(info $(shell $(TCOMMAND)))
     SSE2_FLAG =
   endif
 
@@ -251,7 +252,7 @@ ifeq ($(DETECT_FEATURES),1)
   ifneq ($(SSE2_FLAG),)
     TPROG = TestPrograms/test_x86_ssse3.cpp
     TOPT = $(SSSE3_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       ARIA_FLAG = $(SSSE3_FLAG)
       CHAM_FLAG = $(SSSE3_FLAG)
@@ -266,7 +267,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_x86_sse41.cpp
     TOPT = $(SSE41_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       BLAKE2B_FLAG = $(SSE41_FLAG)
       BLAKE2S_FLAG = $(SSE41_FLAG)
@@ -277,7 +278,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_x86_sse42.cpp
     TOPT = $(SSE42_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       CRC_FLAG = $(SSE42_FLAG)
       SUN_LDFLAGS += $(SSE42_FLAG)
@@ -287,7 +288,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_x86_clmul.cpp
     TOPT = $(CLMUL_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       GCM_FLAG = $(SSSE3_FLAG) $(CLMUL_FLAG)
       GF2N_FLAG = $(CLMUL_FLAG)
@@ -298,7 +299,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_x86_aes.cpp
     TOPT = $(AESNI_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       AES_FLAG = $(SSE41_FLAG) $(AESNI_FLAG)
       SM4_FLAG = $(SSSE3_FLAG) $(AESNI_FLAG)
@@ -309,7 +310,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_x86_avx.cpp
     TOPT = $(AVX_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       # XXX_FLAG = $(AVX_FLAG)
       SUN_LDFLAGS += $(AVX_FLAG)
@@ -319,7 +320,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_x86_avx2.cpp
     TOPT = $(AVX2_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       CHACHA_AVX2_FLAG = $(AVX2_FLAG)
       SUN_LDFLAGS += $(AVX2_FLAG)
@@ -329,7 +330,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_x86_sha.cpp
     TOPT = $(SHANI_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG = $(SSE42_FLAG) $(SHANI_FLAG)
       SUN_LDFLAGS += $(SHANI_FLAG)
@@ -413,14 +414,14 @@ ifeq ($(DETECT_FEATURES),1)
   # Clang needs an option to include <arm_neon.h>
   TPROG = TestPrograms/test_arm_neon_header.cpp
   TOPT = $(NEON_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     THEADER += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_neon.cpp
   TOPT = $(NEON_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(NEON_FLAG)
     AES_FLAG = $(NEON_FLAG)
@@ -439,7 +440,7 @@ ifeq ($(DETECT_FEATURES),1)
     # Make does not have useful debugging facilities. Show the user
     # what happened by compiling again without the pipe.
     $(info Running make again to see what failed)
-    $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT))
+    $(info $(shell $(TCOMMAND)))
     NEON_FLAG =
   endif
 
@@ -476,21 +477,21 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_arm_neon_header.cpp
   TOPT =
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     THEADER += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_acle_header.cpp
   TOPT = $(ASIMD_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     THEADER += -DCRYPTOPP_ARM_ACLE_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_asimd.cpp
   TOPT = $(ASIMD_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(ASIMD_FLAG)
     BLAKE2B_FLAG = $(ASIMD_FLAG)
@@ -506,7 +507,7 @@ ifeq ($(DETECT_FEATURES),1)
     # Make does not have useful debugging facilities. Show the user
     # what happened by compiling again without the pipe.
     $(info Running make again to see what failed)
-    $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT))
+    $(info $(shell $(TCOMMAND)))
     ASIMD_FLAG =
   endif
 
@@ -514,9 +515,11 @@ ifeq ($(DETECT_FEATURES),1)
     CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
+  ifneq ($(ASIMD_FLAG),)
+
     TPROG = TestPrograms/test_arm_crc.cpp
     TOPT = $(CRC_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       CRC_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_CRC32
@@ -524,7 +527,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_aes.cpp
     TOPT = $(AES_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       AES_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_AES
@@ -532,7 +535,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_pmull.cpp
     TOPT = $(PMULL_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       GCM_FLAG =
       GF2N_FLAG =
@@ -541,7 +544,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha1.cpp
     TOPT = $(SHA_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA1
@@ -549,7 +552,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha256.cpp
     TOPT = $(SHA_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA2
@@ -557,7 +560,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sm3.cpp
     TOPT = -march=armv8.4-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SM3_FLAG = -march=armv8.4-a+crypto
       SM4_FLAG = -march=armv8.4-a+crypto
@@ -568,7 +571,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha3.cpp
     TOPT = -march=armv8.4-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA3_FLAG = -march=armv8.4-a+crypto
       SHA512_FLAG = -march=armv8.4-a+crypto
@@ -576,6 +579,9 @@ ifeq ($(DETECT_FEATURES),1)
       #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA3
       #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SM4
     endif
+
+  # ASIMD_FLAG
+  endif
 
 # DETECT_FEATURES
 endif
