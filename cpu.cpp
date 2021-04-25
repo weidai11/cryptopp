@@ -58,6 +58,12 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 # include <sys/sysctl.h>
 #endif
 
+#if defined(__FreeBSD__)
+# include <machine/cpu.h>
+# include <sys/auxv.h>
+# include <sys/elf_common.h>
+#endif
+
 // The cpu-features header and source file are located in
 // "$ANDROID_NDK_ROOT/sources/android/cpufeatures".
 // setenv-android.sh will copy the header and source file
@@ -1210,9 +1216,9 @@ inline bool CPU_QueryAltivec()
 	return arch == AppleMachineInfo::PowerMac;
 #elif defined(__FreeBSD__) && defined(PPC_FEATURE_HAS_ALTIVEC)
 	unsigned long cpufeatures;
-	if (elf_aux_info(AT_HWCAP, &cpufeatures, sizeof(cpufeatures))
-		return false;
-	else return cpufeatures & PPC_FEATURE_HAS_ALTIVEC;
+	if (elf_aux_info(AT_HWCAP, &cpufeatures, sizeof(cpufeatures)) == 0)
+		if ((cpufeatures & PPC_FEATURE_HAS_ALTIVEC) != 0)
+			return true;
 #endif
 	return false;
 }
@@ -1228,9 +1234,9 @@ inline bool CPU_QueryPower7()
 		return true;
 #elif defined(__FreeBSD__) && defined(PPC_FEATURE_ARCH_2_06)
 	unsigned long cpufeatures;
-	if (elf_aux_info(AT_HWCAP, &cpufeatures, sizeof(cpufeatures))
-		return false;
-	else return cpufeatures & PPC_FEATURE_ARCH_2_06;
+	if (elf_aux_info(AT_HWCAP, &cpufeatures, sizeof(cpufeatures)) == 0)
+		if ((cpufeatures & PPC_FEATURE_ARCH_2_06) != 0)
+			return true;
 #endif
 	return false;
 }
@@ -1246,9 +1252,9 @@ inline bool CPU_QueryPower8()
 		return true;
 #elif defined(__FreeBSD__) && defined(PPC_FEATURE2_ARCH_2_07)
 	unsigned long cpufeatures;
-	if (elf_aux_info(AT_HWCAP, &cpufeatures, sizeof(cpufeatures))
-		return false;
-	else return cpufeatures & PPC_FEATURE2_ARCH_2_07;
+	if (elf_aux_info(AT_HWCAP, &cpufeatures, sizeof(cpufeatures)) == 0)
+		if ((cpufeatures & PPC_FEATURE_ARCH_2_07) != 0)
+			return true;
 #endif
 	return false;
 }
@@ -1264,9 +1270,9 @@ inline bool CPU_QueryPower9()
 		return true;
 #elif defined(__FreeBSD__) && defined(PPC_FEATURE2_ARCH_3_00)
 	unsigned long cpufeatures;
-	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures))
-		return false;
-	else return cpufeatures & PPC_FEATURE_ARCH2_3_00;
+	if (elf_aux_info(AT_HWCAP, &cpufeatures, sizeof(cpufeatures)) == 0)
+		if ((cpufeatures & PPC_FEATURE_ARCH2_3_00) != 0)
+			return true;
 #endif
 	return false;
 }
@@ -1281,11 +1287,11 @@ inline bool CPU_QueryAES()
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
 		return true;
-#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_VEC_CRYPTO)
+#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_HAS_VEC_CRYPTO)
 	unsigned long cpufeatures;
-	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures))
-		return false;
-	else return cpufeatures & PPC_FEATURE2_HAS_VEC_CRYPTO;
+	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures)) == 0)
+		if ((cpufeatures & PPC_FEATURE2_HAS_VEC_CRYPTO != 0)
+			return true;
 #endif
 	return false;
 }
@@ -1300,11 +1306,11 @@ inline bool CPU_QueryPMULL()
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
 		return true;
-#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_VEC_CRYPTO)
+#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_HAS_VEC_CRYPTO)
 	unsigned long cpufeatures;
-	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures))
-		return false;
-	else return cpufeatures & PPC_FEATURE2_HAS_VEC_CRYPTO;
+	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures)) == 0)
+		if ((cpufeatures & PPC_FEATURE2_HAS_VEC_CRYPTO != 0)
+			return true;
 #endif
 	return false;
 }
@@ -1319,11 +1325,11 @@ inline bool CPU_QuerySHA256()
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
 		return true;
-#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_VEC_CRYPTO)
+#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_HAS_VEC_CRYPTO)
 	unsigned long cpufeatures;
-	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures))
-		return false;
-	else return cpufeatures & PPC_FEATURE2_HAS_VEC_CRYPTO;
+	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures)) == 0)
+		if ((cpufeatures & PPC_FEATURE2_HAS_VEC_CRYPTO != 0)
+			return true;
 #endif
 	return false;
 }
@@ -1337,11 +1343,11 @@ inline bool CPU_QuerySHA512()
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
 		return true;
-#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_VEC_CRYPTO)
+#elif defined(__FreeBSD__) && defined(PPC_FEATURE2_HAS_VEC_CRYPTO)
 	unsigned long cpufeatures;
-	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures))
-		return false;
-	else return cpufeatures & PPC_FEATURE2_HAS_VEC_CRYPTO;
+	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures)) == 0)
+		if ((cpufeatures & PPC_FEATURE2_HAS_VEC_CRYPTO != 0)
+			return true;
 #endif
 	return false;
 }
@@ -1358,9 +1364,9 @@ inline bool CPU_QueryDARN()
 		return true;
 #elif defined(__FreeBSD__) && defined(PPC_FEATURE2_ARCH_3_00)
 	unsigned long cpufeatures;
-	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures))
-		return false;
-	else return cpufeatures & PPC_FEATURE2_ARCH_3_00;
+	if (elf_aux_info(AT_HWCAP2, &cpufeatures, sizeof(cpufeatures)) == 0)
+		if ((cpufeatures & PPC_FEATURE2_ARCH_3_00) != 0)
+			return true;
 #endif
 	return false;
 }
