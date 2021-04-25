@@ -281,149 +281,151 @@ ifeq ($(DETECT_FEATURES),1)
     SSE2_FLAG =
   endif
 
-  TPROG = TestPrograms/test_x86_ssse3.cpp
-  TOPT = $(SSSE3_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    ARIA_FLAG = $(SSSE3_FLAG)
-    CHAM_FLAG = $(SSSE3_FLAG)
-    KECCAK_FLAG = $(SSSE3_FLAG)
-    LEA_FLAG = $(SSSE3_FLAG)
-    SIMON128_FLAG = $(SSSE3_FLAG)
-    SPECK128_FLAG = $(SSSE3_FLAG)
-    SUN_LDFLAGS += $(SSSE3_FLAG)
-  else
-    SSSE3_FLAG =
-  endif
-
-  TPROG = TestPrograms/test_x86_sse41.cpp
-  TOPT = $(SSE41_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    BLAKE2B_FLAG = $(SSE41_FLAG)
-    BLAKE2S_FLAG = $(SSE41_FLAG)
-    SUN_LDFLAGS += $(SSE41_FLAG)
-  else
-    SSE41_FLAG =
-  endif
-
-  TPROG = TestPrograms/test_x86_sse42.cpp
-  TOPT = $(SSE42_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    CRC_FLAG = $(SSE42_FLAG)
-    SUN_LDFLAGS += $(SSE42_FLAG)
-  else
-    SSE42_FLAG =
-  endif
-
-  TPROG = TestPrograms/test_x86_clmul.cpp
-  TOPT = $(CLMUL_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    GCM_FLAG = $(SSSE3_FLAG) $(CLMUL_FLAG)
-    GF2N_FLAG = $(CLMUL_FLAG)
-    SUN_LDFLAGS += $(CLMUL_FLAG)
-  else
-    CLMUL_FLAG =
-  endif
-
-  TPROG = TestPrograms/test_x86_aes.cpp
-  TOPT = $(AESNI_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    AES_FLAG = $(SSE41_FLAG) $(AESNI_FLAG)
-    SM4_FLAG = $(SSSE3_FLAG) $(AESNI_FLAG)
-    SUN_LDFLAGS += $(AESNI_FLAG)
-  else
-    AESNI_FLAG =
-  endif
-
-  TPROG = TestPrograms/test_x86_avx.cpp
-  TOPT = $(AVX_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    # XXX_FLAG = $(AVX_FLAG)
-    SUN_LDFLAGS += $(AVX_FLAG)
-  else
-    AVX_FLAG =
-  endif
-
-  TPROG = TestPrograms/test_x86_avx2.cpp
-  TOPT = $(AVX2_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    CHACHA_AVX2_FLAG = $(AVX2_FLAG)
-    SUN_LDFLAGS += $(AVX2_FLAG)
-  else
-    AVX2_FLAG =
-  endif
-
-  TPROG = TestPrograms/test_x86_sha.cpp
-  TOPT = $(SHANI_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    SHA_FLAG = $(SSE42_FLAG) $(SHANI_FLAG)
-    SUN_LDFLAGS += $(SHANI_FLAG)
-  else
-    SHANI_FLAG =
-  endif
-
-  ifeq ($(SUN_COMPILER),1)
-    CRYPTOPP_LDFLAGS += $(SUN_LDFLAGS)
-  endif
-
   ifeq ($(SSE2_FLAG),)
     CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
-  else ifeq ($(SSE3_FLAG),)
-    CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSE3
-  else ifeq ($(SSSE3_FLAG),)
-    CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
-  else ifeq ($(SSE41_FLAG),)
-    CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
-  else ifeq ($(SSE42_FLAG),)
-    CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
   endif
 
-  ifneq ($(SSE42_FLAG),)
-
-    # Unusual GCC/Clang on Macports. It assembles AES, but not CLMUL.
-    # test_x86_clmul.s:15: no such instruction: 'pclmulqdq $0, %xmm1,%xmm0'
-    ifeq ($(CLMUL_FLAG),)
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
+  ifneq ($(SSE2_FLAG),)
+    TPROG = TestPrograms/test_x86_ssse3.cpp
+    TOPT = $(SSSE3_FLAG)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      ARIA_FLAG = $(SSSE3_FLAG)
+      CHAM_FLAG = $(SSSE3_FLAG)
+      KECCAK_FLAG = $(SSSE3_FLAG)
+      LEA_FLAG = $(SSSE3_FLAG)
+      SIMON128_FLAG = $(SSSE3_FLAG)
+      SPECK128_FLAG = $(SSSE3_FLAG)
+      SUN_LDFLAGS += $(SSSE3_FLAG)
+    else
+      SSSE3_FLAG =
     endif
-    ifeq ($(AESNI_FLAG),)
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
+
+    TPROG = TestPrograms/test_x86_sse41.cpp
+    TOPT = $(SSE41_FLAG)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      BLAKE2B_FLAG = $(SSE41_FLAG)
+      BLAKE2S_FLAG = $(SSE41_FLAG)
+      SUN_LDFLAGS += $(SSE41_FLAG)
+    else
+      SSE41_FLAG =
     endif
 
-    ifeq ($(AVX_FLAG),)
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
-    else ifeq ($(AVX2_FLAG),)
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
-    else ifeq ($(SHANI_FLAG),)
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
+    TPROG = TestPrograms/test_x86_sse42.cpp
+    TOPT = $(SSE42_FLAG)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      CRC_FLAG = $(SSE42_FLAG)
+      SUN_LDFLAGS += $(SSE42_FLAG)
+    else
+      SSE42_FLAG =
     endif
-  endif
 
-  # Drop to SSE2 if available
-  ifeq ($(GCM_FLAG),)
-    ifneq ($(SSE2_FLAG),)
+    TPROG = TestPrograms/test_x86_clmul.cpp
+    TOPT = $(CLMUL_FLAG)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      GCM_FLAG = $(SSSE3_FLAG) $(CLMUL_FLAG)
+      GF2N_FLAG = $(CLMUL_FLAG)
+      SUN_LDFLAGS += $(CLMUL_FLAG)
+    else
+      CLMUL_FLAG =
+    endif
+
+    TPROG = TestPrograms/test_x86_aes.cpp
+    TOPT = $(AESNI_FLAG)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      AES_FLAG = $(SSE41_FLAG) $(AESNI_FLAG)
+      SM4_FLAG = $(SSSE3_FLAG) $(AESNI_FLAG)
+      SUN_LDFLAGS += $(AESNI_FLAG)
+    else
+      AESNI_FLAG =
+    endif
+
+    TPROG = TestPrograms/test_x86_avx.cpp
+    TOPT = $(AVX_FLAG)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      # XXX_FLAG = $(AVX_FLAG)
+      SUN_LDFLAGS += $(AVX_FLAG)
+    else
+      AVX_FLAG =
+    endif
+
+    TPROG = TestPrograms/test_x86_avx2.cpp
+    TOPT = $(AVX2_FLAG)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      CHACHA_AVX2_FLAG = $(AVX2_FLAG)
+      SUN_LDFLAGS += $(AVX2_FLAG)
+    else
+      AVX2_FLAG =
+    endif
+
+    TPROG = TestPrograms/test_x86_sha.cpp
+    TOPT = $(SHANI_FLAG)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      SHA_FLAG = $(SSE42_FLAG) $(SHANI_FLAG)
+      SUN_LDFLAGS += $(SHANI_FLAG)
+    else
+      SHANI_FLAG =
+    endif
+
+    ifeq ($(SUN_COMPILER),1)
+      CRYPTOPP_LDFLAGS += $(SUN_LDFLAGS)
+    endif
+
+    ifeq ($(SSE3_FLAG),)
+      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSE3
+    else ifeq ($(SSSE3_FLAG),)
+      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
+    else ifeq ($(SSE41_FLAG),)
+      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
+    else ifeq ($(SSE42_FLAG),)
+      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
+    endif
+
+    ifneq ($(SSE42_FLAG),)
+      # Unusual GCC/Clang on Macports. It assembles AES, but not CLMUL.
+      # test_x86_clmul.s:15: no such instruction: 'pclmulqdq $0, %xmm1,%xmm0'
+      ifeq ($(CLMUL_FLAG),)
+        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
+      endif
+      ifeq ($(AESNI_FLAG),)
+        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
+      endif
+
+      ifeq ($(AVX_FLAG),)
+        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
+      else ifeq ($(AVX2_FLAG),)
+        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
+      else ifeq ($(SHANI_FLAG),)
+        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
+      endif
+    endif
+
+    # Drop to SSE2 if available
+    ifeq ($(GCM_FLAG),)
       GCM_FLAG = $(SSE2_FLAG)
     endif
+
+    # Most Clang cannot handle mixed asm with positional arguments, where the
+    # body is Intel style with no prefix and the templates are AT&T style.
+    # Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
+
+    # CRYPTOPP_DISABLE_MIXED_ASM is now being added in config_asm.h for all
+    # Clang compilers. This test will need to be re-enabled if Clang fixes it.
+    #TPROG = TestPrograms/test_asm_mixed.cpp
+    #HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+    #ifneq ($(strip $(HAVE_OPT)),0)
+    #  CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
+    #endif
+
+  # SSE2_FLAGS
   endif
-
-  # Most Clang cannot handle mixed asm with positional arguments, where the
-  # body is Intel style with no prefix and the templates are AT&T style.
-  # Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
-
-  # CRYPTOPP_DISABLE_MIXED_ASM is now being added in config_asm.h for all
-  # Clang compilers. This test will need to be re-enabled if Clang fixes it.
-  #TPROG = TestPrograms/test_asm_mixed.cpp
-  #HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  #ifneq ($(strip $(HAVE_OPT)),0)
-  #  CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
-  #endif
-
 # DETECT_FEATURES
 endif
 
