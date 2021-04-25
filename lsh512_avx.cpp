@@ -113,7 +113,7 @@ typedef word32 lsh_type;
 
 struct LSH512_AVX2_Context
 {
-	LSH512_AVX2_Context(word64* state, word32 algType, word64& remainingBitLength) :
+	LSH512_AVX2_Context(word64* state, word64 algType, word64& remainingBitLength) :
 		cv_l(state+0), cv_r(state+8), sub_msgs(state+16),
 		last_block(reinterpret_cast<byte*>(state+48)),
 		remain_databitlen(remainingBitLength),
