@@ -114,8 +114,9 @@ struct LSH256_SSE2_Context
 {
 	LSH256_SSE2_Context(word32* state, word32 algType, word32& remainingBitLength) :
 		cv_l(state+0), cv_r(state+8), sub_msgs(state+16),
-		last_block(reinterpret_cast<byte*>(state+48)) ,
-		remain_databitlen(remainingBitLength), algtype(algType) {}
+		last_block(reinterpret_cast<byte*>(state+48)),
+		remain_databitlen(remainingBitLength),
+		algtype(static_cast<lsh_type>(algType)) {}
 
 	lsh_u32* cv_l;  // start of our state block
 	lsh_u32* cv_r;
@@ -613,9 +614,9 @@ lsh_err lsh256_sse2_update(LSH256_SSE2_Context* ctx, const lsh_u8* data, size_t 
 	lsh_uint pos2 = databitlen & 0x7;
 
 	// We are byte oriented. remain_msg_bit will always be 0.
-	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
+	size_t remain_msg_byte = ctx->remain_databitlen >> 3;
 	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
-	const lsh_uint remain_msg_bit = 0;
+	const size_t remain_msg_bit = 0;
 
 	if (remain_msg_byte >= LSH256_MSG_BLK_BYTE_LEN){
 		return LSH_ERR_INVALID_STATE;
@@ -674,9 +675,9 @@ lsh_err lsh256_sse2_final(LSH256_SSE2_Context* ctx, lsh_u8* hashval)
 	CRYPTOPP_ASSERT(hashval != NULLPTR);
 
 	// We are byte oriented. remain_msg_bit will always be 0.
-	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
+	size_t remain_msg_byte = ctx->remain_databitlen >> 3;
 	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
-	const lsh_uint remain_msg_bit = 0;
+	const size_t remain_msg_bit = 0;
 
 	if (remain_msg_byte >= LSH256_MSG_BLK_BYTE_LEN){
 		return LSH_ERR_INVALID_STATE;
@@ -724,7 +725,7 @@ void LSH256_Base_Update_SSE2(word32* state, const byte *input, size_t size)
 }
 
 extern
-void LSH256_Base_TruncatedFinal_SSE2(word32* state, byte *hash, size_t size)
+void LSH256_Base_TruncatedFinal_SSE2(word32* state, byte *hash, size_t)
 {
 	LSH256_SSE2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh256_sse2_final(&ctx, hash);

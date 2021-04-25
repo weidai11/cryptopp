@@ -206,8 +206,9 @@ struct LSH512_Context
 {
 	LSH512_Context(word64* state, word64 algType, word64& remainingBitLength) :
 		cv_l(state+0), cv_r(state+8), sub_msgs(state+16),
-		last_block(reinterpret_cast<byte*>(state+48)) ,
-		remain_databitlen(remainingBitLength), algtype(algType) {}
+		last_block(reinterpret_cast<byte*>(state+48)),
+		remain_databitlen(remainingBitLength),
+		algtype(static_cast<lsh_type>(algType)) {}
 
 	lsh_u64* cv_l;  // start of our state block
 	lsh_u64* cv_r;
@@ -676,9 +677,9 @@ lsh_err lsh512_update(LSH512_Context* ctx, const lsh_u8* data, size_t databitlen
 	lsh_uint pos2 = databitlen & 0x7;
 
 	// We are byte oriented. remain_msg_bit will always be 0.
-	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
-	// remain_msg_bit = ctx->remain_databitlen & 7;
-	const lsh_uint remain_msg_bit = 0;
+	size_t remain_msg_byte = static_cast<size_t>(ctx->remain_databitlen >> 3);
+	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
+	const size_t remain_msg_bit = 0;
 
 	if (remain_msg_byte >= LSH512_MSG_BLK_BYTE_LEN){
 		return LSH_ERR_INVALID_STATE;
@@ -735,9 +736,9 @@ lsh_err lsh512_final(LSH512_Context* ctx, lsh_u8* hashval)
 	CRYPTOPP_ASSERT(hashval != NULLPTR);
 
 	// We are byte oriented. remain_msg_bit will always be 0.
-	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
+	size_t remain_msg_byte = static_cast<size_t>(ctx->remain_databitlen >> 3);
 	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
-	const lsh_uint remain_msg_bit = 0;
+	const size_t remain_msg_bit = 0;
 
 	if (remain_msg_byte >= LSH512_MSG_BLK_BYTE_LEN){
 		return LSH_ERR_INVALID_STATE;
@@ -813,7 +814,7 @@ void LSH512_Base_Update_CXX(word64* state, const byte *input, size_t size)
 		throw Exception(Exception::OTHER_ERROR, "LSH512_Base: lsh512_update failed");
 }
 
-void LSH512_Base_TruncatedFinal_CXX(word64* state, byte *hash, size_t size)
+void LSH512_Base_TruncatedFinal_CXX(word64* state, byte *hash, size_t)
 {
 	LSH512_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh512_final(&ctx, hash);
