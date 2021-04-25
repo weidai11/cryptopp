@@ -588,6 +588,9 @@ lsh_err lsh512_init_avx2(LSH512_AVX2_Context* ctx)
 	const lsh_u64* const_v = NULL;
 	ctx->remain_databitlen = 0;
 
+	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+	AVX_Cleanup cleanup;
+
 	switch (algtype){
 	case LSH_TYPE_512_512:
 		init512(ctx);
@@ -633,6 +636,9 @@ lsh_err lsh512_update_avx2(LSH512_AVX2_Context* ctx, const lsh_u8* data, size_t 
 	CRYPTOPP_ASSERT(data != NULLPTR);
 	CRYPTOPP_ASSERT(databitlen % 8 == 0);
 	CRYPTOPP_ASSERT(ctx->algtype != 0);
+
+	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+	AVX_Cleanup cleanup;
 
 	if (databitlen == 0){
 		return LSH_SUCCESS;
@@ -700,6 +706,9 @@ lsh_err lsh512_final_avx2(LSH512_AVX2_Context* ctx, lsh_u8* hashval)
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 	CRYPTOPP_ASSERT(hashval != NULLPTR);
 
+	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
+	AVX_Cleanup cleanup;
+
 	// We are byte oriented. remain_msg_bit will always be 0.
 	lsh_uint remain_msg_byte = ctx->remain_databitlen >> 3;
 	// lsh_uint remain_msg_bit = ctx->remain_databitlen & 7;
@@ -732,9 +741,6 @@ NAMESPACE_BEGIN(CryptoPP)
 extern
 void LSH512_Base_Restart_AVX2(word64* state)
 {
-	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
-	AVX_Cleanup cleanup;
-
 	state[RemainingBits] = 0;
 	LSH512_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh512_init_avx2(&ctx);
@@ -746,9 +752,6 @@ void LSH512_Base_Restart_AVX2(word64* state)
 extern
 void LSH512_Base_Update_AVX2(word64* state, const byte *input, size_t size)
 {
-	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
-	AVX_Cleanup cleanup;
-
 	LSH512_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh512_update_avx2(&ctx, input, 8*size);
 
@@ -759,9 +762,6 @@ void LSH512_Base_Update_AVX2(word64* state, const byte *input, size_t size)
 extern
 void LSH512_Base_TruncatedFinal_AVX2(word64* state, byte *hash, size_t size)
 {
-	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735.
-	AVX_Cleanup cleanup;
-
 	LSH512_AVX2_Context ctx(state, state[AlgorithmType], state[RemainingBits]);
 	lsh_err err = lsh512_final_avx2(&ctx, hash);
 
