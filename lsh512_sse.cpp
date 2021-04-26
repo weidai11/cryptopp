@@ -42,7 +42,7 @@ const unsigned int LSH512_HASH_VAL_MAX_BYTE_LEN = 64;
 // const unsigned int MSG_BLK_WORD_LEN = 32;
 const unsigned int CV_WORD_LEN = 16;
 const unsigned int CONST_WORD_LEN = 8;
-const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
+// const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
 const unsigned int NUM_STEPS = 28;
 
 const unsigned int ROT_EVEN_ALPHA = 23;
@@ -140,7 +140,7 @@ struct LSH512_SSSE3_Internal
 	lsh_u64* submsg_o_r; /* odd right sub-message  */
 };
 
-const lsh_u32 g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
+// const lsh_u32 g_gamma512[8] = { 0, 16, 32, 48, 8, 24, 40, 56 };
 
 /* LSH AlgType Macro */
 

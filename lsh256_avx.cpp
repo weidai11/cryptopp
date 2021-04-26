@@ -38,7 +38,7 @@ const unsigned int LSH256_HASH_VAL_MAX_BYTE_LEN = 32;
 // const unsigned int MSG_BLK_WORD_LEN = 32;
 const unsigned int CV_WORD_LEN = 16;
 const unsigned int CONST_WORD_LEN = 8;
-const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
+// const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
 // const unsigned int WORD_BIT_LEN = 32;
 const unsigned int NUM_STEPS = 26;
 

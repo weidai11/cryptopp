@@ -43,7 +43,7 @@ const unsigned int LSH256_HASH_VAL_MAX_BYTE_LEN = 32;
 // const unsigned int MSG_BLK_WORD_LEN = 32;
 const unsigned int CV_WORD_LEN = 16;
 const unsigned int CONST_WORD_LEN = 8;
-const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
+// const unsigned int HASH_VAL_MAX_WORD_LEN = 8;
 // const unsigned int WORD_BIT_LEN = 32;
 const unsigned int NUM_STEPS = 26;
 
@@ -134,7 +134,7 @@ struct LSH256_SSSE3_Internal
 	lsh_u32* submsg_o_r; /* odd right sub-message  */
 };
 
-const word32 g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
+// const word32 g_gamma256[8] = { 0, 8, 16, 24, 24, 16, 8, 0 };
 
 /* LSH AlgType Macro */
 
