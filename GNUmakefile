@@ -262,7 +262,7 @@ ifeq ($(DETECT_FEATURES),1)
       TOPT = -Wa,-q
       HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
       ifeq ($(strip $(HAVE_OPT)),0)
-        TEXTRA = -Wa,-q
+        TEXTRA += -Wa,-q
         CRYPTOPP_CXXFLAGS += -Wa,-q
       endif
     endif
