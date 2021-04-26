@@ -70,20 +70,21 @@ LIB_SRCS = \
     gfpcrypt.cpp gost.cpp gzip.cpp hc128.cpp hc256.cpp hex.cpp hight.cpp \
     hmac.cpp hrtimer.cpp ida.cpp idea.cpp iterhash.cpp kalyna.cpp \
     kalynatab.cpp keccak.cpp keccak_core.cpp keccak_simd.cpp lea.cpp \
-    lea_simd.cpp lsh256.cpp lsh512.cpp luc.cpp mars.cpp marss.cpp md2.cpp \
-    md4.cpp md5.cpp misc.cpp modes.cpp mqueue.cpp mqv.cpp nbtheory.cpp \
-    oaep.cpp osrng.cpp padlkrng.cpp panama.cpp pkcspad.cpp poly1305.cpp \
-    polynomi.cpp pssr.cpp pubkey.cpp queue.cpp rabbit.cpp rabin.cpp \
-    randpool.cpp rc2.cpp rc5.cpp rc6.cpp rdrand.cpp rdtables.cpp \
-    rijndael.cpp rijndael_simd.cpp ripemd.cpp rng.cpp rsa.cpp rw.cpp \
-    safer.cpp salsa.cpp scrypt.cpp seal.cpp seed.cpp serpent.cpp sha.cpp \
-    sha3.cpp sha_simd.cpp shacal2.cpp shacal2_simd.cpp shake.cpp shark.cpp \
-    sharkbox.cpp simeck.cpp simon.cpp simon128_simd.cpp skipjack.cpp sm3.cpp \
-    sm4.cpp sm4_simd.cpp sosemanuk.cpp speck.cpp speck128_simd.cpp \
-    square.cpp squaretb.cpp sse_simd.cpp strciphr.cpp tea.cpp tftables.cpp \
-    threefish.cpp tiger.cpp tigertab.cpp ttmac.cpp tweetnacl.cpp twofish.cpp \
-    vmac.cpp wake.cpp whrlpool.cpp xed25519.cpp xtr.cpp xtrcrypt.cpp xts.cpp \
-    zdeflate.cpp zinflate.cpp zlib.cpp
+    lea_simd.cpp lsh256.cpp lsh256_avx.cpp lsh256_sse.cpp lsh512.cpp \
+    lsh512_avx.cpp lsh512_sse.cpp luc.cpp mars.cpp marss.cpp md2.cpp md4.cpp \
+    md5.cpp misc.cpp modes.cpp mqueue.cpp mqv.cpp nbtheory.cpp oaep.cpp \
+    osrng.cpp padlkrng.cpp panama.cpp pkcspad.cpp poly1305.cpp polynomi.cpp \
+    pssr.cpp pubkey.cpp queue.cpp rabbit.cpp rabin.cpp randpool.cpp rc2.cpp \
+    rc5.cpp rc6.cpp rdrand.cpp rdtables.cpp rijndael.cpp rijndael_simd.cpp \
+    ripemd.cpp rng.cpp rsa.cpp rw.cpp safer.cpp salsa.cpp scrypt.cpp \
+    seal.cpp seed.cpp serpent.cpp sha.cpp sha3.cpp sha_simd.cpp shacal2.cpp \
+    shacal2_simd.cpp shake.cpp shark.cpp sharkbox.cpp simeck.cpp simon.cpp \
+    simon128_simd.cpp skipjack.cpp sm3.cpp sm4.cpp sm4_simd.cpp \
+    sosemanuk.cpp speck.cpp speck128_simd.cpp square.cpp squaretb.cpp \
+    sse_simd.cpp strciphr.cpp tea.cpp tftables.cpp threefish.cpp tiger.cpp \
+    tigertab.cpp ttmac.cpp tweetnacl.cpp twofish.cpp vmac.cpp wake.cpp \
+    whrlpool.cpp xed25519.cpp xtr.cpp xtrcrypt.cpp xts.cpp zdeflate.cpp \
+    zinflate.cpp zlib.cpp
 
 LIB_OBJS = \
     cryptlib.obj cpu.obj integer.obj 3way.obj adler32.obj algebra.obj \
@@ -100,20 +101,21 @@ LIB_OBJS = \
     gfpcrypt.obj gost.obj gzip.obj hc128.obj hc256.obj hex.obj hight.obj \
     hmac.obj hrtimer.obj ida.obj idea.obj iterhash.obj kalyna.obj \
     kalynatab.obj keccak.obj keccak_core.obj keccak_simd.obj lea.obj \
-    lea_simd.obj lsh256.obj lsh512.obj luc.obj mars.obj marss.obj md2.obj \
-    md4.obj md5.obj misc.obj modes.obj mqueue.obj mqv.obj nbtheory.obj \
-    oaep.obj osrng.obj padlkrng.obj panama.obj pkcspad.obj poly1305.obj \
-    polynomi.obj pssr.obj pubkey.obj queue.obj rabbit.obj rabin.obj \
-    randpool.obj rc2.obj rc5.obj rc6.obj rdrand.obj rdtables.obj \
-    rijndael.obj rijndael_simd.obj ripemd.obj rng.obj rsa.obj rw.obj \
-    safer.obj salsa.obj scrypt.obj seal.obj seed.obj serpent.obj sha.obj \
-    sha3.obj sha_simd.obj shacal2.obj shacal2_simd.obj shake.obj shark.obj \
-    sharkbox.obj simeck.obj simon.obj simon128_simd.obj skipjack.obj sm3.obj \
-    sm4.obj sm4_simd.obj sosemanuk.obj speck.obj speck128_simd.obj \
-    square.obj squaretb.obj sse_simd.obj strciphr.obj tea.obj tftables.obj \
-    threefish.obj tiger.obj tigertab.obj ttmac.obj tweetnacl.obj twofish.obj \
-    vmac.obj wake.obj whrlpool.obj xed25519.obj xtr.obj xtrcrypt.obj xts.obj \
-    zdeflate.obj zinflate.obj zlib.obj
+    lea_simd.obj lsh256.obj lsh256_avx.obj lsh256_sse.obj lsh512.obj \
+    lsh512_avx.obj lsh512_sse.obj luc.obj mars.obj marss.obj md2.obj md4.obj \
+    md5.obj misc.obj modes.obj mqueue.obj mqv.obj nbtheory.obj oaep.obj \
+    osrng.obj padlkrng.obj panama.obj pkcspad.obj poly1305.obj polynomi.obj \
+    pssr.obj pubkey.obj queue.obj rabbit.obj rabin.obj randpool.obj rc2.obj \
+    rc5.obj rc6.obj rdrand.obj rdtables.obj rijndael.obj rijndael_simd.obj \
+    ripemd.obj rng.obj rsa.obj rw.obj safer.obj salsa.obj scrypt.obj \
+    seal.obj seed.obj serpent.obj sha.obj sha3.obj sha_simd.obj shacal2.obj \
+    shacal2_simd.obj shake.obj shark.obj sharkbox.obj simeck.obj simon.obj \
+    simon128_simd.obj skipjack.obj sm3.obj sm4.obj sm4_simd.obj \
+    sosemanuk.obj speck.obj speck128_simd.obj square.obj squaretb.obj \
+    sse_simd.obj strciphr.obj tea.obj tftables.obj threefish.obj tiger.obj \
+    tigertab.obj ttmac.obj tweetnacl.obj twofish.obj vmac.obj wake.obj \
+    whrlpool.obj xed25519.obj xtr.obj xtrcrypt.obj xts.obj zdeflate.obj \
+    zinflate.obj zlib.obj
 
 ASM_OBJS = \
     rdrand-x86.obj rdrand-x64.obj rdseed-x86.obj rdseed-x64.obj x64masm.obj x64dll.obj
@@ -311,6 +313,10 @@ x64dll.obj: x64dll.asm
 !IF "$(PLATFORM)" == "x64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "amd64" || "$(PLATFORM)" == "x86" || "$(PLATFORM)" == "X86"
 chacha_avx.obj:
 	$(CXX) $(CXXFLAGS) /arch:AVX /c chacha_avx.cpp
+lsh256_avx.obj:
+	$(CXX) $(CXXFLAGS) /arch:AVX /c lsh256_avx.cpp
+lsh512_avx.obj:
+	$(CXX) $(CXXFLAGS) /arch:AVX /c lsh512_avx.cpp
 !endif
 
 # For testing cryptopp.dll and CRYPTOPP_IMPORTS

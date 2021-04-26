@@ -191,30 +191,4 @@
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-// Requires ifunc support: GCC 4.8, Binutils 2.20.1 and libc 2.11.1.
-// Should work for Clang 7 and above: https://stackoverflow.com/q/39958935,
-// but fails with Clang 10: https://bugs.llvm.org/show_bug.cgi?id=50025.
-// Should work with GCC 4.8.4 and 7.5.0 but does not:
-// https://travis-ci.org/github/noloader/cryptopp-cmake/jobs/767701720 and
-// https://travis-ci.org/github/noloader/cryptopp/jobs/767704226.
-// Not available on Apple and Solaris platforms. Also see
-// https://sourceware.org/glibc/wiki/GNU_IFUNC and
-// https://gcc.gnu.org/onlinedocs/gcc/Function-Multiversioning.html.
-#if !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__linux__)
-#  if defined(__i386__) || defined(__i686__) || defined(__amd64__)
-#   if (CRYPTOPP_GCC_VERSION >= 80000) || (CRYPTOPP_LLVM_CLANG_VERSION >= 130000)
-#    include <x86intrin.h>
-#    define CRYPTOPP_HAVE_ATTRIBUTE_TARGET 1
-#    define CRYPTOPP_TARGET_DEFAULT __attribute__ ((target ("default")))
-#    define CRYPTOPP_TARGET_SSSE3   __attribute__ ((target ("ssse3")))
-#   endif
-#  endif
-# endif
-#endif
-
-#ifndef CRYPTOPP_TARGET_DEFAULT
-# define CRYPTOPP_TARGET_DEFAULT
-#endif
-
 #endif  // CRYPTOPP_CONFIG_MISC_H

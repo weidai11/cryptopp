@@ -4,6 +4,11 @@
 //         see https://seed.kisa.or.kr/kisa/algorithm/EgovLSHInfo.do
 //         and https://seed.kisa.or.kr/kisa/Board/22/detailView.do.
 
+// We are hitting some sort of GCC bug in the LSH AVX2 code path.
+// Clang is OK on the AVX2 code path. We believe it is GCC Issue
+// 82735, https://gcc.gnu.org/bugzilla/show_bug.cgi?id=82735. It
+// makes using zeroupper a little tricky.
+
 /// \file lsh.h
 /// \brief Classes for the LSH hash functions
 /// \since Crypto++ 8.6
@@ -14,6 +19,12 @@
 
 #include "cryptlib.h"
 #include "secblock.h"
+
+// Enable SSE2 and AVX2 for 64-bit machines.
+// 32-bit machines slow down with SSE2.
+#if (CRYPTOPP_BOOL_X32) || (CRYPTOPP_BOOL_X64)
+# define CRYPTOPP_ENABLE_64BIT_SSE 1
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -34,14 +45,14 @@ public:
 	unsigned int OptimalDataAlignment() const { return GetAlignmentOf<word32>(); }
 
 	void Restart();
-	void Update(const byte *input, size_t length);
+	void Update(const byte *input, size_t size);
 	void TruncatedFinal(byte *hash, size_t size);
 
 	std::string AlgorithmProvider() const;
 
 protected:
 	LSH256_Base(unsigned int algType, unsigned int digestSize)
-		: m_algType(algType), m_digestSize(digestSize) {}
+		: m_digestSize(digestSize) { m_state[80] = algType; }
 
 protected:
 	// Working state is:
@@ -52,8 +63,10 @@ protected:
 	//   * submsg_o_l = 8 32-bit words
 	//   * submsg_o_r = 8 32-bit words
 	//   * last_block = 32 32-bit words (128 bytes)
-	FixedSizeSecBlock<word32, 80> m_state;
-	word32 m_algType, m_remainingBitLength;
+	//   * algType
+	//   * remainingBitLength
+	FixedSizeSecBlock<word32, 80+2> m_state;
+	// word32 m_algType, m_remainingBitLength;
 	word32 m_digestSize;
 };
 
@@ -132,14 +145,14 @@ public:
 	unsigned int OptimalDataAlignment() const { return GetAlignmentOf<word64>(); }
 
 	void Restart();
-	void Update(const byte *input, size_t length);
+	void Update(const byte *input, size_t size);
 	void TruncatedFinal(byte *hash, size_t size);
 
 	std::string AlgorithmProvider() const;
 
 protected:
 	LSH512_Base(unsigned int algType, unsigned int digestSize)
-		: m_algType(algType), m_digestSize(digestSize) {}
+		: m_digestSize(digestSize) { m_state[80] = algType; }
 
 protected:
 	// Working state is:
@@ -150,8 +163,10 @@ protected:
 	//   * submsg_o_l = 8 64-bit words
 	//   * submsg_o_r = 8 64-bit words
 	//   * last_block = 32 64-bit words (256 bytes)
-	FixedSizeSecBlock<word64, 80> m_state;
-	word32 m_algType, m_remainingBitLength;
+	//   * algType
+	//   * remainingBitLength
+	FixedSizeSecBlock<word64, 80+2> m_state;
+	// word32 m_algType, m_remainingBitLength;
 	word32 m_digestSize;
 };
 

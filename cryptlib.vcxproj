@@ -263,7 +263,11 @@
     <ClCompile Include="lea.cpp" />
     <ClCompile Include="lea_simd.cpp" />
     <ClCompile Include="lsh256.cpp" />
+    <ClCompile Include="lsh256_sse.cpp" />
+    <ClCompile Include="lsh256_avx.cpp" />
     <ClCompile Include="lsh512.cpp" />
+    <ClCompile Include="lsh512_sse.cpp" />
+    <ClCompile Include="lsh512_avx.cpp" />
     <ClCompile Include="luc.cpp" />
     <ClCompile Include="mars.cpp" />
     <ClCompile Include="marss.cpp" />

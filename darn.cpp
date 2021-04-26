@@ -15,7 +15,7 @@
 // GCC inline assembly or the builtin will fail the compile.
 
 // Inline assembler available in GCC 3.2 or above. For practical
-// purposes we check for GCC 4.0 or above. GCC imposters claim
+// purposes we check for GCC 4.0 or above. GCC impostors claim
 // to be GCC 4.2.1 so it will capture them, too. We exclude the
 // Apple machines because they are not Power9 and use a slightly
 // different syntax in their assembler.

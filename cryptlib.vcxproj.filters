@@ -275,7 +275,19 @@
     <ClCompile Include="lsh256.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lsh256_sse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lsh256_avx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="lsh512.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lsh512_sse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lsh512_avx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="luc.cpp">

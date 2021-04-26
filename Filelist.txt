@@ -205,7 +205,11 @@ lea.cpp
 lea_simd.cpp
 lea.h
 lsh256.cpp
+lsh256_sse.cpp
+lsh256_avx.cpp
 lsh512.cpp
+lsh512_sse.cpp
+lsh512_avx.cpp
 lsh.h
 luc.cpp
 luc.h
