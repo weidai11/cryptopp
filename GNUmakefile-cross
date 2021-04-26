@@ -205,7 +205,7 @@ ifeq ($(DETECT_FEATURES),1)
   ifneq ($(strip $(TCXXFLAGS)),)
     $(info Using testing flags: $(TCXXFLAGS))
   endif
-  TCOMMAND = $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT)
+  TCOMMAND = $(CXX) $(TCXXFLAGS) $(TEXTRA) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT)
   #TPROG = TestPrograms/test_cxx.cpp
   #$(info Testing compile... )
   #$(info $(shell $(TCOMMAND)))
@@ -415,7 +415,7 @@ ifeq ($(DETECT_FEATURES),1)
   TOPT = $(NEON_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_NEON_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
-    THEADER += -DCRYPTOPP_ARM_NEON_HEADER=1
+    TEXTRA += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_neon.cpp
@@ -478,14 +478,14 @@ ifeq ($(DETECT_FEATURES),1)
   TOPT =
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_NEON_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
-    THEADER += -DCRYPTOPP_ARM_NEON_HEADER=1
+    TEXTRA += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_acle_header.cpp
   TOPT = $(ASIMD_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_ACLE_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
-    THEADER += -DCRYPTOPP_ARM_ACLE_HEADER=1
+    TEXTRA += -DCRYPTOPP_ARM_ACLE_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_asimd.cpp

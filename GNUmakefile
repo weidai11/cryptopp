@@ -86,15 +86,6 @@ XLC_COMPILER := $(shell $(CXX) -qversion 2>/dev/null |$(GREP) -i -c "IBM XL")
 CLANG_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c -E '(llvm|clang)')
 INTEL_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c '\(icc\)')
 
-# Various Port compilers on OS X
-MACPORTS_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c "macports")
-HOMEBREW_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c "homebrew")
-ifeq ($(IS_DARWIN),1)
-  ifneq ($(MACPORTS_COMPILER)$(HOMEBREW_COMPILER),00)
-    OSXPORT_COMPILER := 1
-  endif
-endif
-
 # Enable shared object versioning for Linux and Solaris
 HAS_SOLIB_VERSION ?= 0
 ifneq ($(IS_LINUX)$(IS_HURD)$(IS_SUN),000)
@@ -104,14 +95,6 @@ endif
 # Formerly adhoc.cpp was created from adhoc.cpp.proto when needed.
 ifeq ($(wildcard adhoc.cpp),)
 $(shell cp adhoc.cpp.proto adhoc.cpp)
-endif
-
-# Tell MacPorts and Homebrew GCC to use Clang integrated assembler (only on Intel-based Macs)
-#   http://github.com/weidai11/cryptopp/issues/190
-ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER)$(IS_PPC32)$(IS_PPC64),1100)
-  ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
-    CRYPTOPP_CXXFLAGS += -Wa,-q
-  endif
 endif
 
 # Hack to skip CPU feature tests for some recipes
@@ -135,7 +118,7 @@ ifeq ($(DETECT_FEATURES),1)
   ifneq ($(strip $(TCXXFLAGS)),)
     $(info Using testing flags: $(TCXXFLAGS))
   endif
-  TCOMMAND = $(CXX) $(TCXXFLAGS) $(THEADER) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT)
+  TCOMMAND = $(CXX) $(TCXXFLAGS) $(TEXTRA) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT)
   #TPROG = TestPrograms/test_cxx.cpp
   #$(info Testing compile... )
   #$(info $(shell $(TCOMMAND)))
@@ -144,7 +127,8 @@ endif
 # Fixup AIX
 ifeq ($(IS_AIX),1)
   TPROG = TestPrograms/test_64bit.cpp
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  TOPT =
+  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     IS_PPC64=1
   else
@@ -268,6 +252,20 @@ ifeq ($(DETECT_FEATURES),1)
     AVX_FLAG = -mavx
     AVX2_FLAG = -mavx2
     SHANI_FLAG = -msha
+  endif
+
+  # Tell MacPorts and Homebrew GCC to use Clang integrated assembler
+  # Intel-based Macs. http://github.com/weidai11/cryptopp/issues/190
+  ifneq ($(IS_DARWIN),0)
+    ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
+      TPROG = TestPrograms/test_cxx.cpp
+      TOPT = -Wa,-q
+      HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+      ifeq ($(strip $(HAVE_OPT)),0)
+        TEXTRA = -Wa,-q
+        CRYPTOPP_CXXFLAGS += -Wa,-q
+      endif
+    endif
   endif
 
   TPROG = TestPrograms/test_x86_sse2.cpp
@@ -479,7 +477,7 @@ ifeq ($(DETECT_FEATURES),1)
   TOPT = -march=armv7-a -mfpu=neon
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_NEON_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
-    THEADER += -DCRYPTOPP_ARM_NEON_HEADER=1
+    TEXTRA += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_neon.cpp
@@ -525,14 +523,14 @@ ifeq ($(DETECT_FEATURES),1)
   TOPT =
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_NEON_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
-    THEADER += -DCRYPTOPP_ARM_NEON_HEADER=1
+    TEXTRA += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_acle_header.cpp
   TOPT = -march=armv8-a
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_ACLE_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
-    THEADER += -DCRYPTOPP_ARM_ACLE_HEADER=1
+    TEXTRA += -DCRYPTOPP_ARM_ACLE_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_asimd.cpp
