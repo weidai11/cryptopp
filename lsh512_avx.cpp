@@ -17,15 +17,13 @@
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
-# include <emmintrin.h>
-#endif
-
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
+# include <emmintrin.h>
 # include <immintrin.h>
 #endif
 
-#if defined(__GNUC__) && defined(__amd64__)
+// GCC at 4.5. Clang is unknown. Also see https://stackoverflow.com/a/42493893.
+#if defined (__has_include) && (__has_include(<x86intrin.h>))
 # include <x86intrin.h>
 #endif
 
