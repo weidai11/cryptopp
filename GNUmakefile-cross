@@ -413,14 +413,14 @@ ifeq ($(DETECT_FEATURES),1)
   # Clang needs an option to include <arm_neon.h>
   TPROG = TestPrograms/test_arm_neon_header.cpp
   TOPT = $(NEON_FLAG)
-  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_NEON_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     THEADER += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_neon.cpp
   TOPT = $(NEON_FLAG)
-  HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(NEON_FLAG)
     AES_FLAG = $(NEON_FLAG)
@@ -476,21 +476,21 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_arm_neon_header.cpp
   TOPT =
-  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_NEON_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     THEADER += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_acle_header.cpp
   TOPT = $(ASIMD_FLAG)
-  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_ACLE_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     THEADER += -DCRYPTOPP_ARM_ACLE_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_asimd.cpp
   TOPT = $(ASIMD_FLAG)
-  HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(ASIMD_FLAG)
     BLAKE2B_FLAG = $(ASIMD_FLAG)
@@ -518,7 +518,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_crc.cpp
     TOPT = $(CRC_FLAG)
-    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       CRC_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_CRC32
@@ -526,7 +526,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_aes.cpp
     TOPT = $(AES_FLAG)
-    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       AES_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_AES
@@ -534,7 +534,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_pmull.cpp
     TOPT = $(PMULL_FLAG)
-    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       GCM_FLAG =
       GF2N_FLAG =
@@ -543,7 +543,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha1.cpp
     TOPT = $(SHA_FLAG)
-    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA1
@@ -551,7 +551,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha256.cpp
     TOPT = $(SHA_FLAG)
-    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA2
@@ -559,7 +559,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sm3.cpp
     TOPT = -march=armv8.4-a+crypto
-    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SM3_FLAG = -march=armv8.4-a+crypto
       SM4_FLAG = -march=armv8.4-a+crypto
@@ -570,7 +570,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha3.cpp
     TOPT = -march=armv8.4-a+crypto
-    HAVE_OPT = HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA3_FLAG = -march=armv8.4-a+crypto
       SHA512_FLAG = -march=armv8.4-a+crypto
