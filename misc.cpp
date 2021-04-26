@@ -28,7 +28,10 @@
 #endif
 
 #ifndef CRYPTOPP_DISABLE_ASM
-# if defined(__AVX__) || defined(__SSE2__)
+# if defined(__SSE2__)
+#  include <emmintrin.h>
+# endif
+# if defined(__AVX__)
 #  include <immintrin.h>
 # endif
 
