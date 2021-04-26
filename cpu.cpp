@@ -58,8 +58,9 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 # include <sys/sysctl.h>
 #endif
 
+// FreeBSD headers are giving us trouble...
+// https://github.com/weidai11/cryptopp/pull/1029
 #if defined(__FreeBSD__)
-# include <machine/cpu.h>
 # include <sys/auxv.h>
 # include <sys/elf_common.h>
 #endif
