@@ -123,7 +123,7 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
         // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
         const word32 rk = GetWord<word32>(false, BIG_ENDIAN_ORDER, userKey);
 
-        const word16 rk1 = rk >> 16;
+        const word16 rk1 = static_cast<word16>(rk >> 16);
         m_rk[i] = rk1 ^ rotlConstant<1>(rk1) ^ rotlConstant<8>(rk1);
         m_rk[(i + m_kw) ^ 1] = rk1 ^ rotlConstant<1>(rk1) ^ rotlConstant<11>(rk1);
         i++;
