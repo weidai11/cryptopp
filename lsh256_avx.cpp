@@ -23,7 +23,7 @@
 #endif
 
 // GCC at 4.5. Clang is unknown. Also see https://stackoverflow.com/a/42493893.
-#if defined (__has_include) && (__has_include(<x86intrin.h>))
+#if (CRYPTOPP_GCC_VERSION >= 40500)
 # include <x86intrin.h>
 #endif
 
