@@ -128,7 +128,7 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
         m_rk[(i + m_kw) ^ 1] = rk1 ^ rotlConstant<1>(rk1) ^ rotlConstant<11>(rk1);
         i++;
 
-        const word16 rk2 = rk & 0xffff;
+        const word16 rk2 = static_cast<word16>(rk & 0xffff);
         m_rk[i] = rk2 ^ rotlConstant<1>(rk2) ^ rotlConstant<8>(rk2);
         m_rk[(i + m_kw) ^ 1] = rk2 ^ rotlConstant<1>(rk2) ^ rotlConstant<11>(rk2);
         i++;
