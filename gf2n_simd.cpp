@@ -16,7 +16,7 @@
 //    expected to perform, like Common Subexpression Elimination to save
 //    on variables (among others). Note that the compiler may miss the
 //    optimization so the IACR paper is useful. However, the code is GPL3
-//    and toxic for some users of the library...
+//    and toxic for some users of the library, so it is not used here...
 
 #include "pch.h"
 #include "config.h"
