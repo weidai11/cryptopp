@@ -191,13 +191,13 @@ do
                 touch "${TMPDIR}/build.failed"
             fi
 
-            # Test PMULL code generation
+            # Test CLMUL code generation
             count=$(${OBJDUMP} --disassemble gcm_simd.o 2>&1 | grep -c -E 'pclmulqdq|pclmullqlq|pclmullqhq|vpclmulqdq')
             if [[ "${count}" -gt 16 ]]
             then
-                echo "${platform} : PMULL ==> SUCCESS" >> "${TMPDIR}/build.log"
+                echo "${platform} : CLMUL ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
-                echo "${platform} : PMULL ==> FAILURE" >> "${TMPDIR}/build.log"
+                echo "${platform} : CLMUL ==> FAILURE" >> "${TMPDIR}/build.log"
                 touch "${TMPDIR}/build.failed"
             fi
 
