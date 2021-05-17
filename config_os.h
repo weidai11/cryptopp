@@ -30,8 +30,10 @@
 // The problems with Clang pretending to be other compilers is
 // discussed at http://github.com/weidai11/cryptopp/issues/147.
 #if (defined(_MSC_VER) && defined(__clang__) && \
-   !(defined( __clang_analyzer__)) && !defined(__INTEL_LLVM_COMPILER))
+   !(defined( __clang_analyzer__)) && !defined(__INTEL_LLVM_COMPILER) && \
+   !defined(CRYPTOPP_SUPPORT_CLANG_CL))
 # error: "Unsupported configuration"
+#endif
 #endif
 
 // Windows platform
@@ -57,7 +59,7 @@
 #endif
 
 // Microsoft compilers
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(CRYPTOPP_SUPPORT_CLANG_CL)
 	#define CRYPTOPP_NO_VTABLE __declspec(novtable)
 #else
 	#define CRYPTOPP_NO_VTABLE
