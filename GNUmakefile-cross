@@ -207,6 +207,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
   TCOMMAND = $(CXX) $(TCXXFLAGS) $(TEXTRA) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT)
   #TPROG = TestPrograms/test_cxx.cpp
+  #TOPT =
   #$(info Testing compile... )
   #$(info $(shell $(TCOMMAND)))
 endif
@@ -382,6 +383,7 @@ ifeq ($(DETECT_FEATURES),1)
     # CRYPTOPP_DISABLE_MIXED_ASM is now being added in config_asm.h for all
     # Clang compilers. This test will need to be re-enabled if Clang fixes it.
     #TPROG = TestPrograms/test_asm_mixed.cpp
+    #TOPT =
     #HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     #ifneq ($(strip $(HAVE_OPT)),0)
     #  CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM

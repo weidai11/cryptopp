@@ -120,6 +120,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
   TCOMMAND = $(CXX) $(TCXXFLAGS) $(TEXTRA) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT)
   #TPROG = TestPrograms/test_cxx.cpp
+  #TOPT =
   #$(info Testing compile... )
   #$(info $(shell $(TCOMMAND)))
 endif
@@ -216,6 +217,7 @@ endif # IS_MINGW
 
 # Newlib needs _XOPEN_SOURCE=600 for signals
 TPROG = TestPrograms/test_newlib.cpp
+TOPT =
 HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
 ifeq ($(strip $(HAVE_OPT)),0)
   ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
@@ -432,6 +434,7 @@ ifeq ($(DETECT_FEATURES),1)
     # CRYPTOPP_DISABLE_MIXED_ASM is now being added in config_asm.h for all
     # Clang compilers. This test will need to be re-enabled if Clang fixes it.
     #TPROG = TestPrograms/test_asm_mixed.cpp
+    #TOPT =
     #HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     #ifneq ($(strip $(HAVE_OPT)),0)
     #  CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
@@ -1069,6 +1072,7 @@ endif # Valgrind
 #   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
   TPROG = TestPrograms/test_cxx.cpp
+  TOPT =
   USING_GLIBCXX := $(shell $(CXX)$(CXXFLAGS) -E $(TPROG) -c 2>&1 | $(GREP) -i -c "__GLIBCXX__")
   ifneq ($(USING_GLIBCXX),0)
     ifeq ($(HAS_NEWLIB),0)
