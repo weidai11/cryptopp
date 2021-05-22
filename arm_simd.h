@@ -12,16 +12,16 @@
 # include <arm_neon.h>
 #endif
 
-#if (CRYPTOPP_ARM_ACLE_HEADER)
-# include <stdint.h>
-# include <arm_acle.h>
-#endif
+//#if (CRYPTOPP_ARM_ACLE_HEADER)
+//# include <stdint.h>
+//# include <arm_acle.h>
+//#endif
 
 #if (CRYPTOPP_ARM_PMULL_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Polynomial multiplication
-/// \param a the first term
-/// \param b the second term
+/// \param a the first value
+/// \param b the second value
 /// \return vector product
 /// \details PMULL_00() performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x00)</tt>.
@@ -39,8 +39,8 @@ inline uint64x2_t PMULL_00(const uint64x2_t a, const uint64x2_t b)
     return vmull_p64(x, y);
 #elif defined(__GNUC__)
     uint64x2_t r;
-    __asm __volatile("pmull    %0.1q, %1.1d, %2.1d \n\t"
-        :"=w" (r) : "w" (a), "w" (b) );
+    __asm__ ("pmull    %0.1q, %1.1d, %2.1d   \n\t"
+            :"=w" (r) : "w" (a), "w" (b) );
     return r;
 #else
     return (uint64x2_t)(vmull_p64(
@@ -50,8 +50,8 @@ inline uint64x2_t PMULL_00(const uint64x2_t a, const uint64x2_t b)
 }
 
 /// \brief Polynomial multiplication
-/// \param a the first term
-/// \param b the second term
+/// \param a the first value
+/// \param b the second value
 /// \return vector product
 /// \details PMULL_01 performs() polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x01)</tt>.
@@ -69,8 +69,8 @@ inline uint64x2_t PMULL_01(const uint64x2_t a, const uint64x2_t b)
     return vmull_p64(x, y);
 #elif defined(__GNUC__)
     uint64x2_t r;
-    __asm __volatile("pmull    %0.1q, %1.1d, %2.1d \n\t"
-        :"=w" (r) : "w" (a), "w" (vget_high_u64(b)) );
+    __asm__ ("pmull    %0.1q, %1.1d, %2.1d   \n\t"
+            :"=w" (r) : "w" (a), "w" (vget_high_u64(b)) );
     return r;
 #else
     return (uint64x2_t)(vmull_p64(
@@ -80,8 +80,8 @@ inline uint64x2_t PMULL_01(const uint64x2_t a, const uint64x2_t b)
 }
 
 /// \brief Polynomial multiplication
-/// \param a the first term
-/// \param b the second term
+/// \param a the first value
+/// \param b the second value
 /// \return vector product
 /// \details PMULL_10() performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x10)</tt>.
@@ -99,8 +99,8 @@ inline uint64x2_t PMULL_10(const uint64x2_t a, const uint64x2_t b)
     return vmull_p64(x, y);
 #elif defined(__GNUC__)
     uint64x2_t r;
-    __asm __volatile("pmull    %0.1q, %1.1d, %2.1d \n\t"
-        :"=w" (r) : "w" (vget_high_u64(a)), "w" (b) );
+    __asm__ ("pmull    %0.1q, %1.1d, %2.1d   \n\t"
+            :"=w" (r) : "w" (vget_high_u64(a)), "w" (b) );
     return r;
 #else
     return (uint64x2_t)(vmull_p64(
@@ -110,8 +110,8 @@ inline uint64x2_t PMULL_10(const uint64x2_t a, const uint64x2_t b)
 }
 
 /// \brief Polynomial multiplication
-/// \param a the first term
-/// \param b the second term
+/// \param a the first value
+/// \param b the second value
 /// \return vector product
 /// \details PMULL_11() performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x11)</tt>.
@@ -129,8 +129,8 @@ inline uint64x2_t PMULL_11(const uint64x2_t a, const uint64x2_t b)
     return vmull_p64(x, y);
 #elif defined(__GNUC__)
     uint64x2_t r;
-    __asm __volatile("pmull2   %0.1q, %1.2d, %2.2d \n\t"
-        :"=w" (r) : "w" (a), "w" (b) );
+    __asm__ ("pmull2   %0.1q, %1.2d, %2.2d   \n\t"
+            :"=w" (r) : "w" (a), "w" (b) );
     return r;
 #else
     return (uint64x2_t)(vmull_p64(
@@ -139,9 +139,59 @@ inline uint64x2_t PMULL_11(const uint64x2_t a, const uint64x2_t b)
 #endif
 }
 
+/// \brief Polynomial multiplication
+/// \param a the first value
+/// \param b the second value
+/// \return vector product
+/// \details PMULL() performs vmull_p64(). PMULL is provided as GCC inline assembly
+///  due to Clang and lack of support for the intrinsic.
+/// \since Crypto++ 8.0
+inline uint64x2_t PMULL(const uint64x2_t a, const uint64x2_t b)
+{
+#if defined(_MSC_VER)
+    const __n64 x = { vgetq_lane_u64(a, 0) };
+    const __n64 y = { vgetq_lane_u64(b, 0) };
+    return vmull_p64(x, y);
+#elif defined(__GNUC__)
+    uint64x2_t r;
+    __asm__ ("pmull    %0.1q, %1.1d, %2.1d   \n\t"
+            :"=w" (r) : "w" (a), "w" (b) );
+    return r;
+#else
+    return (uint64x2_t)(vmull_p64(
+        vgetq_lane_u64(vreinterpretq_u64_u8(a),0),
+        vgetq_lane_u64(vreinterpretq_u64_u8(b),0)));
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first value
+/// \param b the second value
+/// \return vector product
+/// \details PMULL_HIGH() performs vmull_high_p64(). PMULL_HIGH is provided as GCC inline assembly
+///  due to Clang and lack of support for the intrinsic.
+/// \since Crypto++ 8.0
+inline uint64x2_t PMULL_HIGH(const uint64x2_t a, const uint64x2_t b)
+{
+#if defined(_MSC_VER)
+    const __n64 x = { vgetq_lane_u64(a, 1) };
+    const __n64 y = { vgetq_lane_u64(b, 1) };
+    return vmull_p64(x, y);
+#elif defined(__GNUC__)
+    uint64x2_t r;
+    __asm__ ("pmull2   %0.1q, %1.2d, %2.2d   \n\t"
+            :"=w" (r) : "w" (a), "w" (b) );
+    return r;
+#else
+    return (uint64x2_t)(vmull_p64(
+        vgetq_lane_u64(vreinterpretq_u64_u8(a),1),
+        vgetq_lane_u64(vreinterpretq_u64_u8(b),1))));
+#endif
+}
+
 /// \brief Vector extraction
-/// \param a the first term
-/// \param b the second term
+/// \param a the first value
+/// \param b the second value
 /// \param c the byte count
 /// \return vector
 /// \details VEXT_U8() extracts the first <tt>c</tt> bytes of vector
@@ -150,20 +200,20 @@ inline uint64x2_t PMULL_11(const uint64x2_t a, const uint64x2_t b)
 inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b, unsigned int c)
 {
 #if defined(_MSC_VER)
-    return (uint64x2_t)vextq_u8(
-        vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), c);
+    return vreinterpretq_u64_u8(vextq_u8(
+        vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), c));
 #else
     uint64x2_t r;
-    __asm __volatile("ext   %0.16b, %1.16b, %2.16b, %3 \n\t"
-        :"=w" (r) : "w" (a), "w" (b), "I" (c) );
+    __asm__ ("ext   %0.16b, %1.16b, %2.16b, %3   \n\t"
+            :"=w" (r) : "w" (a), "w" (b), "I" (c) );
     return r;
 #endif
 }
 
 /// \brief Vector extraction
 /// \tparam C the byte count
-/// \param a the first term
-/// \param b the second term
+/// \param a the first value
+/// \param b the second value
 /// \return vector
 /// \details VEXT_U8() extracts the first <tt>C</tt> bytes of vector
 ///  <tt>a</tt> and the remaining bytes in <tt>b</tt>.
@@ -173,16 +223,104 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
 {
     // https://github.com/weidai11/cryptopp/issues/366
 #if defined(_MSC_VER)
-    return (uint64x2_t)vextq_u8(
-        vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), C);
+    return vreinterpretq_u64_u8(vextq_u8(
+        vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), C));
 #else
     uint64x2_t r;
-    __asm __volatile("ext   %0.16b, %1.16b, %2.16b, %3 \n\t"
-        :"=w" (r) : "w" (a), "w" (b), "I" (C) );
+    __asm__ ("ext   %0.16b, %1.16b, %2.16b, %3   \n\t"
+            :"=w" (r) : "w" (a), "w" (b), "I" (C) );
     return r;
 #endif
 }
 
 #endif // CRYPTOPP_ARM_PMULL_AVAILABLE
+
+#if CRYPTOPP_ARM_SHA3_AVAILABLE
+
+/// \brief Three-way XOR
+/// \param a the first value
+/// \param b the second value
+/// \param c the third value
+/// \return three-way exclusive OR of the values
+/// \details VEOR3() performs veor3q_u64(). VEOR3 is provided as GCC inline assembly due
+///  to Clang and lack of support for the intrinsic.
+/// \details VEOR3 requires ARMv8.4.
+/// \since Crypto++ 8.6
+inline uint64x2_t VEOR3(uint64x2_t a, uint64x2_t b, uint64x2_t c)
+{
+#if defined(_MSC_VER)
+# error "Not implemented"
+#else
+    uint64x2_t r;
+    __asm__ ("eor3   %0.16b, %1.16b, %2.16b, %3.16b   \n\t"
+            :"=w" (r) : "w" (a), "w" (b), "w" (c));
+    return r;
+#endif
+}
+
+/// \brief XOR and rotate
+/// \param a the first value
+/// \param b the second value
+/// \param c the third value
+/// \return two-way exclusive OR of the values, then rotated by imm6
+/// \details VXARQ() performs vxarq_u64(). VXARQ is provided as GCC inline assembly due
+///  to Clang and lack of support for the intrinsic.
+/// \details VXARQ requires ARMv8.4.
+/// \since Crypto++ 8.6
+inline uint64x2_t VXARQ(uint64x2_t a, uint64x2_t b, const int imm6)
+{
+#if defined(_MSC_VER)
+# error "Not implemented"
+#else
+    uint64x2_t r;
+    __asm__ ("xar   %0.2d, %1.2d, %2.2d, %3   \n\t"
+            :"=w" (r) : "w" (a), "w" (b), "I" (imm6));
+    return r;
+#endif
+}
+
+/// \brief XOR and rotate
+/// \tparam C the rotate amount
+/// \param a the first value
+/// \param b the second value
+/// \return two-way exclusive OR of the values, then rotated by C
+/// \details VXARQ() performs vxarq_u64(). VXARQ is provided as GCC inline assembly due
+///  to Clang and lack of support for the intrinsic.
+/// \details VXARQ requires ARMv8.4.
+/// \since Crypto++ 8.6
+template <unsigned int C>
+inline uint64x2_t VXARQ(uint64x2_t a, uint64x2_t b)
+{
+#if defined(_MSC_VER)
+# error "Not implemented"
+#else
+    uint64x2_t r;
+    __asm__ ("xar   %0.2d, %1.2d, %2.2d, %3   \n\t"
+            :"=w" (r) : "w" (a), "w" (b), "I" (C));
+    return r;
+#endif
+}
+
+/// \brief XOR and rotate
+/// \param a the first value
+/// \param b the second value
+/// \return two-way exclusive OR of the values, then rotated 1-bit
+/// \details VRAX1() performs vrax1q_u64(). VRAX1 is provided as GCC inline assembly due
+///  to Clang and lack of support for the intrinsic.
+/// \details VRAX1 requires ARMv8.4.
+/// \since Crypto++ 8.6
+inline uint64x2_t VRAX1(uint64x2_t a, uint64x2_t b)
+{
+#if defined(_MSC_VER)
+# error "Not implemented"
+#else
+    uint64x2_t r;
+    __asm__ ("rax1   %0.2d, %1.2d, %2.2d   \n\t"
+            :"=w" (r) : "w" (a), "w" (b));
+    return r;
+#endif
+}
+
+#endif  // CRYPTOPP_ARM_SHA3_AVAILABLE
 
 #endif // CRYPTOPP_ARM_SIMD_H
