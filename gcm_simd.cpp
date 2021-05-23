@@ -30,12 +30,8 @@
 #endif
 
 #if (CRYPTOPP_ARM_NEON_HEADER)
-# include <arm_neon.h>
-#endif
-
-#if (CRYPTOPP_ARM_ACLE_HEADER)
 # include <stdint.h>
-# include <arm_acle.h>
+# include <arm_neon.h>
 #endif
 
 #if defined(CRYPTOPP_ARM_PMULL_AVAILABLE)
@@ -54,10 +50,6 @@
 #ifndef EXCEPTION_EXECUTE_HANDLER
 # define EXCEPTION_EXECUTE_HANDLER 1
 #endif
-
-// Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
-#define UINT64_CAST(x) ((uint64_t *)(void *)(x))
-#define CONST_UINT64_CAST(x) ((const uint64_t *)(const void *)(x))
 
 // Squash MS LNK4221 and libtool warnings
 extern const char GCM_SIMD_FNAME[] = __FILE__;
