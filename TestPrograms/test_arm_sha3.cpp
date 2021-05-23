@@ -42,6 +42,8 @@ inline uint64x2_t VRAX1(uint64x2_t a, uint64x2_t b)
 
 int main(int argc, char* argv[])
 {
+    // SHA3 intrinsics are merely ARMv8.4 instructions.
+    // https://developer.arm.com/architectures/instruction-sets/simd-isas/neon/intrinsics
     uint32x4_t x={0}, y={1}, z={2};
     x=VEOR3(x,y,z);
     x=VXAR(y,z,6);
