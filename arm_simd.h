@@ -9,6 +9,7 @@
 #include "config.h"
 
 #if (CRYPTOPP_ARM_NEON_HEADER)
+# include <stdint.h>
 # include <arm_neon.h>
 #endif
 
@@ -143,8 +144,8 @@ inline uint64x2_t PMULL_11(const uint64x2_t a, const uint64x2_t b)
 /// \param a the first value
 /// \param b the second value
 /// \return vector product
-/// \details PMULL() performs vmull_p64(). PMULL is provided as GCC inline assembly
-///  due to Clang and lack of support for the intrinsic.
+/// \details PMULL() performs vmull_p64(). PMULL is provided as
+///  GCC inline assembly due to Clang and lack of support for the intrinsic.
 /// \since Crypto++ 8.0
 inline uint64x2_t PMULL(const uint64x2_t a, const uint64x2_t b)
 {
@@ -168,8 +169,8 @@ inline uint64x2_t PMULL(const uint64x2_t a, const uint64x2_t b)
 /// \param a the first value
 /// \param b the second value
 /// \return vector product
-/// \details PMULL_HIGH() performs vmull_high_p64(). PMULL_HIGH is provided as GCC inline assembly
-///  due to Clang and lack of support for the intrinsic.
+/// \details PMULL_HIGH() performs vmull_high_p64(). PMULL_HIGH is provided as
+///  GCC inline assembly due to Clang and lack of support for the intrinsic.
 /// \since Crypto++ 8.0
 inline uint64x2_t PMULL_HIGH(const uint64x2_t a, const uint64x2_t b)
 {
@@ -195,7 +196,8 @@ inline uint64x2_t PMULL_HIGH(const uint64x2_t a, const uint64x2_t b)
 /// \param c the byte count
 /// \return vector
 /// \details VEXT_U8() extracts the first <tt>c</tt> bytes of vector
-///  <tt>a</tt> and the remaining bytes in <tt>b</tt>.
+///  <tt>a</tt> and the remaining bytes in <tt>b</tt>. VEXT_U8 is provided
+///  as GCC inline assembly due to Clang and lack of support for the intrinsic.
 /// \since Crypto++ 8.0
 inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b, unsigned int c)
 {
@@ -216,7 +218,8 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b, unsigned int c)
 /// \param b the second value
 /// \return vector
 /// \details VEXT_U8() extracts the first <tt>C</tt> bytes of vector
-///  <tt>a</tt> and the remaining bytes in <tt>b</tt>.
+///  <tt>a</tt> and the remaining bytes in <tt>b</tt>. VEXT_U8 is provided
+///  as GCC inline assembly due to Clang and lack of support for the intrinsic.
 /// \since Crypto++ 8.0
 template <unsigned int C>
 inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
@@ -249,7 +252,7 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
 inline uint64x2_t VEOR3(uint64x2_t a, uint64x2_t b, uint64x2_t c)
 {
 #if defined(_MSC_VER)
-# error "Not implemented"
+    return veor3q_u64(a, b, c);
 #else
     uint64x2_t r;
     __asm__ ("eor3   %0.16b, %1.16b, %2.16b, %3.16b   \n\t"
@@ -267,10 +270,10 @@ inline uint64x2_t VEOR3(uint64x2_t a, uint64x2_t b, uint64x2_t c)
 ///  to Clang and lack of support for the intrinsic.
 /// \details VXARQ requires ARMv8.4.
 /// \since Crypto++ 8.6
-inline uint64x2_t VXARQ(uint64x2_t a, uint64x2_t b, const int imm6)
+inline uint64x2_t VXAR(uint64x2_t a, uint64x2_t b, const int imm6)
 {
 #if defined(_MSC_VER)
-# error "Not implemented"
+    return vxarq_u64(a, b, imm6);
 #else
     uint64x2_t r;
     __asm__ ("xar   %0.2d, %1.2d, %2.2d, %3   \n\t"
@@ -289,10 +292,10 @@ inline uint64x2_t VXARQ(uint64x2_t a, uint64x2_t b, const int imm6)
 /// \details VXARQ requires ARMv8.4.
 /// \since Crypto++ 8.6
 template <unsigned int C>
-inline uint64x2_t VXARQ(uint64x2_t a, uint64x2_t b)
+inline uint64x2_t VXAR(uint64x2_t a, uint64x2_t b)
 {
 #if defined(_MSC_VER)
-# error "Not implemented"
+    return vxarq_u64(a, b, C);
 #else
     uint64x2_t r;
     __asm__ ("xar   %0.2d, %1.2d, %2.2d, %3   \n\t"
@@ -312,7 +315,7 @@ inline uint64x2_t VXARQ(uint64x2_t a, uint64x2_t b)
 inline uint64x2_t VRAX1(uint64x2_t a, uint64x2_t b)
 {
 #if defined(_MSC_VER)
-# error "Not implemented"
+    return vrax1q_u64(a, b);
 #else
     uint64x2_t r;
     __asm__ ("rax1   %0.2d, %1.2d, %2.2d   \n\t"
