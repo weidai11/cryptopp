@@ -247,7 +247,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   ifeq ($(SSE2_FLAG),)
-    CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
   # Need SSE2 or higher for these tests
@@ -343,31 +343,31 @@ ifeq ($(DETECT_FEATURES),1)
     endif
 
     ifeq ($(SSE3_FLAG),)
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSE3
+      CXXFLAGS += -DCRYPTOPP_DISABLE_SSE3
     else ifeq ($(SSSE3_FLAG),)
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
+      CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
     else ifeq ($(SSE41_FLAG),)
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
+      CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
     else ifeq ($(SSE42_FLAG),)
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
+      CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
     endif
 
     ifneq ($(SSE42_FLAG),)
       # Unusual GCC/Clang on Macports. It assembles AES, but not CLMUL.
       # test_x86_clmul.s:15: no such instruction: 'pclmulqdq $0, %xmm1,%xmm0'
       ifeq ($(CLMUL_FLAG),)
-        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
+        CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
       endif
       ifeq ($(AESNI_FLAG),)
-        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
+        CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
       endif
 
       ifeq ($(AVX_FLAG),)
-        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
+        CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
       else ifeq ($(AVX2_FLAG),)
-        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
+        CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
       else ifeq ($(SHANI_FLAG),)
-        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
+        CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
       endif
     endif
 
@@ -386,7 +386,7 @@ ifeq ($(DETECT_FEATURES),1)
     #TOPT =
     #HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     #ifneq ($(strip $(HAVE_OPT)),0)
-    #  CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
+    #  CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
     #endif
 
   # SSE2_FLAGS
@@ -560,25 +560,32 @@ ifeq ($(DETECT_FEATURES),1)
     endif
 
     TPROG = TestPrograms/test_arm_sm3.cpp
-    TOPT = -march=armv8.4-a+crypto
+    TOPT = -march=armv8.4-a+sm3
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
-      SM3_FLAG = -march=armv8.4-a+crypto
-      SM4_FLAG = -march=armv8.4-a+crypto
+      SM3_FLAG = -march=armv8.4-a+sm3
+      SM4_FLAG = -march=armv8.4-a+sm3
     else
       #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SM3
       #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SM4
     endif
 
     TPROG = TestPrograms/test_arm_sha3.cpp
-    TOPT = -march=armv8.4-a+crypto
+    TOPT = -march=armv8.4-a+sha3
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
-      SHA3_FLAG = -march=armv8.4-a+crypto
-      SHA512_FLAG = -march=armv8.4-a+crypto
+      SHA3_FLAG = -march=armv8.4-a+sha3
     else
       #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA3
-      #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SM4
+    endif
+
+    TPROG = TestPrograms/test_arm_sha512.cpp
+    TOPT = -march=armv8.4-a+sha512
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      SHA512_FLAG = -march=armv8.4-a+sha512
+    else
+      #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA512
     endif
 
   # ASIMD_FLAG

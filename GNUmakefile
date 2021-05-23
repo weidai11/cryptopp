@@ -611,30 +611,30 @@ ifeq ($(DETECT_FEATURES),1)
     endif
 
     TPROG = TestPrograms/test_arm_sm3.cpp
-    TOPT = -march=armv8.4-a+crypto
+    TOPT = -march=armv8.4-a+sm3
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
-      SM3_FLAG = -march=armv8.4-a+crypto
-      SM4_FLAG = -march=armv8.4-a+crypto
+      SM3_FLAG = -march=armv8.4-a+sm3
+      SM4_FLAG = -march=armv8.4-a+sm3
     else
       #CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SM3
       #CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SM4
     endif
 
     TPROG = TestPrograms/test_arm_sha3.cpp
-    TOPT = -march=armv8.4-a+crypto
+    TOPT = -march=armv8.4-a+sha3
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
-      SHA3_FLAG = -march=armv8.4-a+crypto
+      SHA3_FLAG = -march=armv8.4-a+sha3
     else
       #CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA3
     endif
 
     TPROG = TestPrograms/test_arm_sha512.cpp
-    TOPT = -march=armv8.4-a+crypto
+    TOPT = -march=armv8.4-a+sha512
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
-      SHA512_FLAG = -march=armv8.4-a+crypto
+      SHA512_FLAG = -march=armv8.4-a+sha512
     else
       #CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA512
     endif
