@@ -2,26 +2,50 @@
 #ifdef CRYPTOPP_ARM_NEON_HEADER
 # include <arm_neon.h>
 #endif
-#ifdef CRYPTOPP_ARM_ACLE_HEADER
-# include <arm_acle.h>
+
+inline uint64x2_t VEOR3(uint64x2_t a, uint64x2_t b, uint64x2_t c)
+{
+#if defined(_MSC_VER)
+    return veor3q_u64(a, b, c);
+#else
+    uint64x2_t r;
+    __asm__ ("eor3   %0.16b, %1.16b, %2.16b, %3.16b   \n\t"
+            :"=w" (r) : "w" (a), "w" (b), "w" (c));
+    return r;
 #endif
+}
+
+template <unsigned int C>
+inline uint64x2_t VXAR(uint64x2_t a, uint64x2_t b)
+{
+#if defined(_MSC_VER)
+    return vxarq_u64(a, b, C);
+#else
+    uint64x2_t r;
+    __asm__ ("xar   %0.2d, %1.2d, %2.2d, %3   \n\t"
+            :"=w" (r) : "w" (a), "w" (b), "I" (C));
+    return r;
+#endif
+}
+
+inline uint64x2_t VRAX1(uint64x2_t a, uint64x2_t b)
+{
+#if defined(_MSC_VER)
+    return vrax1q_u64(a, b);
+#else
+    uint64x2_t r;
+    __asm__ ("rax1   %0.2d, %1.2d, %2.2d   \n\t"
+            :"=w" (r) : "w" (a), "w" (b));
+    return r;
+#endif
+}
 
 int main(int argc, char* argv[])
 {
-    // SM4 block cipher
-    uint32x4_t x;
-    x=vsm4ekeyq_u32(x,x);
-    x=vsm4eq_u32(x,x);
-
-    // SM3 hash
-    uint32x4_t y;
-    y=vsm3ss1q_u32(x,y,y);
-    y=vsm3tt1aq_u32(x,y,y,3);
-    y=vsm3tt1bq_u32(x,y,y,1);
-    y=vsm3tt2aq_u32(x,y,y,2);
-    y=vsm3tt2bq_u32(x,y,y,3);
-    y=vsm3partw1q_u32(x,y,y);
-    y=vsm3partw2q_u32(x,y,y);
+    uint32x4_t x={0}, y={1}, z={2};
+    x=VEOR3(x,y,z);
+    x=VXAR(y,z,6);
+    x=VRAX1(y,z);
 
     return 0;
 }
