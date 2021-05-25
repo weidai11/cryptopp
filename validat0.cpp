@@ -499,7 +499,7 @@ bool TestEncryptors()
     {
         for (unsigned int i=0; i<ENCRYPT_MAC_COUNT; ++i)
         {
-            const unsigned int runt = DefaultEncryptorWithMAC::SALTLENGTH + DefaultEncryptorWithMAC::KEYLENGTH;
+            const unsigned int runt = EnumToInt(DefaultEncryptorWithMAC::SALTLENGTH) + EnumToInt(DefaultEncryptorWithMAC::KEYLENGTH);
             std::string pwd, src, dest, rec;
             unsigned int len = GlobalRNG().GenerateWord32(runt, 0xfff);
             unsigned int plen = GlobalRNG().GenerateWord32(0, 32);
@@ -593,7 +593,7 @@ bool TestEncryptors()
     {
         for (unsigned int i=0; i<ENCRYPT_MAC_COUNT; ++i)
         {
-            const unsigned int runt = LegacyDecryptorWithMAC::SALTLENGTH + LegacyDecryptorWithMAC::KEYLENGTH;
+            const unsigned int runt = EnumToInt(LegacyDecryptorWithMAC::SALTLENGTH) + EnumToInt(LegacyDecryptorWithMAC::KEYLENGTH);
             std::string pwd, src, dest, rec;
             unsigned int len = GlobalRNG().GenerateWord32(runt, 0xfff);
             unsigned int plen = GlobalRNG().GenerateWord32(0, 32);
