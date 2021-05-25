@@ -475,8 +475,8 @@ ifeq ($(DETECT_FEATURES),1)
 
   # Clang needs an option to include <arm_neon.h>
   TPROG = TestPrograms/test_arm_neon_header.cpp
-  TOPT = -march=armv7-a -mfpu=neon
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_NEON_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  TOPT = -DCRYPTOPP_ARM_NEON_HEADER=1 -march=armv7-a -mfpu=neon
+  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     TEXTRA += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
@@ -521,15 +521,15 @@ ifneq ($(IS_ARMV8),0)
 ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_arm_neon_header.cpp
-  TOPT =
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_NEON_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  TOPT = -DCRYPTOPP_ARM_NEON_HEADER=1
+  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     TEXTRA += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_acle_header.cpp
-  TOPT = -march=armv8-a
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) -DCRYPTOPP_ARM_ACLE_HEADER=1 $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  TOPT = -DCRYPTOPP_ARM_ACLE_HEADER=1 -march=armv8-a
+  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     TEXTRA += -DCRYPTOPP_ARM_ACLE_HEADER=1
   endif
