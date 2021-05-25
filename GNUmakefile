@@ -167,31 +167,31 @@ endif
 
 # http://www.gnu.org/prep/standards/html_node/Directory-Variables.html
 ifeq ($(PREFIX),)
-PREFIX = /usr/local
-PC_PREFIX = /usr/local
+  PREFIX = /usr/local
+  PC_PREFIX = /usr/local
 else
-PC_PREFIX = $(PREFIX)
+  PC_PREFIX = $(PREFIX)
 endif
 ifeq ($(LIBDIR),)
-LIBDIR := $(PREFIX)/lib
-PC_LIBDIR = $${prefix}/lib
+  LIBDIR := $(PREFIX)/lib
+  PC_LIBDIR = $${prefix}/lib
 else
-PC_LIBDIR = $(LIBDIR)
+  PC_LIBDIR = $(LIBDIR)
 endif
 ifeq ($(DATADIR),)
-DATADIR := $(PREFIX)/share
-PC_DATADIR = $${prefix}/share
+  DATADIR := $(PREFIX)/share
+  PC_DATADIR = $${prefix}/share
 else
-PC_DATADIR = $(DATADIR)
+  PC_DATADIR = $(DATADIR)
 endif
 ifeq ($(INCLUDEDIR),)
-INCLUDEDIR := $(PREFIX)/include
-PC_INCLUDEDIR = $${prefix}/include
+  INCLUDEDIR := $(PREFIX)/include
+  PC_INCLUDEDIR = $${prefix}/include
 else
-PC_INCLUDEDIR = $(INCLUDEDIR)
+  PC_INCLUDEDIR = $(INCLUDEDIR)
 endif
 ifeq ($(BINDIR),)
-BINDIR := $(PREFIX)/bin
+  BINDIR := $(PREFIX)/bin
 endif
 
 # We honor ARFLAGS, but the "v" option used by default causes a noisy make

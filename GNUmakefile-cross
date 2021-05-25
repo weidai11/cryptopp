@@ -60,23 +60,21 @@ endif
 #####                General Variables                #####
 ###########################################################
 
-# Default prefix for make install
-ifeq ($(PREFIX),)
-PREFIX = /usr/local
-endif
-
 # http://www.gnu.org/prep/standards/html_node/Directory-Variables.html
-ifeq ($(DATADIR),)
-DATADIR := $(PREFIX)/share
+ifeq ($(PREFIX),)
+  PREFIX = /usr/local
 endif
 ifeq ($(LIBDIR),)
-LIBDIR := $(PREFIX)/lib
+  LIBDIR := $(PREFIX)/lib
 endif
-ifeq ($(BINDIR),)
-BINDIR := $(PREFIX)/bin
+ifeq ($(DATADIR),)
+  DATADIR := $(PREFIX)/share
 endif
 ifeq ($(INCLUDEDIR),)
-INCLUDEDIR := $(PREFIX)/include
+  INCLUDEDIR := $(PREFIX)/include
+endif
+ifeq ($(BINDIR),)
+  BINDIR := $(PREFIX)/bin
 endif
 
 # We honor ARFLAGS, but the "v" option used by default causes a noisy make
