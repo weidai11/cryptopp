@@ -19,6 +19,9 @@
 #endif
 
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+///	\name CRC32 checksum
+//@{
+
 /// \brief CRC32 checksum
 /// \param crc the starting crc value
 /// \param val the value to checksum
@@ -72,6 +75,9 @@ inline uint32_t CRC32Wx4 (uint32_t crc, const uint32_t vals[4])
 #endif
 }
 
+//@}
+///	\name CRC32-C checksum
+
 /// \brief CRC32-C checksum
 /// \param crc the starting crc value
 /// \param val the value to checksum
@@ -124,9 +130,12 @@ inline uint32_t CRC32CWx4 (uint32_t crc, const uint32_t vals[4])
     return crc;
 #endif
 }
+//@}
 #endif  // CRYPTOPP_ARM_CRC32_AVAILABLE
 
 #if (CRYPTOPP_ARM_PMULL_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+///	\name Polynomial multiplication
+//@{
 
 /// \brief Polynomial multiplication
 /// \param a the first value
@@ -342,11 +351,14 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
             :"=w" (r) : "w" (a), "w" (b), "I" (C) );
     return r;
 #endif
+//@}
 }
 
 #endif // CRYPTOPP_ARM_PMULL_AVAILABLE
 
-#if CRYPTOPP_ARM_SHA3_AVAILABLE
+#if CRYPTOPP_ARM_SHA3_AVAILABLE  || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+///	\name ARMv8.2 operations
+//@{
 
 /// \brief Three-way XOR
 /// \param a the first value
@@ -355,7 +367,7 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
 /// \return three-way exclusive OR of the values
 /// \details VEOR3() performs veor3q_u64(). VEOR3 is provided as GCC inline assembly due
 ///  to Clang and lack of support for the intrinsic.
-/// \details VEOR3 requires ARMv8.4.
+/// \details VEOR3 requires ARMv8.2.
 /// \since Crypto++ 8.6
 inline uint64x2_t VEOR3(uint64x2_t a, uint64x2_t b, uint64x2_t c)
 {
@@ -376,7 +388,7 @@ inline uint64x2_t VEOR3(uint64x2_t a, uint64x2_t b, uint64x2_t c)
 /// \return two-way exclusive OR of the values, then rotated by imm6
 /// \details VXARQ() performs vxarq_u64(). VXARQ is provided as GCC inline assembly due
 ///  to Clang and lack of support for the intrinsic.
-/// \details VXARQ requires ARMv8.4.
+/// \details VXARQ requires ARMv8.2.
 /// \since Crypto++ 8.6
 inline uint64x2_t VXAR(uint64x2_t a, uint64x2_t b, const int imm6)
 {
@@ -397,7 +409,7 @@ inline uint64x2_t VXAR(uint64x2_t a, uint64x2_t b, const int imm6)
 /// \return two-way exclusive OR of the values, then rotated by C
 /// \details VXARQ() performs vxarq_u64(). VXARQ is provided as GCC inline assembly due
 ///  to Clang and lack of support for the intrinsic.
-/// \details VXARQ requires ARMv8.4.
+/// \details VXARQ requires ARMv8.2.
 /// \since Crypto++ 8.6
 template <unsigned int C>
 inline uint64x2_t VXAR(uint64x2_t a, uint64x2_t b)
@@ -418,7 +430,7 @@ inline uint64x2_t VXAR(uint64x2_t a, uint64x2_t b)
 /// \return two-way exclusive OR of the values, then rotated 1-bit
 /// \details VRAX1() performs vrax1q_u64(). VRAX1 is provided as GCC inline assembly due
 ///  to Clang and lack of support for the intrinsic.
-/// \details VRAX1 requires ARMv8.4.
+/// \details VRAX1 requires ARMv8.2.
 /// \since Crypto++ 8.6
 inline uint64x2_t VRAX1(uint64x2_t a, uint64x2_t b)
 {
@@ -431,7 +443,7 @@ inline uint64x2_t VRAX1(uint64x2_t a, uint64x2_t b)
     return r;
 #endif
 }
-
+//@}
 #endif  // CRYPTOPP_ARM_SHA3_AVAILABLE
 
 #endif // CRYPTOPP_ARM_SIMD_H
