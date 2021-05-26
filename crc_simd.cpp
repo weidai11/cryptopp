@@ -32,6 +32,8 @@
 # define EXCEPTION_EXECUTE_HANDLER 1
 #endif
 
+#define CONST_WORD32_CAST(x) ((const word32 *)(void*)(x))
+
 // Squash MS LNK4221 and libtool warnings
 extern const char CRC_SIMD_FNAME[] = __FILE__;
 
@@ -121,10 +123,10 @@ void CRC32_Update_ARMV8(const byte *s, size_t n, word32& c)
         c = CRC32B(c, *s);
 
     for(; n >= 16; s+=16, n-=16)
-        c = CRC32Wx4(c, (const word32 *)(void*)s);
+        c = CRC32Wx4(c, CONST_WORD32_CAST(s));
 
     for(; n >= 4; s+=4, n-=4)
-        c = CRC32W(c, *(const word32 *)(void*)s);
+        c = CRC32W(c, *CONST_WORD32_CAST(s));
 
     for(; n > 0; s++, n--)
         c = CRC32B(c, *s);
@@ -136,10 +138,10 @@ void CRC32C_Update_ARMV8(const byte *s, size_t n, word32& c)
         c = CRC32CB(c, *s);
 
     for(; n >= 16; s+=16, n-=16)
-        c = CRC32CWx4(c, (const word32 *)(void*)s);
+        c = CRC32CWx4(c, CONST_WORD32_CAST(s));
 
     for(; n >= 4; s+=4, n-=4)
-        c = CRC32CW(c, *(const word32 *)(void*)s);
+        c = CRC32CW(c, *CONST_WORD32_CAST(s));
 
     for(; n > 0; s++, n--)
         c = CRC32CB(c, *s);
@@ -154,14 +156,14 @@ void CRC32C_Update_SSE42(const byte *s, size_t n, word32& c)
 
     for(; n >= 16; s+=16, n-=16)
 	{
-        c = _mm_crc32_u32(c, *(const word32 *)(void*)(s+ 0));
-        c = _mm_crc32_u32(c, *(const word32 *)(void*)(s+ 4));
-        c = _mm_crc32_u32(c, *(const word32 *)(void*)(s+ 8));
-        c = _mm_crc32_u32(c, *(const word32 *)(void*)(s+12));
+        c = _mm_crc32_u32(c, *CONST_WORD32_CAST(s+ 0));
+        c = _mm_crc32_u32(c, *CONST_WORD32_CAST(s+ 4));
+        c = _mm_crc32_u32(c, *CONST_WORD32_CAST(s+ 8));
+        c = _mm_crc32_u32(c, *CONST_WORD32_CAST(s+12));
 	}
 
     for(; n >= 4; s+=4, n-=4)
-        c = _mm_crc32_u32(c, *(const word32 *)(void*)s);
+        c = _mm_crc32_u32(c, *CONST_WORD32_CAST(s));
 
     for(; n > 0; s++, n--)
         c = _mm_crc32_u8(c, *s);
