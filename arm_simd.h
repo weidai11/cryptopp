@@ -29,10 +29,9 @@ inline uint32_t CRC32B (uint32_t crc, uint8_t val)
 #if defined(_MSC_VER)
 	return __crc32b(crc, val);
 #else
-    uint32_t r;
-    __asm__ ("crc32b   %w0, %w1, %w2   \n\t"
-            :"=r" (r) : "r" (crc), "r" (val) );
-    return r;
+    __asm__ ("crc32b   %w0, %w0, %w1   \n\t"
+            :"+r" (crc) : "r" (val) );
+    return crc;
 #endif
 }
 
@@ -46,44 +45,83 @@ inline uint32_t CRC32W (uint32_t crc, uint32_t val)
 #if defined(_MSC_VER)
 	return __crc32w(crc, val);
 #else
-    uint32_t r;
-    __asm__ ("crc32w   %w0, %w1, %w2   \n\t"
-            :"=r" (r) : "r" (crc), "r" (val) );
-    return r;
+    __asm__ ("crc32w   %w0, %w0, %w1   \n\t"
+            :"+r" (crc) : "r" (val) );
+    return crc;
+#endif
+}
+
+/// \brief CRC32
+/// \param a the first value
+/// \param b the second value
+/// \return CRC32 value
+/// \since Crypto++ 8.6
+inline uint32_t CRC32Wx4 (uint32_t crc, const uint32_t vals[4])
+{
+#if defined(_MSC_VER)
+	return __crc32w(__crc32w(__crc32w(__crc32w(
+             crc, vals[0]), vals[1]), vals[2]), vals[3]);
+#else
+    __asm__ ("crc32w   %w0, %w0, %w1   \n\t"
+             "crc32w   %w0, %w0, %w2   \n\t"
+             "crc32w   %w0, %w0, %w3   \n\t"
+             "crc32w   %w0, %w0, %w4   \n\t"
+            :"+r" (crc) : "r" (vals[0]), "r" (vals[1]),
+                          "r" (vals[2]), "r" (vals[3]));
+    return crc;
 #endif
 }
 
 /// \brief CRC32-C
 /// \param a the first value
 /// \param b the second value
-/// \return CRC32 value
+/// \return CRC32-C value
 /// \since Crypto++ 8.6
 inline uint32_t CRC32CB (uint32_t crc, uint8_t val)
 {
 #if defined(_MSC_VER)
 	return __crc32cb(crc, val);
 #else
-    uint32_t r;
-    __asm__ ("crc32cb   %w0, %w1, %w2   \n\t"
-            :"=r" (r) : "r" (crc), "r" (val) );
-    return r;
+    __asm__ ("crc32cb   %w0, %w0, %w1   \n\t"
+            :"+r" (crc) : "r" (val) );
+    return crc;
 #endif
 }
 
 /// \brief CRC32-C
 /// \param a the first value
 /// \param b the second value
-/// \return CRC32 value
+/// \return CRC32-C value
 /// \since Crypto++ 8.6
 inline uint32_t CRC32CW (uint32_t crc, uint32_t val)
 {
 #if defined(_MSC_VER)
 	return __crc32cw(crc, val);
 #else
-    uint32_t r;
-    __asm__ ("crc32cw   %w0, %w1, %w2   \n\t"
-            :"=r" (r) : "r" (crc), "r" (val) );
-    return r;
+    __asm__ ("crc32cw   %w0, %w0, %w1   \n\t"
+            :"+r" (crc) : "r" (val) );
+    return crc;
+#endif
+}
+
+/// \brief CRC32-C
+/// \param a the first value
+/// \param b the second value
+/// \return CRC32-C value
+/// \since Crypto++ 8.6
+inline uint32_t CRC32CWx4 (uint32_t crc, const uint32_t vals[4])
+{
+#if defined(_MSC_VER)
+	return __crc32cw(__crc32cw(__crc32cw(__crc32cw(
+             crc, vals[0]), vals[1]), vals[2]), vals[3]);
+#else
+    __asm__ ("crc32cw   %w0, %w0, %w1   \n\t"
+             "crc32cw   %w0, %w0, %w2   \n\t"
+             "crc32cw   %w0, %w0, %w3   \n\t"
+             "crc32cw   %w0, %w0, %w4   \n\t"
+            :"+r" (crc) : "r" (vals[0]), "r" (vals[1]),
+                          "r" (vals[2]), "r" (vals[3]));
+    return crc;
 #endif
 }
 #endif  // CRYPTOPP_ARM_CRC32_AVAILABLE

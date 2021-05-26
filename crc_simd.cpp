@@ -121,12 +121,7 @@ void CRC32_Update_ARMV8(const byte *s, size_t n, word32& c)
         c = CRC32B(c, *s);
 
     for(; n >= 16; s+=16, n-=16)
-    {
-        c = CRC32W(c, *(const word32 *)(void*)(s+ 0));
-        c = CRC32W(c, *(const word32 *)(void*)(s+ 4));
-        c = CRC32W(c, *(const word32 *)(void*)(s+ 8));
-        c = CRC32W(c, *(const word32 *)(void*)(s+12));
-    }
+        c = CRC32Wx4(c, (const word32 *)(void*)s);
 
     for(; n >= 4; s+=4, n-=4)
         c = CRC32W(c, *(const word32 *)(void*)s);
@@ -141,12 +136,7 @@ void CRC32C_Update_ARMV8(const byte *s, size_t n, word32& c)
         c = CRC32CB(c, *s);
 
     for(; n >= 16; s+=16, n-=16)
-    {
-        c = CRC32CW(c, *(const word32 *)(void*)(s+ 0));
-        c = CRC32CW(c, *(const word32 *)(void*)(s+ 4));
-        c = CRC32CW(c, *(const word32 *)(void*)(s+ 8));
-        c = CRC32CW(c, *(const word32 *)(void*)(s+12));
-    }
+        c = CRC32CWx4(c, (const word32 *)(void*)s);
 
     for(; n >= 4; s+=4, n-=4)
         c = CRC32CW(c, *(const word32 *)(void*)s);
