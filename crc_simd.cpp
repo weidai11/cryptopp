@@ -19,6 +19,10 @@
 # include <arm_acle.h>
 #endif
 
+#if (CRYPTOPP_ARM_CRC32_AVAILABLE)
+# include "arm_simd.h"
+#endif
+
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
@@ -50,19 +54,17 @@ extern "C" {
 bool CPU_ProbeCRC32()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
-	return false;
+    return false;
 #elif (CRYPTOPP_ARM_CRC32_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     volatile bool result = true;
     __try
     {
-        word32 w=0, x=1; word16 y=2; byte z=3;
-        w = __crc32w(w,x);
-        w = __crc32h(w,y);
-        w = __crc32b(w,z);
-        w = __crc32cw(w,x);
-        w = __crc32ch(w,y);
-        w = __crc32cb(w,z);
+        word32 w=0, x=1; byte z=3;
+        w = CRC32W(w,x);
+        w = CRC32B(w,z);
+        w = CRC32CW(w,x);
+        w = CRC32CB(w,z);
 
         result = !!w;
     }
@@ -92,13 +94,11 @@ bool CPU_ProbeCRC32()
         result = false;
     else
     {
-        word32 w=0, x=1; word16 y=2; byte z=3;
-        w = __crc32w(w,x);
-        w = __crc32h(w,y);
-        w = __crc32b(w,z);
-        w = __crc32cw(w,x);
-        w = __crc32ch(w,y);
-        w = __crc32cb(w,z);
+        word32 w=0, x=1; byte z=3;
+        w = CRC32W(w,x);
+        w = CRC32B(w,z);
+        w = CRC32CW(w,x);
+        w = CRC32CB(w,z);
 
         // Hack... GCC optimizes away the code and returns true
         result = !!w;
@@ -118,25 +118,41 @@ bool CPU_ProbeCRC32()
 void CRC32_Update_ARMV8(const byte *s, size_t n, word32& c)
 {
     for(; !IsAligned<word32>(s) && n > 0; s++, n--)
-        c = __crc32b(c, *s);
+        c = CRC32B(c, *s);
 
-    for(; n > 4; s+=4, n-=4)
-        c = __crc32w(c, *(const word32 *)(void*)s);
+    for(; n >= 16; s+=16, n-=16)
+    {
+        c = CRC32W(c, *(const word32 *)(void*)(s+ 0));
+        c = CRC32W(c, *(const word32 *)(void*)(s+ 4));
+        c = CRC32W(c, *(const word32 *)(void*)(s+ 8));
+        c = CRC32W(c, *(const word32 *)(void*)(s+12));
+    }
+
+    for(; n >= 4; s+=4, n-=4)
+        c = CRC32W(c, *(const word32 *)(void*)s);
 
     for(; n > 0; s++, n--)
-        c = __crc32b(c, *s);
+        c = CRC32B(c, *s);
 }
 
 void CRC32C_Update_ARMV8(const byte *s, size_t n, word32& c)
 {
     for(; !IsAligned<word32>(s) && n > 0; s++, n--)
-        c = __crc32cb(c, *s);
+        c = CRC32CB(c, *s);
 
-    for(; n > 4; s+=4, n-=4)
-        c = __crc32cw(c, *(const word32 *)(void*)s);
+    for(; n >= 16; s+=16, n-=16)
+    {
+        c = CRC32CW(c, *(const word32 *)(void*)(s+ 0));
+        c = CRC32CW(c, *(const word32 *)(void*)(s+ 4));
+        c = CRC32CW(c, *(const word32 *)(void*)(s+ 8));
+        c = CRC32CW(c, *(const word32 *)(void*)(s+12));
+    }
+
+    for(; n >= 4; s+=4, n-=4)
+        c = CRC32CW(c, *(const word32 *)(void*)s);
 
     for(; n > 0; s++, n--)
-        c = __crc32cb(c, *s);
+        c = CRC32CB(c, *s);
 }
 #endif
 
@@ -146,7 +162,15 @@ void CRC32C_Update_SSE42(const byte *s, size_t n, word32& c)
     for(; !IsAligned<word32>(s) && n > 0; s++, n--)
         c = _mm_crc32_u8(c, *s);
 
-    for(; n > 4; s+=4, n-=4)
+    for(; n >= 16; s+=16, n-=16)
+	{
+        c = _mm_crc32_u32(c, *(const word32 *)(void*)(s+ 0));
+        c = _mm_crc32_u32(c, *(const word32 *)(void*)(s+ 4));
+        c = _mm_crc32_u32(c, *(const word32 *)(void*)(s+ 8));
+        c = _mm_crc32_u32(c, *(const word32 *)(void*)(s+12));
+	}
+
+    for(; n >= 4; s+=4, n-=4)
         c = _mm_crc32_u32(c, *(const word32 *)(void*)s);
 
     for(; n > 0; s++, n--)

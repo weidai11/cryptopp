@@ -455,11 +455,11 @@ ifneq ($(IS_ARMV8),0)
 ifeq ($(DETECT_FEATURES),1)
 
   ifeq ($(IS_IOS),1)
-    ASIMD_FLAG =
-    CRC_FLAG =
-    AES_FLAG =
-    PMUL_FLAG =
-    SHA_FLAG =
+    ASIMD_FLAG = -arch arm64
+    CRC_FLAG = -arch arm64
+    AES_FLAG = -arch arm64
+    PMUL_FLAG = -arch arm64
+    SHA_FLAG = -arch arm64
   else
     ASIMD_FLAG = -march=armv8-a
     CRC_FLAG = -march=armv8-a+crc
