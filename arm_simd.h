@@ -19,7 +19,7 @@
 #endif
 
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-/// \brief CRC32
+/// \brief CRC32 checksum
 /// \param crc the starting crc value
 /// \param val the value to checksum
 /// \return CRC32 value
@@ -35,7 +35,7 @@ inline uint32_t CRC32B (uint32_t crc, uint8_t val)
 #endif
 }
 
-/// \brief CRC32
+/// \brief CRC32 checksum
 /// \param crc the starting crc value
 /// \param val the value to checksum
 /// \return CRC32 value
@@ -51,7 +51,7 @@ inline uint32_t CRC32W (uint32_t crc, uint32_t val)
 #endif
 }
 
-/// \brief CRC32
+/// \brief CRC32 checksum
 /// \param crc the starting crc value
 /// \param vals the values to checksum
 /// \return CRC32 value
@@ -72,7 +72,7 @@ inline uint32_t CRC32Wx4 (uint32_t crc, const uint32_t vals[4])
 #endif
 }
 
-/// \brief CRC32-C
+/// \brief CRC32-C checksum
 /// \param crc the starting crc value
 /// \param val the value to checksum
 /// \return CRC32-C value
@@ -88,7 +88,7 @@ inline uint32_t CRC32CB (uint32_t crc, uint8_t val)
 #endif
 }
 
-/// \brief CRC32-C
+/// \brief CRC32-C checksum
 /// \param crc the starting crc value
 /// \param val the value to checksum
 /// \return CRC32-C value
@@ -104,7 +104,7 @@ inline uint32_t CRC32CW (uint32_t crc, uint32_t val)
 #endif
 }
 
-/// \brief CRC32-C
+/// \brief CRC32-C checksum
 /// \param crc the starting crc value
 /// \param vals the values to checksum
 /// \return CRC32-C value
