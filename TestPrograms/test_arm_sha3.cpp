@@ -8,7 +8,7 @@
 
 int main(int argc, char* argv[])
 {
-    // SHA3 intrinsics are merely ARMv8.4 instructions.
+    // SHA3 intrinsics are merely ARMv8.2 instructions.
     // https://developer.arm.com/architectures/instruction-sets/simd-isas/neon/intrinsics
     uint32x4_t x={0}, y={1}, z={2};
     x=VEOR3(x,y,z);
