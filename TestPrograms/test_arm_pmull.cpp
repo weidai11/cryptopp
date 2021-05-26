@@ -2,19 +2,25 @@
 #ifdef CRYPTOPP_ARM_NEON_HEADER
 # include <arm_neon.h>
 #endif
-#ifdef CRYPTOPP_ARM_ACLE_HEADER
-# include <arm_acle.h>
-#endif
+
+// Keep sync'd with arm_simd.h
+#include "../arm_simd.h"
 
 int main(int argc, char* argv[])
 {
-    const poly64_t   a=0x60606060, b=0x90909090, c=0xb0b0b0b0;
-    const poly64x2_t d={0x60606060,0x90909090};
-    const poly8x16_t e={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
-                        0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0};
+    // Linaro is missing a lot of pmull gear. Also see http://github.com/weidai11/cryptopp/issues/233.
+    const uint64_t wa1[]={0,0x9090909090909090}, wb1[]={0,0xb0b0b0b0b0b0b0b0};
+    const uint64x2_t a1=vld1q_u64(wa1), b1=vld1q_u64(wb1);
 
-    const poly128_t r1 = vmull_p64(a, b);
-    const poly128_t r2 = vmull_high_p64(d, d);
+    const uint8_t wa2[]={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
+                         0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
+                  wb2[]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
+                         0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
+    const uint8x16_t a2=vld1q_u8(wa2), b2=vld1q_u8(wb2);
+
+    const uint64x2_t r1 = PMULL_00(a1, b1);
+    const uint64x2_t r2 = PMULL_11(vreinterpretq_u64_u8(a2),
+                                   vreinterpretq_u64_u8(b2));
 
     return 0;
 }
