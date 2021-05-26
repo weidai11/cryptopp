@@ -20,8 +20,8 @@
 
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief CRC32
-/// \param a the first value
-/// \param b the second value
+/// \param crc the starting crc value
+/// \param val the value to checksum
 /// \return CRC32 value
 /// \since Crypto++ 8.6
 inline uint32_t CRC32B (uint32_t crc, uint8_t val)
@@ -36,8 +36,8 @@ inline uint32_t CRC32B (uint32_t crc, uint8_t val)
 }
 
 /// \brief CRC32
-/// \param a the first value
-/// \param b the second value
+/// \param crc the starting crc value
+/// \param val the value to checksum
 /// \return CRC32 value
 /// \since Crypto++ 8.6
 inline uint32_t CRC32W (uint32_t crc, uint32_t val)
@@ -52,8 +52,8 @@ inline uint32_t CRC32W (uint32_t crc, uint32_t val)
 }
 
 /// \brief CRC32
-/// \param a the first value
-/// \param b the second value
+/// \param crc the starting crc value
+/// \param vals the values to checksum
 /// \return CRC32 value
 /// \since Crypto++ 8.6
 inline uint32_t CRC32Wx4 (uint32_t crc, const uint32_t vals[4])
@@ -73,8 +73,8 @@ inline uint32_t CRC32Wx4 (uint32_t crc, const uint32_t vals[4])
 }
 
 /// \brief CRC32-C
-/// \param a the first value
-/// \param b the second value
+/// \param crc the starting crc value
+/// \param val the value to checksum
 /// \return CRC32-C value
 /// \since Crypto++ 8.6
 inline uint32_t CRC32CB (uint32_t crc, uint8_t val)
@@ -89,8 +89,8 @@ inline uint32_t CRC32CB (uint32_t crc, uint8_t val)
 }
 
 /// \brief CRC32-C
-/// \param a the first value
-/// \param b the second value
+/// \param crc the starting crc value
+/// \param val the value to checksum
 /// \return CRC32-C value
 /// \since Crypto++ 8.6
 inline uint32_t CRC32CW (uint32_t crc, uint32_t val)
@@ -105,8 +105,8 @@ inline uint32_t CRC32CW (uint32_t crc, uint32_t val)
 }
 
 /// \brief CRC32-C
-/// \param a the first value
-/// \param b the second value
+/// \param crc the starting crc value
+/// \param vals the values to checksum
 /// \return CRC32-C value
 /// \since Crypto++ 8.6
 inline uint32_t CRC32CWx4 (uint32_t crc, const uint32_t vals[4])
