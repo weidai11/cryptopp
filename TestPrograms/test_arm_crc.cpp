@@ -8,53 +8,7 @@
 #endif
 
 // Keep sync'd with arm_simd.h
-inline uint32_t CRC32B (uint32_t crc, uint8_t val)
-{
-#if defined(_MSC_VER)
-	return __crc32b(crc, val);
-#else
-    uint32_t r;
-    __asm__ ("crc32b    %w0, %w1, %w2   \n\t"
-            :"=r" (r) : "r" (crc), "r" (val) );
-    return r;
-#endif
-}
-
-inline uint32_t CRC32W (uint32_t crc, uint32_t val)
-{
-#if defined(_MSC_VER)
-	return __crc32w(crc, val);
-#else
-    uint32_t r;
-    __asm__ ("crc32w    %w0, %w1, %w2   \n\t"
-            :"=r" (r) : "r" (crc), "r" (val) );
-    return r;
-#endif
-}
-
-inline uint32_t CRC32CB (uint32_t crc, uint8_t val)
-{
-#if defined(_MSC_VER)
-	return __crc32cb(crc, val);
-#else
-    uint32_t r;
-    __asm__ ("crc32cb    %w0, %w1, %w2   \n\t"
-            :"=r" (r) : "r" (crc), "r" (val) );
-    return r;
-#endif
-}
-
-inline uint32_t CRC32CW (uint32_t crc, uint32_t val)
-{
-#if defined(_MSC_VER)
-	return __crc32cw(crc, val);
-#else
-    uint32_t r;
-    __asm__ ("crc32cw    %w0, %w1, %w2   \n\t"
-            :"=r" (r) : "r" (crc), "r" (val) );
-    return r;
-#endif
-}
+#include "../arm_simd.h"
 
 int main(int argc, char* argv[])
 {
