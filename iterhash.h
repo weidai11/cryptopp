@@ -191,7 +191,8 @@ public:
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 
 protected:
-	IteratedHashWithStaticTransform() {this->Init();}
+	// https://github.com/weidai11/cryptopp/issues/147#issuecomment-766231864
+	IteratedHashWithStaticTransform() {IteratedHashWithStaticTransform::Init();}
 	void HashEndianCorrectedBlock(const T_HashWordType *data) {T_Transform::Transform(this->m_state, data);}
 	void Init() {T_Transform::InitState(this->m_state);}
 
