@@ -251,7 +251,7 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 /// \param i index in output buffer
 /// \param a value to output
 #define CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, b, i, a)	\
-	PutWord(bool(x & OUTPUT_ALIGNED), b, output+i*sizeof(WordType), (x & INPUT_NULL) ? (a) : (a) ^ GetWord<WordType>(bool(x & INPUT_ALIGNED), b, input+i*sizeof(WordType)));
+	PutWord(((x & OUTPUT_ALIGNED) != 0), b, output+i*sizeof(WordType), (x & INPUT_NULL) ? (a) : (a) ^ GetWord<WordType>(((x & INPUT_ALIGNED) != 0), b, input+i*sizeof(WordType)));
 
 /// \brief Helper macro to implement OperateKeystream
 /// \param x KeystreamOperation mask
