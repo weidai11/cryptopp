@@ -105,6 +105,26 @@ void OldRandomPool::IncorporateEntropy(const byte *input, size_t length)
 	}
 }
 
+// Endian swapped on little-endian machines. This is different
+// behavior from Crypto++ 5.4. Provide an override to correct it.
+word32 	OldRandomPool::GenerateWord32 (word32 min, word32 max)
+{
+	const word32 range = max-min;
+	const unsigned int maxBits = BitPrecision(range);
+
+	word32 value;
+
+	do
+	{
+		GenerateBlock((byte *)&value, sizeof(value));
+		// This is new
+		value = ConditionalByteReverse(BIG_ENDIAN_ORDER, value);
+		value = Crop(value, maxBits);
+	} while (value > range);
+
+	return value+min;
+}
+
 void OldRandomPool::Stir()
 {
 	CFB_Mode<OldRandomPoolCipher>::Encryption cipher;
