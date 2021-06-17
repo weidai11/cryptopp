@@ -105,21 +105,21 @@ void OldRandomPool::IncorporateEntropy(const byte *input, size_t length)
 	}
 }
 
-// Endian swapped on little-endian machines. This is different
-// behavior from Crypto++ 5.4. Provide an override to correct it.
-// ConditionalByteReverse performs the correction on full words.
-// I am not sure this will affect a ranged word.
+// GenerateWord32 is overriden and provides Crypto++ 5.4 behavior.
 word32 OldRandomPool::GenerateWord32 (word32 min, word32 max)
 {
 	const word32 range = max-min;
+	const unsigned int maxBytes = BytePrecision(range);
 	const unsigned int maxBits = BitPrecision(range);
 
 	word32 value;
 
 	do
 	{
-		GenerateBlock((byte *)&value, sizeof(value));
-		value = ConditionalByteReverse(BIG_ENDIAN_ORDER, value);
+		value = 0;
+		for (int i=0; i<maxBytes; i++)
+			value = (value << 8) | GenerateByte();
+
 		value = Crop(value, maxBits);
 	} while (value > range);
 

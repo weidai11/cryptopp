@@ -87,8 +87,7 @@ public:
 	byte GenerateByte();
 	void GenerateBlock(byte *output, size_t size);
 
-	// Endian swapped on little-endian machines. This is different
-	// behavior from Crypto++ 5.4. Provide an override to correct it.
+	// GenerateWord32 is overriden and provides Crypto++ 5.4 behavior.
 	word32 GenerateWord32 (word32 min=0, word32 max=0xffffffffUL);
 
 protected:
