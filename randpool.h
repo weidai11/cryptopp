@@ -88,6 +88,7 @@ public:
 	void GenerateBlock(byte *output, size_t size);
 
 	// GenerateWord32 is overriden and provides Crypto++ 5.4 behavior.
+	// Taken from RandomNumberSource::GenerateWord32 in cryptlib.cpp.
 	word32 GenerateWord32 (word32 min=0, word32 max=0xffffffffUL);
 
 protected:
