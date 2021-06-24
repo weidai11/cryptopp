@@ -128,9 +128,8 @@ cryptdll - This builds the DLL. Please note that if you wish to use Crypto++
 dlltest - This builds a sample application that only uses the DLL.
 
 The DLL used to provide FIPS validated cryptography. The library was moved
-to the CMVP's <A HREF=
-"http://csrc.nist.gov/groups/STM/cmvp/documents/140-1/140val-historical.htm">
-Historical Validation List</A>. The library and the DLL are no longer considered
+to the CMVP's [Historical Validation List](http://csrc.nist.gov/groups/STM/cmvp/documents/140-1/140val-historical.htm).
+The library and the DLL are no longer considered
 validated. You should no longer use the DLL.
 
 To use the Crypto++ DLL in your application, #include "dll.h" before including
