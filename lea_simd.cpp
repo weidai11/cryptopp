@@ -18,7 +18,6 @@
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
 # include "adv_simd.h"
-# include <immintrin.h>
 # include <pmmintrin.h>
 # include <tmmintrin.h>
 #endif
