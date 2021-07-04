@@ -56,6 +56,7 @@ TMPDIR="${TMPDIR:-$HOME/tmp}"
 TPROG="${TPROG:-TestPrograms/test_cxx.cpp}"
 TOUT="${TOUT:-a.out}"
 
+CC="${CXX:-cc}"
 CXX="${CXX:-c++}"
 LD="${LD:-ld}"
 CXXFLAGS="${CXXFLAGS:--DNDEBUG -g2 -O3}"
