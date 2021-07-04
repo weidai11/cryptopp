@@ -157,7 +157,7 @@ public:
     /// \param bt BufferedTransformation object
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///  In the case of public and private keys, this function writes the
-    ///  subjectPubicKeyInfo parts.
+    ///  subjectPublicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///  The default private key format is RFC 5208, which is the old format.
     ///  The old format provides the best interop, and keys will work
@@ -173,7 +173,7 @@ public:
     /// \param v1 flag indicating v1
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///  In the case of public and private keys, this function writes the
-    ///  subjectPubicKeyInfo parts.
+    ///  subjectPublicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///  The default private key format is RFC 5208.
     /// \details v1 means INTEGER 0 is written. INTEGER 0 means
@@ -206,7 +206,7 @@ public:
     /// \param version indicates version
     /// \details DEREncode() will write the OID associated with algorithm or
     ///  scheme. In the case of public and private keys, this function writes
-    ///  the subjectPubicKeyInfo parts.
+    ///  the subjectPublicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///  The default private key format is RFC 5208.
     /// \details The value of version is written as the INTEGER. INTEGER 0 means
@@ -382,7 +382,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \param bt BufferedTransformation object
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///  In the case of public and private keys, this function writes the
-    ///  subjectPubicKeyInfo parts.
+    ///  subjectPublicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-Ed25519</tt>.
     ///  The default private key format is RFC 5208, which is the old format.
     ///  The old format provides the best interop, and keys will work
@@ -398,7 +398,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \param v1 flag indicating v1
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///  In the case of public and private keys, this function writes the
-    ///  subjectPubicKeyInfo parts.
+    ///  subjectPublicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-Ed25519</tt>.
     ///  The default private key format is RFC 5208.
     /// \details v1 means INTEGER 0 is written. INTEGER 0 means
@@ -435,7 +435,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \param version indicates version
     /// \details DEREncode() will write the OID associated with algorithm or
     ///  scheme. In the case of public and private keys, this function writes
-    ///  the subjectPubicKeyInfo parts.
+    ///  the subjectPublicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///  The default private key format is RFC 5208.
     /// \details The value of version is written as the INTEGER. INTEGER 0 means
@@ -641,7 +641,7 @@ struct ed25519PublicKey : public X509PublicKey
     /// \param bt BufferedTransformation object
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///  In the case of public and private keys, this function writes the
-    ///  subjectPubicKeyInfo parts.
+    ///  subjectPublicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///  The default private key format is RFC 5208, which is the old format.
     ///  The old format provides the best interop, and keys will work

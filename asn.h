@@ -687,7 +687,7 @@ public:
 	/// \param bt BufferedTransformation object
 	/// \details Save() will write the OID associated with algorithm or scheme.
 	///   In the case of public and private keys, this function writes the
-	///   subjectPubicKeyInfo and privateKeyInfo parts.
+	///   subjectPublicKeyInfo and privateKeyInfo parts.
 	void Save(BufferedTransformation &bt) const
 		{BEREncode(bt);}
 
