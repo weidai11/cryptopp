@@ -18,10 +18,11 @@
 /// \details This header provides the entry points into Andrew Moon's
 ///   curve25519 and ed25519 curve functions. The Crypto++ classes x25519
 ///   and ed25519 use the functions. The functions are in the <tt>Donna</tt>
-///   namespace and are curve25519_mult(), ed25519_publickey(),
-///   ed25519_sign() and ed25519_sign_open().
-/// \details At the moment the hash function for signing is fixed at
-///   SHA512.
+///   namespace are curve25519_mult(), ed25519_publickey(), ed25519_sign(),
+///   and ed25519_sign_open().
+/// \details By default, the ed25519 functions use SHA512, but they have
+///   overloads added by Ashwin Innuganti that let the caller specify any
+///   HashTransformation with 512-bit digests.
 
 #ifndef CRYPTOPP_DONNA_H
 #define CRYPTOPP_DONNA_H
@@ -69,7 +70,7 @@ int ed25519_publickey(byte publicKey[32], const byte secretKey[32]);
 /// \brief Creates a public key from a secret key
 /// \param publicKey byte array for the public key
 /// \param secretKey byte array with the private key
-/// \param hash HashTransformation derived class
+/// \param hash HashTransformation derived class (digest size should be 512 bits)
 /// \return 0 on success, non-0 otherwise
 /// \details ed25519_publickey() generates a public key from a secret key.
 ///   Internally ed25519_publickey() performs a scalar multiplication
@@ -87,8 +88,6 @@ int ed25519_publickey(byte publicKey[32], const byte secretKey[32], HashTransfor
 ///   the public and private keys. The various buffers can be exact
 ///   sizes, and do not require extra space like when using the
 ///   NaCl library functions.
-/// \details At the moment the hash function for signing is fixed at
-///   SHA512.
 int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32], const byte publicKey[32], byte signature[64]);
 
 /// \brief Creates a signature on a message
@@ -97,14 +96,12 @@ int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey
 /// \param publicKey byte array with the public key
 /// \param secretKey byte array with the private key
 /// \param signature byte array for the signature
-/// \param hash HashTransformation derived class
+/// \param hash HashTransformation derived class (digest size should be 512 bits)
 /// \return 0 on success, non-0 otherwise
 /// \details ed25519_sign() generates a signature on a message using
 ///   the public and private keys. The various buffers can be exact
 ///   sizes, and do not require extra space like when using the
 ///   NaCl library functions.
-/// \details At the moment the hash function for signing is fixed at
-///   SHA512.
 int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32], const byte publicKey[32], byte signature[64], HashTransformation& hash);
 
 /// \brief Creates a signature on a message
@@ -120,8 +117,6 @@ int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey
 /// \details This ed25519_sign() overload handles large streams. It
 ///   was added for signing and verifying files that are too large
 ///   for a memory allocation.
-/// \details At the moment the hash function for signing is fixed at
-///   SHA512.
 int ed25519_sign(std::istream& stream, const byte secretKey[32], const byte publicKey[32], byte signature[64]);
 
 /// \brief Creates a signature on a message
@@ -129,7 +124,7 @@ int ed25519_sign(std::istream& stream, const byte secretKey[32], const byte publ
 /// \param publicKey byte array with the public key
 /// \param secretKey byte array with the private key
 /// \param signature byte array for the signature
-/// \param hash HashTransformation derived class
+/// \param hash HashTransformation derived class (digest size should be 512 bits)
 /// \return 0 on success, non-0 otherwise
 /// \details ed25519_sign() generates a signature on a message using
 ///   the public and private keys. The various buffers can be exact
@@ -138,8 +133,6 @@ int ed25519_sign(std::istream& stream, const byte secretKey[32], const byte publ
 /// \details This ed25519_sign() overload handles large streams. It
 ///   was added for signing and verifying files that are too large
 ///   for a memory allocation.
-/// \details At the moment the hash function for signing is fixed at
-///   SHA512.
 int ed25519_sign(std::istream& stream, const byte secretKey[32], const byte publicKey[32], byte signature[64], HashTransformation& hash);
 
 /// \brief Verifies a signature on a message
@@ -151,8 +144,6 @@ int ed25519_sign(std::istream& stream, const byte secretKey[32], const byte publ
 /// \details ed25519_sign_open() verifies a signature on a message using
 ///   the public key. The various buffers can be exact sizes, and do not
 ///   require extra space like when using the NaCl library functions.
-/// \details At the moment the hash function for signing is fixed at
-///   SHA512.
 int
 ed25519_sign_open(const byte* message, size_t messageLength, const byte publicKey[32], const byte signature[64]);
 
@@ -161,13 +152,11 @@ ed25519_sign_open(const byte* message, size_t messageLength, const byte publicKe
 /// \param messageLength size of the message, in bytes
 /// \param publicKey byte array with the public key
 /// \param signature byte array with the signature
-/// \param hash HashTransformation derived class
+/// \param hash HashTransformation derived class (digest size should be 512 bits)
 /// \return 0 on success, non-0 otherwise
 /// \details ed25519_sign_open() verifies a signature on a message using
 ///   the public key. The various buffers can be exact sizes, and do not
 ///   require extra space like when using the NaCl library functions.
-/// \details At the moment the hash function for signing is fixed at
-///   SHA512.
 int
 ed25519_sign_open(const byte* message, size_t messageLength, const byte publicKey[32], const byte signature[64], HashTransformation& hash);
 
@@ -182,8 +171,6 @@ ed25519_sign_open(const byte* message, size_t messageLength, const byte publicKe
 /// \details This ed25519_sign_open() overload handles large streams. It
 ///   was added for signing and verifying files that are too large
 ///   for a memory allocation.
-/// \details At the moment the hash function for signing is fixed at
-///   SHA512.
 int
 ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte signature[64]);
 
@@ -191,7 +178,7 @@ ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte sig
 /// \param stream std::istream derived class
 /// \param publicKey byte array with the public key
 /// \param signature byte array with the signature
-/// \param hash HashTransformation derived class
+/// \param hash HashTransformation derived class (digest size should be 512 bits)
 /// \return 0 on success, non-0 otherwise
 /// \details ed25519_sign_open() verifies a signature on a message using
 ///   the public key. The various buffers can be exact sizes, and do not
@@ -199,8 +186,6 @@ ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte sig
 /// \details This ed25519_sign_open() overload handles large streams. It
 ///   was added for signing and verifying files that are too large
 ///   for a memory allocation.
-/// \details At the moment the hash function for signing is fixed at
-///   SHA512.
 int
 ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte signature[64], HashTransformation& hash);
 
