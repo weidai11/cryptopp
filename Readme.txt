@@ -212,14 +212,14 @@ to internal buffer attacks as "Microarchitectural Data Sampling" (MDS).
 
 The library uses hardware instructions when possible for block ciphers, hashes
 and other operations. The hardware acceleration remediates some timing
-attacks. The library also uses cache-aware algoirthms and access patterns
+attacks. The library also uses cache-aware algorithms and access patterns
 to minimize leakage cache evictions.
 
 Elliptic curves over binary fields are believed to leak information. The task is a
 work in progress. We don't believe binary fields are used in production, so we feel it
 is a low risk at the moment.
 
-Crypto++ does not enagage Specter remediations at this time. The GCC options
+Crypto++ does not engage Specter remediations at this time. The GCC options
 for Specter are -mfunction-return=thunk and -mindirect-branch=thunk, and the
 library uses them during testing. If you want the Specter workarounds then add
 the GCC options to your CXXFLAGS when building the library.
