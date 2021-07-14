@@ -212,7 +212,7 @@ to internal buffer attacks as "Microarchitectural Data Sampling" (MDS).
 
 The library uses hardware instructions when possible for block ciphers, hashes
 and other operations. The hardware acceleration remediates some timing
-attacks. The library also uses cache-aware algoirthms and access patterns
+attacks. The library also uses cache-aware algorithms and access patterns
 to minimize leakage cache evictions.
 
 Elliptic curves over binary fields are believed to leak information. The task is a
