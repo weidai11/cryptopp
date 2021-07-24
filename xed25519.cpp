@@ -375,7 +375,7 @@ bool x25519::Agree(byte *agreedValue, const byte *privateKey, const byte *otherP
 template <class HASH>
 void ed25519PrivateKey<HASH>::SecretToPublicKey(byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH]) const
 {
-    int ret = Donna::ed25519_publickey(y, x, m_hash);
+    int ret = Donna::ed25519_publickey(y, x, this->AccessHash());
     CRYPTOPP_ASSERT(ret == 0); CRYPTOPP_UNUSED(ret);
 }
 
@@ -472,7 +472,7 @@ void ed25519PrivateKey<HASH>::GenerateRandom(RandomNumberGenerator &rng, const N
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    int ret = Donna::ed25519_publickey(m_pk, m_sk, m_hash);
+    int ret = Donna::ed25519_publickey(m_pk, m_sk, this->AccessHash());
     CRYPTOPP_ASSERT(ret == 0); CRYPTOPP_UNUSED(ret);
 }
 
@@ -540,7 +540,7 @@ void ed25519PrivateKey<HASH>::BERDecode(BufferedTransformation &bt)
     privateKeyInfo.MessageEnd();
 
     if (generatePublicKey)
-        Donna::ed25519_publickey(m_pk, m_sk, m_hash);
+        Donna::ed25519_publickey(m_pk, m_sk, this->AccessHash());
 
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
@@ -697,7 +697,7 @@ size_t ed25519Signer<HASH>::SignAndRestart(RandomNumberGenerator &rng, PK_Messag
 
     ed25519_MessageAccumulator& accum = dynamic_cast<ed25519_MessageAccumulator&>(messageAccumulator);
     const ed25519PrivateKey<HASH>& pk = dynamic_cast<const ed25519PrivateKey<HASH>&>(GetPrivateKey());
-    int ret = Donna::ed25519_sign(accum.data(), accum.size(), pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature, m_hash);
+    int ret = Donna::ed25519_sign(accum.data(), accum.size(), pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature, this->AccessHash());
     CRYPTOPP_ASSERT(ret == 0);
 
     if (restart)
@@ -712,7 +712,7 @@ size_t ed25519Signer<HASH>::SignStream (RandomNumberGenerator &rng, std::istream
     CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
 
     const ed25519PrivateKey<HASH>& pk = dynamic_cast<const ed25519PrivateKey<HASH>&>(GetPrivateKey());
-    int ret = Donna::ed25519_sign(stream, pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature, m_hash);
+    int ret = Donna::ed25519_sign(stream, pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature, this->AccessHash());
     CRYPTOPP_ASSERT(ret == 0);
 
     return ret == 0 ? SIGNATURE_LENGTH : 0;
@@ -899,7 +899,7 @@ bool ed25519Verifier<HASH>::VerifyAndRestart(PK_MessageAccumulator &messageAccum
 {
     ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
     const ed25519PublicKey<HASH>& pk = dynamic_cast<const ed25519PublicKey<HASH>&>(GetPublicKey());
-    int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), pk.GetPublicKeyBytePtr(), accum.signature(), m_hash);
+    int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), pk.GetPublicKeyBytePtr(), accum.signature(), this->AccessHash());
     accum.Restart();
 
     return ret == 0;
@@ -912,7 +912,7 @@ bool ed25519Verifier<HASH>::VerifyStream(std::istream& stream, const byte *signa
     CRYPTOPP_UNUSED(signatureLen);
 
     const ed25519PublicKey<HASH>& pk = static_cast<const ed25519PublicKey<HASH>&>(GetPublicKey());
-    int ret = Donna::ed25519_sign_open(stream, pk.GetPublicKeyBytePtr(), signature, m_hash);
+    int ret = Donna::ed25519_sign_open(stream, pk.GetPublicKeyBytePtr(), signature, this->AccessHash());
 
     return ret == 0;
 }
