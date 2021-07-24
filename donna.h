@@ -20,9 +20,6 @@
 ///   and ed25519 use the functions. The functions are in the <tt>Donna</tt>
 ///   namespace are curve25519_mult(), ed25519_publickey(), ed25519_sign(),
 ///   and ed25519_sign_open().
-/// \details By default, the ed25519 functions use SHA512, but they have
-///   overloads added by Ashwin Innuganti that let the caller specify any
-///   HashTransformation with 512-bit digests.
 
 #ifndef CRYPTOPP_DONNA_H
 #define CRYPTOPP_DONNA_H

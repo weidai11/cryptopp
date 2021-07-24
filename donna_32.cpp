@@ -1958,6 +1958,10 @@ ed25519_publickey_CXX(byte publicKey[32], const byte secretKey[32], HashTransfor
 {
     using namespace CryptoPP::Donna::Ed25519;
 
+    CRYPTOPP_ASSERT(hash.DigestSize() == 64);
+    if (hash.DigestSize() != 64)
+        return 1;
+
     bignum256modm a;
     ALIGN(ALIGN_SPEC) ge25519 A;
     hash_512bits extsk;
@@ -2037,6 +2041,10 @@ ed25519_sign_CXX(std::istream& stream, const byte sk[32], const byte pk[32], byt
                  HashTransformation& hash)
 {
     using namespace CryptoPP::Donna::Ed25519;
+
+    CRYPTOPP_ASSERT(hash.DigestSize() == 64);
+    if (hash.DigestSize() != 64)
+        return 1;
 
     bignum256modm r, S, a;
     ALIGN(ALIGN_SPEC) ge25519 R;
@@ -2125,6 +2133,10 @@ ed25519_sign_CXX(const byte *m, size_t mlen, const byte sk[32], const byte pk[32
                  HashTransformation& hash)
 {
     using namespace CryptoPP::Donna::Ed25519;
+
+    CRYPTOPP_ASSERT(hash.DigestSize() == 64);
+    if (hash.DigestSize() != 64)
+        return 1;
 
     bignum256modm r, S, a;
     ALIGN(ALIGN_SPEC) ge25519 R;
@@ -2221,6 +2233,10 @@ ed25519_sign_open_CXX(std::istream& stream, const byte pk[32], const byte RS[64]
 {
     using namespace CryptoPP::Donna::Ed25519;
 
+    CRYPTOPP_ASSERT(hashTf.DigestSize() == 64);
+    if (hashTf.DigestSize() != 64)
+        return 1;
+
     ALIGN(ALIGN_SPEC) ge25519 R, A;
     hash_512bits hash;
     bignum256modm hram, S;
@@ -2277,6 +2293,10 @@ ed25519_sign_open_CXX(const byte *m, size_t mlen, const byte pk[32], const byte 
                       HashTransformation& hashTf)
 {
     using namespace CryptoPP::Donna::Ed25519;
+
+    CRYPTOPP_ASSERT(hashTf.DigestSize() == 64);
+    if (hashTf.DigestSize() != 64)
+        return 1;
 
     ALIGN(ALIGN_SPEC) ge25519 R, A;
     hash_512bits hash;
