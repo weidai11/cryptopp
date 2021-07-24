@@ -819,8 +819,21 @@ ed25519_hash(byte *hash, const byte *in, size_t inlen) {
 }
 
 inline void
+ed25519_hash(byte *hash, const byte *in, size_t inlen, HashTransformation& hashTf) {
+    hashTf.CalculateDigest(hash, in, inlen);
+}
+
+inline void
 ed25519_extsk(hash_512bits extsk, const byte sk[32]) {
     ed25519_hash(extsk, sk, 32);
+    extsk[0] &= 248;
+    extsk[31] &= 127;
+    extsk[31] |= 64;
+}
+
+inline void
+ed25519_extsk(hash_512bits extsk, const byte sk[32], HashTransformation& hash) {
+    ed25519_hash(extsk, sk, 32, hash);
     extsk[0] &= 248;
     extsk[31] &= 127;
     extsk[31] |= 64;
@@ -850,8 +863,28 @@ ed25519_hram(hash_512bits hram, const byte RS[64], const byte pk[32], const byte
 }
 
 void
+ed25519_hram(hash_512bits hram, const byte RS[64], const byte pk[32], const byte *m, size_t mlen,
+             HashTransformation& hash)
+{
+    hash.Update(RS, 32);
+    hash.Update(pk, 32);
+    hash.Update(m, mlen);
+    hash.Final(hram);
+}
+
+void
 ed25519_hram(hash_512bits hram, const byte RS[64], const byte pk[32], std::istream& stream) {
     SHA512 hash;
+    hash.Update(RS, 32);
+    hash.Update(pk, 32);
+    UpdateFromStream(hash, stream);
+    hash.Final(hram);
+}
+
+void
+ed25519_hram(hash_512bits hram, const byte RS[64], const byte pk[32], std::istream& stream,
+             HashTransformation& hash)
+{
     hash.Update(RS, 32);
     hash.Update(pk, 32);
     UpdateFromStream(hash, stream);
@@ -1636,9 +1669,37 @@ ed25519_publickey_CXX(byte publicKey[32], const byte secretKey[32])
 }
 
 int
+ed25519_publickey_CXX(byte publicKey[32], const byte secretKey[32], HashTransformation& hash)
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    CRYPTOPP_ASSERT(hash.DigestSize() == 64);
+    if (hash.DigestSize() != 64)
+        return 1;
+
+    bignum256modm a;
+    ALIGN(ALIGN_SPEC) ge25519 A;
+    hash_512bits extsk;
+
+    /* A = aB */
+    ed25519_extsk(extsk, secretKey, hash);
+    expand256_modm(a, extsk, 32);
+    ge25519_scalarmult_base_niels(&A, ge25519_niels_base_multiples, a);
+    ge25519_pack(publicKey, &A);
+
+    return 0;
+}
+
+int
 ed25519_publickey(byte publicKey[32], const byte secretKey[32])
 {
     return ed25519_publickey_CXX(publicKey, secretKey);
+}
+
+int
+ed25519_publickey(byte publicKey[32], const byte secretKey[32], HashTransformation& hash)
+{
+    return ed25519_publickey_CXX(publicKey, secretKey, hash);
 }
 
 int
@@ -1690,6 +1751,59 @@ ed25519_sign_CXX(std::istream& stream, const byte sk[32], const byte pk[32], byt
 }
 
 int
+ed25519_sign_CXX(std::istream& stream, const byte sk[32], const byte pk[32], byte RS[64],
+                 HashTransformation& hash)
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    CRYPTOPP_ASSERT(hash.DigestSize() == 64);
+    if (hash.DigestSize() != 64)
+        return 1;
+
+    bignum256modm r, S, a;
+    ALIGN(ALIGN_SPEC) ge25519 R;
+    hash_512bits extsk, hashr, hram;
+
+    // Unfortunately we need to read the stream twice. The fisrt time calculates
+    // 'r = H(aExt[32..64], m)'. The second time calculates 'S = H(R,A,m)'. There
+    // is a data dependency due to hashing 'RS' with 'R = [r]B' that does not
+    // allow us to read the stream once.
+    std::streampos where = stream.tellg();
+
+    ed25519_extsk(extsk, sk, hash);
+
+    /* r = H(aExt[32..64], m) */
+    hash.Update(extsk + 32, 32);
+    UpdateFromStream(hash, stream);
+    hash.Final(hashr);
+    expand256_modm(r, hashr, 64);
+
+    /* R = rB */
+    ge25519_scalarmult_base_niels(&R, ge25519_niels_base_multiples, r);
+    ge25519_pack(RS, &R);
+
+    // Reset stream for the second digest
+    stream.clear();
+    stream.seekg(where);
+
+    /* S = H(R,A,m).. */
+    ed25519_hram(hram, RS, pk, stream, hash);
+    expand256_modm(S, hram, 64);
+
+    /* S = H(R,A,m)a */
+    expand256_modm(a, extsk, 32);
+    mul256_modm(S, S, a);
+
+    /* S = (r + H(R,A,m)a) */
+    add256_modm(S, S, r);
+
+    /* S = (r + H(R,A,m)a) mod L */
+    contract256_modm(RS + 32, S);
+
+    return 0;
+}
+
+int
 ed25519_sign_CXX(const byte *m, size_t mlen, const byte sk[32], const byte pk[32], byte RS[64])
 {
     using namespace CryptoPP::Donna::Ed25519;
@@ -1728,6 +1842,49 @@ ed25519_sign_CXX(const byte *m, size_t mlen, const byte sk[32], const byte pk[32
 }
 
 int
+ed25519_sign_CXX(const byte *m, size_t mlen, const byte sk[32], const byte pk[32], byte RS[64],
+                 HashTransformation& hash)
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    CRYPTOPP_ASSERT(hash.DigestSize() == 64);
+    if (hash.DigestSize() != 64)
+        return 1;
+
+    bignum256modm r, S, a;
+    ALIGN(ALIGN_SPEC) ge25519 R;
+    hash_512bits extsk, hashr, hram;
+
+    ed25519_extsk(extsk, sk, hash);
+
+    /* r = H(aExt[32..64], m) */
+    hash.Update(extsk + 32, 32);
+    hash.Update(m, mlen);
+    hash.Final(hashr);
+    expand256_modm(r, hashr, 64);
+
+    /* R = rB */
+    ge25519_scalarmult_base_niels(&R, ge25519_niels_base_multiples, r);
+    ge25519_pack(RS, &R);
+
+    /* S = H(R,A,m).. */
+    ed25519_hram(hram, RS, pk, m, mlen, hash);
+    expand256_modm(S, hram, 64);
+
+    /* S = H(R,A,m)a */
+    expand256_modm(a, extsk, 32);
+    mul256_modm(S, S, a);
+
+    /* S = (r + H(R,A,m)a) */
+    add256_modm(S, S, r);
+
+    /* S = (r + H(R,A,m)a) mod L */
+    contract256_modm(RS + 32, S);
+
+    return 0;
+}
+
+int
 ed25519_sign(std::istream& stream, const byte secretKey[32], const byte publicKey[32],
              byte signature[64])
 {
@@ -1735,10 +1892,24 @@ ed25519_sign(std::istream& stream, const byte secretKey[32], const byte publicKe
 }
 
 int
+ed25519_sign(std::istream& stream, const byte secretKey[32], const byte publicKey[32],
+             byte signature[64], HashTransformation& hash)
+{
+    return ed25519_sign_CXX(stream, secretKey, publicKey, signature, hash);
+}
+
+int
 ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32],
              const byte publicKey[32], byte signature[64])
 {
     return ed25519_sign_CXX(message, messageLength, secretKey, publicKey, signature);
+}
+
+int
+ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32],
+             const byte publicKey[32], byte signature[64], HashTransformation& hash)
+{
+    return ed25519_sign_CXX(message, messageLength, secretKey, publicKey, signature, hash);
 }
 
 int
@@ -1756,6 +1927,39 @@ ed25519_sign_open_CXX(const byte *m, size_t mlen, const byte pk[32], const byte 
 
     /* hram = H(R,A,m) */
     ed25519_hram(hash, RS, pk, m, mlen);
+    expand256_modm(hram, hash, 64);
+
+    /* S */
+    expand256_modm(S, RS + 32, 32);
+
+    /* SB - H(R,A,m)A */
+    ge25519_double_scalarmult_vartime(&R, &A, hram, S);
+    ge25519_pack(checkR, &R);
+
+    /* check that R = SB - H(R,A,m)A */
+    return ed25519_verify(RS, checkR, 32) ? 0 : -1;
+}
+
+int
+ed25519_sign_open_CXX(const byte *m, size_t mlen, const byte pk[32], const byte RS[64],
+                      HashTransformation& hashTf)
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    CRYPTOPP_ASSERT(hashTf.DigestSize() == 64);
+    if (hashTf.DigestSize() != 64)
+        return 1;
+
+    ALIGN(ALIGN_SPEC) ge25519 R, A;
+    hash_512bits hash;
+    bignum256modm hram, S;
+    byte checkR[32];
+
+    if ((RS[63] & 224) || !ge25519_unpack_negative_vartime(&A, pk))
+        return -1;
+
+    /* hram = H(R,A,m) */
+    ed25519_hram(hash, RS, pk, m, mlen, hashTf);
     expand256_modm(hram, hash, 64);
 
     /* S */
@@ -1798,15 +2002,62 @@ ed25519_sign_open_CXX(std::istream& stream, const byte pk[32], const byte RS[64]
 }
 
 int
+ed25519_sign_open_CXX(std::istream& stream, const byte pk[32], const byte RS[64],
+                      HashTransformation& hashTf)
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    CRYPTOPP_ASSERT(hashTf.DigestSize() == 64);
+    if (hashTf.DigestSize() != 64)
+        return 1;
+
+    ALIGN(ALIGN_SPEC) ge25519 R, A;
+    hash_512bits hash;
+    bignum256modm hram, S;
+    byte checkR[32];
+
+    if ((RS[63] & 224) || !ge25519_unpack_negative_vartime(&A, pk))
+        return -1;
+
+    /* hram = H(R,A,m) */
+    ed25519_hram(hash, RS, pk, stream, hashTf);
+    expand256_modm(hram, hash, 64);
+
+    /* S */
+    expand256_modm(S, RS + 32, 32);
+
+    /* SB - H(R,A,m)A */
+    ge25519_double_scalarmult_vartime(&R, &A, hram, S);
+    ge25519_pack(checkR, &R);
+
+    /* check that R = SB - H(R,A,m)A */
+    return ed25519_verify(RS, checkR, 32) ? 0 : -1;
+}
+
+int
 ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte signature[64])
 {
     return ed25519_sign_open_CXX(stream, publicKey, signature);
 }
 
 int
+ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte signature[64],
+                  HashTransformation& hash)
+{
+    return ed25519_sign_open_CXX(stream, publicKey, signature, hash);
+}
+
+int
 ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKey[32], const byte signature[64])
 {
     return ed25519_sign_open_CXX(message, messageLength, publicKey, signature);
+}
+
+int
+ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKey[32], const byte signature[64],
+                  HashTransformation& hash)
+{
+    return ed25519_sign_open_CXX(message, messageLength, publicKey, signature, hash);
 }
 
 NAMESPACE_END  // Donna

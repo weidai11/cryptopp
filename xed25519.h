@@ -40,11 +40,16 @@
 #include "cryptlib.h"
 #include "pubkey.h"
 #include "oids.h"
+#include "sha.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
 class Integer;
+
+template <class HASH>
 struct ed25519Signer;
+
+template <class HASH>
 struct ed25519Verifier;
 
 // ******************** x25519 Agreement ************************* //
@@ -252,6 +257,23 @@ protected:
     OID m_oid;  // preferred OID
 };
 
+// ****************** ed25519 Base *********************** //
+
+template <class HASH>
+struct ed25519_Base
+{
+    CRYPTOPP_COMPILE_ASSERT(HASH::DIGESTSIZE == 64);
+
+    const HashTransformation& GetHash() const { return m_hash; }
+
+    HashTransformation& AccessHash() {
+        return const_cast<HashTransformation&>(m_hash);
+    }
+
+protected:
+    HASH m_hash;
+};
+
 // ****************** ed25519 Signer *********************** //
 
 /// \brief ed25519 message accumulator
@@ -352,7 +374,8 @@ protected:
 ///  returned the way a caller expects. And calling
 ///  SetPrivateExponent perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
-struct ed25519PrivateKey : public PKCS8PrivateKey
+template <class HASH>
+struct ed25519PrivateKey : public PKCS8PrivateKey, public ed25519_Base<HASH>
 {
     /// \brief Size of the private key
     /// \details SECRET_KEYLENGTH is the size of the private key, in bytes.
@@ -459,7 +482,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
     // PKCS8PrivateKey
-    void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params);
+    void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params = g_nullNameValuePairs);
     void SetPrivateExponent(const byte x[SECRET_KEYLENGTH]);
     void SetPrivateExponent(const Integer &x);
     const Integer& GetPrivateExponent() const;
@@ -495,7 +518,8 @@ protected:
 
 /// \brief Ed25519 signature algorithm
 /// \since Crypto++ 8.0
-struct ed25519Signer : public PK_Signer
+template <class HASH>
+struct ed25519Signer : public PK_Signer, public ed25519_Base<HASH>
 {
     /// \brief Size of the private key
     /// \details SECRET_KEYLENGTH is the size of the private key, in bytes.
@@ -602,7 +626,7 @@ struct ed25519Signer : public PK_Signer
     size_t SignStream (RandomNumberGenerator &rng, std::istream& stream, byte *signature) const;
 
 protected:
-    ed25519PrivateKey m_key;
+    ed25519PrivateKey<HASH> m_key;
 };
 
 // ****************** ed25519 Verifier *********************** //
@@ -624,7 +648,8 @@ protected:
 ///  returned the way a caller expects. And calling
 ///  SetPublicElement() perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
-struct ed25519PublicKey : public X509PublicKey
+template <class HASH>
+struct ed25519PublicKey : public X509PublicKey, public ed25519_Base<HASH>
 {
     /// \brief Size of the public key
     /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
@@ -702,7 +727,8 @@ protected:
 
 /// \brief Ed25519 signature verification algorithm
 /// \since Crypto++ 8.0
-struct ed25519Verifier : public PK_Verifier
+template <class HASH>
+struct ed25519Verifier : public PK_Verifier, public ed25519_Base<HASH>
 {
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64);
@@ -737,7 +763,7 @@ struct ed25519Verifier : public PK_Verifier
     /// \details This constructor creates a ed25519Verifier object using existing parameters.
     ///  The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
-    ed25519Verifier(const ed25519Signer& signer);
+    ed25519Verifier(const ed25519Signer<HASH>& signer);
 
     // DL_ObjectImplBase
     /// \brief Retrieves a reference to a Public Key
@@ -792,18 +818,19 @@ struct ed25519Verifier : public PK_Verifier
     }
 
 protected:
-    ed25519PublicKey m_key;
+    ed25519PublicKey<HASH> m_key;
 };
 
 /// \brief Ed25519 signature scheme
 /// \sa <A HREF="http://cryptopp.com/wiki/Ed25519">Ed25519</A> on the Crypto++ wiki.
 /// \since Crypto++ 8.0
+template <class HASH = SHA512>
 struct ed25519
 {
     /// \brief ed25519 Signer
-    typedef ed25519Signer Signer;
+    typedef ed25519Signer<HASH> Signer;
     /// \brief ed25519 Verifier
-    typedef ed25519Verifier Verifier;
+    typedef ed25519Verifier<HASH> Verifier;
 };
 
 NAMESPACE_END  // CryptoPP

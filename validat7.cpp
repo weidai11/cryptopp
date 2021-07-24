@@ -644,13 +644,13 @@ bool TestEd25519()
 		const byte msg[2] = {0xaf, 0x82}; byte sig[64];
 
 		// Test the filter framework
-		ed25519Signer signer(pk, sk);
+		ed25519Signer<SHA512> signer(pk, sk);
 		StringSource(msg, sizeof(msg), true, new SignerFilter(NullRNG(), signer, new ArraySink(sig, sizeof(sig))));
 
 		if (std::memcmp(exp, sig, 64) != 0)
 			throw Exception(Exception::OTHER_ERROR, "TestEd25519: SignerFilter");
 
-		ed25519Verifier verifier(pk);
+		ed25519Verifier<SHA512> verifier(pk);
 		int flags = SignatureVerificationFilter::THROW_EXCEPTION | SignatureVerificationFilter::SIGNATURE_AT_END;
 		std::string msg_sig = std::string((char*)msg, sizeof(msg)) + std::string((char*)sig, sizeof(sig));
 		StringSource(msg_sig, true, new SignatureVerificationFilter(verifier, NULLPTR, flags));
@@ -674,9 +674,9 @@ bool TestEd25519()
 		FileSource f2(DataDir("TestData/ed25519v0.dat").c_str(), true, new HexDecoder);
 		FileSource f3(DataDir("TestData/ed25519v1.dat").c_str(), true, new HexDecoder);
 
-		ed25519::Signer s1(f1);
-		ed25519::Signer s2(f2);
-		ed25519::Signer s3(f3);
+		ed25519<>::Signer s1(f1);
+		ed25519<>::Signer s2(f2);
+		ed25519<>::Signer s3(f3);
 
 		FileSource f4(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
 		FileSource f5(DataDir("TestData/ed25519v0.dat").c_str(), true, new HexDecoder);

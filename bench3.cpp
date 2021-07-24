@@ -389,8 +389,8 @@ void BenchmarkEllipticCurveAlgorithms(double t, double hertz)
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
-		ed25519::Signer sign(Test::GlobalRNG());
-		ed25519::Verifier verify(sign);
+		ed25519<>::Signer sign(Test::GlobalRNG());
+		ed25519<>::Verifier verify(sign);
 		x25519 agree(Test::GlobalRNG());
 
 		BenchMarkSigning("ed25519", sign, t);
