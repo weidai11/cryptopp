@@ -40,11 +40,16 @@
 #include "cryptlib.h"
 #include "pubkey.h"
 #include "oids.h"
+#include "sha.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
 class Integer;
+
+template <class HASH>
 struct ed25519Signer;
+
+template <class HASH>
 struct ed25519Verifier;
 
 // ******************** x25519 Agreement ************************* //
@@ -352,6 +357,7 @@ protected:
 ///  returned the way a caller expects. And calling
 ///  SetPrivateExponent perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
+template <class HASH>
 struct ed25519PrivateKey : public PKCS8PrivateKey
 {
     /// \brief Size of the private key
@@ -459,7 +465,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
     // PKCS8PrivateKey
-    void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params);
+    void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params = g_nullNameValuePairs);
     void SetPrivateExponent(const byte x[SECRET_KEYLENGTH]);
     void SetPrivateExponent(const Integer &x);
     const Integer& GetPrivateExponent() const;
@@ -491,10 +497,12 @@ protected:
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
     OID m_oid;  // preferred OID
     mutable Integer m_x;  // for DL_PrivateKey
+    HASH m_hash;
 };
 
 /// \brief Ed25519 signature algorithm
 /// \since Crypto++ 8.0
+template <class HASH>
 struct ed25519Signer : public PK_Signer
 {
     /// \brief Size of the private key
@@ -602,7 +610,8 @@ struct ed25519Signer : public PK_Signer
     size_t SignStream (RandomNumberGenerator &rng, std::istream& stream, byte *signature) const;
 
 protected:
-    ed25519PrivateKey m_key;
+    ed25519PrivateKey<HASH> m_key;
+    HASH m_hash;
 };
 
 // ****************** ed25519 Verifier *********************** //
@@ -624,6 +633,7 @@ protected:
 ///  returned the way a caller expects. And calling
 ///  SetPublicElement() perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
+template <class HASH>
 struct ed25519PublicKey : public X509PublicKey
 {
     /// \brief Size of the public key
@@ -698,10 +708,12 @@ protected:
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
     OID m_oid;  // preferred OID
     mutable Integer m_y;  // for DL_PublicKey
+    HASH m_hash;
 };
 
 /// \brief Ed25519 signature verification algorithm
 /// \since Crypto++ 8.0
+template <class HASH>
 struct ed25519Verifier : public PK_Verifier
 {
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
@@ -737,7 +749,7 @@ struct ed25519Verifier : public PK_Verifier
     /// \details This constructor creates a ed25519Verifier object using existing parameters.
     ///  The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
-    ed25519Verifier(const ed25519Signer& signer);
+    ed25519Verifier(const ed25519Signer<HASH>& signer);
 
     // DL_ObjectImplBase
     /// \brief Retrieves a reference to a Public Key
@@ -792,18 +804,20 @@ struct ed25519Verifier : public PK_Verifier
     }
 
 protected:
-    ed25519PublicKey m_key;
+    ed25519PublicKey<HASH> m_key;
+    HASH m_hash;
 };
 
 /// \brief Ed25519 signature scheme
 /// \sa <A HREF="http://cryptopp.com/wiki/Ed25519">Ed25519</A> on the Crypto++ wiki.
 /// \since Crypto++ 8.0
+template <class HASH = SHA512>
 struct ed25519
 {
     /// \brief ed25519 Signer
-    typedef ed25519Signer Signer;
+    typedef ed25519Signer<HASH> Signer;
     /// \brief ed25519 Verifier
-    typedef ed25519Verifier Verifier;
+    typedef ed25519Verifier<HASH> Verifier;
 };
 
 NAMESPACE_END  // CryptoPP

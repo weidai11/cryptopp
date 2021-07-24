@@ -372,19 +372,21 @@ bool x25519::Agree(byte *agreedValue, const byte *privateKey, const byte *otherP
 }
 
 // ******************** ed25519 Signer ************************* //
-
-void ed25519PrivateKey::SecretToPublicKey(byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH]) const
+template <class HASH>
+void ed25519PrivateKey<HASH>::SecretToPublicKey(byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH]) const
 {
-    int ret = Donna::ed25519_publickey(y, x);
+    int ret = Donna::ed25519_publickey(y, x, m_hash);
     CRYPTOPP_ASSERT(ret == 0); CRYPTOPP_UNUSED(ret);
 }
 
-bool ed25519PrivateKey::IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const
+template <class HASH>
+bool ed25519PrivateKey<HASH>::IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const
 {
     return HasSmallOrder(y);
 }
 
-bool ed25519PrivateKey::Validate(RandomNumberGenerator &rng, unsigned int level) const
+template <class HASH>
+bool ed25519PrivateKey<HASH>::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
     CRYPTOPP_UNUSED(rng);
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
@@ -404,7 +406,8 @@ bool ed25519PrivateKey::Validate(RandomNumberGenerator &rng, unsigned int level)
     return true;
 }
 
-bool ed25519PrivateKey::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+template <class HASH>
+bool ed25519PrivateKey<HASH>::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
      if (std::strcmp(name, Name::PrivateExponent()) == 0 || std::strcmp(name, "SecretKey") == 0)
      {
@@ -433,7 +436,8 @@ bool ed25519PrivateKey::GetVoidValue(const char *name, const std::type_info &val
     return false;
 }
 
-void ed25519PrivateKey::AssignFrom(const NameValuePairs &source)
+template <class HASH>
+void ed25519PrivateKey<HASH>::AssignFrom(const NameValuePairs &source)
 {
     ConstByteArrayParameter val;
     if (source.GetValue(Name::PrivateExponent(), val) || source.GetValue("SecretKey", val))
@@ -460,25 +464,28 @@ void ed25519PrivateKey::AssignFrom(const NameValuePairs &source)
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
-void ed25519PrivateKey::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params=g_nullNameValuePairs)
+template <class HASH>
+void ed25519PrivateKey<HASH>::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params)
 {
     ConstByteArrayParameter seed;
     if (params.GetValue(Name::Seed(), seed) && rng.CanIncorporateEntropy())
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    int ret = Donna::ed25519_publickey(m_pk, m_sk);
+    int ret = Donna::ed25519_publickey(m_pk, m_sk, m_hash);
     CRYPTOPP_ASSERT(ret == 0); CRYPTOPP_UNUSED(ret);
 }
 
-void ed25519PrivateKey::MakePublicKey (PublicKey &pub) const
+template <class HASH>
+void ed25519PrivateKey<HASH>::MakePublicKey(PublicKey &pub) const
 {
     pub.AssignFrom(MakeParameters
         (Name::PublicElement(), ConstByteArrayParameter(m_pk.begin(), PUBLIC_KEYLENGTH))
         (Name::GroupOID(), GetAlgorithmID()));
 }
 
-void ed25519PrivateKey::BERDecodeAndCheckAlgorithmID(BufferedTransformation &bt)
+template <class HASH>
+void ed25519PrivateKey<HASH>::BERDecodeAndCheckAlgorithmID(BufferedTransformation &bt)
 {
     // We have not yet determined the OID to use for this object.
     // We can't use OID's decoder because it throws BERDecodeError
@@ -493,7 +500,8 @@ void ed25519PrivateKey::BERDecodeAndCheckAlgorithmID(BufferedTransformation &bt)
         BERDecodeError();
 }
 
-void ed25519PrivateKey::BERDecode(BufferedTransformation &bt)
+template <class HASH>
+void ed25519PrivateKey<HASH>::BERDecode(BufferedTransformation &bt)
 {
     // https://tools.ietf.org/html/rfc8410, section 7 and
     // https://www.cryptopp.com/wiki/curve25519_keys
@@ -532,12 +540,13 @@ void ed25519PrivateKey::BERDecode(BufferedTransformation &bt)
     privateKeyInfo.MessageEnd();
 
     if (generatePublicKey)
-        Donna::ed25519_publickey(m_pk, m_sk);
+        Donna::ed25519_publickey(m_pk, m_sk, m_hash);
 
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
-void ed25519PrivateKey::DEREncode(BufferedTransformation &bt, int version) const
+template <class HASH>
+void ed25519PrivateKey<HASH>::DEREncode(BufferedTransformation &bt, int version) const
 {
     // https://tools.ietf.org/html/rfc8410, section 7 and
     // https://www.cryptopp.com/wiki/curve25519_keys
@@ -564,7 +573,8 @@ void ed25519PrivateKey::DEREncode(BufferedTransformation &bt, int version) const
     privateKeyInfo.MessageEnd();
 }
 
-void ed25519PrivateKey::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t /*size*/)
+template <class HASH>
+void ed25519PrivateKey<HASH>::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t /*size*/)
 {
     // https://tools.ietf.org/html/rfc8410 and
     // https://www.cryptopp.com/wiki/curve25519_keys
@@ -585,7 +595,8 @@ void ed25519PrivateKey::BERDecodePrivateKey(BufferedTransformation &bt, bool par
     privateKey.MessageEnd();
 }
 
-void ed25519PrivateKey::DEREncodePrivateKey(BufferedTransformation &bt) const
+template <class HASH>
+void ed25519PrivateKey<HASH>::DEREncodePrivateKey(BufferedTransformation &bt) const
 {
     // https://tools.ietf.org/html/rfc8410
     DERGeneralEncoder privateKey(bt, OCTET_STRING);
@@ -593,14 +604,16 @@ void ed25519PrivateKey::DEREncodePrivateKey(BufferedTransformation &bt) const
     privateKey.MessageEnd();
 }
 
-void ed25519PrivateKey::SetPrivateExponent (const byte x[SECRET_KEYLENGTH])
+template <class HASH>
+void ed25519PrivateKey<HASH>::SetPrivateExponent (const byte x[SECRET_KEYLENGTH])
 {
     AssignFrom(MakeParameters
         (Name::PrivateExponent(), ConstByteArrayParameter(x, SECRET_KEYLENGTH))
         ("DerivePublicKey", true));
 }
 
-void ed25519PrivateKey::SetPrivateExponent (const Integer &x)
+template <class HASH>
+void ed25519PrivateKey<HASH>::SetPrivateExponent (const Integer &x)
 {
     CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
 
@@ -612,7 +625,8 @@ void ed25519PrivateKey::SetPrivateExponent (const Integer &x)
         ("DerivePublicKey", true));
 }
 
-const Integer& ed25519PrivateKey::GetPrivateExponent() const
+template <class HASH>
+const Integer& ed25519PrivateKey<HASH>::GetPrivateExponent() const
 {
     m_x = Integer(m_sk, SECRET_KEYLENGTH, Integer::UNSIGNED, LITTLE_ENDIAN_ORDER);
     return m_x;
@@ -620,21 +634,24 @@ const Integer& ed25519PrivateKey::GetPrivateExponent() const
 
 ////////////////////////
 
-ed25519Signer::ed25519Signer(const byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH])
+template <class HASH>
+ed25519Signer<HASH>::ed25519Signer(const byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH])
 {
     AccessPrivateKey().AssignFrom(MakeParameters
         (Name::PrivateExponent(), ConstByteArrayParameter(x, SECRET_KEYLENGTH, false))
         (Name::PublicElement(), ConstByteArrayParameter(y, PUBLIC_KEYLENGTH, false)));
 }
 
-ed25519Signer::ed25519Signer(const byte x[SECRET_KEYLENGTH])
+template <class HASH>
+ed25519Signer<HASH>::ed25519Signer(const byte x[SECRET_KEYLENGTH])
 {
     AccessPrivateKey().AssignFrom(MakeParameters
         (Name::PrivateExponent(), ConstByteArrayParameter(x, SECRET_KEYLENGTH, false))
         ("DerivePublicKey", true));
 }
 
-ed25519Signer::ed25519Signer(const Integer &y, const Integer &x)
+template <class HASH>
+ed25519Signer<HASH>::ed25519Signer(const Integer &y, const Integer &x)
 {
     CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
     CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
@@ -648,7 +665,8 @@ ed25519Signer::ed25519Signer(const Integer &y, const Integer &x)
         (Name::PrivateExponent(), ConstByteArrayParameter(bx, SECRET_KEYLENGTH, false)));
 }
 
-ed25519Signer::ed25519Signer(const Integer &x)
+template <class HASH>
+ed25519Signer<HASH>::ed25519Signer(const Integer &x)
 {
     CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
 
@@ -660,23 +678,26 @@ ed25519Signer::ed25519Signer(const Integer &x)
         ("DerivePublicKey", true));
 }
 
-ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
+template <class HASH>
+ed25519Signer<HASH>::ed25519Signer(RandomNumberGenerator &rng)
 {
     AccessPrivateKey().GenerateRandom(rng);
 }
 
-ed25519Signer::ed25519Signer(BufferedTransformation &params)
+template <class HASH>
+ed25519Signer<HASH>::ed25519Signer(BufferedTransformation &params)
 {
     AccessPrivateKey().Load(params);
 }
 
-size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const
+template <class HASH>
+size_t ed25519Signer<HASH>::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const
 {
     CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
 
     ed25519_MessageAccumulator& accum = dynamic_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-    const ed25519PrivateKey& pk = dynamic_cast<const ed25519PrivateKey&>(GetPrivateKey());
-    int ret = Donna::ed25519_sign(accum.data(), accum.size(), pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature);
+    const ed25519PrivateKey<HASH>& pk = dynamic_cast<const ed25519PrivateKey<HASH>&>(GetPrivateKey());
+    int ret = Donna::ed25519_sign(accum.data(), accum.size(), pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature, m_hash);
     CRYPTOPP_ASSERT(ret == 0);
 
     if (restart)
@@ -685,12 +706,13 @@ size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccum
     return ret == 0 ? SIGNATURE_LENGTH : 0;
 }
 
-size_t ed25519Signer::SignStream (RandomNumberGenerator &rng, std::istream& stream, byte *signature) const
+template <class HASH>
+size_t ed25519Signer<HASH>::SignStream (RandomNumberGenerator &rng, std::istream& stream, byte *signature) const
 {
     CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
 
-    const ed25519PrivateKey& pk = dynamic_cast<const ed25519PrivateKey&>(GetPrivateKey());
-    int ret = Donna::ed25519_sign(stream, pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature);
+    const ed25519PrivateKey<HASH>& pk = dynamic_cast<const ed25519PrivateKey<HASH>&>(GetPrivateKey());
+    int ret = Donna::ed25519_sign(stream, pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature, m_hash);
     CRYPTOPP_ASSERT(ret == 0);
 
     return ret == 0 ? SIGNATURE_LENGTH : 0;
@@ -698,7 +720,8 @@ size_t ed25519Signer::SignStream (RandomNumberGenerator &rng, std::istream& stre
 
 // ******************** ed25519 Verifier ************************* //
 
-bool ed25519PublicKey::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+template <class HASH>
+bool ed25519PublicKey<HASH>::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
     if (std::strcmp(name, Name::PublicElement()) == 0)
     {
@@ -720,7 +743,8 @@ bool ed25519PublicKey::GetVoidValue(const char *name, const std::type_info &valu
     return false;
 }
 
-void ed25519PublicKey::AssignFrom(const NameValuePairs &source)
+template <class HASH>
+void ed25519PublicKey<HASH>::AssignFrom(const NameValuePairs &source)
 {
     ConstByteArrayParameter ba;
     if (source.GetValue(Name::PublicElement(), ba))
@@ -735,7 +759,8 @@ void ed25519PublicKey::AssignFrom(const NameValuePairs &source)
     }
 }
 
-void ed25519PublicKey::BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt)
+template <class HASH>
+void ed25519PublicKey<HASH>::BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt)
 {
     // We have not yet determined the OID to use for this object.
     // We can't use OID's decoder because it throws BERDecodeError
@@ -750,7 +775,8 @@ void ed25519PublicKey::BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt)
         BERDecodeError();
 }
 
-void ed25519PublicKey::BERDecode(BufferedTransformation &bt)
+template <class HASH>
+void ed25519PublicKey<HASH>::BERDecode(BufferedTransformation &bt)
 {
     BERSequenceDecoder publicKeyInfo(bt);
 
@@ -764,7 +790,8 @@ void ed25519PublicKey::BERDecode(BufferedTransformation &bt)
     publicKeyInfo.MessageEnd();
 }
 
-void ed25519PublicKey::DEREncode(BufferedTransformation &bt) const
+template <class HASH>
+void ed25519PublicKey<HASH>::DEREncode(BufferedTransformation &bt) const
 {
     DERSequenceEncoder publicKeyInfo(bt);
 
@@ -777,7 +804,8 @@ void ed25519PublicKey::DEREncode(BufferedTransformation &bt) const
     publicKeyInfo.MessageEnd();
 }
 
-void ed25519PublicKey::BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t /*size*/)
+template <class HASH>
+void ed25519PublicKey<HASH>::BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t /*size*/)
 {
     // We don't know how to decode them
     if (parametersPresent)
@@ -795,17 +823,20 @@ void ed25519PublicKey::BERDecodePublicKey(BufferedTransformation &bt, bool param
     std::memcpy(m_pk.begin(), subjectPublicKey, PUBLIC_KEYLENGTH);
 }
 
-void ed25519PublicKey::DEREncodePublicKey(BufferedTransformation &bt) const
+template <class HASH>
+void ed25519PublicKey<HASH>::DEREncodePublicKey(BufferedTransformation &bt) const
 {
     DEREncodeBitString(bt, m_pk, PUBLIC_KEYLENGTH);
 }
 
-void ed25519PublicKey::SetPublicElement (const byte y[PUBLIC_KEYLENGTH])
+template <class HASH>
+void ed25519PublicKey<HASH>::SetPublicElement (const byte y[PUBLIC_KEYLENGTH])
 {
     std::memcpy(m_pk, y, PUBLIC_KEYLENGTH);
 }
 
-void ed25519PublicKey::SetPublicElement (const Integer &y)
+template <class HASH>
+void ed25519PublicKey<HASH>::SetPublicElement (const Integer &y)
 {
     CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
 
@@ -815,13 +846,15 @@ void ed25519PublicKey::SetPublicElement (const Integer &y)
     std::memcpy(m_pk, by, PUBLIC_KEYLENGTH);
 }
 
-const Integer& ed25519PublicKey::GetPublicElement() const
+template <class HASH>
+const Integer &ed25519PublicKey<HASH>::GetPublicElement() const
 {
     m_y = Integer(m_pk, PUBLIC_KEYLENGTH, Integer::UNSIGNED, LITTLE_ENDIAN_ORDER);
     return m_y;
 }
 
-bool ed25519PublicKey::Validate(RandomNumberGenerator &rng, unsigned int level) const
+template <class HASH>
+bool ed25519PublicKey<HASH>::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
     CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(level);
     return true;
@@ -829,13 +862,15 @@ bool ed25519PublicKey::Validate(RandomNumberGenerator &rng, unsigned int level) 
 
 ////////////////////////
 
-ed25519Verifier::ed25519Verifier(const byte y[PUBLIC_KEYLENGTH])
+template <class HASH>
+ed25519Verifier<HASH>::ed25519Verifier(const byte y[PUBLIC_KEYLENGTH])
 {
     AccessPublicKey().AssignFrom(MakeParameters
         (Name::PublicElement(), ConstByteArrayParameter(y, PUBLIC_KEYLENGTH)));
 }
 
-ed25519Verifier::ed25519Verifier(const Integer &y)
+template <class HASH>
+ed25519Verifier<HASH>::ed25519Verifier(const Integer &y)
 {
     CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
 
@@ -846,34 +881,38 @@ ed25519Verifier::ed25519Verifier(const Integer &y)
         (Name::PublicElement(), ConstByteArrayParameter(by, PUBLIC_KEYLENGTH, false)));
 }
 
-ed25519Verifier::ed25519Verifier(BufferedTransformation &params)
+template <class HASH>
+ed25519Verifier<HASH>::ed25519Verifier(BufferedTransformation &params)
 {
     AccessPublicKey().Load(params);
 }
 
-ed25519Verifier::ed25519Verifier(const ed25519Signer& signer)
+template <class HASH>
+ed25519Verifier<HASH>::ed25519Verifier(const ed25519Signer<HASH> &signer)
 {
-    const ed25519PrivateKey& priv = dynamic_cast<const ed25519PrivateKey&>(signer.GetPrivateKey());
+    const ed25519PrivateKey<HASH>& priv = dynamic_cast<const ed25519PrivateKey<HASH>&>(signer.GetPrivateKey());
     priv.MakePublicKey(AccessPublicKey());
 }
 
-bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const
+template <class HASH>
+bool ed25519Verifier<HASH>::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const
 {
     ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-    const ed25519PublicKey& pk = dynamic_cast<const ed25519PublicKey&>(GetPublicKey());
-    int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), pk.GetPublicKeyBytePtr(), accum.signature());
+    const ed25519PublicKey<HASH>& pk = dynamic_cast<const ed25519PublicKey<HASH>&>(GetPublicKey());
+    int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), pk.GetPublicKeyBytePtr(), accum.signature(), m_hash);
     accum.Restart();
 
     return ret == 0;
 }
 
-bool ed25519Verifier::VerifyStream(std::istream& stream, const byte *signature, size_t signatureLen) const
+template <class HASH>
+bool ed25519Verifier<HASH>::VerifyStream(std::istream& stream, const byte *signature, size_t signatureLen) const
 {
     CRYPTOPP_ASSERT(signatureLen == SIGNATURE_LENGTH);
     CRYPTOPP_UNUSED(signatureLen);
 
-    const ed25519PublicKey& pk = static_cast<const ed25519PublicKey&>(GetPublicKey());
-    int ret = Donna::ed25519_sign_open(stream, pk.GetPublicKeyBytePtr(), signature);
+    const ed25519PublicKey<HASH>& pk = static_cast<const ed25519PublicKey<HASH>&>(GetPublicKey());
+    int ret = Donna::ed25519_sign_open(stream, pk.GetPublicKeyBytePtr(), signature, m_hash);
 
     return ret == 0;
 }
