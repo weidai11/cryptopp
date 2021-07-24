@@ -257,6 +257,23 @@ protected:
     OID m_oid;  // preferred OID
 };
 
+// ****************** ed25519 Base *********************** //
+
+template <class HASH>
+struct ed25519_Base
+{
+    CRYPTOPP_COMPILE_ASSERT(HASH::DIGESTSIZE == 64);
+
+    const HashTransformation& GetHash() const { return m_hash; }
+
+    HashTransformation& AccessHash() {
+        return const_cast<HashTransformation&>(m_hash);
+    }
+
+protected:
+    HASH m_hash;
+};
+
 // ****************** ed25519 Signer *********************** //
 
 /// \brief ed25519 message accumulator
@@ -358,7 +375,7 @@ protected:
 ///  SetPrivateExponent perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
 template <class HASH>
-struct ed25519PrivateKey : public PKCS8PrivateKey
+struct ed25519PrivateKey : public PKCS8PrivateKey, public ed25519_Base<HASH>
 {
     /// \brief Size of the private key
     /// \details SECRET_KEYLENGTH is the size of the private key, in bytes.
@@ -497,13 +514,12 @@ protected:
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
     OID m_oid;  // preferred OID
     mutable Integer m_x;  // for DL_PrivateKey
-    HASH m_hash;
 };
 
 /// \brief Ed25519 signature algorithm
 /// \since Crypto++ 8.0
 template <class HASH>
-struct ed25519Signer : public PK_Signer
+struct ed25519Signer : public PK_Signer, public ed25519_Base<HASH>
 {
     /// \brief Size of the private key
     /// \details SECRET_KEYLENGTH is the size of the private key, in bytes.
@@ -611,7 +627,6 @@ struct ed25519Signer : public PK_Signer
 
 protected:
     ed25519PrivateKey<HASH> m_key;
-    HASH m_hash;
 };
 
 // ****************** ed25519 Verifier *********************** //
@@ -634,7 +649,7 @@ protected:
 ///  SetPublicElement() perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
 template <class HASH>
-struct ed25519PublicKey : public X509PublicKey
+struct ed25519PublicKey : public X509PublicKey, public ed25519_Base<HASH>
 {
     /// \brief Size of the public key
     /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
@@ -708,13 +723,12 @@ protected:
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
     OID m_oid;  // preferred OID
     mutable Integer m_y;  // for DL_PublicKey
-    HASH m_hash;
 };
 
 /// \brief Ed25519 signature verification algorithm
 /// \since Crypto++ 8.0
 template <class HASH>
-struct ed25519Verifier : public PK_Verifier
+struct ed25519Verifier : public PK_Verifier, public ed25519_Base<HASH>
 {
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64);
@@ -805,7 +819,6 @@ struct ed25519Verifier : public PK_Verifier
 
 protected:
     ed25519PublicKey<HASH> m_key;
-    HASH m_hash;
 };
 
 /// \brief Ed25519 signature scheme
