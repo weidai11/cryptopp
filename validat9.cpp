@@ -685,8 +685,8 @@ bool ValidateEd25519()
 		"\x77\xC4\xBF\xC5\x45\x79\x3A\xAC\xB5\x16\xAE\x4E\xD9\x16\x95\x0E";
 
 	FileSource keys(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
-	ed25519::Signer signer(keys);
-	ed25519::Verifier verifier(signer);
+	ed25519<>::Signer signer(keys);
+	ed25519<>::Verifier verifier(signer);
 
 	fail = !SignatureValidate(signer, verifier);
 	pass = pass && !fail;
