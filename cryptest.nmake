@@ -40,7 +40,7 @@
 #   - /DDEBUG /D_DEBUG /Oi /Oy- /Od
 # To test release builds, use the following CXXFLAGS:
 #   - /DNDEBUG /D_NDEBUG /Oi /Oy /O2
-# To test with static C++ runtime linking, use the following CXXFLAGS (default below):
+# To test with static C++ runtime linking, use the following CXXFLAGS:
 #   - /MT (release) or /MTd (debug)
 # To test with dynamic C++ runtime linking, use the following CXXFLAGS:
 #   - /MD (release) or /MDd (debug)
