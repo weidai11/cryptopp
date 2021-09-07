@@ -28,7 +28,7 @@
 #  "make sources | fold -w73 -s". The list of LIB_OBJS and TEST_OBJS was
 #  generated with "make sources | fold -w73 -s | sed 's|.cpp|.obj|g'". The
 #  order of the first three object files are significant. See C++ Static
-#  Initialization Order Fisaco on the Crypto++ wiki for details.
+#  Initialization Order Fiasco on the Crypto++ wiki for details.
 
 # You are free to add and remove files to the list. For example, you can remove
 #  rdrand.asm build it using NASM, and then include the NASM object file
