@@ -7,7 +7,7 @@
 #  apparent problems under Microsoft ARM and Metro UI apps.
 
 # The makefile is not intended for production use, though it may be used as a
-#  starting point. For example, you can add switches like /MT and /MTd for
+#  starting point. For example, you can add switches like /MD and /MDd for
 #  dynamic runtime linking against the Microsoft C++ Runtime libraries. If you
 #  are building for Windows Phone or Windows Store, then you probably want to
 #  remove /D_MBCS. The resulting cryptlib.lib may be suitable as a starting
@@ -307,17 +307,6 @@ x64masm.obj: x64masm.asm
 	$(AS) $(ASFLAGS) /Fo x64masm.obj /c x64masm.asm
 x64dll.obj: x64dll.asm
 	$(AS) $(ASFLAGS) /Fo x64dll.obj /c x64dll.asm
-
-# You may need to delete this on early versions of Visual Studio.
-# Down-level compilers will simply see chacha_avx.cpp as an empty file.
-!IF "$(PLATFORM)" == "x64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "amd64" || "$(PLATFORM)" == "x86" || "$(PLATFORM)" == "X86"
-chacha_avx.obj:
-	$(CXX) $(CXXFLAGS) /arch:AVX /c chacha_avx.cpp
-lsh256_avx.obj:
-	$(CXX) $(CXXFLAGS) /arch:AVX /c lsh256_avx.cpp
-lsh512_avx.obj:
-	$(CXX) $(CXXFLAGS) /arch:AVX /c lsh512_avx.cpp
-!endif
 
 # For testing cryptopp.dll and CRYPTOPP_IMPORTS
 #CXXFLAGS_IMPORTS = /wd4275 /wd4251 /DCRYPTOPP_IMPORTS
