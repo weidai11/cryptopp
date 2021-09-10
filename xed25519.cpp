@@ -152,9 +152,12 @@ void x25519::BERDecodeAndCheckAlgorithmID(BufferedTransformation &bt)
     // if the OIDs do not match.
     OID oid(bt);
 
+    // 1.3.6.1.4.1.3029.1.5.1/curvey25519 from Cryptlib used by OpenPGP.
+    // https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis
     if (!m_oid.Empty() && m_oid != oid)
         BERDecodeError();  // Only accept user specified OID
-    else if (oid == ASN1::curve25519() || oid == ASN1::X25519())
+    else if (oid == ASN1::curve25519() || oid == ASN1::X25519() ||
+        oid == OID(1)+3+6+1+4+1+3029+1+5)
         m_oid = oid;  // Accept any of the x25519 OIDs
     else
         BERDecodeError();
