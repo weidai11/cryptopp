@@ -512,43 +512,48 @@ struct ed25519Signer : public PK_Signer
 
     virtual ~ed25519Signer() {}
 
-    /// \brief Create a ed25519Signer object
+    /// \brief Create an ed25519Signer object
     ed25519Signer() {}
 
-    /// \brief Create a ed25519Signer object
+    /// \brief Create an ed25519Signer object
     /// \param y public key
     /// \param x private key
-    /// \details This constructor creates a ed25519Signer object using existing parameters.
+    /// \details This constructor creates an ed25519Signer object using existing parameters.
     /// \note The public key is not validated.
     ed25519Signer(const byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH]);
 
-    /// \brief Create a ed25519Signer object
+    /// \brief Create an ed25519Signer object
     /// \param x private key
-    /// \details This constructor creates a ed25519Signer object using existing parameters.
+    /// \details This constructor creates an ed25519Signer object using existing parameters.
     ///  The public key is calculated from the private key.
     ed25519Signer(const byte x[SECRET_KEYLENGTH]);
 
-    /// \brief Create a ed25519Signer object
+    /// \brief Create an ed25519Signer object
     /// \param y public key
     /// \param x private key
-    /// \details This constructor creates a ed25519Signer object using existing parameters.
+    /// \details This constructor creates an ed25519Signer object using existing parameters.
     /// \note The public key is not validated.
     ed25519Signer(const Integer &y, const Integer &x);
 
-    /// \brief Create a ed25519Signer object
+    /// \brief Create an ed25519Signer object
     /// \param x private key
-    /// \details This constructor creates a ed25519Signer object using existing parameters.
+    /// \details This constructor creates an ed25519Signer object using existing parameters.
     ///  The public key is calculated from the private key.
     ed25519Signer(const Integer &x);
 
-    /// \brief Create a ed25519Signer object
+    /// \brief Create an ed25519Signer object
+    /// \param key PKCS8 private key
+    /// \details This constructor creates an ed25519Signer object using existing private key.
+    ed25519Signer(const PKCS8PrivateKey &key);
+
+    /// \brief Create an ed25519Signer object
     /// \param rng RandomNumberGenerator derived class
     /// \details This constructor creates a new ed25519Signer using the random number generator.
     ed25519Signer(RandomNumberGenerator &rng);
 
-    /// \brief Create a ed25519Signer object
+    /// \brief Create an ed25519Signer object
     /// \param params public and private key
-    /// \details This constructor creates a ed25519Signer object using existing parameters.
+    /// \details This constructor creates an ed25519Signer object using existing parameters.
     ///  The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     ed25519Signer(BufferedTransformation &params);
@@ -710,31 +715,37 @@ struct ed25519Verifier : public PK_Verifier
 
     virtual ~ed25519Verifier() {}
 
-    /// \brief Create a ed25519Verifier object
+    /// \brief Create an ed25519Verifier object
     ed25519Verifier() {}
 
-    /// \brief Create a ed25519Verifier object
+    /// \brief Create an ed25519Verifier object
     /// \param y public key
-    /// \details This constructor creates a ed25519Verifier object using existing parameters.
+    /// \details This constructor creates an ed25519Verifier object using existing parameters.
     /// \note The public key is not validated.
     ed25519Verifier(const byte y[PUBLIC_KEYLENGTH]);
 
-    /// \brief Create a ed25519Verifier object
+    /// \brief Create an ed25519Verifier object
     /// \param y public key
-    /// \details This constructor creates a ed25519Verifier object using existing parameters.
+    /// \details This constructor creates an ed25519Verifier object using existing parameters.
     /// \note The public key is not validated.
     ed25519Verifier(const Integer &y);
 
-    /// \brief Create a ed25519Verifier object
+    /// \brief Create an ed25519Verifier object
+    /// \param key X509 public key
+    /// \details This constructor creates an ed25519Verifier object using an existing public key.
+    /// \note The public key is not validated.
+    ed25519Verifier(const X509PublicKey &key);
+
+    /// \brief Create an ed25519Verifier object
     /// \param params public and private key
-    /// \details This constructor creates a ed25519Verifier object using existing parameters.
+    /// \details This constructor creates an ed25519Verifier object using existing parameters.
     ///  The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     ed25519Verifier(BufferedTransformation &params);
 
-    /// \brief Create a ed25519Verifier object
+    /// \brief Create an ed25519Verifier object
     /// \param signer ed25519 signer object
-    /// \details This constructor creates a ed25519Verifier object using existing parameters.
+    /// \details This constructor creates an ed25519Verifier object using existing parameters.
     ///  The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     ed25519Verifier(const ed25519Signer& signer);

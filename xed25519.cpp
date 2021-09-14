@@ -663,6 +663,11 @@ ed25519Signer::ed25519Signer(const Integer &x)
         ("DerivePublicKey", true));
 }
 
+ed25519Signer::ed25519Signer(const PKCS8PrivateKey &key)
+    : m_key(dynamic_cast<const ed25519PrivateKey&>(key))
+{
+}
+
 ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
 {
     AccessPrivateKey().GenerateRandom(rng);
@@ -847,6 +852,11 @@ ed25519Verifier::ed25519Verifier(const Integer &y)
 
     AccessPublicKey().AssignFrom(MakeParameters
         (Name::PublicElement(), ConstByteArrayParameter(by, PUBLIC_KEYLENGTH, false)));
+}
+
+ed25519Verifier::ed25519Verifier(const X509PublicKey &key)
+    : m_key(dynamic_cast<const ed25519PublicKey &>(key))
+{
 }
 
 ed25519Verifier::ed25519Verifier(BufferedTransformation &params)
