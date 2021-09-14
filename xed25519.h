@@ -544,6 +544,8 @@ struct ed25519Signer : public PK_Signer
     /// \brief Create an ed25519Signer object
     /// \param key PKCS8 private key
     /// \details This constructor creates an ed25519Signer object using existing private key.
+    /// \note The keys are not validated.
+    /// \since Crypto++ 8.6
     ed25519Signer(const PKCS8PrivateKey &key);
 
     /// \brief Create an ed25519Signer object
@@ -734,6 +736,7 @@ struct ed25519Verifier : public PK_Verifier
     /// \param key X509 public key
     /// \details This constructor creates an ed25519Verifier object using an existing public key.
     /// \note The public key is not validated.
+    /// \since Crypto++ 8.6
     ed25519Verifier(const X509PublicKey &key);
 
     /// \brief Create an ed25519Verifier object
