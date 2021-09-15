@@ -664,8 +664,11 @@ ed25519Signer::ed25519Signer(const Integer &x)
 }
 
 ed25519Signer::ed25519Signer(const PKCS8PrivateKey &key)
-    : m_key(dynamic_cast<const ed25519PrivateKey&>(key))
 {
+    // Load all fields from the other key
+    ByteQueue queue;
+    key.Save(queue);
+    AccessPrivateKey().Load(queue);
 }
 
 ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
@@ -855,8 +858,11 @@ ed25519Verifier::ed25519Verifier(const Integer &y)
 }
 
 ed25519Verifier::ed25519Verifier(const X509PublicKey &key)
-    : m_key(dynamic_cast<const ed25519PublicKey &>(key))
 {
+    // Load all fields from the other key
+    ByteQueue queue;
+    key.Save(queue);
+    AccessPublicKey().Load(queue);
 }
 
 ed25519Verifier::ed25519Verifier(BufferedTransformation &params)
