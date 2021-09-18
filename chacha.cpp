@@ -15,6 +15,9 @@
 # undef CRYPTOPP_SSE2_INTRIN_AVAILABLE
 #endif
 
+// https://github.com/weidai11/cryptopp/issues/1069
+#undef CRYPTOPP_AVX2_AVAILABLE
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
