@@ -20,6 +20,9 @@
 #include "chacha.h"
 #include "misc.h"
 
+// https://github.com/weidai11/cryptopp/issues/1069
+#undef CRYPTOPP_AVX2_AVAILABLE
+
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
 # include <xmmintrin.h>
 # include <emmintrin.h>
