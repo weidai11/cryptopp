@@ -20,9 +20,6 @@
 #include "chacha.h"
 #include "misc.h"
 
-// https://github.com/weidai11/cryptopp/issues/1069
-#undef CRYPTOPP_AVX2_AVAILABLE
-
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
 # include <xmmintrin.h>
 # include <emmintrin.h>
@@ -103,30 +100,31 @@ void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *
     const __m256i state3 = _mm256_broadcastsi128_si256(
         _mm_loadu_si128(reinterpret_cast<const __m128i*>(state+3*4)));
 
-    const __m256i CTR0 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 4);
-    const __m256i CTR1 = _mm256_set_epi32(0, 0, 0, 1, 0, 0, 0, 5);
-    const __m256i CTR2 = _mm256_set_epi32(0, 0, 0, 2, 0, 0, 0, 6);
-    const __m256i CTR3 = _mm256_set_epi32(0, 0, 0, 3, 0, 0, 0, 7);
+    const word32 C = 0xFFFFFFFFu - state[12];
+    const __m256i CTR0 = _mm256_set_epi32(0, 0,     0, 0, 0, 0, C < 4, 4);
+    const __m256i CTR1 = _mm256_set_epi32(0, 0, C < 1, 1, 0, 0, C < 5, 5);
+    const __m256i CTR2 = _mm256_set_epi32(0, 0, C < 2, 2, 0, 0, C < 6, 6);
+    const __m256i CTR3 = _mm256_set_epi32(0, 0, C < 3, 3, 0, 0, C < 7, 7);
 
     __m256i X0_0 = state0;
     __m256i X0_1 = state1;
     __m256i X0_2 = state2;
-    __m256i X0_3 = _mm256_add_epi64(state3, CTR0);
+    __m256i X0_3 = _mm256_add_epi32(state3, CTR0);
 
     __m256i X1_0 = state0;
     __m256i X1_1 = state1;
     __m256i X1_2 = state2;
-    __m256i X1_3 = _mm256_add_epi64(state3, CTR1);
+    __m256i X1_3 = _mm256_add_epi32(state3, CTR1);
 
     __m256i X2_0 = state0;
     __m256i X2_1 = state1;
     __m256i X2_2 = state2;
-    __m256i X2_3 = _mm256_add_epi64(state3, CTR2);
+    __m256i X2_3 = _mm256_add_epi32(state3, CTR2);
 
     __m256i X3_0 = state0;
     __m256i X3_1 = state1;
     __m256i X3_2 = state2;
-    __m256i X3_3 = _mm256_add_epi64(state3, CTR3);
+    __m256i X3_3 = _mm256_add_epi32(state3, CTR3);
 
     for (int i = static_cast<int>(rounds); i > 0; i -= 2)
     {
@@ -287,25 +285,25 @@ void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *
     X0_1 = _mm256_add_epi32(X0_1, state1);
     X0_2 = _mm256_add_epi32(X0_2, state2);
     X0_3 = _mm256_add_epi32(X0_3, state3);
-    X0_3 = _mm256_add_epi64(X0_3, CTR0);
+    X0_3 = _mm256_add_epi32(X0_3, CTR0);
 
     X1_0 = _mm256_add_epi32(X1_0, state0);
     X1_1 = _mm256_add_epi32(X1_1, state1);
     X1_2 = _mm256_add_epi32(X1_2, state2);
     X1_3 = _mm256_add_epi32(X1_3, state3);
-    X1_3 = _mm256_add_epi64(X1_3, CTR1);
+    X1_3 = _mm256_add_epi32(X1_3, CTR1);
 
     X2_0 = _mm256_add_epi32(X2_0, state0);
     X2_1 = _mm256_add_epi32(X2_1, state1);
     X2_2 = _mm256_add_epi32(X2_2, state2);
     X2_3 = _mm256_add_epi32(X2_3, state3);
-    X2_3 = _mm256_add_epi64(X2_3, CTR2);
+    X2_3 = _mm256_add_epi32(X2_3, CTR2);
 
     X3_0 = _mm256_add_epi32(X3_0, state0);
     X3_1 = _mm256_add_epi32(X3_1, state1);
     X3_2 = _mm256_add_epi32(X3_2, state2);
     X3_3 = _mm256_add_epi32(X3_3, state3);
-    X3_3 = _mm256_add_epi64(X3_3, CTR3);
+    X3_3 = _mm256_add_epi32(X3_3, CTR3);
 
     if (input)
     {

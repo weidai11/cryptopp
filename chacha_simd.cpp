@@ -35,9 +35,6 @@
 # undef CRYPTOPP_SSE2_INTRIN_AVAILABLE
 #endif
 
-// https://github.com/weidai11/cryptopp/issues/1069
-#undef CRYPTOPP_AVX2_AVAILABLE
-
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include <xmmintrin.h>
 # include <emmintrin.h>
