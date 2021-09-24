@@ -294,6 +294,31 @@ documentation is one of the highest returns on investment.
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
 
+8.6.0 - September 21, 2021
+      - minor release, recompile of programs required
+      - expanded community input and support
+        * 74 unique contributors as of this release
+      - fix ElGamal encryption
+      - fix ChaCha20 AVX2 implementation
+      - add octal and decimal literal prefix parsing to Integer
+      - add missing overload in ed25519Signer and ed25519Verifier
+      - make SHA-NI independent of AVX and AVX2
+      - fix OldRandomPool GenerateWord32
+      - use CPPFLAGS during feature testing
+      - fix compile on CentOS 5
+      - fix compile on FreeBSD
+      - fix feature testing on ARM A-32 and Aarch64
+      - enable inline ASM for CRC and PMULL on Apple M1
+      - fix Intel oneAPI compile
+      - rename test files with *.cpp extension
+      - fix GCC compile error due to missing _mm256_set_m128i
+      - add LSH-256 and LSH-512 hash functions
+      - add ECIES_P1363 for backwards compatibility
+      - fix AdditiveCipherTemplate<T> ProcessData
+      - remove CRYPTOPP_NO_CXX11 define
+      - add -fno-common for Darwin builds
+      - update documentation
+
 8.5.0 - March 7, 2021
       - minor release, no recompile of programs required
       - expanded community input and support
