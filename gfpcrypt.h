@@ -282,6 +282,24 @@ protected:
     unsigned int GetDefaultSubgroupOrderSize(unsigned int modulusSize) const {return modulusSize-1;}
 };
 
+/// ElGamal encryption due to due to ElGamal safe interop
+/// \sa <A HREF="https://eprint.iacr.org/2021/923.pdf">On the
+///  (in)security of ElGamal in OpenPGP</A>,
+///  <A HREF="https://github.com/weidai11/cryptopp/issues/1059">Issue 1059</A>,
+///  <A HREF="https://nvd.nist.gov/vuln/detail/CVE-2021-40530">CVE-2021-40530</A>
+class CRYPTOPP_DLL DL_GroupParameters_ElGamal : public DL_GroupParameters_GFP_DefaultSafePrime
+{
+public:
+    typedef NoCofactorMultiplication DefaultCofactorOption;
+
+    virtual ~DL_GroupParameters_ElGamal() {}
+
+	Integer GetMaxExponent() const
+	{
+		return GetSubgroupOrder()-1;
+	}
+};
+
 /// \brief GDSA algorithm
 /// \tparam T FieldElement type or class
 /// \details FieldElement <tt>T</tt> can be Integer, ECP or EC2N.
@@ -664,6 +682,18 @@ struct DL_SignatureKeys_GFP
 struct DL_CryptoKeys_GFP
 {
     typedef DL_GroupParameters_GFP_DefaultSafePrime GroupParameters;
+    typedef DL_PublicKey_GFP<GroupParameters> PublicKey;
+    typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
+};
+
+/// ElGamal encryption keys due to ElGamal safe interop
+/// \sa <A HREF="https://eprint.iacr.org/2021/923.pdf">On the
+///  (in)security of ElGamal in OpenPGP</A>,
+///  <A HREF="https://github.com/weidai11/cryptopp/issues/1059">Issue 1059</A>,
+///  <A HREF="https://nvd.nist.gov/vuln/detail/CVE-2021-40530">CVE-2021-40530</A>
+struct DL_CryptoKeys_ElGamal
+{
+    typedef DL_GroupParameters_ElGamal GroupParameters;
     typedef DL_PublicKey_GFP<GroupParameters> PublicKey;
     typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
 };
