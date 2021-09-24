@@ -282,11 +282,12 @@ protected:
     unsigned int GetDefaultSubgroupOrderSize(unsigned int modulusSize) const {return modulusSize-1;}
 };
 
-/// ElGamal encryption due to due to ElGamal safe interop
+/// ElGamal encryption for safe interop
 /// \sa <A HREF="https://eprint.iacr.org/2021/923.pdf">On the
 ///  (in)security of ElGamal in OpenPGP</A>,
 ///  <A HREF="https://github.com/weidai11/cryptopp/issues/1059">Issue 1059</A>,
 ///  <A HREF="https://nvd.nist.gov/vuln/detail/CVE-2021-40530">CVE-2021-40530</A>
+/// \since Crypto++ 8.6
 class CRYPTOPP_DLL DL_GroupParameters_ElGamal : public DL_GroupParameters_GFP_DefaultSafePrime
 {
 public:
@@ -686,11 +687,12 @@ struct DL_CryptoKeys_GFP
     typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
 };
 
-/// ElGamal encryption keys due to ElGamal safe interop
+/// ElGamal encryption keys for safe interop
 /// \sa <A HREF="https://eprint.iacr.org/2021/923.pdf">On the
 ///  (in)security of ElGamal in OpenPGP</A>,
 ///  <A HREF="https://github.com/weidai11/cryptopp/issues/1059">Issue 1059</A>,
 ///  <A HREF="https://nvd.nist.gov/vuln/detail/CVE-2021-40530">CVE-2021-40530</A>
+/// \since Crypto++ 8.6
 struct DL_CryptoKeys_ElGamal
 {
     typedef DL_GroupParameters_ElGamal GroupParameters;
