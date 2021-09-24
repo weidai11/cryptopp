@@ -3,7 +3,7 @@
 /// \file cryptlib.h
 /// \brief Abstract base classes that provide a uniform interface to this library.
 
-/*!	\mainpage Crypto++ Library 8.6 API Reference
+/*!	\mainpage Crypto++ Library 8.7 API Reference
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
@@ -21,7 +21,7 @@
 	Rabbit, Salsa20, \ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
 <dt>Hash Functions<dd>
 	BLAKE2s, BLAKE2b, \ref Keccak "Keccak (F1600)", SHA1, SHA224, SHA256, SHA384, SHA512,
-	\ref SHA3 "SHA-3", SM3, Tiger, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SipHash, Whirlpool,
+	\ref SHA3 "SHA-3", SM3, LSH (256/512), Tiger, RIPEMD160, RIPEMD256, SipHash, Whirlpool,
 	Weak::MD2, Weak::MD4, Weak::MD5
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, CRC32C, Adler32
