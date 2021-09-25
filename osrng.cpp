@@ -134,12 +134,17 @@ MicrosoftCryptoProvider::~MicrosoftCryptoProvider()
 NonblockingRng::NonblockingRng()
 {
 #ifndef CRYPTOPP_WIN32_AVAILABLE
-	m_fd = open("/dev/urandom",O_RDONLY);
+
+# ifdef O_NOFOLLOW
+	const int flags = O_RDONLY|O_NOFOLLOW;
+# else
+	const int flags = O_RDONLY;
+# endif
+
+	m_fd = open("/dev/urandom", flags);
 	if (m_fd == -1)
 		throw OS_RNG_Err("open /dev/urandom");
 
-	// Do some OSes return -NNN instead of -1?
-	CRYPTOPP_ASSERT(m_fd >= 0);
 #endif
 }
 
@@ -223,12 +228,15 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 
 BlockingRng::BlockingRng()
 {
-	m_fd = open(CRYPTOPP_BLOCKING_RNG_FILENAME,O_RDONLY);
+# ifdef O_NOFOLLOW
+	const int flags = O_RDONLY|O_NOFOLLOW;
+# else
+	const int flags = O_RDONLY;
+# endif
+
+	m_fd = open(CRYPTOPP_BLOCKING_RNG_FILENAME, flags);
 	if (m_fd == -1)
 		throw OS_RNG_Err("open " CRYPTOPP_BLOCKING_RNG_FILENAME);
-
-	// Do some OSes return -NNN instead of -1?
-	CRYPTOPP_ASSERT(m_fd >= 0);
 }
 
 BlockingRng::~BlockingRng()
