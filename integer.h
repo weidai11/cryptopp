@@ -299,7 +299,7 @@ public:
 	/// \name ACCESSORS
 	//@{
 		/// \brief Determines if the Integer is convertable to Long
-		/// \return true if *this can be represented as a signed long
+		/// \return true if <tt>*this</tt> can be represented as a signed long
 		/// \sa ConvertToLong()
 		bool IsConvertableToLong() const;
 		/// \brief Convert the Integer to Long
@@ -327,7 +327,7 @@ public:
 		/// \return the i-th byte
 		byte GetByte(size_t i) const;
 		/// \brief Provides the low order bits of the Integer
-		/// \return n lowest bits of *this >> i
+		/// \return n lowest bits of <tt>*this >> i</tt>
 		lword GetBits(size_t i, size_t n) const;
 
 		/// \brief Determines if the Integer is 0
@@ -405,8 +405,8 @@ public:
 
 		/// \brief Bitwise AND Assignment
 		/// \param t the other Integer
-		/// \return the result of *this & t
-		/// \details operator&=() performs a bitwise AND on *this. Missing bits are truncated
+		/// \return the result of <tt>*this & t</tt>
+		/// \details operator&=() performs a bitwise AND on <tt>*this</tt>. Missing bits are truncated
 		///  at the most significant bit positions, so the result is as small as the
 		///  smaller of the operands.
 		/// \details Internally, Crypto++ uses a sign-magnitude representation. The library
@@ -417,8 +417,8 @@ public:
 		Integer& operator&=(const Integer& t);
 		/// \brief Bitwise OR Assignment
 		/// \param t the second Integer
-		/// \return the result of *this | t
-		/// \details operator|=() performs a bitwise OR on *this. Missing bits are shifted in
+		/// \return the result of <tt>*this | t</tt>
+		/// \details operator|=() performs a bitwise OR on <tt>*this</tt>. Missing bits are shifted in
 		///  at the most significant bit positions, so the result is as large as the
 		///  larger of the operands.
 		/// \details Internally, Crypto++ uses a sign-magnitude representation. The library
@@ -429,8 +429,8 @@ public:
 		Integer& operator|=(const Integer& t);
 		/// \brief Bitwise XOR Assignment
 		/// \param t the other Integer
-		/// \return the result of *this ^ t
-		/// \details operator^=() performs a bitwise XOR on *this. Missing bits are shifted
+		/// \return the result of <tt>*this ^ t</tt>
+		/// \details operator^=() performs a bitwise XOR on <tt>*this</tt>. Missing bits are shifted
 		///  in at the most significant bit positions, so the result is as large as the
 		///  larger of the operands.
 		/// \details Internally, Crypto++ uses a sign-magnitude representation. The library
