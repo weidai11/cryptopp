@@ -219,20 +219,20 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 #ifdef BLOCKING_RNG_AVAILABLE
 
 #ifndef CRYPTOPP_BLOCKING_RNG_FILENAME
-#ifdef __OpenBSD__
-#define CRYPTOPP_BLOCKING_RNG_FILENAME "/dev/srandom"
-#else
-#define CRYPTOPP_BLOCKING_RNG_FILENAME "/dev/random"
-#endif
+# ifdef __OpenBSD__
+#  define CRYPTOPP_BLOCKING_RNG_FILENAME "/dev/srandom"
+# else
+#  define CRYPTOPP_BLOCKING_RNG_FILENAME "/dev/random"
+# endif
 #endif
 
 BlockingRng::BlockingRng()
 {
-# ifdef O_NOFOLLOW
+#ifdef O_NOFOLLOW
 	const int flags = O_RDONLY|O_NOFOLLOW;
-# else
+#else
 	const int flags = O_RDONLY;
-# endif
+#endif
 
 	m_fd = open(CRYPTOPP_BLOCKING_RNG_FILENAME, flags);
 	if (m_fd == -1)
