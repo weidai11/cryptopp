@@ -647,16 +647,16 @@ public:
 		/// \brief Extended Division
 		/// \param r a reference for the remainder
 		/// \param q a reference for the quotient
-		/// \param a a reference to the dividend
-		/// \param d a reference to the divisor
+		/// \param a reference to the dividend
+		/// \param d reference to the divisor
 		/// \details Divide calculates r and q such that (a == d*q + r) && (0 <= r < abs(d)).
 		static void CRYPTOPP_API Divide(Integer &r, Integer &q, const Integer &a, const Integer &d);
 
 		/// \brief Extended Division
 		/// \param r a reference for the remainder
 		/// \param q a reference for the quotient
-		/// \param a a reference to the dividend
-		/// \param d a reference to the divisor
+		/// \param a reference to the dividend
+		/// \param d reference to the divisor
 		/// \details Divide calculates r and q such that (a == d*q + r) && (0 <= r < abs(d)).
 		///  This overload uses a faster division algorithm because the divisor is short.
 		static void CRYPTOPP_API Divide(word &r, Integer &q, const Integer &a, word d);
@@ -664,21 +664,21 @@ public:
 		/// \brief Extended Division
 		/// \param r a reference for the remainder
 		/// \param q a reference for the quotient
-		/// \param a a reference to the dividend
-		/// \param n a reference to the divisor
+		/// \param a reference to the dividend
+		/// \param n reference to the divisor
 		/// \details DivideByPowerOf2 calculates r and q such that (a == d*q + r) && (0 <= r < abs(d)).
 		///  It returns same result as Divide(r, q, a, Power2(n)), but faster.
 		///  This overload uses a faster division algorithm because the divisor is a power of 2.
 		static void CRYPTOPP_API DivideByPowerOf2(Integer &r, Integer &q, const Integer &a, unsigned int n);
 
 		/// \brief Calculate greatest common divisor
-		/// \param a a reference to the first number
-		/// \param n a reference to the secind number
+		/// \param a reference to the first number
+		/// \param n reference to the secind number
 		/// \return the greatest common divisor <tt>a</tt> and <tt>n</tt>.
 		static Integer CRYPTOPP_API Gcd(const Integer &a, const Integer &n);
 
 		/// \brief Calculate multiplicative inverse
-		/// \param n a reference to the modulus
+		/// \param n reference to the modulus
 		/// \return an Integer <tt>*this % n</tt>.
 		/// \details InverseMod returns the multiplicative inverse of the Integer <tt>*this</tt>
 		///  modulo the Integer <tt>n</tt>. If no Integer exists then Integer 0 is returned.
@@ -697,15 +697,15 @@ public:
 	/// \name INPUT/OUTPUT
 	//@{
 		/// \brief Extraction operator
-		/// \param in a reference to a std::istream
-		/// \param a a reference to an Integer
-		/// \return a reference to a std::istream reference
+		/// \param in reference to a std::istream
+		/// \param a reference to an Integer
+		/// \return reference to a std::istream reference
 		friend CRYPTOPP_DLL std::istream& CRYPTOPP_API operator>>(std::istream& in, Integer &a);
 
 		/// \brief Insertion operator
-		/// \param out a reference to a std::ostream
+		/// \param out reference to a std::ostream
 		/// \param a a constant reference to an Integer
-		/// \return a reference to a std::ostream reference
+		/// \return reference to a std::ostream reference
 		/// \details The output integer responds to std::hex, std::oct, std::hex, std::upper and
 		///  std::lower. The output includes the suffix \a h (for hex), \a . (\a dot, for dec)
 		///  and \a o (for octal). There is currently no way to suppress the suffix.
@@ -716,15 +716,15 @@ public:
 	//@}
 
 	/// \brief Modular multiplication
-	/// \param x a reference to the first term
-	/// \param y a reference to the second term
-	/// \param m a reference to the modulus
+	/// \param x reference to the first term
+	/// \param y reference to the second term
+	/// \param m reference to the modulus
 	/// \return an Integer <tt>(a * b) % m</tt>.
 	CRYPTOPP_DLL friend Integer CRYPTOPP_API a_times_b_mod_c(const Integer &x, const Integer& y, const Integer& m);
 	/// \brief Modular exponentiation
-	/// \param x a reference to the base
-	/// \param e a reference to the exponent
-	/// \param m a reference to the modulus
+	/// \param x reference to the base
+	/// \param e reference to the exponent
+	/// \param m reference to the modulus
 	/// \return an Integer <tt>(a ^ b) % m</tt>.
 	CRYPTOPP_DLL friend Integer CRYPTOPP_API a_exp_b_mod_c(const Integer &x, const Integer& e, const Integer& m);
 
