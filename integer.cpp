@@ -3809,20 +3809,22 @@ Integer Integer::And(const Integer& t) const
 	}
 	else if (reg.size() >= t.reg.size())
 	{
-		Integer result(t);
-		result.reg.Grow(t.reg.size());
-		AndWords(result.reg, reg, t.reg.size());
+		IntegerSecBlock temp(t.reg.size());
+		AndWords(temp, reg, t.reg, t.reg.size());
 
-		result.sign = POSITIVE;
+		Integer result;
+		std::swap(result.reg, temp);
+
 		return result;
 	}
 	else // reg.size() < t.reg.size()
 	{
-		Integer result(*this);
-		result.reg.Grow(reg.size());
-		AndWords(result.reg, t.reg, reg.size());
+		IntegerSecBlock temp(reg.size());
+		AndWords(temp, reg, t.reg, reg.size());
 
-		result.sign = POSITIVE;
+		Integer result;
+		std::swap(result.reg, temp);
+
 		return result;
 	}
 }
@@ -3841,20 +3843,22 @@ Integer Integer::Or(const Integer& t) const
 	}
 	else if (reg.size() >= t.reg.size())
 	{
-		Integer result(*this);
-		result.reg.Grow(t.reg.size());
-		OrWords(result.reg, t.reg, t.reg.size());
+		IntegerSecBlock temp(reg, reg.size());
+		OrWords(temp, t.reg, t.reg.size());
 
-		result.sign = POSITIVE;
+		Integer result;
+		std::swap(result.reg, temp);
+
 		return result;
 	}
 	else // reg.size() < t.reg.size()
 	{
-		Integer result(t);
-		result.reg.Grow(reg.size());
-		OrWords(result.reg, reg, reg.size());
+		IntegerSecBlock temp(t.reg, t.reg.size());
+		OrWords(temp, reg, reg.size());
 
-		result.sign = POSITIVE;
+		Integer result;
+		std::swap(result.reg, temp);
+
 		return result;
 	}
 }
@@ -3873,20 +3877,22 @@ Integer Integer::Xor(const Integer& t) const
 	}
 	else if (reg.size() >= t.reg.size())
 	{
-		Integer result(*this);
-		result.reg.Grow(t.reg.size());
-		XorWords(result.reg, t.reg, t.reg.size());
+		IntegerSecBlock temp(reg, reg.size());
+		XorWords(temp, t.reg, t.reg.size());
 
-		result.sign = POSITIVE;
+		Integer result;
+		std::swap(result.reg, temp);
+
 		return result;
 	}
 	else // reg.size() < t.reg.size()
 	{
-		Integer result(t);
-		result.reg.Grow(reg.size());
-		XorWords(result.reg, reg, reg.size());
+		IntegerSecBlock temp(t.reg, t.reg.size());
+		XorWords(temp, reg, reg.size());
 
-		result.sign = POSITIVE;
+		Integer result;
+		std::swap(result.reg, temp);
+
 		return result;
 	}
 }
