@@ -3799,6 +3799,10 @@ Integer& Integer::operator--()
 //  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
 Integer Integer::And(const Integer& t) const
 {
+	// Grow due to https://github.com/weidai11/cryptopp/issues/1072
+	// The temporary Integer 'result' may have fewer blocks than
+	// 'this' or 't', if leading 0-blocks are trimmed in copy ctor.
+
 	if (this == &t)
 	{
 		return AbsoluteValue();
@@ -3806,6 +3810,7 @@ Integer Integer::And(const Integer& t) const
 	else if (reg.size() >= t.reg.size())
 	{
 		Integer result(t);
+		result.reg.Grow(t.reg.size());
 		AndWords(result.reg, reg, t.reg.size());
 
 		result.sign = POSITIVE;
@@ -3814,6 +3819,7 @@ Integer Integer::And(const Integer& t) const
 	else // reg.size() < t.reg.size()
 	{
 		Integer result(*this);
+		result.reg.Grow(reg.size());
 		AndWords(result.reg, t.reg, reg.size());
 
 		result.sign = POSITIVE;
@@ -3825,6 +3831,10 @@ Integer Integer::And(const Integer& t) const
 //  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
 Integer Integer::Or(const Integer& t) const
 {
+	// Grow due to https://github.com/weidai11/cryptopp/issues/1072
+	// The temporary Integer 'result' may have fewer blocks than
+	// 'this' or 't', if leading 0-blocks are trimmed in copy ctor.
+
 	if (this == &t)
 	{
 		return AbsoluteValue();
@@ -3832,6 +3842,7 @@ Integer Integer::Or(const Integer& t) const
 	else if (reg.size() >= t.reg.size())
 	{
 		Integer result(*this);
+		result.reg.Grow(t.reg.size());
 		OrWords(result.reg, t.reg, t.reg.size());
 
 		result.sign = POSITIVE;
@@ -3840,6 +3851,7 @@ Integer Integer::Or(const Integer& t) const
 	else // reg.size() < t.reg.size()
 	{
 		Integer result(t);
+		result.reg.Grow(reg.size());
 		OrWords(result.reg, reg, reg.size());
 
 		result.sign = POSITIVE;
@@ -3851,6 +3863,10 @@ Integer Integer::Or(const Integer& t) const
 //  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
 Integer Integer::Xor(const Integer& t) const
 {
+	// Grow due to https://github.com/weidai11/cryptopp/issues/1072
+	// The temporary Integer 'result' may have fewer blocks than
+	// 'this' or 't', if leading 0-blocks are trimmed in copy ctor.
+
 	if (this == &t)
 	{
 		return Integer::Zero();
@@ -3858,6 +3874,7 @@ Integer Integer::Xor(const Integer& t) const
 	else if (reg.size() >= t.reg.size())
 	{
 		Integer result(*this);
+		result.reg.Grow(t.reg.size());
 		XorWords(result.reg, t.reg, t.reg.size());
 
 		result.sign = POSITIVE;
@@ -3866,6 +3883,7 @@ Integer Integer::Xor(const Integer& t) const
 	else // reg.size() < t.reg.size()
 	{
 		Integer result(t);
+		result.reg.Grow(reg.size());
 		XorWords(result.reg, reg, reg.size());
 
 		result.sign = POSITIVE;
