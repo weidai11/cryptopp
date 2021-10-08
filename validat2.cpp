@@ -600,6 +600,12 @@ bool TestIntegerBitops()
         opa &= ((m & -n) == a);
         opa &= ((-m & -n) == a);
 
+        // And reversed
+        opa &= ((n & m) == a);
+        opa &= ((-n & m) == a);
+        opa &= ((n & -m) == a);
+        opa &= ((-n & -m) == a);
+
         Integer t(m); t &= n;
         opa &= (t == a);
         t = n; t &= m;
@@ -626,6 +632,12 @@ bool TestIntegerBitops()
         opo &= ((m | -n) == o);
         opo &= ((-m | -n) == o);
 
+        // And reversed
+        opo &= ((n | m) == o);
+        opo &= ((-n | m) == o);
+        opo &= ((n | -m) == o);
+        opo &= ((-n | -m) == o);
+
         Integer t(m); t |= n;
         opo &= (t == o);
         t = n; t |= m;
@@ -651,6 +663,12 @@ bool TestIntegerBitops()
         opx &= ((-m ^ n) == x);
         opx &= ((m ^ -n) == x);
         opx &= ((-m ^ -n) == x);
+
+        // And reversed
+        opx &= ((n ^ m) == x);
+        opx &= ((-n ^ m) == x);
+        opx &= ((n ^ -m) == x);
+        opx &= ((-n ^ -m) == x);
 
         Integer t(m); t ^= n;
         opx &= (t == x);
