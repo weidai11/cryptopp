@@ -2361,7 +2361,7 @@ if [[ ("$IS_DEBIAN" -ne 0 || "$IS_UBUNTU" -ne 0) ]]; then
 
     DEBIAN_FLAGS=("-DHAVE_CONFIG_H" "-I." "-Wdate-time" "-D_FORTIFY_SOURCE=2" "-g" "-O2"
     "-fstack-protector-strong" "-Wformat -Werror=format-security" "-DCRYPTOPP_INIT_PRIORITY=250"
-    "-DCRYPTOPP_NO_UNALIGNED_DATA_ACCESS" "-DNDEBUG" "-fPIC" "-DPIC")
+    "-DNDEBUG" "-fPIC" "-DPIC")
 
     echo
     echo "************************************" | tee -a "$TEST_RESULTS"
