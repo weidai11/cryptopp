@@ -3810,7 +3810,9 @@ Integer Integer::And(const Integer& t) const
 	else if (reg.size() >= t.reg.size())
 	{
 		IntegerSecBlock temp(t.reg.size());
-		AndWords(temp, reg, t.reg, t.reg.size());
+		// AndWords(temp, reg, t.reg, t.reg.size());
+		for (size_t i=0; i<t.reg.size(); ++i)
+			temp[i] = reg[i] & t.reg[i];
 
 		Integer result;
 		std::swap(result.reg, temp);
@@ -3820,7 +3822,9 @@ Integer Integer::And(const Integer& t) const
 	else // reg.size() < t.reg.size()
 	{
 		IntegerSecBlock temp(reg.size());
-		AndWords(temp, reg, t.reg, reg.size());
+		// AndWords(temp, reg, t.reg, reg.size());
+		for (size_t i=0; i<reg.size(); ++i)
+			temp[i] = reg[i] & t.reg[i];
 
 		Integer result;
 		std::swap(result.reg, temp);
@@ -3844,7 +3848,9 @@ Integer Integer::Or(const Integer& t) const
 	else if (reg.size() >= t.reg.size())
 	{
 		IntegerSecBlock temp(reg, reg.size());
-		OrWords(temp, t.reg, t.reg.size());
+		// OrWords(temp, t.reg, t.reg.size());
+		for (size_t i=0; i<t.reg.size(); ++i)
+			temp[i] |= t.reg[i];
 
 		Integer result;
 		std::swap(result.reg, temp);
@@ -3854,7 +3860,9 @@ Integer Integer::Or(const Integer& t) const
 	else // reg.size() < t.reg.size()
 	{
 		IntegerSecBlock temp(t.reg, t.reg.size());
-		OrWords(temp, reg, reg.size());
+		// OrWords(temp, reg, reg.size());
+		for (size_t i=0; i<reg.size(); ++i)
+			temp[i] |= reg[i];
 
 		Integer result;
 		std::swap(result.reg, temp);
@@ -3878,7 +3886,9 @@ Integer Integer::Xor(const Integer& t) const
 	else if (reg.size() >= t.reg.size())
 	{
 		IntegerSecBlock temp(reg, reg.size());
-		XorWords(temp, t.reg, t.reg.size());
+		// OrWords(temp, t.reg, t.reg.size());
+		for (size_t i=0; i<t.reg.size(); ++i)
+			temp[i] ^= t.reg[i];
 
 		Integer result;
 		std::swap(result.reg, temp);
@@ -3888,7 +3898,9 @@ Integer Integer::Xor(const Integer& t) const
 	else // reg.size() < t.reg.size()
 	{
 		IntegerSecBlock temp(t.reg, t.reg.size());
-		XorWords(temp, reg, reg.size());
+		// OrWords(temp, reg, reg.size());
+		for (size_t i=0; i<reg.size(); ++i)
+			temp[i] ^= reg[i];
 
 		Integer result;
 		std::swap(result.reg, temp);
