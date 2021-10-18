@@ -2,7 +2,7 @@
 
 /// \file pubkey.h
 /// \brief This file contains helper classes/functions for implementing public key algorithms.
-/// \details The class hierachies in this header file tend to look like this:
+/// \details The class hierarchies in this header file tend to look like this:
 ///
 /// <pre>
 ///                   x1
