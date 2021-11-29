@@ -81,6 +81,10 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 	CRYPTOPP_ASSERT(outString); CRYPTOPP_ASSERT(inString);
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
 
+	// If this assert fires, then outString == inString. You could experience a
+	// performance hit. Also see https://github.com/weidai11/cryptopp/issues/1088'
+	CRYPTOPP_ASSERT(outString != inString);
+
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 
@@ -224,6 +228,10 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 {
 	CRYPTOPP_ASSERT(outString); CRYPTOPP_ASSERT(inString);
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
+
+	// If this assert fires, then outString == inString. You could experience a
+	// performance hit. Also see https://github.com/weidai11/cryptopp/issues/1088'
+	CRYPTOPP_ASSERT(outString != inString);
 
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
