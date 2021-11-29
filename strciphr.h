@@ -326,7 +326,7 @@ public:
 	/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/1088">Issue 1088, 36% loss
 	///  of performance with AES</A>, <A HREF="https://github.com/weidai11/cryptopp/issues/101">Issue
 	///  1010, HIGHT cipher troubles with FileSource</A>
-    void ProcessData(byte *outString, const byte *inString, size_t length);
+	void ProcessData(byte *outString, const byte *inString, size_t length);
 
 	/// \brief Resynchronize the cipher
 	/// \param iv a byte array used to resynchronize the cipher
