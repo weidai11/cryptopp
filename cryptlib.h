@@ -2815,7 +2815,7 @@ public:
 	/// \details MaxSignatureLength() returns the maximum signature length produced given the length of the
 	///  recoverable message part.
 	virtual size_t MaxSignatureLength(size_t recoverablePartLength = 0) const
-	{CRYPTOPP_UNUSED(recoverablePartLength); return SignatureLength();}
+		{CRYPTOPP_UNUSED(recoverablePartLength); return SignatureLength();}
 
 	/// \brief Provides the length of longest message that can be recovered
 	/// \return the length of longest message that can be recovered, in bytes
