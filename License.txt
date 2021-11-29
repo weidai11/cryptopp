@@ -28,8 +28,8 @@ Han Lulu, Markku-Juhani O. Saarinen - sm4.cpp sm4_simd.cpp
 Daniel J. Bernstein, Jack Lloyd - chacha.cpp, chacha_simd.cpp, chacha_avx.cpp
 Andrew Moon - ed25519, x25519, donna_32.cpp, donna_64.cpp, donna_sse.cpp
 
-The Crypto++ Library uses portions of Andy Polyakov's CRYPTOGAMS for Linux on
-32-bit ARM using files aes_armv4.S, sha1_armv4.S and sha256_armv4.S.
+The Crypto++ Library uses portions of Andy Polyakov's CRYPTOGAMS on Linux
+for 32-bit ARM with files aes_armv4.S, sha1_armv4.S and sha256_armv4.S.
 CRYPTOGAMS is dual licensed with a permissive BSD-style license. The
 CRYPTOGAMS license is reproduced below. You can disable Cryptogams code by
 undefining the relevant macros in config_asm.h.
