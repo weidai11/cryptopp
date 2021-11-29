@@ -1,14 +1,15 @@
 // strciphr.cpp - originally written and placed in the public domain by Wei Dai
 
-// TODO: Figure out what is happening in ProcessData. The issue surfaced for
-//       CFB_CipherTemplate<BASE>::ProcessData when we cut-in Cryptogams
-//       AES ARMv7 asm. Then again in AdditiveCipherTemplate<S>::ProcessData
-//       for CTR mode with HIGHT, which is a 64-bit block cipher. In both cases,
-//       inString == outString leads to incorrect results. We think it relates to
-//       aliasing violations because inString == outString.
+//     TODO: Figure out what is happening in ProcessData. The issue surfaced
+//     for CFB_CipherTemplate<BASE>::ProcessData when we cut-in Cryptogams
+//     AES ARMv7 asm. Then again in AdditiveCipherTemplate<S>::ProcessData
+//     for CTR mode with HIGHT, which is a 64-bit block cipher. In both cases,
+//     inString == outString leads to incorrect results. We think it relates
+//     to aliasing violations because inString == outString.
 //
-//       Also see https://github.com/weidai11/cryptopp/issues/683 and
-//       https://github.com/weidai11/cryptopp/issues/1010.
+//     Also see https://github.com/weidai11/cryptopp/issues/683,
+//     https://github.com/weidai11/cryptopp/issues/1010 and
+//     https://github.com/weidai11/cryptopp/issues/1088.
 
 #include "pch.h"
 
@@ -75,6 +76,17 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 	}
 }
 
+// TODO: Figure out what is happening in ProcessData. The issue surfaced
+// for CFB_CipherTemplate<BASE>::ProcessData when we cut-in Cryptogams
+// AES ARMv7 asm. Then again in AdditiveCipherTemplate<S>::ProcessData
+// for CTR mode with HIGHT, which is a 64-bit block cipher. In both cases,
+// inString == outString leads to incorrect results. We think it relates
+// to aliasing violations because inString == outString.
+//
+// Also see https://github.com/weidai11/cryptopp/issues/683,
+// https://github.com/weidai11/cryptopp/issues/1010 and
+// https://github.com/weidai11/cryptopp/issues/1088.
+
 template <class S>
 void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
@@ -87,14 +99,6 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
-
-	// GCC and Clang do not like this for CTR mode and 64-bit ciphers like HIGHT.
-	// The incorrect result is a partial string of 0's instead of plaintext or
-	// ciphertext. Recovered plaintext is partially garbage.
-	//
-	// It almost feels as if the compiler does not see the string is transformed
-	// in-place so it short-circuits the transform. In this case, if we use a
-	// stand-alone reproducer with the same data then the issue is present.
 
 	byte* savedOutString = outString;
 	size_t savedLength = length;
@@ -223,6 +227,17 @@ void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv, int length)
 	m_leftOver = policy.GetBytesPerIteration();
 }
 
+// TODO: Figure out what is happening in ProcessData. The issue surfaced
+// for CFB_CipherTemplate<BASE>::ProcessData when we cut-in Cryptogams
+// AES ARMv7 asm. Then again in AdditiveCipherTemplate<S>::ProcessData
+// for CTR mode with HIGHT, which is a 64-bit block cipher. In both cases,
+// inString == outString leads to incorrect results. We think it relates
+// to aliasing violations because inString == outString.
+//
+// Also see https://github.com/weidai11/cryptopp/issues/683,
+// https://github.com/weidai11/cryptopp/issues/1010 and
+// https://github.com/weidai11/cryptopp/issues/1088.
+
 template <class BASE>
 void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
@@ -236,15 +251,6 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 	byte *reg = policy.GetRegisterBegin();
-
-	// GCC and Clang do not like this on ARM when inString == outString. The incorrect
-	// result is a string of 0's instead of plaintext or ciphertext. The 0's trace back
-	// to the allocation for the std::string in datatest.cpp. Elements in the string
-	// are initialized to their default value, which is 0.
-	//
-	// It almost feels as if the compiler does not see the string is transformed
-	// in-place so it short-circuits the transform. However, if we use a stand-alone
-	// reproducer with the same data then the issue is _not_ present.
 
 	byte* savedOutString = outString;
 	size_t savedLength = length;
