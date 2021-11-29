@@ -324,7 +324,7 @@ public:
 	///  are the same, then the data will be copied to an internal buffer to avoid GCC alias
 	///  violations. The internal copy will impact performance.
 	/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/1088">Issue 1088, 36% loss
-	///  of performance with AES</A>, <A HREF="https://github.com/weidai11/cryptopp/issues/101">Issue
+	///  of performance with AES</A>, <A HREF="https://github.com/weidai11/cryptopp/issues/1010">Issue
 	///  1010, HIGHT cipher troubles with FileSource</A>
 	void ProcessData(byte *outString, const byte *inString, size_t length);
 
@@ -588,7 +588,7 @@ public:
 	///  are the same, then the data will be copied to an internal buffer to avoid GCC alias
 	///  violations. The internal copy will impact performance.
 	/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/1088">Issue 1088, 36% loss
-	///  of performance with AES</A>, <A HREF="https://github.com/weidai11/cryptopp/issues/101">Issue
+	///  of performance with AES</A>, <A HREF="https://github.com/weidai11/cryptopp/issues/1010">Issue
 	///  1010, HIGHT cipher troubles with FileSource</A>
 	void ProcessData(byte *outString, const byte *inString, size_t length);
 
