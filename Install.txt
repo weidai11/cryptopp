@@ -204,7 +204,7 @@ ACCEPTANCE TESTING
 
 Crypto++ uses five security gates in its engineering process. The library must maintain the quality provided by the review system and integrity of the test suites. You can use the information to decide if the Crypto++ library suits your needs and provides a compatible security posture.
 
-The first gate is code review and discussion of proposed chnages. Git commits often cross reference a User Group discussions.
+The first gate is code review and discussion of proposed changes. Git commits often cross reference a User Group discussions.
 
 Second is the compiler warning system. The code must clean compile under the equivalent of GCC's -Wall -Wextra (modulo -Wno-type-limits -Wno-unknown-pragmas). This is a moving target as compiler analysis improves.
 
