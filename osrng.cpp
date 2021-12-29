@@ -21,6 +21,17 @@
 #include "osrng.h"
 #include "rng.h"
 
+// FreeBSD links /dev/urandom -> /dev/random. It showed up when we added
+// O_NOFOLLOW to harden the non-blocking generator. Use Arc4Random instead
+// for a non-blocking generator. Arc4Random is cryptograhic quality prng
+// based on ChaCha20. The ChaCha20 generator is seeded from /dev/random,
+// so we can't completely avoid the blocking.
+// https://www.freebsd.org/cgi/man.cgi?query=arc4random_buf.
+#ifdef __FreeBSD__
+# define USE_FREEBSD_ARC4RANDOM 1
+# include <stdlib.h>
+#endif
+
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -134,24 +145,27 @@ MicrosoftCryptoProvider::~MicrosoftCryptoProvider()
 NonblockingRng::NonblockingRng()
 {
 #ifndef CRYPTOPP_WIN32_AVAILABLE
-
-# ifdef O_NOFOLLOW
+# ifndef USE_FREEBSD_ARC4RANDOM
+#  ifdef O_NOFOLLOW
 	const int flags = O_RDONLY|O_NOFOLLOW;
-# else
+#  else
 	const int flags = O_RDONLY;
-# endif
+#  endif
 
 	m_fd = open("/dev/urandom", flags);
 	if (m_fd == -1)
 		throw OS_RNG_Err("open /dev/urandom");
 
+# endif
 #endif
 }
 
 NonblockingRng::~NonblockingRng()
 {
 #ifndef CRYPTOPP_WIN32_AVAILABLE
+# ifndef USE_FREEBSD_ARC4RANDOM
 	close(m_fd);
+# endif
 #endif
 }
 
@@ -194,6 +208,12 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 	}
 # endif
 #else
+
+# if defined(USE_FREEBSD_ARC4RANDOM)
+	// Cryptographic quality prng based on ChaCha20,
+	// https://www.freebsd.org/cgi/man.cgi?query=arc4random_buf
+	arc4random_buf(output, size);
+# else
 	while (size)
 	{
 		ssize_t len = read(m_fd, output, size);
@@ -205,10 +225,11 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 
 			continue;
 		}
-
 		output += len;
 		size -= len;
 	}
+# endif  // USE_FREEBSD_ARC4RANDOM
+
 #endif  // CRYPTOPP_WIN32_AVAILABLE
 }
 
