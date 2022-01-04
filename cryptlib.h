@@ -2100,7 +2100,7 @@ public:
 		void CopyAllTo(BufferedTransformation &target, const std::string &channel=DEFAULT_CHANNEL) const;
 
 		/// \brief Retrieve the next message in a series
-		/// \return true if a message was retreved, false otherwise
+		/// \return true if a message was retrieved, false otherwise
 		/// \details Internally, the base class implementation returns false.
 		virtual bool GetNextMessageSeries() {return false;}
 		/// \brief Provides the number of messages in a series
@@ -2432,7 +2432,7 @@ public:
 	/// \throw NotImplemented
 	/// \details Save() writes the material to a BufferedTransformation.
 	/// \details If the material is a key, then the key is written with ASN.1 DER encoding. The key
-	///  includes an object identifier with an algorthm id, like a subjectPublicKeyInfo.
+	///  includes an object identifier with an algorithm id, like a subjectPublicKeyInfo.
 	/// \details A "raw" key without the "key info" can be saved using a key's DEREncode() method.
 	/// \details If a derived class does not override Save(), then the base class throws
 	///  NotImplemented().
@@ -2449,7 +2449,7 @@ public:
 	///   <li>the key should be ASN.1 BER encoded
 	///   <li>the key should be a "key info"
 	///   </ul>
-	/// \details "key info" means the key should have an object identifier with an algorthm id,
+	/// \details "key info" means the key should have an object identifier with an algorithm id,
 	///  like a subjectPublicKeyInfo.
 	/// \details To read a "raw" key without the "key info", then call the key's BERDecode() method.
 	/// \note Load() generally does not check that the key is valid. Call Validate(), if needed.
@@ -2541,7 +2541,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PrivateKey : public GeneratableCryptoMater
 {
 };
 
-/// \brief Interface for crypto prameters
+/// \brief Interface for crypto parameters
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CryptoParameters : public GeneratableCryptoMaterial
 {
 };
@@ -2881,7 +2881,7 @@ public:
 	/// \brief Create a new HashTransformation to accumulate the message to be signed
 	/// \param rng a RandomNumberGenerator derived class
 	/// \return a pointer to a PK_MessageAccumulator
-	/// \details NewSignatureAccumulator() can be used with all signing methods. Sign() will autimatically delete the
+	/// \details NewSignatureAccumulator() can be used with all signing methods. Sign() will automatically delete the
 	///  accumulator pointer. The caller is responsible for deletion if a method is called that takes a reference.
 	virtual PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const =0;
 
@@ -2944,7 +2944,7 @@ public:
 
 	/// \brief Create a new HashTransformation to accumulate the message to be verified
 	/// \return a pointer to a PK_MessageAccumulator
-	/// \details NewVerificationAccumulator() can be used with all verification methods. Verify() will autimatically delete
+	/// \details NewVerificationAccumulator() can be used with all verification methods. Verify() will automatically delete
 	///  the accumulator pointer. The caller is responsible for deletion if a method is called that takes a reference.
 	virtual PK_MessageAccumulator * NewVerificationAccumulator() const =0;
 

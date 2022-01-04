@@ -5755,10 +5755,10 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
         # Release build
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
-        echo "Testing: Soalris GCC, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
+        echo "Testing: Solaris GCC, release, default CXXFLAGS" | tee -a "$TEST_RESULTS"
         echo
 
-        TEST_LIST+=("Soalris GCC, release, default CXXFLAGS")
+        TEST_LIST+=("Solaris GCC, release, default CXXFLAGS")
 
         "$MAKE" clean &>/dev/null
         rm -f "${TMPDIR}/test.exe" &>/dev/null

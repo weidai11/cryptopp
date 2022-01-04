@@ -255,7 +255,7 @@ size_t ByteQueue::Put2(const byte *inString, size_t length, int messageEnd, bool
 
 void ByteQueue::CleanupUsedNodes()
 {
-	// Test for m_head due to Enterprise Anlysis finding
+	// Test for m_head due to Enterprise Analysis finding
 	while (m_head && m_head != m_tail && m_head->UsedUp())
 	{
 		ByteQueueNode *temp=m_head;
@@ -263,7 +263,7 @@ void ByteQueue::CleanupUsedNodes()
 		delete temp;
 	}
 
-	// Test for m_head due to Enterprise Anlysis finding
+	// Test for m_head due to Enterprise Analysis finding
 	if (m_head && m_head->CurrentSize() == 0)
 		m_head->Clear();
 }

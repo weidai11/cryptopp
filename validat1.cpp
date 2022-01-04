@@ -1074,7 +1074,7 @@ bool TestAltivecOps()
         return true;
     }
 
-    // These tests may seem superflous, but we really want to test the
+    // These tests may seem superfluous, but we really want to test the
     // Altivec/POWER4 implementation. That does not happen when POWER7
     // or POWER8 is available because we use POWER7's unaligned loads
     // and stores with POWER8's AES, SHA, etc. These tests enage

@@ -864,7 +864,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<D
 /// \details If you need this method for Crypto++ 4.2 compatibility, then use the ECIES template class with
 ///  <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
 /// \details If you need this method for Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES template class with
-///  <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=ture</tt> and <tt>LABEL_OCTETS=false</tt>.
+///  <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
 /// \details Bouncy Castle 1.54 and Botan 1.11 compatibility are the default template parameters.
 /// \since Crypto++ 4.0
 template <class MAC, bool DHAES_MODE, bool LABEL_OCTETS=false>

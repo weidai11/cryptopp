@@ -587,7 +587,7 @@ struct ECGDSA : public DL_SS<
 
 /// \brief Elliptic Curve Integrated Encryption Scheme
 /// \tparam COFACTOR_OPTION cofactor multiplication option
-/// \tparam HASH HashTransformation derived class used for key drivation and MAC computation
+/// \tparam HASH HashTransformation derived class used for key derivation and MAC computation
 /// \tparam DHAES_MODE flag indicating if the MAC includes additional context parameters such as <em>u·V</em>, <em>v·U</em> and label
 /// \tparam LABEL_OCTETS flag indicating if the label size is specified in octets or bits
 /// \details ECIES is an Elliptic Curve based Integrated Encryption Scheme (IES). The scheme combines a Key Encapsulation
@@ -595,7 +595,7 @@ struct ECGDSA : public DL_SS<
 ///  <A HREF="http://en.wikipedia.org/wiki/ciphertext_indistinguishability">IND-CCA2</A>, which is a strong notion of security.
 ///  You should prefer an Integrated Encryption Scheme over homegrown schemes.
 /// \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the ECIES_P1363.
-///  If you desire an Integrated Encryption Scheme compatibile with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES
+///  If you desire an Integrated Encryption Scheme compatible with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES
 ///  template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
 /// \details The default template parameters ensure compatibility with Bouncy Castle 1.54 and Botan 1.11. The combination of
 ///  <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.
@@ -619,16 +619,16 @@ struct ECIES
 
 /// \brief Elliptic Curve Integrated Encryption Scheme for P1363
 /// \tparam COFACTOR_OPTION cofactor multiplication option
-/// \tparam HASH HashTransformation derived class used for key drivation and MAC computation
+/// \tparam HASH HashTransformation derived class used for key derivation and MAC computation
 /// \details ECIES_P1363 is an Elliptic Curve based Integrated Encryption Scheme (IES) for P1363. The scheme combines a Key Encapsulation
 ///  Method (KEM) with a Data Encapsulation Method (DEM) and a MAC tag. The scheme is
 ///  <A HREF="http://en.wikipedia.org/wiki/ciphertext_indistinguishability">IND-CCA2</A>, which is a strong notion of security.
 ///  You should prefer an Integrated Encryption Scheme over homegrown schemes.
 /// \details The library's original implementation is based on an early P1363 draft, which itself appears to be based on an early Certicom
-///  SEC-1 draft (or an early SEC-1 draft was based on a P1363 draft). Crypto++ 4.2 used the early draft in its Integrated Ecryption
+///  SEC-1 draft (or an early SEC-1 draft was based on a P1363 draft). Crypto++ 4.2 used the early draft in its Integrated Enryption
 ///  Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
 /// \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the ECIES_P1363.
-///  If you desire an Integrated Encryption Scheme compatibile with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES
+///  If you desire an Integrated Encryption Scheme compatible with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES
 ///  template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
 /// \details The default template parameters ensure compatibility with P1363. The combination of
 ///  <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.

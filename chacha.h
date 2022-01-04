@@ -3,7 +3,7 @@
 //            and Bernstein's reference ChaCha family implementation at
 //            http://cr.yp.to/chacha.html.
 
-// The library added Bernstein's ChaCha classses at Crypto++ 5.6.4. The IETF
+// The library added Bernstein's ChaCha classes at Crypto++ 5.6.4. The IETF
 // uses a slightly different implementation than Bernstein, and the IETF
 // ChaCha and XChaCha classes were added at Crypto++ 8.1. We wanted to maintain
 // ABI compatibility at the 8.1 release so the original ChaCha classes were not

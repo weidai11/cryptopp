@@ -182,7 +182,7 @@ void BaseN_Decoder::InitializeDecodingLookupArray(int *lookup, const byte *alpha
 	for (unsigned int i=0; i<base; i++)
 	{
 		// Debug asserts for 'lookup[alphabet[i]] == -1' removed because the self tests
-		// have unusal tests that try to break the encoders and decoders. Tests include
+		// have unusual tests that try to break the encoders and decoders. Tests include
 		// a string of the same characters. I.,e., a string of stars like '********...'.
 		if (caseInsensitive && isalpha(alphabet[i]))
 		{

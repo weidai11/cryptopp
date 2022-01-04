@@ -28,7 +28,7 @@ class CRYPTOPP_DLL PolynomialMod2
 public:
 	/// \name ENUMS, EXCEPTIONS, and TYPEDEFS
 	//@{
-		/// \brief Excpetion thrown when divide by zero is encountered
+		/// \brief Exception thrown when divide by zero is encountered
 		class DivideByZero : public Exception
 		{
 		public:

@@ -254,7 +254,7 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 	for (size_t i=0; i<count; i++)
 		acc8 |= buf[i] ^ mask[i];
 
-	// word32 resuts in this tail code on x86:
+	// word32 results in this tail code on x86:
 	//   33a:  85 c0     test  %eax, %eax
 	//   33c:  0f 94 c0  sete  %al
 	//   33f:  c3        ret

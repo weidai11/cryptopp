@@ -2,7 +2,7 @@
 
 /// \file mersenne.h
 /// \brief Class file for Mersenne Twister
-/// \warning MersenneTwister is suitable for Monte-Carlo simulations, where uniformaly distrubuted
+/// \warning MersenneTwister is suitable for Monte-Carlo simulations, where uniformaly distributed
 ///  numbers are required quickly. It should not be used for cryptographic purposes.
 /// \since Crypto++ 5.6.3
 #ifndef CRYPTOPP_MERSENNE_TWISTER_H
@@ -23,7 +23,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \details Provides the MersenneTwister implementation. The class is a header-only implementation.
 /// \details You should reseed the generator after a fork() to avoid multiple generators
 ///  with the same internal state.
-/// \warning MersenneTwister is suitable for simulations, where uniformaly distrubuted numbers are
+/// \warning MersenneTwister is suitable for simulations, where uniformaly distributed numbers are
 ///  required quickly. It should not be used for cryptographic purposes.
 /// \sa MT19937, MT19937ar
 /// \since Crypto++ 5.6.3
@@ -162,7 +162,7 @@ protected:
 		return temp ^ (temp >> 18);
 	}
 
-	/// \brief Performs the twist operaton on the state array
+	/// \brief Performs the twist operation on the state array
 	void Twist()
 	{
 		static const word32 magic[2]={0x0UL, K};

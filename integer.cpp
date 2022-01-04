@@ -20,7 +20,7 @@
 //  them. Initialization priorities are init_priority() on Linux and init_seg()
 //  on Windows. OS X and several other platforms lack them. Initialization
 //  priorities are platform specific but they are also the most trouble free
-//  with determisitic destruction.
+//  with deterministic destruction.
 // Second, if C++11 dynamic initialization is available, then we use it. After
 //  the std::call_once fiasco we moved to dynamic initialization to avoid
 //  unknown troubles platforms that are tested less frequently. In addition
@@ -39,7 +39,7 @@
 //  resource acquisition in reverse. For resources provided through the
 //  Singletons, there is no way to express the dependency order to safely
 //  destroy resources. (That's one of the problems C++11 dynamic
-//  intitialization with concurrent execution is supposed to solve).
+//  initialization with concurrent execution is supposed to solve).
 // The final problem with Singletons is resource/memory exhaustion in languages
 //  like Java and .Net. Java and .Net load and unload a native DLL hundreds or
 //  thousands of times during the life of a program. Each load produces a
@@ -4762,7 +4762,7 @@ const Integer& MontgomeryRepresentation::MultiplicativeInverse(const Integer &a)
 }
 
 // Specialization declared in misc.h to allow us to print integers
-//  with additional control options, like arbirary bases and uppercase.
+//  with additional control options, like arbitrary bases and uppercase.
 template <> CRYPTOPP_DLL
 std::string IntToString<Integer>(Integer value, unsigned int base)
 {

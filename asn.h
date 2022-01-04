@@ -110,7 +110,7 @@ public:
 	/// \brief Construct an UnknownOID
 	UnknownOID() : BERDecodeErr("BER decode error: unknown object identifier") {}
 	/// \brief Construct an UnknownOID
-	/// \param err error message to use for the execption
+	/// \param err error message to use for the exception
 	UnknownOID(const char *err) : BERDecodeErr(err) {}
 };
 

@@ -1650,7 +1650,7 @@ ed25519_sign_CXX(std::istream& stream, const byte sk[32], const byte pk[32], byt
     ALIGN(ALIGN_SPEC) ge25519 R;
     hash_512bits extsk, hashr, hram;
 
-    // Unfortunately we need to read the stream twice. The fisrt time calculates
+    // Unfortunately we need to read the stream twice. The first time calculates
     // 'r = H(aExt[32..64], m)'. The second time calculates 'S = H(R,A,m)'. There
     // is a data dependency due to hashing 'RS' with 'R = [r]B' that does not
     // allow us to read the stream once.
