@@ -26,7 +26,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \details Keccak will likely change in the future to accommodate extensibility of the
 ///   round function and the XOF functions.
 /// \details Perform the following to specify a different digest size. The class will use F1600,
-///   XOF d=0x01, and a new vaue for <tt>r()</tt> (which will be <tt>200-2*24 = 152</tt>).
+///   XOF d=0x01, and a new value for <tt>r()</tt> (which will be <tt>200-2*24 = 152</tt>).
 ///   <pre>  Keccack_192 : public Keccack
 ///   {
 ///     public:

@@ -58,7 +58,7 @@ PublicElement - the public element when KeyFormat=Component
 PrivateExponent - the private exponent when KeyFormat=Component
 Message - encoded string, message to be signed or verified
 Signature - encoded string, signature to be verified or compared with
-BlockSize - encoded string, block size for vaiable block ciphers
+BlockSize - encoded string, block size for variable block ciphers
 Plaintext - encoded string
 Ciphertext - encoded string
 Header - encoded string

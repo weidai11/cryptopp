@@ -553,7 +553,7 @@ public:
 	/// \name BINARY OPERATORS
 	//@{
 		/// \brief Perform signed comparison
-		/// \param a the Integer to comapre
+		/// \param a the Integer to compare
 		/// \retval -1 if <tt>*this < a</tt>
 		/// \retval  0 if <tt>*this = a</tt>
 		/// \retval  1 if <tt>*this > a</tt>

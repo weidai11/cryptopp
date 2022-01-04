@@ -262,7 +262,7 @@ bool ValidateEC2N_Agreement()
 	return pass;
 }
 
-// TestX25519 is slighty more comprehensive than ValidateX25519
+// TestX25519 is slightly more comprehensive than ValidateX25519
 // because it cross-validates against Bernstein's NaCL library.
 // TestX25519 called in Debug builds.
 bool TestX25519()
@@ -454,7 +454,7 @@ bool TestX25519()
 	return pass;
 }
 
-// TestEd25519 is slighty more comprehensive than ValidateEd25519
+// TestEd25519 is slightly more comprehensive than ValidateEd25519
 // because it cross-validates against Bernstein's NaCL library.
 // TestEd25519 called in Debug builds.
 bool TestEd25519()

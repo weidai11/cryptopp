@@ -12,12 +12,12 @@
 //   to select an implementation or throws "NotImplemented". Users of the
 //   classes should call HasRDRAND() or HasRDSEED() to determine if a
 //   generator is available at runtime.
-// The original classes accepted a retry count. Retries were superflous for
+// The original classes accepted a retry count. Retries were superfluous for
 //   RDRAND, and RDSEED encountered a failure about 1 in 256 bytes depending
 //   on the processor. Retries were removed at Crypto++ 6.0 because
 //   GenerateBlock unconditionally retries and always fulfills the request.
 // Intel recommends using a retry count in case RDRAND or RDSEED circuit
-//   is bad. This implemenation does not follow the advice and requires
+//   is bad. This implementation does not follow the advice and requires
 //   good silicon. If the circuit or processor is bad then the user has
 //   bigger problems than generating random numbers.
 

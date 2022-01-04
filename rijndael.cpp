@@ -136,7 +136,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 //   with the same 4k block offsets as the Te table. Logically,
 //   the code is trying to create the condition:
 //
-// Two sepearate memory pages:
+// Two separate memory pages:
 //
 //  +-----+   +-----+
 //  |XXXXX|   |YYYYY|

@@ -220,7 +220,7 @@ template <class T> counted_ptr<T> & counted_ptr<T>::operator=(const counted_ptr<
 template <class T> class vector_member_ptrs
 {
 public:
-	/// Construct an arry of \p T
+	/// Construct an array of \p T
 	/// \param size the size of the array, in elements
 	/// \details If \p T is a Plain Old Dataype (POD), then the array is uninitialized.
 	vector_member_ptrs(size_t size=0)

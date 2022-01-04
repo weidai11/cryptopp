@@ -130,7 +130,7 @@
 #endif
 
 // Couple to CRYPTOPP_DISABLE_AESNI, but use CRYPTOPP_CLMUL_AVAILABLE so we can selectively
-//  disable for misbehaving platofrms and compilers, like Solaris or some Clang.
+//  disable for misbehaving platforms and compilers, like Solaris or some Clang.
 #if defined(CRYPTOPP_DISABLE_AESNI)
 	#define CRYPTOPP_DISABLE_CLMUL 1
 #endif

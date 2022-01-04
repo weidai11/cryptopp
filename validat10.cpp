@@ -3,8 +3,8 @@
 //                Source files split in July 2018 to expedite compiles.
 //
 //    There are two types or sets of self tests. First is a known answer test,
-//    and second are pairwise consitency checks. The known answer tests are test
-//    vectors lifted from libsodium. The pairwise consitency checks are randomized
+//    and second are pairwise consistency checks. The known answer tests are test
+//    vectors lifted from libsodium. The pairwise consistency checks are randomized
 //    and confirm the library can arrive at the same result or round trip data
 //    using it's own transformations.
 //

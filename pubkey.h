@@ -872,7 +872,7 @@ public:
 	}
 
 	/// \brief Exponentiates an element
-	/// \param base the base elemenet
+	/// \param base the base element
 	/// \param exponent the exponent to raise the base
 	/// \return the result of the exponentiation
 	/// \details Internally, ExponentiateElement() calls SimultaneousExponentiate().

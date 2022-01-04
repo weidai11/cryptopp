@@ -237,7 +237,7 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
     // '128 * r * N' and '128 * r * p' do not overflow. They are the tests
     // that set errno to ENOMEM. We can make the logic a little more clear
     // using word128. At first blush the word128 may seem like  overkill.
-    // However, this alogirthm is dominated by slow moving parts, so a
+    // However, this algorithm is dominated by slow moving parts, so a
     // one-time check is insignificant in the bigger picture.
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
     const word128 maxElems = static_cast<word128>(SIZE_MAX);

@@ -86,9 +86,9 @@ enum KeystreamOperationFlags {
 /// \sa AdditiveCipherAbstractPolicy::GetBytesPerIteration(), AdditiveCipherAbstractPolicy::GetOptimalBlockSize()
 ///  and AdditiveCipherAbstractPolicy::GetAlignment()
 enum KeystreamOperation {
-	/// \brief Wirte the keystream to the output buffer, input is NULL
+	/// \brief Write the keystream to the output buffer, input is NULL
 	WRITE_KEYSTREAM				= INPUT_NULL,
-	/// \brief Wirte the keystream to the aligned output buffer, input is NULL
+	/// \brief Write the keystream to the aligned output buffer, input is NULL
 	WRITE_KEYSTREAM_ALIGNED		= INPUT_NULL | OUTPUT_ALIGNED,
 	/// \brief XOR the input buffer and keystream, write to the output buffer
 	XOR_KEYSTREAM				= 0,
@@ -399,7 +399,7 @@ protected:
 	size_t m_leftOver;
 };
 
-/// \brief Policy object for feeback based stream ciphers
+/// \brief Policy object for feedback based stream ciphers
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_CipherAbstractPolicy
 {
 public:

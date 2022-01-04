@@ -40,7 +40,7 @@ void SHARK::Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const Na
 	m_rounds = GetRoundsAndThrowIfInvalid(params, this);
 	m_roundKeys.New(m_rounds+1);
 
-	// concatenate key enought times to fill a
+	// concatenate key enough times to fill a
 	for (unsigned int i=0; i<(m_rounds+1)*8; i++)
 		((byte *)m_roundKeys.begin())[i] = key[i%keyLen];
 

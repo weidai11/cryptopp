@@ -69,7 +69,7 @@ public:
     /// \brief Create a x25519 object
     /// \details This constructor creates an empty x25519 object. It is
     ///  intended for use in loading existing parameters, like CryptoBox
-    ///  parameters. If you are perfoming key agreement you should use a
+    ///  parameters. If you are performing key agreement you should use a
     ///   constructor that generates random parameters on construction.
     x25519() {}
 
@@ -350,7 +350,7 @@ protected:
 ///  If you call GetPrivateExponent() then the little-endian byte
 ///  array is converted to a big-endian Integer() so it can be
 ///  returned the way a caller expects. And calling
-///  SetPrivateExponent perfoms a similar internal conversion.
+///  SetPrivateExponent performs a similar internal conversion.
 /// \since Crypto++ 8.0
 struct ed25519PrivateKey : public PKCS8PrivateKey
 {
@@ -360,7 +360,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \brief Size of the public key
     /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
-    /// \brief Size of the siganture
+    /// \brief Size of the signature
     /// \details SIGNATURE_LENGTH is the size of the signature, in bytes.
     ///  ed25519 is a DL-based signature scheme. The signature is the
     ///  concatenation of <tt>r || s</tt>.
@@ -503,7 +503,7 @@ struct ed25519Signer : public PK_Signer
     /// \brief Size of the public key
     /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
-    /// \brief Size of the siganture
+    /// \brief Size of the signature
     /// \details SIGNATURE_LENGTH is the size of the signature, in bytes.
     ///  ed25519 is a DL-based signature scheme. The signature is the
     ///  concatenation of <tt>r || s</tt>.
@@ -629,7 +629,7 @@ protected:
 ///  If you call GetPublicElement() then the little-endian byte
 ///  array is converted to a big-endian Integer() so it can be
 ///  returned the way a caller expects. And calling
-///  SetPublicElement() perfoms a similar internal conversion.
+///  SetPublicElement() performs a similar internal conversion.
 /// \since Crypto++ 8.0
 struct ed25519PublicKey : public X509PublicKey
 {

@@ -19,7 +19,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // The purpose of this function Mash() is to take an arbitrary length input
-// string and *deterministicly* produce an arbitrary length output string such
+// string and *deterministically* produce an arbitrary length output string such
 // that (1) it looks random, (2) no information about the input is
 // deducible from it, and (3) it contains as much entropy as it can hold, or
 // the amount of entropy in the input string, whichever is smaller.
@@ -28,7 +28,7 @@ template <class H>
 static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int iterations)
 {
 	if (BytePrecision(outLen) > 2)
-		throw InvalidArgument("Mash: output legnth too large");
+		throw InvalidArgument("Mash: output length too large");
 
 	size_t bufSize = RoundUpToMultipleOf(outLen, (size_t)H::DIGESTSIZE);
 	byte b[2];

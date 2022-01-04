@@ -17,7 +17,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Linear Congruential Generator (LCG)
 /// \details Originally propsed by William S. England.
-/// \warning LC_RNG is suitable for simulations, where uniformaly distrubuted numbers are
+/// \warning LC_RNG is suitable for simulations, where uniformaly distributed numbers are
 ///  required quickly. It should not be used for cryptographic purposes.
 class LC_RNG : public RandomNumberGenerator
 {

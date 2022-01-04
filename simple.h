@@ -18,7 +18,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \brief Base class for identifying alogorithm
+/// \brief Base class for identifying algorithm
 /// \tparam BASE base class from which to derive
 /// \tparam DERIVED class which to clone
 template <class DERIVED, class BASE>
@@ -467,12 +467,12 @@ protected:
 };
 
 /// \brief Implementation of BufferedTransformation's attachment interface
-/// \details Sink is a cornerstone of the Pipeline trinitiy. Data flows from
+/// \details Sink is a cornerstone of the Pipeline trinity. Data flows from
 ///  Sources, through Filters, and then terminates in Sinks. The difference
 ///  between a Source and Filter is a Source \a pumps data, while a Filter does
 ///  not. The difference between a Filter and a Sink is a Filter allows an
 ///  attached transformation, while a Sink does not.
-/// \details A Sink doesnot produce any retrievable output.
+/// \details A Sink does not produce any retrievable output.
 /// \details See the discussion of BufferedTransformation in cryptlib.h for
 ///  more details.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Sink : public BufferedTransformation

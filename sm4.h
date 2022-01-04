@@ -3,8 +3,8 @@
 /// \file sm4.h
 /// \brief Classes for the SM4 block cipher
 /// \details SM4 is a block cipher designed by Xiaoyun Wang, et al. The block cipher is part of the
-///   Chinese State Cryptography Administration portfolio. The cipher was formely known as SMS4.
-/// \details SM4 encryption is accelerated on machines with AES-NI. Decryption is not acclerated because
+///   Chinese State Cryptography Administration portfolio. The cipher was formerly known as SMS4.
+/// \details SM4 encryption is accelerated on machines with AES-NI. Decryption is not accelerated because
 ///   it is not profitable. Thanks to Markku-Juhani Olavi Saarinen for help and the code.
 /// \sa <A HREF="http://eprint.iacr.org/2008/329.pdf">SMS4 Encryption Algorithm for Wireless Networks</A>,
 ///   <A HREF="http://github.com/guanzhi/GmSSL">Reference implementation using OpenSSL</A> and
@@ -38,7 +38,7 @@ struct SM4_Info : public FixedBlockSize<16>, FixedKeyLength<16>
 
 /// \brief Classes for the SM4 block cipher
 /// \details SM4 is a block cipher designed by Xiaoyun Wang, et al. The block cipher is part of the
-///   Chinese State Cryptography Administration portfolio. The cipher was formely known as SMS4.
+///   Chinese State Cryptography Administration portfolio. The cipher was formerly known as SMS4.
 /// \sa <A HREF="http://eprint.iacr.org/2008/329.pdf">SMS4 Encryption Algorithm for Wireless Networks</A>
 /// \since Crypto++ 6.0
 class CRYPTOPP_NO_VTABLE SM4 : public SM4_Info, public BlockCipherDocumentation
@@ -60,7 +60,7 @@ public:
     /// \details Enc provides implementation for encryption transformation. All key
     ///   sizes are supported.
     /// \details SM4 encryption is accelerated on machines with AES-NI. Decryption is
-    ///   not acclerated because it is not profitable. Thanks to Markku-Juhani Olavi
+    ///   not accelerated because it is not profitable. Thanks to Markku-Juhani Olavi
     ///   Saarinen.
     /// \since Crypto++ 6.0, AESNI encryption since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
@@ -78,7 +78,7 @@ public:
     /// \details Dec provides implementation for decryption transformation. All key
     ///   sizes are supported.
     /// \details SM4 encryption is accelerated on machines with AES-NI. Decryption is
-    ///   not acclerated because it is not profitable. Thanks to Markku-Juhani Olavi
+    ///   not accelerated because it is not profitable. Thanks to Markku-Juhani Olavi
     ///   Saarinen.
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Dec : public Base

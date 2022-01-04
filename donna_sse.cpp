@@ -6,7 +6,7 @@
 // clean, but it has one potential problem. The original code is C and relies
 // upon unions. Accessing the inactive union member is undefined behavior in
 // C++. That means copying the array into packedelem8.u is OK; but then using
-// packedelem8.v in a calcualtion is UB. Fortunately most (all?) compilers
+// packedelem8.v in a calculation is UB. Fortunately most (all?) compilers
 // take pity on C++ developers and compile the code. We will have to keep an
 // eye on things or rewrite significant portions of this code.
 

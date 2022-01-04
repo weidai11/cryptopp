@@ -14,7 +14,7 @@
 //   to select an implementation or "throw NotImplemented". At runtime the
 //   constructor will throw RDRAND_Err or RDSEED_Err if a generator is
 //   is not available.
-// The original classes accepted a retry count. Retries were superflous for
+// The original classes accepted a retry count. Retries were superfluous for
 //   RDRAND, and RDSEED encountered a failure about 1 in 256 bytes depending
 //   on the processor. Retries were removed at Crypto++ 6.0 because
 //   GenerateBlock unconditionally retries and always fulfills the request.
@@ -107,7 +107,7 @@ public:
     virtual ~RDSEED() {}
 
     /// \brief Construct a RDSEED generator
-    /// \details Empirical testing under a 6th generaton i7 (6200U) shows RDSEED fails
+    /// \details Empirical testing under a 6th generation i7 (6200U) shows RDSEED fails
     ///   to fulfill requests at about once every for every 256 bytes requested.
     ///   The generator runs about 4 times slower than RDRAND.
      /// \throw RDSEED_Err if the random number generator is not available

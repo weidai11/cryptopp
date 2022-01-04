@@ -17,7 +17,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// Exception thrown when a crypto algorithm is used after a self test fails
-/// \details The self tests for an algorithm are performed by Algortihm class
+/// \details The self tests for an algorithm are performed by Algorithm class
 ///   when CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 is defined.
 class CRYPTOPP_DLL SelfTestFailure : public Exception
 {
@@ -51,7 +51,7 @@ enum PowerUpSelfTestStatus {
 /// \param expectedModuleMac the expected MAC of the components protected by the integrity check
 /// \details Performs the power-up self test, and sets the self test status to
 ///   POWER_UP_SELF_TEST_PASSED or POWER_UP_SELF_TEST_FAILED.
-/// \details The self tests for an algorithm are performed by the Algortihm class
+/// \details The self tests for an algorithm are performed by the Algorithm class
 ///   when CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 is defined.
 CRYPTOPP_DLL void CRYPTOPP_API DoPowerUpSelfTest(const char *moduleFilename, const byte *expectedModuleMac);
 
@@ -59,7 +59,7 @@ CRYPTOPP_DLL void CRYPTOPP_API DoPowerUpSelfTest(const char *moduleFilename, con
 /// \details Performs the power-up self test using the filename of this DLL and the
 ///   embedded module MAC, and sets the self test status to POWER_UP_SELF_TEST_PASSED or
 ///   POWER_UP_SELF_TEST_FAILED.
-/// \details The self tests for an algorithm are performed by the Algortihm class
+/// \details The self tests for an algorithm are performed by the Algorithm class
 ///   when CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 is defined.
 CRYPTOPP_DLL void CRYPTOPP_API DoDllPowerUpSelfTest();
 
@@ -83,7 +83,7 @@ CRYPTOPP_DLL MessageAuthenticationCode * CRYPTOPP_API NewIntegrityCheckingMAC();
 /// \param moduleFilename the fully qualified name of the module
 /// \param expectedModuleMac the expected MAC of the components protected by the integrity check
 /// \param pActualMac the actual MAC of the components calculated by the integrity check
-/// \param pMacFileLocation the offest of the MAC in the PE/PE+ module
+/// \param pMacFileLocation the offset of the MAC in the PE/PE+ module
 /// \return true if the MAC is valid, false otherwise
 CRYPTOPP_DLL bool CRYPTOPP_API IntegrityCheckModule(const char *moduleFilename, const byte *expectedModuleMac, SecByteBlock *pActualMac = NULLPTR, unsigned long *pMacFileLocation = NULLPTR);
 
