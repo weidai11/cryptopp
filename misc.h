@@ -2089,6 +2089,19 @@ inline word64 ByteReverse(word64 value)
 #endif
 }
 
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+/// \brief Reverses bytes in a 128-bit value
+/// \param value the 128-bit value to reverse
+/// \details ByteReverse calls bswap if available. Otherwise the function uses
+///  a combination of rotates on the word128.
+/// \since Crypto++ 8.7
+inline word128 ByteReverse(word128 value)
+{
+	// TODO: speed this up
+	return (word128(ByteReverse(word64(value))) << 64) | ByteReverse(word64(value>>64));
+}
+#endif
+
 /// \brief Reverses bits in a 8-bit value
 /// \param value the 8-bit value to reverse
 /// \details BitReverse performs a combination of shifts on the byte.
