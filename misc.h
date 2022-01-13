@@ -2094,6 +2094,7 @@ inline word64 ByteReverse(word64 value)
 /// \param value the 128-bit value to reverse
 /// \details ByteReverse calls bswap if available. Otherwise the function uses
 ///  a combination of rotates on the word128.
+/// \note word128 is available on some 64-bit platforms when the compiler supports it.
 /// \since Crypto++ 8.7
 inline word128 ByteReverse(word128 value)
 {
@@ -2171,6 +2172,8 @@ inline word64 BitReverse(word64 value)
 ///  Internally the size of T is checked, and then value is cast to a byte,
 ///  word16, word32 or word64. After the cast, the appropriate BitReverse
 ///  overload is called.
+/// \note word128 is available on some 64-bit platforms when the compiler supports it.
+/// \since Crypto++ 1.0
 template <class T>
 inline T BitReverse(T value)
 {
@@ -2256,7 +2259,7 @@ void ByteReverse(T *out, const T *in, size_t byteCount)
 /// \param out the output array of elements
 /// \param in the input array of elements
 /// \param byteCount the byte count of the arrays
-/// \details Internally, ByteReverse visits each element in the in array
+/// \details ConditionalByteReverse visits each element in the in array
 ///  calls ByteReverse on it depending on the desired endianness, and writes the result to out.
 /// \details ByteReverse does not process tail byes, or bytes that are
 ///  not part of a full element. If T is int (and int is 4 bytes), then
@@ -2272,6 +2275,13 @@ inline void ConditionalByteReverse(ByteOrder order, T *out, const T *in, size_t 
 		memcpy_s(out, byteCount, in, byteCount);
 }
 
+/// \brief Copy bytes in a buffer to an array of elements in big-endian order
+/// \tparam T the class or type
+/// \param order the ByteOrder of the data
+/// \param out the output array of elements
+/// \param outlen the byte count of the array
+/// \param in the input array of elements
+/// \param inlen the byte count of the array
 template <class T>
 inline void GetUserKey(ByteOrder order, T *out, size_t outlen, const byte *in, size_t inlen)
 {
@@ -2282,27 +2292,55 @@ inline void GetUserKey(ByteOrder order, T *out, size_t outlen, const byte *in, s
 	ConditionalByteReverse(order, out, out, RoundUpToMultipleOf(inlen, U));
 }
 
-inline byte UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const byte *)
+/// \brief Retrieve a byte from an unaligned buffer
+/// \param order the ByteOrder of the data
+/// \param block an unaligned buffer
+/// \param unused dummy parameter
+/// \return byte value
+/// \details UnalignedGetWordNonTemplate accesses an unaligned buffer and returns a byte value.
+/// \since Crypto++ 1.0
+inline byte UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const byte *unused)
 {
 	CRYPTOPP_UNUSED(order);
 	return block[0];
 }
 
-inline word16 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word16 *)
+/// \brief Retrieve a word16 from an unaligned buffer
+/// \param order the ByteOrder of the data
+/// \param block an unaligned buffer
+/// \param unused dummy parameter
+/// \return byte value
+/// \details UnalignedGetWordNonTemplate accesses an unaligned buffer and returns a word16 value.
+/// \since Crypto++ 1.0
+inline word16 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word16 *unused)
 {
 	return (order == BIG_ENDIAN_ORDER)
 		? block[1] | (block[0] << 8)
 		: block[0] | (block[1] << 8);
 }
 
-inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word32 *)
+/// \brief Retrieve a word32 from an unaligned buffer
+/// \param order the ByteOrder of the data
+/// \param block an unaligned buffer
+/// \param unused dummy parameter
+/// \return byte value
+/// \details UnalignedGetWordNonTemplate accesses an unaligned buffer and returns a word32 value.
+/// \since Crypto++ 1.0
+inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word32 *unused)
 {
 	return (order == BIG_ENDIAN_ORDER)
 		? word32(block[3]) | (word32(block[2]) << 8) | (word32(block[1]) << 16) | (word32(block[0]) << 24)
 		: word32(block[0]) | (word32(block[1]) << 8) | (word32(block[2]) << 16) | (word32(block[3]) << 24);
 }
 
-inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word64 *)
+/// \brief Retrieve a word64 from an unaligned buffer
+/// \param order the ByteOrder of the data
+/// \param block an unaligned buffer
+/// \param unused dummy parameter
+/// \return byte value
+/// \details UnalignedGetWordNonTemplate accesses an unaligned buffer and returns a word64 value.
+/// \since Crypto++ 1.0
+inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word64 *unused)
 {
 	return (order == BIG_ENDIAN_ORDER)
 		?
@@ -2325,12 +2363,26 @@ inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 		(word64(block[7]) << 56));
 }
 
+/// \brief Write a byte to an unaligned buffer
+/// \param order the ByteOrder of the data
+/// \param block an unaligned output buffer
+/// \param value byte value
+/// \param xorBlock optional unaligned xor buffer
+/// \details UnalignedbyteNonTemplate writes a byte value to an unaligned buffer.
+/// \since Crypto++ 1.0
 inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, byte value, const byte *xorBlock)
 {
 	CRYPTOPP_UNUSED(order);
 	block[0] = static_cast<byte>(xorBlock ? (value ^ xorBlock[0]) : value);
 }
 
+/// \brief Write a word16 to an unaligned buffer
+/// \param order the ByteOrder of the data
+/// \param block an unaligned output buffer
+/// \param value word16 value
+/// \param xorBlock optional unaligned xor buffer
+/// \details UnalignedbyteNonTemplate writes a word16 value to an unaligned buffer.
+/// \since Crypto++ 1.0
 inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word16 value, const byte *xorBlock)
 {
 	if (order == BIG_ENDIAN_ORDER)
@@ -2361,6 +2413,13 @@ inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word16 value,
 	}
 }
 
+/// \brief Write a word32 to an unaligned buffer
+/// \param order the ByteOrder of the data
+/// \param block an unaligned output buffer
+/// \param value word32 value
+/// \param xorBlock optional unaligned xor buffer
+/// \details UnalignedbyteNonTemplate writes a word32 value to an unaligned buffer.
+/// \since Crypto++ 1.0
 inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word32 value, const byte *xorBlock)
 {
 	if (order == BIG_ENDIAN_ORDER)
@@ -2399,6 +2458,13 @@ inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word32 value,
 	}
 }
 
+/// \brief Write a word64 to an unaligned buffer
+/// \param order the ByteOrder of the data
+/// \param block an unaligned output buffer
+/// \param value word64 value
+/// \param xorBlock optional unaligned xor buffer
+/// \details UnalignedbyteNonTemplate writes a word64 value to an unaligned buffer.
+/// \since Crypto++ 1.0
 inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word64 value, const byte *xorBlock)
 {
 	if (order == BIG_ENDIAN_ORDER)
