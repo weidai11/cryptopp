@@ -2173,7 +2173,7 @@ inline word64 BitReverse(word64 value)
 ///  word16, word32 or word64. After the cast, the appropriate BitReverse
 ///  overload is called.
 /// \note word128 is available on some 64-bit platforms when the compiler supports it.
-/// \since Crypto++ 1.0
+/// \since Crypto++ 1.0, word128 since Crypto++ 8.7
 template <class T>
 inline T BitReverse(T value)
 {
@@ -2185,6 +2185,10 @@ inline T BitReverse(T value)
 		return (T)BitReverse((word32)value);
 	else if (sizeof(T) == 8)
 		return (T)BitReverse((word64)value);
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+	else if (sizeof(T) == 16)
+		return (T)BitReverse((word128)value);
+#endif
 	else
 	{
 		CRYPTOPP_ASSERT(0);
@@ -2363,6 +2367,55 @@ inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 		(word64(block[7]) << 56));
 }
 
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+/// \brief Retrieve a word128 from an unaligned buffer
+/// \param order the ByteOrder of the data
+/// \param block an unaligned buffer
+/// \param unused dummy parameter
+/// \return byte value
+/// \details UnalignedGetWordNonTemplate accesses an unaligned buffer and returns a word128 value.
+/// \note word128 is available on some 64-bit platforms when the compiler supports it.
+/// \since Crypto++ 8.7
+inline word128 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word128 *)
+{
+	return (order == BIG_ENDIAN_ORDER)
+		?
+		(word128(block[15]) |
+		(word128(block[14]) <<   8) |
+		(word128(block[13]) <<  16) |
+		(word128(block[12]) <<  24) |
+		(word128(block[11]) <<  32) |
+		(word128(block[10]) <<  40) |
+		(word128(block[ 9]) <<  48) |
+		(word128(block[ 8]) <<  56) |
+		(word128(block[ 7]) <<  64) |
+		(word128(block[ 6]) <<  72) |
+		(word128(block[ 5]) <<  80) |
+		(word128(block[ 4]) <<  88) |
+		(word128(block[ 3]) <<  96) |
+		(word128(block[ 2]) << 104) |
+		(word128(block[ 1]) << 112) |
+		(word128(block[ 0]) << 120))
+		:
+		(word128(block[ 0]) |
+		(word128(block[ 1]) <<   8) |
+		(word128(block[ 2]) <<  16) |
+		(word128(block[ 3]) <<  24) |
+		(word128(block[ 4]) <<  32) |
+		(word128(block[ 5]) <<  40) |
+		(word128(block[ 6]) <<  48) |
+		(word128(block[ 7]) <<  56) |
+		(word128(block[ 8]) <<  64) |
+		(word128(block[ 9]) <<  72) |
+		(word128(block[10]) <<  80) |
+		(word128(block[11]) <<  88) |
+		(word128(block[12]) <<  96) |
+		(word128(block[13]) << 104) |
+		(word128(block[14]) << 112) |
+		(word128(block[15]) << 120));
+}
+#endif
+
 /// \brief Write a byte to an unaligned buffer
 /// \param order the ByteOrder of the data
 /// \param block an unaligned output buffer
@@ -2518,6 +2571,106 @@ inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word64 value,
 		}
 	}
 }
+
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+/// \brief Write a word128 to an unaligned buffer
+/// \param order the ByteOrder of the data
+/// \param block an unaligned output buffer
+/// \param value word128 value
+/// \param xorBlock optional unaligned xor buffer
+/// \details UnalignedbyteNonTemplate writes a word128 value to an unaligned buffer.
+/// \note word128 is available on some 64-bit platforms when the compiler supports it.
+/// \since Crypto++ 8.7
+inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word128 value, const byte *xorBlock)
+{
+	if (order == BIG_ENDIAN_ORDER)
+	{
+		if (xorBlock)
+		{
+			block[0] = xorBlock[0] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 15);
+			block[1] = xorBlock[1] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 14);
+			block[2] = xorBlock[2] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 13);
+			block[3] = xorBlock[3] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 12);
+			block[4] = xorBlock[4] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 11);
+			block[5] = xorBlock[5] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 10);
+			block[6] = xorBlock[6] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value,  9);
+			block[7] = xorBlock[7] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value,  8);
+
+			block[ 8] = xorBlock[ 8] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
+			block[ 9] = xorBlock[ 9] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
+			block[10] = xorBlock[10] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
+			block[11] = xorBlock[11] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
+			block[12] = xorBlock[12] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+			block[13] = xorBlock[13] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[14] = xorBlock[14] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[15] = xorBlock[15] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		}
+		else
+		{
+			block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 15);
+			block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 14);
+			block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 13);
+			block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 12);
+			block[4] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 11);
+			block[5] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 10);
+			block[6] = CRYPTOPP_GET_BYTE_AS_BYTE(value,  9);
+			block[7] = CRYPTOPP_GET_BYTE_AS_BYTE(value,  8);
+
+			block[ 8] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
+			block[ 9] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
+			block[10] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
+			block[11] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
+			block[12] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+			block[13] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[14] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[15] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+		}
+	}
+	else
+	{
+		if (xorBlock)
+		{
+			block[0] = xorBlock[0] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+			block[1] = xorBlock[1] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[2] = xorBlock[2] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[3] = xorBlock[3] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+			block[4] = xorBlock[4] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
+			block[5] = xorBlock[5] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
+			block[6] = xorBlock[6] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
+			block[7] = xorBlock[7] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
+
+			block[ 8] = xorBlock[ 8] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value,  8);
+			block[ 9] = xorBlock[ 9] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value,  9);
+			block[10] = xorBlock[10] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 10);
+			block[11] = xorBlock[11] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 11);
+			block[12] = xorBlock[12] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 12);
+			block[13] = xorBlock[13] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 13);
+			block[14] = xorBlock[14] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 14);
+			block[15] = xorBlock[15] ^ CRYPTOPP_GET_BYTE_AS_BYTE(value, 15);
+		}
+		else
+		{
+			block[0] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 0);
+			block[1] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 1);
+			block[2] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 2);
+			block[3] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 3);
+			block[4] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 4);
+			block[5] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 5);
+			block[6] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 6);
+			block[7] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 7);
+
+			block[ 8] = CRYPTOPP_GET_BYTE_AS_BYTE(value,  8);
+			block[ 9] = CRYPTOPP_GET_BYTE_AS_BYTE(value,  9);
+			block[10] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 10);
+			block[11] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 11);
+			block[12] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 12);
+			block[13] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 13);
+			block[14] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 14);
+			block[15] = CRYPTOPP_GET_BYTE_AS_BYTE(value, 15);
+		}
+	}
+}
+#endif
 
 /// \brief Access a block of memory
 /// \tparam T class or type
