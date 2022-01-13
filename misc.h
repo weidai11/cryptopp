@@ -2305,7 +2305,7 @@ inline void GetUserKey(ByteOrder order, T *out, size_t outlen, const byte *in, s
 /// \since Crypto++ 1.0
 inline byte UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const byte *unused)
 {
-	CRYPTOPP_UNUSED(order);
+	CRYPTOPP_UNUSED(order); CRYPTOPP_UNUSED(unused);
 	return block[0];
 }
 
@@ -2318,6 +2318,7 @@ inline byte UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, cons
 /// \since Crypto++ 1.0
 inline word16 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word16 *unused)
 {
+	CRYPTOPP_UNUSED(unused);
 	return (order == BIG_ENDIAN_ORDER)
 		? block[1] | (block[0] << 8)
 		: block[0] | (block[1] << 8);
@@ -2332,6 +2333,7 @@ inline word16 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 /// \since Crypto++ 1.0
 inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word32 *unused)
 {
+	CRYPTOPP_UNUSED(unused);
 	return (order == BIG_ENDIAN_ORDER)
 		? word32(block[3]) | (word32(block[2]) << 8) | (word32(block[1]) << 16) | (word32(block[0]) << 24)
 		: word32(block[0]) | (word32(block[1]) << 8) | (word32(block[2]) << 16) | (word32(block[3]) << 24);
@@ -2346,6 +2348,7 @@ inline word32 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 /// \since Crypto++ 1.0
 inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word64 *unused)
 {
+	CRYPTOPP_UNUSED(unused);
 	return (order == BIG_ENDIAN_ORDER)
 		?
 		(word64(block[7]) |
@@ -2376,8 +2379,9 @@ inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 /// \details UnalignedGetWordNonTemplate accesses an unaligned buffer and returns a word128 value.
 /// \note word128 is available on some 64-bit platforms when the compiler supports it.
 /// \since Crypto++ 8.7
-inline word128 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word128 *)
+inline word128 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const word128 *unused)
 {
+	CRYPTOPP_UNUSED(unused);
 	return (order == BIG_ENDIAN_ORDER)
 		?
 		(word128(block[15]) |
