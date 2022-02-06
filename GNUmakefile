@@ -1533,7 +1533,7 @@ endif
 convert:
 	@-$(CHMOD) u=rwx,go=rx $(EXEC_DIRS)
 	@-$(CHMOD) u=rw,go=r $(TEXT_FILES) *.supp .*.yml *.asm *.zip TestVectors/*.txt TestData/*.dat TestPrograms/*.cpp
-	@-$(CHMOD) u=rwx,go=rx $(EXEC_FILES) *.sh
+	@-$(CHMOD) u=rwx,go=rx $(EXEC_FILES)
 	-unix2dos --keepdate --quiet $(TEXT_FILES) .*.yml *.asm TestScripts/*.cmd TestScripts/*.txt TestScripts/*.cpp
 	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.sh *.S *.supp *.mapfile TestScripts/*.sh
 ifneq ($(IS_DARWIN),0)
