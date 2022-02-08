@@ -285,7 +285,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   ifeq ($(SSE2_FLAG),)
-    CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+    CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
   # Need SSE2 or higher for these tests
@@ -959,8 +959,8 @@ endif
 # No ASM for Travis testing
 ifeq ($(findstring no-asm,$(MAKECMDGOALS)),no-asm)
   ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CPPFLAGS)$(CXXFLAGS)),)
-    CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
-  endif # CRYPTOPP_CXXFLAGS
+    CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_ASM
+  endif # CRYPTOPP_CPPFLAGS
 endif # No ASM
 
 # Native build testing. Issue 'make native'.
@@ -1085,7 +1085,7 @@ ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
   ifneq ($(USING_GLIBCXX),0)
     ifeq ($(HAS_NEWLIB),0)
       ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CPPFLAGS)$(CXXFLAGS)),)
-        CRYPTOPP_CXXFLAGS += -D_GLIBCXX_DEBUG
+        CRYPTOPP_CPPFLAGS += -D_GLIBCXX_DEBUG
       endif # CRYPTOPP_CPPFLAGS
     endif # HAS_NEWLIB
   endif # USING_GLIBCXX
