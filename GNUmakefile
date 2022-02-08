@@ -141,14 +141,15 @@ endif
 #####                General Variables                #####
 ###########################################################
 
-# Base CXXFLAGS used if the user did not specify them
+# Base CPPFLAGS and CXXFLAGS used if the user did not specify them
+ifeq ($(CPPFLAGS),)
+  CRYPTOPP_CPPFLAGS += -DNDEBUG
+endif
 ifeq ($(CXXFLAGS),)
   ifeq ($(SUN_COMPILER),1)
-    CRYPTOPP_CPPFLAGS += -DNDEBUG
     CRYPTOPP_CXXFLAGS += -g -xO3
     ZOPT = -xO0
   else
-    CRYPTOPP_CPPFLAGS += -DNDEBUG
     CRYPTOPP_CXXFLAGS += -g2 -O3
     ZOPT = -O0
   endif
@@ -156,7 +157,7 @@ endif
 
 # Fix CXX on Cygwin 1.1.4
 ifeq ($(CXX),gcc)
-CXX := g++
+  CXX := g++
 endif
 
 # On ARM we may compile aes_armv4.S though the CC compiler
