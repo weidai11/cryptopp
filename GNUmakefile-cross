@@ -184,15 +184,15 @@ IS_PPC64 := 0
 
 # Hack to skip CPU feature tests for some recipes
 DETECT_FEATURES ?= 1
-ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),-DCRYPTOPP_DISABLE_ASM)
+ifneq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CPPFLAGS)$(CXXFLAGS)),)
   DETECT_FEATURES := 0
-else ifeq ($(findstring clean,$(MAKECMDGOALS)),clean)
+else ifneq ($(findstring clean,$(MAKECMDGOALS)),)
   DETECT_FEATURES := 0
-else ifeq ($(findstring distclean,$(MAKECMDGOALS)),distclean)
+else ifneq ($(findstring distclean,$(MAKECMDGOALS)),)
   DETECT_FEATURES := 0
-else ifeq ($(findstring trim,$(MAKECMDGOALS)),trim)
+else ifneq ($(findstring trim,$(MAKECMDGOALS)),)
   DETECT_FEATURES := 0
-else ifeq ($(findstring zip,$(MAKECMDGOALS)),zip)
+else ifneq ($(findstring zip,$(MAKECMDGOALS)),)
   DETECT_FEATURES := 0
 endif
 
@@ -240,7 +240,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   ifeq ($(SSE2_FLAG),)
-    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+    CPPFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
   # Need SSE2 or higher for these tests
@@ -336,33 +336,33 @@ ifeq ($(DETECT_FEATURES),1)
     endif
 
     ifeq ($(SSE3_FLAG),)
-      CXXFLAGS += -DCRYPTOPP_DISABLE_SSE3
+      CPPFLAGS += -DCRYPTOPP_DISABLE_SSE3
     else ifeq ($(SSSE3_FLAG),)
-      CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
+      CPPFLAGS += -DCRYPTOPP_DISABLE_SSSE3
     else ifeq ($(SSE41_FLAG),)
-      CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
+      CPPFLAGS += -DCRYPTOPP_DISABLE_SSE4
     else ifeq ($(SSE42_FLAG),)
-      CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
+      CPPFLAGS += -DCRYPTOPP_DISABLE_SSE4
     endif
 
     ifneq ($(SSE42_FLAG),)
       # Unusual GCC/Clang on Macports. It assembles AES, but not CLMUL.
       # test_x86_clmul.s:15: no such instruction: 'pclmulqdq $0, %xmm1,%xmm0'
       ifeq ($(CLMUL_FLAG),)
-        CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
+        CPPFLAGS += -DCRYPTOPP_DISABLE_CLMUL
       endif
       ifeq ($(AESNI_FLAG),)
-        CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
+        CPPFLAGS += -DCRYPTOPP_DISABLE_AESNI
       endif
 
       ifeq ($(AVX_FLAG),)
-        CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
+        CPPFLAGS += -DCRYPTOPP_DISABLE_AVX
       else ifeq ($(AVX2_FLAG),)
-        CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
+        CPPFLAGS += -DCRYPTOPP_DISABLE_AVX2
       endif
       # SHANI independent of AVX per GH #1045
       ifeq ($(SHANI_FLAG),)
-        CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
+        CPPFLAGS += -DCRYPTOPP_DISABLE_SHANI
       endif
     endif
 
@@ -381,7 +381,7 @@ ifeq ($(DETECT_FEATURES),1)
     #TOPT =
     #HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     #ifneq ($(strip $(HAVE_OPT)),0)
-    #  CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
+    #  CPPFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
     #endif
 
   # SSE2_FLAGS
@@ -398,6 +398,12 @@ endif
 ###########################################################
 
 ifneq ($(IS_ARM32),0)
+
+# No need for feature detection on this platform if NEON is disabled
+ifneq ($(findstring -DCRYPTOPP_DISABLE_ARM_NEON,$(CPPFLAGS)$(CXXFLAGS)),)
+  DETECT_FEATURES := 0
+endif
+
 ifeq ($(DETECT_FEATURES),1)
 
   # Android needs -c compile flag for NEON. Otherwise there's an odd linker message.
@@ -441,7 +447,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   ifeq ($(NEON_FLAG),)
-    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+    CPPFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
 # DETECT_FEATURES
@@ -508,7 +514,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   ifeq ($(ASIMD_FLAG),)
-    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+    CPPFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
   ifneq ($(ASIMD_FLAG),)
@@ -518,7 +524,7 @@ ifeq ($(DETECT_FEATURES),1)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       CRC_FLAG =
-      CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_CRC32
+      CPPFLAGS += -DCRYPTOPP_DISABLE_ARM_CRC32
     endif
 
     TPROG = TestPrograms/test_arm_aes.cpp
@@ -526,7 +532,7 @@ ifeq ($(DETECT_FEATURES),1)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       AES_FLAG =
-      CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_AES
+      CPPFLAGS += -DCRYPTOPP_DISABLE_ARM_AES
     endif
 
     TPROG = TestPrograms/test_arm_pmull.cpp
@@ -535,7 +541,7 @@ ifeq ($(DETECT_FEATURES),1)
     ifneq ($(strip $(HAVE_OPT)),0)
       GCM_FLAG =
       GF2N_FLAG =
-      CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_PMULL
+      CPPFLAGS += -DCRYPTOPP_DISABLE_ARM_PMULL
     endif
 
     TPROG = TestPrograms/test_arm_sha1.cpp
@@ -543,7 +549,7 @@ ifeq ($(DETECT_FEATURES),1)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG =
-      CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA1
+      CPPFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA1
     endif
 
     TPROG = TestPrograms/test_arm_sha256.cpp
@@ -551,7 +557,7 @@ ifeq ($(DETECT_FEATURES),1)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG =
-      CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA2
+      CPPFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA2
     endif
 
     TPROG = TestPrograms/test_arm_sm3.cpp
@@ -561,8 +567,8 @@ ifeq ($(DETECT_FEATURES),1)
       SM3_FLAG = -march=armv8.4-a+sm3
       SM4_FLAG = -march=armv8.4-a+sm3
     else
-      #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SM3
-      #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SM4
+      #CPPFLAGS += -DCRYPTOPP_DISABLE_ARM_SM3
+      #CPPFLAGS += -DCRYPTOPP_DISABLE_ARM_SM4
     endif
 
     TPROG = TestPrograms/test_arm_sha3.cpp
@@ -571,7 +577,7 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA3_FLAG = -march=armv8.4-a+sha3
     else
-      #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA3
+      #CPPFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA3
     endif
 
     TPROG = TestPrograms/test_arm_sha512.cpp
@@ -580,7 +586,7 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA512_FLAG = -march=armv8.4-a+sha512
     else
-      #CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA512
+      #CPPFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA512
     endif
 
   # ASIMD_FLAG
@@ -596,10 +602,10 @@ endif
 ###########################################################
 
 # No ASM for Travis testing
-ifeq ($(findstring no-asm,$(MAKECMDGOALS)),no-asm)
-  ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
-    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
-  endif # CXXFLAGS
+ifneq ($(findstring no-asm,$(MAKECMDGOALS)),)
+  ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CPPFLAGS)$(CXXFLAGS)),)
+    CPPFLAGS += -DCRYPTOPP_DISABLE_ASM
+  endif # CPPFLAGS
 endif # No ASM
 
 # Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.
@@ -607,9 +613,9 @@ ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
   ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
     CXXFLAGS += -fsanitize=undefined
   endif # CXXFLAGS
-  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
-    CXXFLAGS += -DCRYPTOPP_COVERAGE
-  endif # CXXFLAGS
+  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CPPFLAGS)$(CXXFLAGS)),)
+    CPPFLAGS += -DCRYPTOPP_COVERAGE
+  endif # CPPFLAGS
 endif # UBsan
 
 # Address Sanitizer (Asan) testing. Issue 'make asan'.
@@ -617,9 +623,9 @@ ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
   ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
     CXXFLAGS += -fsanitize=address
   endif # CXXFLAGS
-  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
-    CXXFLAGS += -DCRYPTOPP_COVERAGE
-  endif # CXXFLAGS
+  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CPPFLAGS)$(CXXFLAGS)),)
+    CPPFLAGS += -DCRYPTOPP_COVERAGE
+  endif # CPPFLAGS
   ifeq ($(findstring -fno-omit-frame-pointer,$(CXXFLAGS)),)
     CXXFLAGS += -fno-omit-frame-pointer
   endif # CXXFLAGS
@@ -641,20 +647,20 @@ ifneq ($(filter valgrind,$(MAKECMDGOALS)),)
   CXXFLAGS := $(CXXFLAGS:-g%=-g3)
   CXXFLAGS := $(CXXFLAGS:-O%=-O1)
   CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
-  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
-    CXXFLAGS += -DCRYPTOPP_COVERAGE
-  endif # -DCRYPTOPP_COVERAGE
+  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CPPFLAGS)$(CXXFLAGS)),)
+    CPPFLAGS += -DCRYPTOPP_COVERAGE
+  endif # CPPFLAGS
 endif # Valgrind
 
 # Debug testing on GNU systems. Triggered by -DDEBUG.
-#   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
-ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
-  USING_GLIBCXX := $(shell $(CXX) $(CXXFLAGS) -E pch.cpp 2>&1 | $(GREP) -i -c "__GLIBCXX__")
+# Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
+ifneq ($(filter -DDEBUG -DDEBUG=1,$(CPPFLAGS) $(CXXFLAGS)),)
+  USING_GLIBCXX := $(shell $(CXX) $(CPPFLAGS) $(CXXFLAGS) -E pch.cpp 2>&1 | $(GREP) -i -c "__GLIBCXX__")
   ifneq ($(USING_GLIBCXX),0)
     ifeq ($(HAS_NEWLIB),0)
-      ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
-        CXXFLAGS += -D_GLIBCXX_DEBUG
-      endif # CXXFLAGS
+      ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CPPFLAGS)$(CXXFLAGS)),)
+        CPPFLAGS += -D_GLIBCXX_DEBUG
+      endif # CPPFLAGS
     endif # HAS_NEWLIB
   endif # USING_GLIBCXX
 endif # GNU Debug build

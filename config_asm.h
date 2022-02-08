@@ -311,6 +311,12 @@
 # endif  // Platforms
 #endif
 
+// Buggy Microsoft compiler, https://github.com/weidai11/cryptopp/issues/1096
+#if defined(_MSC_VER)
+# undef CRYPTOPP_ARM_SHA1_AVAILABLE
+# undef CRYPTOPP_ARM_SHA2_AVAILABLE
+#endif
+
 // ARMv8 and SHA-512, SHA-3. -march=armv8.2-a+crypto or above must be present
 // Requires GCC 8.0, Clang 11.0, Apple Clang 12.0 or Visual Studio 20??
 #if !defined(CRYPTOPP_ARM_SHA3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_SHA)
