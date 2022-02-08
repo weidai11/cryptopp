@@ -693,18 +693,20 @@ SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integ
 # For Makefile.am; resource.h is Windows
 INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
 
-# Cryptogams source files. We couple to ARMv7.
+# Cryptogams source files. We couple to ARMv7 and NEON.
 # Limit to Linux. The source files target the GNU assembler.
 # Also see https://www.cryptopp.com/wiki/Cryptogams.
 ifeq ($(IS_ARM32)$(IS_LINUX),11)
-  ifeq ($(CLANG_COMPILER),1)
-    CRYPTOGAMS_ARMV4_FLAG = -march=armv7-a -Wa,--noexecstack
-    CRYPTOGAMS_ARMV4_THUMB_FLAG = -march=armv7-a -mthumb -Wa,--noexecstack
-  else
-    CRYPTOGAMS_ARMV4_FLAG = -march=armv7-a -Wa,--noexecstack
-    CRYPTOGAMS_ARMV4_THUMB_FLAG = -march=armv7-a -Wa,--noexecstack
+  ifeq ($(filter -DCRYPTOPP_DISABLE_ASM -DCRYPTOPP_DISABLE_ARM_NEON,$(CPPFLAGS)$(CXXFLAGS)),)
+    ifeq ($(CLANG_COMPILER),1)
+      CRYPTOGAMS_ARMV4_FLAG = -march=armv7-a -Wa,--noexecstack
+      CRYPTOGAMS_ARMV4_THUMB_FLAG = -march=armv7-a -mthumb -Wa,--noexecstack
+    else
+      CRYPTOGAMS_ARMV4_FLAG = -march=armv7-a -Wa,--noexecstack
+      CRYPTOGAMS_ARMV4_THUMB_FLAG = -march=armv7-a -Wa,--noexecstack
+    endif
+    SRCS += aes_armv4.S sha1_armv4.S sha256_armv4.S sha512_armv4.S
   endif
-  SRCS += aes_armv4.S sha1_armv4.S sha256_armv4.S sha512_armv4.S
 endif
 
 # Remove unneeded arch specific files to speed build time.
