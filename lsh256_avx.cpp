@@ -15,6 +15,9 @@
 #include "lsh.h"
 #include "misc.h"
 
+// Squash MS LNK4221 and libtool warnings
+extern const char LSH256_AVX_FNAME[] = __FILE__;
+
 #if defined(CRYPTOPP_AVX2_AVAILABLE) && defined(CRYPTOPP_ENABLE_64BIT_SSE)
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
@@ -26,9 +29,6 @@
 #if (CRYPTOPP_GCC_VERSION >= 40500)
 # include <x86intrin.h>
 #endif
-
-// Squash MS LNK4221 and libtool warnings
-extern const char LSH256_AVX_FNAME[] = __FILE__;
 
 ANONYMOUS_NAMESPACE_BEGIN
 
