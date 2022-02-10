@@ -47,7 +47,7 @@ endif
 IS_LINUX := $(shell echo $(MACHINEX) | $(GREP) -i -c "Linux")
 
 # Can be used by Android and Embedded cross-compiles. Disable by default because
-#   Android and embedded users typically don't run this configuration.
+# Android and embedded users typically don't run this configuration.
 HAS_SOLIB_VERSION ?= 0
 
 # Formerly adhoc.cpp was created from adhoc.cpp.proto when needed.
@@ -59,6 +59,19 @@ endif
 ###########################################################
 #####                General Variables                #####
 ###########################################################
+
+# Needed when the assembler is invoked
+ifeq ($(findstring $(ASFLAGS),-Wa,--noexecstack),)
+  ASFLAGS += -Wa,--noexecstack
+endif
+
+# On ARM we may compile aes_armv4.S, sha1_armv4.S, sha256_armv4.S, and
+# sha512_armv4.S through the CC compiler
+ifeq ($(GCC_COMPILER),1)
+  CC ?= gcc
+else ifeq ($(CLANG_COMPILER),1)
+  CC ?= clang
+endif
 
 # http://www.gnu.org/prep/standards/html_node/Directory-Variables.html
 ifeq ($(PREFIX),)
@@ -87,7 +100,7 @@ endif
 ###########################################################
 
 # MacOS cross-compile configuration.
-#   See http://www.cryptopp.com/wiki/MacOS_(Command_Line).
+# See http://www.cryptopp.com/wiki/MacOS_(Command_Line).
 ifeq ($(IS_MACOS),1)
   # setenv-macos.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
   IS_APPLE_LIBTOOL=$(shell libtool -V 2>&1 | $(GREP) -i -c 'Apple')
@@ -104,7 +117,7 @@ endif
 ###########################################################
 
 # iOS cross-compile configuration.
-#   See http://www.cryptopp.com/wiki/iOS_(Command_Line).
+# See http://www.cryptopp.com/wiki/iOS_(Command_Line).
 ifeq ($(IS_IOS),1)
   # setenv-ios.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
   AR = libtool
@@ -116,7 +129,7 @@ endif
 ###########################################################
 
 # Android cross-compile configuration.
-#   See http://www.cryptopp.com/wiki/Android_(Command_Line).
+# See http://www.cryptopp.com/wiki/Android_(Command_Line).
 ifeq ($(IS_ANDROID),1)
   # setenv-android.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
 
@@ -130,8 +143,8 @@ endif
 ###########################################################
 
 # ARM embedded cross-compile configuration.
-#   See http://www.cryptopp.com/wiki/ARM_Embedded_(Command_Line)
-#   and http://www.cryptopp.com/wiki/ARM_Embedded_(Bare Metal).
+# See http://www.cryptopp.com/wiki/ARM_Embedded_(Command_Line)
+# and http://www.cryptopp.com/wiki/ARM_Embedded_(Bare Metal).
 ifeq ($(IS_ARM_EMBEDDED),1)
   # setenv-android.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
 endif
@@ -601,13 +614,6 @@ endif
 #####                      Common                     #####
 ###########################################################
 
-# No ASM for Travis testing
-ifneq ($(findstring no-asm,$(MAKECMDGOALS)),)
-  ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CPPFLAGS)$(CXXFLAGS)),)
-    CPPFLAGS += -DCRYPTOPP_DISABLE_ASM
-  endif # CPPFLAGS
-endif # No ASM
-
 # Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.
 ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
   ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
@@ -698,12 +704,18 @@ INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
 # Also see https://www.cryptopp.com/wiki/Cryptogams.
 ifeq ($(IS_ARM32)$(IS_LINUX),11)
   ifeq ($(filter -DCRYPTOPP_DISABLE_ASM -DCRYPTOPP_DISABLE_ARM_NEON,$(CPPFLAGS)$(CXXFLAGS)),)
+    # Do not use -march=armv7 if the compiler is already targeting the ISA.
+    # Also see https://github.com/weidai11/cryptopp/issues/1094
+    ifneq ($($(CXX) ++ -dM -E - </dev/null 2>/dev/null| grep 'ARM_ARCH 7|_ARM_ARCH_7A__'),)
+      CRYPTOGAMS_ARMV7_FLAG = -march=armv7-a
+    endif
     ifeq ($(CLANG_COMPILER),1)
-      CRYPTOGAMS_ARMV4_FLAG = -march=armv7-a -Wa,--noexecstack
-      CRYPTOGAMS_ARMV4_THUMB_FLAG = -march=armv7-a -mthumb -Wa,--noexecstack
+      CRYPTOGAMS_ARM_FLAG = $(CRYPTOGAMS_ARMV7_FLAG)
+      CRYPTOGAMS_ARM_THUMB_FLAG = $(CRYPTOGAMS_ARMV7_FLAG) -mthumb
     else
-      CRYPTOGAMS_ARMV4_FLAG = -march=armv7-a -Wa,--noexecstack
-      CRYPTOGAMS_ARMV4_THUMB_FLAG = -march=armv7-a -Wa,--noexecstack
+      # -mfpu=auto due to https://github.com/weidai11/cryptopp/issues/1094
+      CRYPTOGAMS_ARM_FLAG = $(CRYPTOGAMS_ARMV7_FLAG)
+      CRYPTOGAMS_ARM_THUMB_FLAG = $(CRYPTOGAMS_ARMV7_FLAG)
     endif
     SRCS += aes_armv4.S sha1_armv4.S sha256_armv4.S sha512_armv4.S
   endif
@@ -938,7 +950,7 @@ NOSTD_CXXFLAGS=$(filter-out -stdlib=%,$(filter-out -std=%,$(CXXFLAGS)))
 
 # Cryptogams ARM asm implementation. AES needs -mthumb for Clang
 aes_armv4.o : aes_armv4.S
-	$(CXX) $(strip $(CPPFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARMV4_THUMB_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_THUMB_FLAG) -c) $<
 
 # Use C++ compiler on C source after patching.
 # https://github.com/weidai11/cryptopp/issues/926
@@ -1031,15 +1043,15 @@ sha_simd.o : sha_simd.cpp
 
 # Cryptogams SHA1 asm implementation.
 sha1_armv4.o : sha1_armv4.S
-	$(CXX) $(strip $(CPPFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_FLAG) -c) $<
 
 # Cryptogams SHA256 asm implementation.
 sha256_armv4.o : sha256_armv4.S
-	$(CXX) $(strip $(CPPFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_FLAG) -c) $<
 
 # Cryptogams SHA512 asm implementation.
 sha512_armv4.o : sha512_armv4.S
-	$(CXX) $(strip $(CPPFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
 shacal2_simd.o : shacal2_simd.cpp

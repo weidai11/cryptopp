@@ -155,12 +155,18 @@ ifeq ($(CXXFLAGS),)
   endif
 endif
 
+# Needed when the assembler is invoked
+ifeq ($(findstring $(ASFLAGS),-Wa,--noexecstack),)
+  CRYPTOPP_ASFLAGS ?= -Wa,--noexecstack
+endif
+
 # Fix CXX on Cygwin 1.1.4
 ifeq ($(CXX),gcc)
   CXX := g++
 endif
 
-# On ARM we may compile aes_armv4.S though the CC compiler
+# On ARM we may compile aes_armv4.S, sha1_armv4.S, sha256_armv4.S, and
+# sha512_armv4.S through the CC compiler
 ifeq ($(GCC_COMPILER),1)
   CC=gcc
 else ifeq ($(CLANG_COMPILER),1)
@@ -956,13 +962,6 @@ ARFLAGS = -xar -o
 RANLIB = true
 endif
 
-# No ASM for Travis testing
-ifeq ($(findstring no-asm,$(MAKECMDGOALS)),no-asm)
-  ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CPPFLAGS)$(CXXFLAGS)),)
-    CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_ASM
-  endif # CRYPTOPP_CPPFLAGS
-endif # No ASM
-
 # Native build testing. Issue 'make native'.
 ifeq ($(findstring native,$(MAKECMDGOALS)),native)
   NATIVE_OPT =
@@ -1182,12 +1181,18 @@ endif
 # Also see https://www.cryptopp.com/wiki/Cryptogams.
 ifeq ($(IS_ARM32)$(IS_LINUX),11)
   ifeq ($(filter -DCRYPTOPP_DISABLE_ASM -DCRYPTOPP_DISABLE_ARM_NEON,$(CPPFLAGS)$(CXXFLAGS)),)
+    # Do not use -march=armv7 if the compiler is already targeting the ISA.
+    # Also see https://github.com/weidai11/cryptopp/issues/1094
+    ifneq ($($(CXX) ++ -dM -E - </dev/null 2>/dev/null| grep 'ARM_ARCH 7|_ARM_ARCH_7A__'),)
+      CRYPTOGAMS_ARMV7_FLAG = -march=armv7-a
+    endif
     ifeq ($(CLANG_COMPILER),1)
-      CRYPTOGAMS_ARMV4_FLAG = -march=armv7-a -Wa,--noexecstack
-      CRYPTOGAMS_ARMV4_THUMB_FLAG = -march=armv7-a -mthumb -Wa,--noexecstack
+      CRYPTOGAMS_ARM_FLAG = $(CRYPTOGAMS_ARMV7_FLAG)
+      CRYPTOGAMS_ARM_THUMB_FLAG = $(CRYPTOGAMS_ARMV7_FLAG) -mthumb
     else
-      CRYPTOGAMS_ARMV4_FLAG = -march=armv7-a -Wa,--noexecstack
-      CRYPTOGAMS_ARMV4_THUMB_FLAG = -march=armv7-a -Wa,--noexecstack
+      # -mfpu=auto due to https://github.com/weidai11/cryptopp/issues/1094
+      CRYPTOGAMS_ARM_FLAG = $(CRYPTOGAMS_ARMV7_FLAG)
+      CRYPTOGAMS_ARM_THUMB_FLAG = $(CRYPTOGAMS_ARMV7_FLAG)
     endif
     SRCS += aes_armv4.S sha1_armv4.S sha256_armv4.S sha512_armv4.S
   endif
@@ -1244,7 +1249,8 @@ CLEAN_OBJS := $(CLEAN_SRCS:.cpp=.o) $(CLEAN_SRCS:.cpp=.import.o) $(CLEAN_SRCS:.c
 # argument to the make program: make CXXFLAGS="..."
 CPPFLAGS := $(strip $(CRYPTOPP_CPPFLAGS) $(CPPFLAGS))
 CXXFLAGS := $(strip $(CRYPTOPP_CXXFLAGS) $(CXXFLAGS))
-LDFLAGS  := $(strip $(CRYPTOPP_LDFLAGS) $(LDFLAGS))
+ASFLAGS  := $(strip $(CRYPTOPP_ASFLAGS)  $(ASFLAGS))
+LDFLAGS  := $(strip $(CRYPTOPP_LDFLAGS)  $(LDFLAGS))
 
 ###########################################################
 #####                Targets and Recipes              #####
@@ -1519,6 +1525,9 @@ cryptopp.pc libcryptopp.pc:
 # This recipe prepares the distro files
 TEXT_FILES := *.h *.cpp *.S GNUmakefile GNUmakefile-cross License.txt Readme.txt Install.txt Filelist.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcxproj *.filters cryptopp.rc TestVectors/*.txt TestData/*.dat TestPrograms/*.cpp
 EXEC_FILES := TestScripts/*.sh TestScripts/*.cmd
+ifneq ($(wildcard *.sh),)
+  EXEC_FILES += $(wildcard *.sh)
+endif
 EXEC_DIRS := TestData/ TestVectors/ TestScripts/ TestPrograms/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)
@@ -1594,7 +1603,7 @@ NOSTD_CXXFLAGS=$(filter-out -stdlib=%,$(filter-out -std=%,$(CXXFLAGS)))
 
 # Cryptogams ARM asm implementation. AES needs -mthumb for Clang
 aes_armv4.o : aes_armv4.S
-	$(CXX) $(strip $(CPPFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARMV4_THUMB_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_THUMB_FLAG) -c) $<
 
 # SSSE3 or NEON available
 aria_simd.o : aria_simd.cpp
@@ -1694,15 +1703,15 @@ sha_simd.o : sha_simd.cpp
 
 # Cryptogams SHA1 asm implementation.
 sha1_armv4.o : sha1_armv4.S
-	$(CXX) $(strip $(CPPFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_FLAG) -c) $<
 
 # Cryptogams SHA256 asm implementation.
 sha256_armv4.o : sha256_armv4.S
-	$(CXX) $(strip $(CPPFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_FLAG) -c) $<
 
 # Cryptogams SHA512 asm implementation.
 sha512_armv4.o : sha512_armv4.S
-	$(CXX) $(strip $(CPPFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_FLAG) -c) $<
 
 sha3_simd.o : sha3_simd.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SHA3_FLAG) -c) $<
