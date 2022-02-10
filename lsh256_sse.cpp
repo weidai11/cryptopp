@@ -32,6 +32,9 @@
 # include <x86intrin.h>
 #endif
 
+// Squash MS LNK4221 and libtool warnings
+extern const char LSH256_SSE_FNAME[] = __FILE__;
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 /* LSH Constants */
