@@ -1701,16 +1701,8 @@ rijndael_simd.o : rijndael_simd.cpp
 sha_simd.o : sha_simd.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
-# Cryptogams SHA1 asm implementation.
-sha1_armv4.o : sha1_armv4.S
-	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_FLAG) -c) $<
-
-# Cryptogams SHA256 asm implementation.
-sha256_armv4.o : sha256_armv4.S
-	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_FLAG) -c) $<
-
-# Cryptogams SHA512 asm implementation.
-sha512_armv4.o : sha512_armv4.S
+# Cryptogams SHA1/SHA256/SHA512 asm implementation.
+sha%_armv4.o : sha%_armv4.S
 	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_FLAG) -c) $<
 
 sha3_simd.o : sha3_simd.cpp
