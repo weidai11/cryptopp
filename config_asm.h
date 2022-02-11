@@ -371,14 +371,12 @@
 // than C/C++. Define this to use the Cryptogams AES and SHA implementations
 // on GNU Linux systems. When defined, Crypto++ will use aes_armv4.S,
 // sha1_armv4.S and sha256_armv4.S. https://www.cryptopp.com/wiki/Cryptogams.
-#if !defined(CRYPTOPP_DISABLE_ARM_NEON)
-# if defined(__arm__) && defined(__linux__)
-#  if defined(__GNUC__) || defined(__clang__)
-#   define CRYPTOGAMS_ARM_AES      1
-#   define CRYPTOGAMS_ARM_SHA1     1
-#   define CRYPTOGAMS_ARM_SHA256   1
-#   define CRYPTOGAMS_ARM_SHA512   1
-#  endif
+#if defined(__arm__) && defined(__linux__)
+# if defined(__GNUC__) || defined(__clang__)
+#  define CRYPTOGAMS_ARM_AES      1
+#  define CRYPTOGAMS_ARM_SHA1     1
+#  define CRYPTOGAMS_ARM_SHA256   1
+#  define CRYPTOGAMS_ARM_SHA512   1
 # endif
 #endif
 
