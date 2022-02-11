@@ -706,7 +706,7 @@ ifeq ($(IS_ARM32)$(IS_LINUX),11)
   ifeq ($(filter -DCRYPTOPP_DISABLE_ASM -DCRYPTOPP_DISABLE_ARM_NEON,$(CPPFLAGS)$(CXXFLAGS)),)
     # Do not use -march=armv7 if the compiler is already targeting the ISA.
     # Also see https://github.com/weidai11/cryptopp/issues/1094
-    ifneq ($($(CXX) ++ -dM -E - </dev/null 2>/dev/null| grep -E 'ARM_ARCH 7|_ARM_ARCH_7A__'),)
+    ifneq ($($(CXX) -dM -E - </dev/null 2>/dev/null| grep -E 'ARM_ARCH 7|_ARM_ARCH_7A__'),)
       CRYPTOGAMS_ARMV7_FLAG = -march=armv7-a
     endif
     ifeq ($(CLANG_COMPILER),1)
