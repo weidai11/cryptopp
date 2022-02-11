@@ -703,7 +703,7 @@ INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
 # Limit to Linux. The source files target the GNU assembler.
 # Also see https://www.cryptopp.com/wiki/Cryptogams.
 ifeq ($(IS_ARM32)$(IS_LINUX),11)
-  ifeq ($(filter -DCRYPTOPP_DISABLE_ASM -DCRYPTOPP_DISABLE_ARM_NEON,$(CPPFLAGS)$(CXXFLAGS)),)
+  ifeq ($(filter -DCRYPTOPP_DISABLE_ASM -DCRYPTOPP_DISABLE_ARM_NEON,$(CRYPTOPP_CPPFLAGS)$(CPPFLAGS)$(CXXFLAGS)),)
     # Do not use -march=armv7 if the compiler is already targeting the ISA.
     # Also see https://github.com/weidai11/cryptopp/issues/1094
     ifeq ($(CXX) -dM -E TestPrograms/test_cxx.cpp 2>/dev/null | grep -E '__ARM_ARCH 7|__ARM_ARCH_7A__',)
