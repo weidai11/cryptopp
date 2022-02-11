@@ -515,13 +515,13 @@ ifeq ($(DETECT_FEATURES),1)
   else
     # Make does not have useful debugging facilities. Show the user
     # what happened by compiling again without the pipe.
-    $(info Running make again to see what failed)
-    $(info $(shell $(TCOMMAND)))
+    # $(info Running make again to see what failed)
+    # $(info $(shell $(TCOMMAND)))
     NEON_FLAG =
   endif
 
   ifeq ($(NEON_FLAG),)
-    CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_ASM
+    CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_ARM_NEON
   endif
 
 # DETECT_FEATURES
