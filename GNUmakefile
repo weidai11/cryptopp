@@ -473,7 +473,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CRYPTOPP_CPPFLAGS)$(CPPFLAGS)$(CXXFL
   endif
 endif
 
-# IS_X86, IS_X32 and IS_X64
+# IS_X86 and IS_X64
 endif
 
 ###########################################################
@@ -1206,8 +1206,10 @@ ifeq ($(IS_ARM32)$(IS_ARMV8),00)
   SRCS := $(filter-out arm_%,$(SRCS))
   SRCS := $(filter-out neon_%,$(SRCS))
 endif
-ifeq ($(IS_X86)$(IS_X32)$(IS_X64),000)
+ifeq ($(IS_X86)$(IS_X64),00)
   SRCS := $(filter-out sse_%,$(SRCS))
+  SRCS := $(filter-out %_sse.cpp,$(SRCS))
+  SRCS := $(filter-out %_avx.cpp,$(SRCS))
 endif
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
