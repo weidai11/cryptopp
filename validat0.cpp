@@ -1543,10 +1543,6 @@ bool TestASN1Parse()
     return pass;
 }
 
-inline byte int2byte(int n) {
-    return static_cast<byte>(n);
-}
-
 bool TestASN1Functions()
 {
     std::cout << "\nTesting ASN.1 functions...\n\n";
@@ -1579,7 +1575,10 @@ bool TestASN1Functions()
 
     {
         const std::string message = "Now is the time for all good men to come to the aide of their country";
-        const int asnStringTypes[] = {UTF8_STRING, PRINTABLE_STRING, T61_STRING, VIDEOTEXT_STRING, IA5_STRING, VISIBLE_STRING};
+        const byte asnStringTypes[] = {
+            UTF8_STRING, PRINTABLE_STRING, T61_STRING, VIDEOTEXT_STRING,IA5_STRING, VISIBLE_STRING
+        };
+
         unsigned int failed = 0;
         size_t len = 0, rlen = 0, i = 0;
 
@@ -1588,7 +1587,7 @@ bool TestASN1Functions()
             ByteQueue encoded, reencoded, decoded;
             std::string recovered;
 
-            len = DEREncodeTextString(encoded, ConstBytePtr(message), BytePtrSize(message), int2byte(asnStringTypes[i]));
+            len = DEREncodeTextString(encoded, ConstBytePtr(message), BytePtrSize(message), asnStringTypes[i]);
             DERReencode(encoded, reencoded);
             rlen = reencoded.MaxRetrievable();
             (void)BERDecodeTextString(reencoded, recovered, asnStringTypes[i]);
@@ -1610,7 +1609,7 @@ bool TestASN1Functions()
     {
         const byte date[] = "Sun, 21 Mar 2021 01:00:00 +0000";
         SecByteBlock message; message.Assign(date, sizeof(date)-1);
-        const int asnDateTypes[] = {UTC_TIME, GENERALIZED_TIME};
+        const byte asnDateTypes[] = {UTC_TIME, GENERALIZED_TIME};
         unsigned int failed = 0;
         size_t i = 0;
 
@@ -1619,8 +1618,8 @@ bool TestASN1Functions()
             ByteQueue encoded, decoded;
             SecByteBlock recovered;
 
-            (void)DEREncodeDate(encoded, message, int2byte(asnDateTypes[i]));
-            (void)BERDecodeDate(encoded, recovered, int2byte(asnDateTypes[i]));
+            (void)DEREncodeDate(encoded, message, asnDateTypes[i]);
+            (void)BERDecodeDate(encoded, recovered, asnDateTypes[i]);
 
             fail = (message != recovered);
             if (fail) failed++;
