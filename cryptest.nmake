@@ -284,80 +284,80 @@ distclean :: clean
 
 # Precompiled header
 pch.pch: pch.h pch.cpp
-	$(CXX) $(CXXFLAGS) /Yc"pch.h" /Fp"pch.pch" /c pch.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) /Yc"pch.h" /Fp"pch.pch" /c pch.cpp
 
 # No precompiled headers
 iterhash.obj: iterhash.h iterhash.cpp
-	$(CXX) $(CXXFLAGS) /Y- /c iterhash.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) /Y- /c iterhash.cpp
 dll.obj: dll.h dll.cpp
-	$(CXX) $(CXXFLAGS) /Y- /c dll.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) /Y- /c dll.cpp
 rdrand.obj: rdrand.h rdrand.cpp
-	$(CXX) $(CXXFLAGS) /c rdrand.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) /c rdrand.cpp
 
 # Built for x86/x64
 rdrand-x86.obj: rdrand.asm
-	$(AS) $(ASFLAGS) /Fo rdrand-x86.obj /c rdrand.asm
+	$(AS) $(CPPFLAGS) $(ASFLAGS) /Fo rdrand-x86.obj /c rdrand.asm
 rdrand-x64.obj: rdrand.asm
-	$(AS) $(ASFLAGS) /Fo rdrand-x64.obj /c rdrand.asm
+	$(AS) $(CPPFLAGS) $(ASFLAGS) /Fo rdrand-x64.obj /c rdrand.asm
 rdseed-x86.obj: rdseed.asm
-	$(AS) $(ASFLAGS) /Fo rdseed-x86.obj /c rdseed.asm
+	$(AS) $(CPPFLAGS) $(ASFLAGS) /Fo rdseed-x86.obj /c rdseed.asm
 rdseed-x64.obj: rdseed.asm
-	$(AS) $(ASFLAGS) /Fo rdseed-x64.obj /c rdseed.asm
+	$(AS) $(CPPFLAGS) $(ASFLAGS) /Fo rdseed-x64.obj /c rdseed.asm
 x64masm.obj: x64masm.asm
-	$(AS) $(ASFLAGS) /Fo x64masm.obj /c x64masm.asm
+	$(AS) $(CPPFLAGS) $(ASFLAGS) /Fo x64masm.obj /c x64masm.asm
 x64dll.obj: x64dll.asm
-	$(AS) $(ASFLAGS) /Fo x64dll.obj /c x64dll.asm
+	$(AS) $(CPPFLAGS) $(ASFLAGS) /Fo x64dll.obj /c x64dll.asm
 
 # For testing cryptopp.dll and CRYPTOPP_IMPORTS
 #CXXFLAGS_IMPORTS = /wd4275 /wd4251 /DCRYPTOPP_IMPORTS
 #test.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #datatest.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #fipstest.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #bench1.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #bench2.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #bench3.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #regtest1.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #regtest2.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #regtest3.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #regtest4.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #validat1.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #validat2.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #validat3.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #validat4.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #validat5.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #validat6.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #validat7.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #validat8.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #validat9.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 #validat10.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 
 # For testing cryptopp.dll and CRYPTOPP_EXPORTS
 #CXXFLAGS_EXPORTS = /wd4275 /wd4251 /DCXXFLAGS_EXPORTS
 #.cpp.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXPORTS) /c $<
+#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(CXXFLAGS_EXPORTS) /c $<
 
 .cpp.obj:
-	$(CXX) $(CXXFLAGS) /c $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) /c $<
 
 .asm.obj:
-	$(AS) $(ASFLAGS) /c $<
+	$(AS) $(CPPFLAGS) $(ASFLAGS) /c $<
