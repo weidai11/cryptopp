@@ -351,9 +351,9 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
             :"=w" (r) : "w" (a), "w" (b), "I" (C) );
     return r;
 #endif
-//@}
 }
 
+//@}
 #endif // CRYPTOPP_ARM_PMULL_AVAILABLE
 
 #if CRYPTOPP_ARM_SHA3_AVAILABLE  || defined(CRYPTOPP_DOXYGEN_PROCESSING)
