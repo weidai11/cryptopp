@@ -98,87 +98,28 @@ for file in "${files[@]}"; do
 		echo "$file download failed"
 		exit 1
 	fi
+
+	if file "$file" | $GREP -q 'executable'; then
+	    chmod +x "$file"
+	fi
+
     # Throttle
     sleep 1
 done
-
-mkdir -p m4/
-
-#############################################################################
-
-
-# Disable this. It is now in bootstrap.sh
-if false; then
-
-echo "Running aclocal"
-if ! aclocal &>/dev/null; then
-	echo "aclocal failed."
-	exit 1
-fi
-
-echo "Running autoupdate"
-if ! autoupdate &>/dev/null; then
-	echo "autoupdate failed."
-	exit 1
-fi
-
-# Run autoreconf twice on failure. Also see
-# https://github.com/tracebox/tracebox/issues/57
-echo "Running autoreconf"
-if ! autoreconf --force --install &>/dev/null; then
-	echo "autoreconf failed, running again."
-	if ! autoreconf --force --install; then
-		echo "autoreconf failed, again."
-		exit 1
-	fi
-fi
-
-fi # disabled
-
-chmod +x bootstrap.sh
 
 if [[ "$IS_DARWIN" -ne 0 ]] && [[ -n $(command -v xattr 2>/dev/null) ]]; then
 	echo "Removing bootstrap.sh quarantine"
 	xattr -d "com.apple.quarantine" bootstrap.sh &>/dev/null
 fi
 
+#############################################################################
+
+echo "Running bootstrap"
+echo ""
+
 if ! ./bootstrap.sh; then
 	echo "bootstrap failed."
 fi
-
-#############################################################################
-
-# Disable this. It is now in bootstrap.sh
-if false; then
-
-# Update config.sub config.guess. GNU recommends using the latest for all projects.
-echo "Updating config.sub"
-curl -L -s -o config.sub.new 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub'
-
-# Solaris removes +w, can't overwrite
-chmod +w build-aux/config.sub
-mv config.sub.new build-aux/config.sub
-chmod +x build-aux/config.sub
-
-if [[ "$IS_DARWIN" -ne 0 ]] && [[ -n $(command -v xattr 2>/dev/null) ]]; then
-	echo "Removing config.sub quarantine"
-	xattr -d "com.apple.quarantine" build-aux/config.sub &>/dev/null
-fi
-
-echo "Updating config.guess"
-curl -L -s -o config.guess.new 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess'
-
-# Solaris removes +w, can't overwrite
-chmod +w build-aux/config.guess
-mv config.guess.new build-aux/config.guess
-chmod +x build-aux/config.guess
-
-if [[ "$IS_DARWIN" -ne 0 ]] && [[ -n $(command -v xattr 2>/dev/null) ]]; then
-	echo "Removing config.guess quarantine"
-	xattr -d "com.apple.quarantine" build-aux/config.guess &>/dev/null
-fi
-
-fi # disabled
 
 #############################################################################
 
