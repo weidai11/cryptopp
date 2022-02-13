@@ -1077,10 +1077,10 @@ endif # Valgrind
 
 # Debug testing on GNU systems. Triggered by -DDEBUG.
 #   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
-ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
+ifneq ($(filter -DDEBUG -DDEBUG=1,$(CPPFLAGS)$(CXXFLAGS)),)
   TPROG = TestPrograms/test_cxx.cpp
   TOPT =
-  USING_GLIBCXX := $(shell $(CXX)$(CXXFLAGS) -E $(TPROG) -c 2>&1 | $(GREP) -i -c "__GLIBCXX__")
+  USING_GLIBCXX := $(shell $(CXX) $(CPPFLAGS) $(CXXFLAGS) -E $(TPROG) -c 2>&1 | $(GREP) -i -c "__GLIBCXX__")
   ifneq ($(USING_GLIBCXX),0)
     ifeq ($(HAS_NEWLIB),0)
       ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CRYPTOPP_CPPFLAGS)$(CPPFLAGS)$(CXXFLAGS)),)
@@ -1094,7 +1094,7 @@ ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
    TOPT = -qheapdebug -qro
    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
    ifeq ($(strip $(HAVE_OPT)),0)
-    CRYPTOPP_CXXFLAGS += -qheapdebug -qro
+     CRYPTOPP_CXXFLAGS += -qheapdebug -qro
    endif  # CRYPTOPP_CXXFLAGS
   endif # XLC_COMPILER
 endif  # Debug build
@@ -1176,14 +1176,14 @@ ifneq ($(IS_MINGW),0)
 INCL += resource.h
 endif
 
-# Cryptogams source files. We couple to ARMv7 and NEON.
+# Cryptogams source files. We couple to ARMv7 and NEON due to SHA using NEON.
 # Limit to Linux. The source files target the GNU assembler.
 # Also see https://www.cryptopp.com/wiki/Cryptogams.
 ifeq ($(IS_ARM32)$(IS_LINUX),11)
   ifeq ($(filter -DCRYPTOPP_DISABLE_ASM -DCRYPTOPP_DISABLE_ARM_NEON,$(CRYPTOPP_CPPFLAGS)$(CPPFLAGS)$(CXXFLAGS)),)
     # Do not use -march=armv7 if the compiler is already targeting the ISA.
     # Also see https://github.com/weidai11/cryptopp/issues/1094
-    ifeq ($(CXX) -dM -E TestPrograms/test_cxx.cpp 2>/dev/null | grep -E '__ARM_ARCH 7|__ARM_ARCH_7A__',)
+    ifeq ($(shell $(CXX) -dM -E TestPrograms/test_cxx.cpp 2>/dev/null | grep -E '__ARM_ARCH 7|__ARM_ARCH_7A__'),)
       CRYPTOGAMS_ARMV7_FLAG = -march=armv7-a
     endif
     ifeq ($(CLANG_COMPILER),1)
