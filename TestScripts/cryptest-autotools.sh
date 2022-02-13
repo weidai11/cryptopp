@@ -135,6 +135,13 @@ fi
 
 fi # disabled
 
+chmod +x bootstrap.sh
+
+if [[ "$IS_DARWIN" -ne 0 ]] && [[ -n $(command -v xattr 2>/dev/null) ]]; then
+	echo "Removing bootstrap.sh quarantine"
+	xattr -d "com.apple.quarantine" bootstrap.sh &>/dev/null
+fi
+
 if ! ./bootstrap.sh; then
 	echo "bootstrap failed."
 fi
