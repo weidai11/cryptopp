@@ -8,7 +8,7 @@
 #endif
 
 // Keep sync'd with arm_simd.h
-#include "../arm_simd.h"
+#include "arm_simd.h"
 
 int main(int argc, char* argv[])
 {
