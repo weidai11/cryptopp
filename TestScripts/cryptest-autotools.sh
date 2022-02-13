@@ -185,6 +185,11 @@ fi # disabled
 echo "Running configure"
 echo ""
 
+if ! ./autoconf; then
+	echo "configure failed."
+	exit 1
+fi
+
 if ! ./configure; then
 	echo "configure failed."
 	exit 1
