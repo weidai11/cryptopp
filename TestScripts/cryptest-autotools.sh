@@ -14,13 +14,20 @@
 #
 #############################################################################
 
+if ! command -v wget &>/dev/null; then
+    if ! command -v curl &>/dev/null; then
+        echo "wget and curl not found. Things will fail"
+        exit 1
+    fi
+fi
+
+#############################################################################
+
 # Default tools
 GREP=grep
 SED=sed
 AWK=awk
 MAKE=make
-
-#############################################################################
 
 # Fixup, Solaris and friends
 if [[ -d /usr/xpg4/bin ]]; then
@@ -31,6 +38,14 @@ elif [[ -d /usr/bin/posix ]]; then
 	SED=/usr/bin/posix/sed
 	AWK=/usr/bin/posix/awk
 	GREP=/usr/bin/posix/grep
+fi
+
+if command -v wget &>/dev/null; then
+    FETCH_CMD="wget -q -O"
+elif command -v curl &>/dev/null; then
+    FETCH_CMD="curl -L -s -o"
+else
+    FETCH_CMD="foobar"
 fi
 
 # Fixup for sed and "illegal byte sequence"
@@ -46,55 +61,13 @@ else
 	MAKE=make
 fi
 
-# Fixup for missing libtool
-if [[ ! -z $(command -v glibtoolize 2>/dev/null) ]]; then
-	export LIBTOOLIZE=$(command -v glibtoolize)
-elif [[ ! -z $(command -v libtoolize 2>/dev/null) ]]; then
-	export LIBTOOLIZE=$(command -v libtoolize)
-elif [[ ! -z $(command -v glibtool 2>/dev/null) ]]; then
-	export LIBTOOLIZE=$(command -v glibtool)
-elif [[ ! -z $(command -v libtool 2>/dev/null) ]]; then
-	export LIBTOOLIZE=$(command -v libtool)
-fi
-
-# In case libtool is located in /opt, like under MacPorts or Compile Farm
-if [[ -z $(command -v glibtoolize 2>/dev/null) ]]; then
-	export LIBTOOLIZE=$(find /opt -name libtool 2>/dev/null | head -n 1)
-fi
-
-#############################################################################
-
-if [[ -z $(command -v aclocal 2>/dev/null) ]]; then
-	echo "Cannot find aclocal. Things may fail."
-fi
-
-if [[ -z $(command -v autoupdate 2>/dev/null) ]]; then
-	echo "Cannot find autoupdate. Things may fail."
-fi
-
-if [[ -z "$LIBTOOLIZE" ]]; then
-	echo "Cannot find libtoolize. Things may fail."
-fi
-
-if [[ -z $(command -v automake 2>/dev/null) ]]; then
-	echo "Cannot find automake. Things may fail."
-fi
-
-if [[ -z $(command -v autoreconf 2>/dev/null) ]]; then
-	echo "Cannot find autoreconf. Things may fail."
-fi
-
-if [[ -z $(command -v curl 2>/dev/null) ]]; then
-	echo "Cannot find cURL. Things may fail."
-fi
-
 #############################################################################
 
 files=(bootstrap.sh configure.ac Makefile.am libcryptopp.pc.in)
 
 for file in "${files[@]}"; do
 	echo "Downloading $file"
-	if ! curl -L -s -o "$file" "https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/$file"; then
+	if ! ${FETCH_CMD} "$file" "https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/$file"; then
 		echo "$file download failed"
 		exit 1
 	fi
@@ -119,6 +92,7 @@ echo ""
 
 if ! ./bootstrap.sh; then
 	echo "bootstrap failed."
+	exit 1
 fi
 
 #############################################################################
@@ -137,9 +111,9 @@ echo ""
 echo "Building test artifacts"
 echo ""
 
-"$MAKE" clean &>/dev/null
+${MAKE} clean &>/dev/null
 
-if ! "$MAKE" -j2 -f Makefile; then
+if ! ${MAKE} -j2 -f Makefile; then
 	echo "make failed."
 	exit 1
 fi
