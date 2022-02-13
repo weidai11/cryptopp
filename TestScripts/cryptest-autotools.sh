@@ -90,7 +90,7 @@ fi
 
 #############################################################################
 
-files=(configure.ac Makefile.am libcryptopp.pc.in)
+files=(bootstrap.sh configure.ac Makefile.am libcryptopp.pc.in)
 
 for file in "${files[@]}"; do
 	echo "Downloading $file"
