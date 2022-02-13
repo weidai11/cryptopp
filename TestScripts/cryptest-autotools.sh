@@ -106,6 +106,10 @@ mkdir -p m4/
 
 #############################################################################
 
+
+# Disable this. It is now in bootstrap.sh
+if false; then
+
 echo "Running aclocal"
 if ! aclocal &>/dev/null; then
 	echo "aclocal failed."
@@ -129,7 +133,16 @@ if ! autoreconf --force --install &>/dev/null; then
 	fi
 fi
 
+fi # disabled
+
+if ! ./bootstrap.sh; then
+	echo "bootstrap failed."
+fi
+
 #############################################################################
+
+# Disable this. It is now in bootstrap.sh
+if false; then
 
 # Update config.sub config.guess. GNU recommends using the latest for all projects.
 echo "Updating config.sub"
@@ -157,6 +170,8 @@ if [[ "$IS_DARWIN" -ne 0 ]] && [[ -n $(command -v xattr 2>/dev/null) ]]; then
 	echo "Removing config.guess quarantine"
 	xattr -d "com.apple.quarantine" build-aux/config.guess &>/dev/null
 fi
+
+fi # disabled
 
 #############################################################################
 
