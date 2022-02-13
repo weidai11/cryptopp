@@ -1,5 +1,5 @@
 #include <stdint.h>
-#ifdef CRYPTOPP_ARM_NEON_HEADER
+#if (CRYPTOPP_ARM_NEON_HEADER)
 # include <arm_neon.h>
 #endif
 
