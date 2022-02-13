@@ -72,6 +72,7 @@ fi
 DEF_CPPFLAGS="-DNDEBUG"
 DEF_CFLAGS="-Wall -g2 -O3 -fPIC"
 DEF_CXXFLAGS="-Wall -g2 -O3 -fPIC"
+DEF_ASFLAGS=
 DEF_LDFLAGS=""
 
 #########################################
@@ -86,6 +87,7 @@ unset IS_ARM_EMBEDDED
 unset ANDROID_CPPFLAGS
 unset ANDROID_CFLAGS
 unset ANDROID_CXXFLAGS
+unset ANDROID_ASFLAGS
 unset ANDROID_LDFLAGS
 unset ANDROID_SYSROOT
 
@@ -308,7 +310,8 @@ echo "Configuring for Android API ${ANDROID_API} ($ANDROID_CPU)"
 # Common to all builds
 
 ANDROID_CPPFLAGS="${DEF_CPPFLAGS} ${ANDROID_CPPFLAGS} -DANDROID"
-ANDROID_CFLAGS="${DEF_CFLAGS} ${ANDROID_CFLAGS} -Wa,--noexecstack"
+ANDROID_ASFLAGS="${DEF_ASFLAGS} -Wa,--noexecstack"
+ANDROID_CFLAGS="${DEF_CFLAGS} ${ANDROID_CFLAGS}"
 ANDROID_CXXFLAGS="${DEF_CXXFLAGS} ${ANDROID_CXXFLAGS} -Wa,--noexecstack"
 ANDROID_LDFLAGS="${DEF_LDFLAGS}"
 
@@ -408,7 +411,10 @@ if [ "$VERBOSE" -gt 0 ]; then
   fi
   echo "ANDROID_CFLAGS: ${ANDROID_CFLAGS}"
   echo "ANDROID_CXXFLAGS: ${ANDROID_CXXFLAGS}"
-  if [ -n "${ANDROID_LDFLAGS}" ]; then
+  if [ -n "${ANDROID_ASFLAGS}" ]; then
+    echo "ANDROID_ASFLAGS: ${ANDROID_ASFLAGS}"
+  fi
+    if [ -n "${ANDROID_LDFLAGS}" ]; then
     echo "ANDROID_LDFLAGS: ${ANDROID_LDFLAGS}"
   fi
   echo "ANDROID_SYSROOT: ${ANDROID_SYSROOT}"
@@ -432,15 +438,17 @@ export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
 CPPFLAGS="${ANDROID_CPPFLAGS} -isysroot ${ANDROID_SYSROOT}"
 CFLAGS="${ANDROID_CFLAGS}"
 CXXFLAGS="${ANDROID_CXXFLAGS}"
+ASFLAGS="${ANDROID_ASFLAGS}"
 LDFLAGS="${ANDROID_LDFLAGS} --sysroot ${ANDROID_SYSROOT}"
 
 # Trim whitespace as needed
 CPPFLAGS=$(echo "${CPPFLAGS}" | awk '{$1=$1;print}')
 CFLAGS=$(echo "${CFLAGS}" | awk '{$1=$1;print}')
 CXXFLAGS=$(echo "${CXXFLAGS}" | awk '{$1=$1;print}')
+ASFLAGS=$(echo "${ASFLAGS}" | awk '{$1=$1;print}')
 LDFLAGS=$(echo "${LDFLAGS}" | awk '{$1=$1;print}')
 
-export CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
+export CPPFLAGS CFLAGS CXXFLAGS ASFLAGS LDFLAGS
 
 #####################################################################
 
