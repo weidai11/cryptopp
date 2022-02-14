@@ -36,7 +36,7 @@
 # endif
 
 # if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
-#  if defined(CRYPTOPP_ARM_NEON_HEADER)
+#  if (CRYPTOPP_ARM_NEON_HEADER) || (CRYPTOPP_ARM_ASIMD_AVAILABLE)
 #   include <arm_neon.h>
 #  endif
 # endif
