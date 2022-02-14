@@ -14,8 +14,8 @@
 #
 #############################################################################
 
-if ! command -v wget &>/dev/null; then
-    if ! command -v curl &>/dev/null; then
+if ! command -v wget >/dev/null 2>&1; then
+    if ! command -v curl >/dev/null 2>&1; then
         echo "wget and curl not found. Things will fail"
         exit 1
     fi
@@ -30,35 +30,33 @@ AWK=awk
 MAKE=make
 
 # Fixup, Solaris and friends
-if [[ -d /usr/xpg4/bin ]]; then
+if [ -d /usr/xpg4/bin ]; then
 	SED=/usr/xpg4/bin/sed
 	AWK=/usr/xpg4/bin/awk
 	GREP=/usr/xpg4/bin/grep
-elif [[ -d /usr/bin/posix ]]; then
+elif [ -d /usr/bin/posix ]; then
 	SED=/usr/bin/posix/sed
 	AWK=/usr/bin/posix/awk
 	GREP=/usr/bin/posix/grep
 fi
 
-if command -v wget &>/dev/null; then
+if command -v wget >/dev/null 2>&1; then
     FETCH_CMD="wget -q -O"
-elif command -v curl &>/dev/null; then
+elif command -v curl >/dev/null 2>&1; then
     FETCH_CMD="curl -L -s -o"
 else
-    FETCH_CMD="foobar"
+    FETCH_CMD="curl-and-wget-not-found"
 fi
 
 # Fixup for sed and "illegal byte sequence"
-IS_DARWIN=$(uname -s 2>/dev/null | "$GREP" -i -c darwin)
-if [[ "$IS_DARWIN" -ne 0 ]]; then
-	export LC_ALL=C
+IS_DARWIN=`uname -s 2>&1 | "$GREP" -i -c darwin`
+if [ "$IS_DARWIN" -ne 0 ]; then
+	LC_ALL=C; export LC_ALL
 fi
 
 # Fixup for Solaris and BSDs
-if [[ -n "$(command -v gmake 2>/dev/null)" ]]; then
+if [ command -v gmake >/dev/null 2>&1 ]; then
 	MAKE=gmake
-else
-	MAKE=make
 fi
 
 #############################################################################
@@ -80,9 +78,9 @@ for file in "${files[@]}"; do
     sleep 1
 done
 
-if [[ "$IS_DARWIN" -ne 0 ]] && [[ -n $(command -v xattr 2>/dev/null) ]]; then
+if [ "$IS_DARWIN" -ne 0 ] && [ command -v xattr >/dev/null 2>&1 ]; then
 	echo "Removing bootstrap.sh quarantine"
-	xattr -d "com.apple.quarantine" bootstrap.sh &>/dev/null
+	xattr -d "com.apple.quarantine" bootstrap.sh >/dev/null 2>&1
 fi
 
 #############################################################################
@@ -111,7 +109,7 @@ echo ""
 echo "Building test artifacts"
 echo ""
 
-${MAKE} clean &>/dev/null
+${MAKE} clean >/dev/null 2>&1
 
 if ! ${MAKE} -j2 -f Makefile; then
 	echo "make failed."
