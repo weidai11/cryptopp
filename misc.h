@@ -1113,6 +1113,47 @@ inline T1 SaturatingSubtract1(const T1 &a, const T2 &b)
 	return T1((a > b) ? (a - b) : 1);
 }
 
+/// \brief Get the appropriate mask to do a truncating cast
+template <class T, size_t SIZE = sizeof(T)>
+struct TruncatingMask;
+
+template <class T>
+struct TruncatingMask<T, 1>
+{
+	T operator()()
+	{
+		return 0xFF;
+	}
+};
+
+template <class T>
+struct TruncatingMask<T, 2>
+{
+	T operator()()
+	{
+		return 0xFFFF;
+	}
+};
+
+template <class T>
+struct TruncatingMask<T, 4>
+{
+	T operator()()
+	{
+		return 0xFFFFFFFF;
+	}
+};
+
+template <class T>
+struct TruncatingMask<T, 8>
+{
+	T operator()()
+	{
+		return 0xFFFFFFFFFFFFFFFF;
+	}
+};
+
+
 /// \brief Reduces a value to a power of 2
 /// \tparam T1 class or type
 /// \tparam T2 class or type
@@ -1125,8 +1166,9 @@ template <class T1, class T2>
 inline T2 ModPowerOf2(const T1 &a, const T2 &b)
 {
 	CRYPTOPP_ASSERT(IsPowerOf2(b));
-	// Coverity finding CID 170383 Overflowed return value (INTEGER_OVERFLOW)
-	return T2(a) & SaturatingSubtract(b,1U);
+    // Coverity finding CID 170383 Overflowed return value (INTEGER_OVERFLOW)
+	// Visual studio runtime_checks don't like us truncating here with the cast to T2 TruncatingMask works around it
+	return T2(a & TruncatingMask<T2>()()) & SaturatingSubtract(b,1U);
 }
 
 /// \brief Rounds a value down to a multiple of a second value
