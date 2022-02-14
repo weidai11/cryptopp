@@ -55,7 +55,7 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 	}
 
 	PolicyInterface &policy = this->AccessPolicy();
-	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
+	size_t bytesPerIteration = policy.GetBytesPerIteration();
 
 	if (length >= bytesPerIteration)
 	{
@@ -93,26 +93,8 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 	CRYPTOPP_ASSERT(outString); CRYPTOPP_ASSERT(inString);
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
 
-	// If this assert fires, then outString == inString. You could experience a
-	// performance hit. Also see https://github.com/weidai11/cryptopp/issues/1088'
-	CRYPTOPP_ASSERT(outString != inString);
-
 	PolicyInterface &policy = this->AccessPolicy();
-	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
-
-	byte* savedOutString = outString;
-	size_t savedLength = length;
-	bool copyOut = false;
-
-	if (inString == outString)
-	{
-		// No need to copy inString to outString.
-		// Just allocate the space.
-		m_tempOutString.New(length);
-		m_tempOutString.SetMark(0);
-		outString = m_tempOutString.BytePtr();
-		copyOut = true;
-	}
+	size_t bytesPerIteration = policy.GetBytesPerIteration();
 
 	if (m_leftOver > 0)
 	{
@@ -124,13 +106,9 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		length -= len; m_leftOver -= len;
 	}
 
-	if (!length) {
-		if (copyOut)
-			std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength);
-		return;
-	}
+	if (!length) { return; }
 
-	const unsigned int alignment = policy.GetAlignment();
+	const word32 alignment = policy.GetAlignment();
 	const bool inAligned = IsAlignedOn(inString, alignment);
 	const bool outAligned = IsAlignedOn(outString, alignment);
 	CRYPTOPP_UNUSED(inAligned); CRYPTOPP_UNUSED(outAligned);
@@ -142,6 +120,10 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 			(inAligned ? EnumToInt(INPUT_ALIGNED) : 0) | (outAligned ? EnumToInt(OUTPUT_ALIGNED) : 0));
 		KeystreamOperation operation = KeystreamOperation(flags);
 		policy.OperateKeystream(operation, outString, inString, iterations);
+
+		// Try to tame the optimizer. This is GH #683, #1010, and #1088.
+		volatile byte* unused = const_cast<volatile byte*>(outString);
+		CRYPTOPP_UNUSED(unused);
 
 		inString = PtrAdd(inString, iterations * bytesPerIteration);
 		outString = PtrAdd(outString, iterations * bytesPerIteration);
@@ -171,9 +153,6 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 
 		m_leftOver = bufferByteSize - length;
 	}
-
-	if (copyOut)
-		std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength);
 }
 
 template <class S>
@@ -244,27 +223,9 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	CRYPTOPP_ASSERT(outString); CRYPTOPP_ASSERT(inString);
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
 
-	// If this assert fires, then outString == inString. You could experience a
-	// performance hit. Also see https://github.com/weidai11/cryptopp/issues/1088'
-	CRYPTOPP_ASSERT(outString != inString);
-
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 	byte *reg = policy.GetRegisterBegin();
-
-	byte* savedOutString = outString;
-	size_t savedLength = length;
-	bool copyOut = false;
-
-	if (inString == outString)
-	{
-		// No need to copy inString to outString.
-		// Just allocate the space.
-		m_tempOutString.New(length);
-		m_tempOutString.SetMark(0);
-		outString = m_tempOutString.BytePtr();
-		copyOut = true;
-	}
 
 	if (m_leftOver)
 	{
@@ -276,13 +237,9 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		m_leftOver -= len; length -= len;
 	}
 
-	if (!length) {
-		if (copyOut)
-			std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength);
-		return;
-	}
+	if (!length) { return; }
 
-	const unsigned int alignment = policy.GetAlignment();
+	const word32 alignment = policy.GetAlignment();
 	const bool inAligned = IsAlignedOn(inString, alignment);
 	const bool outAligned = IsAlignedOn(outString, alignment);
 	CRYPTOPP_UNUSED(inAligned); CRYPTOPP_UNUSED(outAligned);
@@ -291,6 +248,10 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	{
 		CipherDir cipherDir = GetCipherDir(*this);
 		policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
+
+		// Try to tame the optimizer. This is GH #683, #1010, and #1088.
+		volatile byte* unused = const_cast<volatile byte*>(outString);
+		CRYPTOPP_UNUSED(unused);
 
 		const size_t remainder = length % bytesPerIteration;
 		inString = PtrAdd(inString, length - remainder);
@@ -314,9 +275,6 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		CombineMessageAndShiftRegister(outString, reg, inString, length);
 		m_leftOver = bytesPerIteration - length;
 	}
-
-	if (copyOut)
-		std::memcpy(savedOutString, m_tempOutString.BytePtr(), savedLength);
 }
 
 template <class BASE>
