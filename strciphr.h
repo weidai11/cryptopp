@@ -394,8 +394,7 @@ protected:
 	inline byte * KeystreamBufferBegin() {return this->m_buffer.data();}
 	inline byte * KeystreamBufferEnd() {return (PtrAdd(this->m_buffer.data(), this->m_buffer.size()));}
 
-	// m_tempOutString added due to GH #1010
-	AlignedSecByteBlock m_buffer, m_tempOutString;
+	AlignedSecByteBlock m_buffer;
 	size_t m_leftOver;
 };
 
@@ -646,8 +645,6 @@ protected:
 
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
 
-	// m_tempOutString added due to GH #1010
-	AlignedSecByteBlock m_tempOutString;
 	size_t m_leftOver;
 };
 
