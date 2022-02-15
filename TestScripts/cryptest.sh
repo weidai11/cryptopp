@@ -7938,7 +7938,6 @@ echo "" | tee -a "$TEST_RESULTS"
 
 echo
 echo "************************************************" | tee -a "$TEST_RESULTS"
-echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "" | tee -a "$TEST_RESULTS"
 
 FCOUNT="${#FAILED_LIST[@]}"
