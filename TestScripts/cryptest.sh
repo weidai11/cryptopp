@@ -7946,7 +7946,7 @@ if (( "$COUNT" == "0" )); then
     echo "No failed tests" | tee -a "$TEST_RESULTS"
 else
     echo "$COUNT failed tests" | tee -a "$TEST_RESULTS"
-    for TEST in "${TEST_LIST[@]}"
+    for TEST in "${FAILED_LIST[@]}"
     do
       echo "  - $TEST" | tee -a "$TEST_RESULTS"
     done
@@ -7981,7 +7981,7 @@ echo
 
 ############################################
 # http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
-if (( "$ECOUNT" == "0" )); then
+if (( "${#FAILED_LIST[@]}" == "0" )); then
     exit 0
 else
     exit 1
