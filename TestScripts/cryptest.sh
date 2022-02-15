@@ -224,7 +224,7 @@ elif [[ ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
             PPC_CPU_FLAGS="altivec"
         fi
     else
-        CPUINFO="$(cat /proc/cpuinfo | grep "cpu" | head -n 1 | cut -f 2 -d ':')"
+        CPUINFO="$("$GREP" "cpu" /proc/cpuinfo | head -n 1 | cut -f 2 -d ':')"
         if echo -n "$CPUINFO" | "$GREP" -q -i -c "power9"; then
             PPC_CPU_FLAGS="power9 power8 power7 altivec"
         elif echo -n "$CPUINFO" | "$GREP" -q -i -c "power8"; then
