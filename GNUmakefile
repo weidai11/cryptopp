@@ -142,22 +142,29 @@ endif
 ###########################################################
 
 # Base CPPFLAGS and CXXFLAGS used if the user did not specify them
-ifeq ($(CPPFLAGS),)
+ifeq ($(filter -DDEBUG -DNDEBUG,$(CPPFLAGS)$(CXXFLAGS)),)
   CRYPTOPP_CPPFLAGS += -DNDEBUG
 endif
-ifeq ($(CXXFLAGS),)
+ifeq ($(filter -g%,$(CPPFLAGS)$(CXXFLAGS)),)
   ifeq ($(SUN_COMPILER),1)
-    CRYPTOPP_CXXFLAGS += -g -xO3
+    CRYPTOPP_CXXFLAGS += -g
+  else
+    CRYPTOPP_CXXFLAGS += -g2
+  endif
+endif
+ifeq ($(filter -O% -xO%,$(CPPFLAGS)$(CXXFLAGS)),)
+  ifeq ($(SUN_COMPILER),1)
+    CRYPTOPP_CXXFLAGS += -xO3
     ZOPT = -xO0
   else
-    CRYPTOPP_CXXFLAGS += -g2 -O3
+    CRYPTOPP_CXXFLAGS += -O3
     ZOPT = -O0
   endif
 endif
 
 # Needed when the assembler is invoked
-ifeq ($(findstring $(ASFLAGS),-Wa,--noexecstack),)
-  CRYPTOPP_ASFLAGS ?= -Wa,--noexecstack
+ifeq ($(findstring -Wa,--noexecstack,$(ASFLAGS)$(CXXFLAGS)),)
+  CRYPTOPP_ASFLAGS += -Wa,--noexecstack
 endif
 
 # Fix CXX on Cygwin 1.1.4

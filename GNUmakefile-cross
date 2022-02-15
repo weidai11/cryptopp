@@ -61,7 +61,7 @@ endif
 ###########################################################
 
 # Needed when the assembler is invoked
-ifeq ($(findstring $(ASFLAGS),-Wa,--noexecstack),)
+ifeq ($(findstring -Wa,--noexecstack,$(ASFLAGS)$(CXXFLAGS)),)
   ASFLAGS += -Wa,--noexecstack
 endif
 
