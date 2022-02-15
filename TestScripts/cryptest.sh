@@ -7936,7 +7936,6 @@ echo "" | tee -a "$TEST_RESULTS"
 ############################################
 # Report failed tests
 
-echo
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "" | tee -a "$TEST_RESULTS"
 
@@ -7955,7 +7954,6 @@ echo "" | tee -a "$TEST_RESULTS"
 ############################################
 # Report warnings
 
-echo
 echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 echo "" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
@@ -7966,11 +7964,11 @@ else
     echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
     # "$GREP" -n -E '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
 fi
+echo "" | tee -a "$TEST_RESULTS"
 
 ############################################
 # Report execution time
 
-echo
 echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 echo "" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
