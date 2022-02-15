@@ -7941,11 +7941,11 @@ echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "" | tee -a "$TEST_RESULTS"
 
-COUNT="${#FAILED_LIST[@]}"
-if (( "$COUNT" == "0" )); then
+FCOUNT="${#FAILED_LIST[@]}"
+if (( "$FCOUNT" == "0" )); then
     echo "No failed tests" | tee -a "$TEST_RESULTS"
 else
-    echo "$COUNT failed tests" | tee -a "$TEST_RESULTS"
+    echo "$FCOUNT failed tests" | tee -a "$TEST_RESULTS"
     for TEST in "${FAILED_LIST[@]}"
     do
       echo "  - $TEST" | tee -a "$TEST_RESULTS"
@@ -7981,7 +7981,7 @@ echo
 
 ############################################
 # http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
-if (( "${#FAILED_LIST[@]}" == "0" )); then
+if (( "$FCOUNT" == "0" )); then
     exit 0
 else
     exit 1
