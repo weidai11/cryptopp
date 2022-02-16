@@ -218,7 +218,7 @@ endif
 
 # TCOMMAND is used for just about all tests. Make will lazy-evaluate
 # the variables when executed by $(shell $(TCOMMAND) ...).
-TCOMMAND = $(CXX) $(TCXXFLAGS) $(TEXTRA) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT)
+TCOMMAND = $(CXX) -I. $(TCXXFLAGS) $(TEXTRA) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT)
 
 ###########################################################
 #####               X86/X32/X64 Options               #####
