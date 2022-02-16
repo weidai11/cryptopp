@@ -627,6 +627,7 @@ if [[ (-z "$HAVE_BSAN") ]]; then
 fi
 
 # Analyzer available in GCC 10.0, but C++ is not planned until GCC 11.
+# Whoops, GCC 11 is not working for C++. Better disable it for now.
 # https://developers.redhat.com/blog/2020/03/26/static-analysis-in-gcc-10/
 # and https://gcc.gnu.org/bugzilla/show_bug.cgi?id=95031#c2.
 rm -f "${TMPDIR}/test.exe" &>/dev/null
@@ -636,7 +637,8 @@ if [[ (-z "$HAVE_ANALYZER") ]]; then
     if [[ ("$?" -eq 0) ]]; then
         "${TMPDIR}/test.exe" &>/dev/null
         if [[ ("$?" -eq 0) ]]; then
-            HAVE_ANALYZER=1
+            # HAVE_ANALYZER=1
+            :
         fi
     fi
 fi
