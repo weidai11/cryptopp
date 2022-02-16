@@ -1130,6 +1130,8 @@ inline bool CPU_QuerySM4()
 
 void DetectArmFeatures()
 {
+#ifndef CRYPTOPP_DISABLE_ASM
+
 	// The CPU_ProbeXXX's return false for OSes which
 	// can't tolerate SIGILL-based probes
 	g_hasARMv7 = CPU_QueryARMv7() || CPU_ProbeARMv7();
@@ -1154,6 +1156,8 @@ void DetectArmFeatures()
 
 	if (g_cacheLineSize == 0)
 		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+
+#endif  // CRYPTOPP_DISABLE_ASM
 
 	*const_cast<volatile bool*>(&g_ArmDetectionDone) = true;
 }
@@ -1373,14 +1377,15 @@ inline bool CPU_QueryDARN()
 	return false;
 }
 
-void DetectPowerpcFeatures()
+void DetectPowerPcFeatures()
 {
-	// GCC 10 is giving us trouble in CPU_ProbePower9() and
-	// CPU_ProbeDARN(). GCC is generating POWER9 instructions
-	// on POWER8 for ppc_power9.cpp. The compiler idiots did
-	// not think through the consequences of requiring us to
-	// use -mcpu=power9 to unlock the ISA. Epic fail.
+	// GCC 10 is giving us trouble in CPU_ProbePower9() and CPU_ProbeDARN().
+	// GCC is generating POWER9 instructions on POWER8 for ppc_power9.cpp.
+	// The compiler idiots did not think through the consequences of
+	// requiring us to use -mcpu=power9 to unlock the ISA. Epic fail.
 	// https://github.com/weidai11/cryptopp/issues/986
+
+#ifndef CRYPTOPP_DISABLE_ASM
 
 	// The CPU_ProbeXXX's return false for OSes which
 	// can't tolerate SIGILL-based probes, like Apple
@@ -1410,6 +1415,8 @@ void DetectPowerpcFeatures()
 	if (g_cacheLineSize == 0)
 		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
+#endif // CRYPTOPP_DISABLE_ASM
+
 	*const_cast<volatile bool*>(&g_PowerpcDetectionDone) = true;
 }
 
@@ -1430,7 +1437,7 @@ public:
 #elif CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8
 		CryptoPP::DetectArmFeatures();
 #elif CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
-		CryptoPP::DetectPowerpcFeatures();
+		CryptoPP::DetectPowerPcFeatures();
 #endif
 	}
 };
