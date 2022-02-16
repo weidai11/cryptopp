@@ -1219,6 +1219,17 @@ ifeq ($(IS_X86)$(IS_X64),00)
   SRCS := $(filter-out %_avx.cpp,$(SRCS))
 endif
 
+# If ASM is disabled we can remove the SIMD files, too.
+ifneq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CRYPTOPP_CPPFLAGS)$(CPPFLAGS)$(CXXFLAGS)),)
+  SRCS := $(filter-out arm_%,$(SRCS))
+  SRCS := $(filter-out ppc_%,$(SRCS))
+  SRCS := $(filter-out neon_%,$(SRCS))
+  SRCS := $(filter-out sse_%,$(SRCS))
+  SRCS := $(filter-out %_sse.cpp,$(SRCS))
+  SRCS := $(filter-out %_avx.cpp,$(SRCS))
+  SRCS := $(filter-out %_simd.cpp,$(SRCS))
+endif
+
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 OBJS := $(SRCS:.cpp=.o)
 OBJS := $(OBJS:.S=.o)
