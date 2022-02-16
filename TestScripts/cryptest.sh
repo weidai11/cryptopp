@@ -7823,7 +7823,7 @@ if true; then
 
     if command -v wget &>/dev/null; then
         FETCH_CMD="wget -q -O"
-    elif command -v wget &>/dev/null; then
+    elif command -v curl &>/dev/null; then
         FETCH_CMD="curl -s -o"
     else
         FETCH_CMD="wget-and-curl-not-found"
