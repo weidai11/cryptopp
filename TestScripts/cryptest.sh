@@ -312,6 +312,7 @@ CXX_VERSION=$("$CXX" -v 2>&1)
 GCC_4_8=$("$GREP" -i -c -E 'gcc version 4\.8' <<< "$CXX_VERSION")
 GCC_4_8_OR_ABOVE=$("$GREP" -i -c -E 'gcc version (4\.[8-9]|[5-9]\.[0-9])' <<< "$CXX_VERSION")
 GCC_11_0_OR_ABOVE=$("$GREP" -i -c -E 'gcc \(GCC\) (1[1-9]\.|[2-9][0-9]\.)' <<< "$CXX_VERSION")
+GCC_12_0_OR_ABOVE=$("$GREP" -i -c -E 'gcc \(GCC\) (1[2-9]\.|[2-9][0-9]\.)' <<< "$CXX_VERSION")
 
 CXX_VERSION=$("$CXX" -V 2>&1)
 SUNCC_5_10_OR_ABOVE=$("$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)" <<< "$CXX_VERSION")
@@ -322,7 +323,7 @@ if [[ ("$SUNCC_5_10_OR_ABOVE" -ne 0) ]]; then
 fi
 
 # Fixup, Analyzer available in GCC 10.0, but C++ is not planned until GCC 11.
-if [[ ("$GCC_COMPILER" -ne 0) && ("$GCC_11_0_OR_ABOVE" -ne 0) ]]; then
+if [[ ("$GCC_COMPILER" -ne 0) && ("$GCC_12_0_OR_ABOVE" -ne 0) ]]; then
     HAVE_ANALYZER=0
 fi
 
@@ -627,7 +628,7 @@ if [[ (-z "$HAVE_BSAN") ]]; then
 fi
 
 # Analyzer available in GCC 10.0, but C++ is not planned until GCC 11.
-# Whoops, GCC 11 is not working for C++. Better disable it for now.
+# GCC 11 is not working for C++. It is disabled earlier via HAVE_ANALYZER.
 # https://developers.redhat.com/blog/2020/03/26/static-analysis-in-gcc-10/
 # and https://gcc.gnu.org/bugzilla/show_bug.cgi?id=95031#c2.
 rm -f "${TMPDIR}/test.exe" &>/dev/null
@@ -637,8 +638,7 @@ if [[ (-z "$HAVE_ANALYZER") ]]; then
     if [[ ("$?" -eq 0) ]]; then
         "${TMPDIR}/test.exe" &>/dev/null
         if [[ ("$?" -eq 0) ]]; then
-            # HAVE_ANALYZER=1
-            :
+            HAVE_ANALYZER=1
         fi
     fi
 fi
