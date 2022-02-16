@@ -7821,16 +7821,24 @@ fi
 # Test latest zip with unzip -a
 if true; then
 
+    if command -v wget &>/dev/null; then
+        FETCH_CMD="wget -q -O"
+    elif command -v wget &>/dev/null; then
+        FETCH_CMD="curl -s -o"
+    else
+        FETCH_CMD="wget-and-curl-not-found"
+    fi
+
     major=8; minor=6; rev=0
-    base="cryptopp${major}${minor}${rev}"
-    filename="${base}.zip"
+    filebase="cryptopp${major}${minor}${rev}"
+    filename="${filebase}.zip"
     url="https://cryptopp.com/${filename}"
 
-    rm -rf "${base}" 2>/dev/null
-    if wget -q -O ${filename} "${url}";
+    rm -rf "${filebase}" 2>/dev/null
+    if ${FETCH_CMD} ${filename} "${url}";
     then
-        unzip -aoq "${filename}" -d "${base}"
-        cd "${base}" || exit 1
+        unzip -aoq "${filename}" -d "${filebase}"
+        cd "${filebase}" || exit 1
 
         ############################################
         # Debug build
@@ -7896,7 +7904,9 @@ if true; then
         fi
 
         cd ../ || exit 1
-        rm -rf "${base}"
+        rm -rf "${filebase}"
+    else
+        FAILED_LIST+=("Latest zip, unzip -a")
     fi
 fi
 
