@@ -28,8 +28,15 @@
 // so we can't completely avoid the blocking.
 // https://www.freebsd.org/cgi/man.cgi?query=arc4random_buf.
 #ifdef __FreeBSD__
+# define DONT_USE_O_NOFOLLOW 1
 # define USE_FREEBSD_ARC4RANDOM 1
 # include <stdlib.h>
+#endif
+
+// Solaris links /dev/urandom -> .../devices/pseudo/random@0:urandom
+// Avoid O_NOFOLLOW for the Solaris platform.
+#ifdef __sun
+# define DONT_USE_O_NOFOLLOW 1
 #endif
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
@@ -144,28 +151,24 @@ MicrosoftCryptoProvider::~MicrosoftCryptoProvider()
 
 NonblockingRng::NonblockingRng()
 {
-#ifndef CRYPTOPP_WIN32_AVAILABLE
-# ifndef USE_FREEBSD_ARC4RANDOM
-#  ifdef O_NOFOLLOW
+#if !defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(USE_FREEBSD_ARC4RANDOM)
+# ifndef DONT_USE_O_NOFOLLOW
 	const int flags = O_RDONLY|O_NOFOLLOW;
-#  else
+# else
 	const int flags = O_RDONLY;
-#  endif
+# endif
 
 	m_fd = open("/dev/urandom", flags);
 	if (m_fd == -1)
 		throw OS_RNG_Err("open /dev/urandom");
 
-# endif
 #endif
 }
 
 NonblockingRng::~NonblockingRng()
 {
-#ifndef CRYPTOPP_WIN32_AVAILABLE
-# ifndef USE_FREEBSD_ARC4RANDOM
+#if !defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(USE_FREEBSD_ARC4RANDOM)
 	close(m_fd);
-# endif
 #endif
 }
 
@@ -249,7 +252,7 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 
 BlockingRng::BlockingRng()
 {
-#ifdef O_NOFOLLOW
+#ifndef DONT_USE_O_NOFOLLOW
 	const int flags = O_RDONLY|O_NOFOLLOW;
 #else
 	const int flags = O_RDONLY;
