@@ -33,9 +33,14 @@
 # include <stdlib.h>
 #endif
 
-// Solaris links /dev/urandom -> .../devices/pseudo/random@0:urandom
-// Avoid O_NOFOLLOW for the Solaris platform.
+// Solaris links /dev/urandom -> ../devices/pseudo/random@0:urandom
+// We can't access the device. Avoid O_NOFOLLOW for the platform.
 #ifdef __sun
+# define DONT_USE_O_NOFOLLOW 1
+#endif
+
+// And other OSes that don't define it
+#ifndef O_NOFOLLOW
 # define DONT_USE_O_NOFOLLOW 1
 #endif
 
