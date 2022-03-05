@@ -1614,8 +1614,8 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
                 echo "ERROR: failed to generate NEON load instructions" | tee -a "$TEST_RESULTS"
             fi
         else  # ARMv7
-            # ARIA::UncheckedKeySet: 4 vld1.32 {d1,d2}
-            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vld1.32[[:space:]]*')
+            # ARIA::UncheckedKeySet: 4 vld {d1,d2}
+            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vld[[:space:]]*')
             if [[ ("$COUNT" -lt 4) ]]; then
                 FAILED=1
                 echo "ERROR: failed to generate NEON load instructions" | tee -a "$TEST_RESULTS"
@@ -1630,8 +1630,8 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
                 echo "ERROR: failed to generate NEON store instructions" | tee -a "$TEST_RESULTS"
             fi
         else
-            # ARIA::UncheckedKeySet: 17 vstr1.32 {d1,d2}
-            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vst1.32[[:space:]]*')
+            # ARIA::UncheckedKeySet: 17 vstr {d1,d2}
+            COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vst[[:space:]]*')
             if [[ ("$COUNT" -lt 16) ]]; then
                 FAILED=1
                 echo "ERROR: failed to generate NEON store instructions" | tee -a "$TEST_RESULTS"
