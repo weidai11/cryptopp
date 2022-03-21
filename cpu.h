@@ -682,7 +682,7 @@ extern bool g_hasSHA256;
 extern bool g_hasSHA512;
 extern bool g_hasDARN;
 extern word32 g_cacheLineSize;
-void CRYPTOPP_API DetectPowerpcFeatures();
+void CRYPTOPP_API DetectPowerPcFeatures();
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
 
 /// \name POWERPC CPU FEATURES
@@ -699,7 +699,7 @@ inline bool HasAltivec()
 {
 #if CRYPTOPP_ALTIVEC_AVAILABLE
 	if (!g_PowerpcDetectionDone)
-		DetectPowerpcFeatures();
+		DetectPowerPcFeatures();
 	return g_hasAltivec;
 #else
 	return false;
@@ -716,7 +716,7 @@ inline bool HasPower7()
 {
 #if CRYPTOPP_POWER7_AVAILABLE
 	if (!g_PowerpcDetectionDone)
-		DetectPowerpcFeatures();
+		DetectPowerPcFeatures();
 	return g_hasPower7;
 #else
 	return false;
@@ -733,7 +733,7 @@ inline bool HasPower8()
 {
 #if CRYPTOPP_POWER8_AVAILABLE
 	if (!g_PowerpcDetectionDone)
-		DetectPowerpcFeatures();
+		DetectPowerPcFeatures();
 	return g_hasPower8;
 #else
 	return false;
@@ -750,7 +750,7 @@ inline bool HasPower9()
 {
 #if CRYPTOPP_POWER9_AVAILABLE
 	if (!g_PowerpcDetectionDone)
-		DetectPowerpcFeatures();
+		DetectPowerPcFeatures();
 	return g_hasPower9;
 #else
 	return false;
@@ -768,7 +768,7 @@ inline bool HasAES()
 {
 #if CRYPTOPP_POWER8_AES_AVAILABLE
 	if (!g_PowerpcDetectionDone)
-		DetectPowerpcFeatures();
+		DetectPowerPcFeatures();
 	return g_hasAES;
 #else
 	return false;
@@ -786,7 +786,7 @@ inline bool HasPMULL()
 {
 #if CRYPTOPP_POWER8_VMULL_AVAILABLE
 	if (!g_PowerpcDetectionDone)
-		DetectPowerpcFeatures();
+		DetectPowerPcFeatures();
 	return g_hasPMULL;
 #else
 	return false;
@@ -804,7 +804,7 @@ inline bool HasSHA256()
 {
 #if CRYPTOPP_POWER8_SHA_AVAILABLE
 	if (!g_PowerpcDetectionDone)
-		DetectPowerpcFeatures();
+		DetectPowerPcFeatures();
 	return g_hasSHA256;
 #else
 	return false;
@@ -822,7 +822,7 @@ inline bool HasSHA512()
 {
 #if CRYPTOPP_POWER8_SHA_AVAILABLE
 	if (!g_PowerpcDetectionDone)
-		DetectPowerpcFeatures();
+		DetectPowerPcFeatures();
 	return g_hasSHA512;
 #else
 	return false;
@@ -839,7 +839,7 @@ inline bool HasDARN()
 {
 #if CRYPTOPP_POWER9_AVAILABLE
 	if (!g_PowerpcDetectionDone)
-		DetectPowerpcFeatures();
+		DetectPowerPcFeatures();
 	// see comments in cpu.cpp
 #  if defined(__ibmxl__) && defined(__linux__)
 	return false;
@@ -862,7 +862,7 @@ inline bool HasDARN()
 inline int GetCacheLineSize()
 {
 	if (!g_PowerpcDetectionDone)
-		DetectPowerpcFeatures();
+		DetectPowerPcFeatures();
 	return g_cacheLineSize;
 }
 
