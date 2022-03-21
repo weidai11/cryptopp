@@ -1166,7 +1166,7 @@ void DetectArmFeatures()
 
 #elif (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 
-bool CRYPTOPP_SECTION_INIT g_PowerpcDetectionDone = false;
+bool CRYPTOPP_SECTION_INIT g_PowerPcDetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasAltivec = false;
 bool CRYPTOPP_SECTION_INIT g_hasPower7 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPower8 = false;
@@ -1417,7 +1417,7 @@ void DetectPowerPcFeatures()
 
 #endif // CRYPTOPP_DISABLE_ASM
 
-	*const_cast<volatile bool*>(&g_PowerpcDetectionDone) = true;
+	*const_cast<volatile bool*>(&g_PowerPcDetectionDone) = true;
 }
 
 #endif

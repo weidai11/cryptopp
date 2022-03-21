@@ -671,7 +671,7 @@ inline bool HasSM4()
 
 // Hide from Doxygen
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
-extern bool g_PowerpcDetectionDone;
+extern bool g_PowerPcDetectionDone;
 extern bool g_hasAltivec;
 extern bool g_hasPower7;
 extern bool g_hasPower8;
@@ -698,7 +698,7 @@ void CRYPTOPP_API DetectPowerPcFeatures();
 inline bool HasAltivec()
 {
 #if CRYPTOPP_ALTIVEC_AVAILABLE
-	if (!g_PowerpcDetectionDone)
+	if (!g_PowerPcDetectionDone)
 		DetectPowerPcFeatures();
 	return g_hasAltivec;
 #else
@@ -715,7 +715,7 @@ inline bool HasAltivec()
 inline bool HasPower7()
 {
 #if CRYPTOPP_POWER7_AVAILABLE
-	if (!g_PowerpcDetectionDone)
+	if (!g_PowerPcDetectionDone)
 		DetectPowerPcFeatures();
 	return g_hasPower7;
 #else
@@ -732,7 +732,7 @@ inline bool HasPower7()
 inline bool HasPower8()
 {
 #if CRYPTOPP_POWER8_AVAILABLE
-	if (!g_PowerpcDetectionDone)
+	if (!g_PowerPcDetectionDone)
 		DetectPowerPcFeatures();
 	return g_hasPower8;
 #else
@@ -749,7 +749,7 @@ inline bool HasPower8()
 inline bool HasPower9()
 {
 #if CRYPTOPP_POWER9_AVAILABLE
-	if (!g_PowerpcDetectionDone)
+	if (!g_PowerPcDetectionDone)
 		DetectPowerPcFeatures();
 	return g_hasPower9;
 #else
@@ -767,7 +767,7 @@ inline bool HasPower9()
 inline bool HasAES()
 {
 #if CRYPTOPP_POWER8_AES_AVAILABLE
-	if (!g_PowerpcDetectionDone)
+	if (!g_PowerPcDetectionDone)
 		DetectPowerPcFeatures();
 	return g_hasAES;
 #else
@@ -785,7 +785,7 @@ inline bool HasAES()
 inline bool HasPMULL()
 {
 #if CRYPTOPP_POWER8_VMULL_AVAILABLE
-	if (!g_PowerpcDetectionDone)
+	if (!g_PowerPcDetectionDone)
 		DetectPowerPcFeatures();
 	return g_hasPMULL;
 #else
@@ -803,7 +803,7 @@ inline bool HasPMULL()
 inline bool HasSHA256()
 {
 #if CRYPTOPP_POWER8_SHA_AVAILABLE
-	if (!g_PowerpcDetectionDone)
+	if (!g_PowerPcDetectionDone)
 		DetectPowerPcFeatures();
 	return g_hasSHA256;
 #else
@@ -821,7 +821,7 @@ inline bool HasSHA256()
 inline bool HasSHA512()
 {
 #if CRYPTOPP_POWER8_SHA_AVAILABLE
-	if (!g_PowerpcDetectionDone)
+	if (!g_PowerPcDetectionDone)
 		DetectPowerPcFeatures();
 	return g_hasSHA512;
 #else
@@ -838,7 +838,7 @@ inline bool HasSHA512()
 inline bool HasDARN()
 {
 #if CRYPTOPP_POWER9_AVAILABLE
-	if (!g_PowerpcDetectionDone)
+	if (!g_PowerPcDetectionDone)
 		DetectPowerPcFeatures();
 	// see comments in cpu.cpp
 #  if defined(__ibmxl__) && defined(__linux__)
@@ -861,7 +861,7 @@ inline bool HasDARN()
 ///  ARM processor equivalent is a privileged instruction, so a compile time value is returned.
 inline int GetCacheLineSize()
 {
-	if (!g_PowerpcDetectionDone)
+	if (!g_PowerPcDetectionDone)
 		DetectPowerPcFeatures();
 	return g_cacheLineSize;
 }
