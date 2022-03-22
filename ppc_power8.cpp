@@ -82,6 +82,11 @@ bool CPU_ProbePower8()
         vec_vsx_st((uint8x16_p)v3, 0, (byte*)w3);
         #endif
 
+        // Try to tame the optimizer
+        // https://github.com/weidai11/cryptopp/issues/1112
+        volatile uint64x2_p z = v3;
+        CRYPTOPP_UNUSED(z);
+
         // Relies on integer wrap
         result = (w3[0] == 3 && w3[1] == 5);
     }
