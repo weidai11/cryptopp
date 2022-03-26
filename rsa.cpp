@@ -159,7 +159,7 @@ void InvertibleRSAFunction::Initialize(RandomNumberGenerator &rng, unsigned int 
 
 void InvertibleRSAFunction::Initialize(const Integer &n, const Integer &e, const Integer &d)
 {
-	if (n.IsEven() || e.IsEven() | d.IsEven())
+	if (n.IsEven() || e.IsEven() || d.IsEven())
 		throw InvalidArgument("InvertibleRSAFunction: input is not a valid RSA private key");
 
 	m_n = n;
