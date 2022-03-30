@@ -110,14 +110,11 @@ bool CPU_ProbePMULL()
         result = false;
     else
     {
-        // This is AES 'vcipher v0,v0,v1' followed by 'vcipherlast v0,v0,v1'
-        // TODO: fix this to use vmull instruction.
+        // This is VMULL 'vpmsumd v0,v0,v1'
 #if CRYPTOPP_BIG_ENDIAN
-        __asm__ __volatile__ (".byte 0x10, 0x00, 0x0d, 0x08  \n\t"
-                              ".byte 0x10, 0x00, 0x0d, 0x09  \n\t" : : : "v0");
+        __asm__ __volatile__ (".byte 0x10, 0x00, 0x0c, 0xc8  \n\t" : : : "v0");
 #else
-        __asm__ __volatile__ (".byte 0x08, 0x0d, 0x00, 0x10  \n\t"
-                              ".byte 0x09, 0x0d, 0x00, 0x10  \n\t" : : : "v0");
+        __asm__ __volatile__ (".byte 0xc8, 0x0c, 0x00, 0x10  \n\t" : : : "v0");
 #endif
         result = true;
     }
