@@ -257,9 +257,9 @@ poly1305.cpp
 poly1305.h
 polynomi.cpp
 polynomi.h
-ppc_power7.cpp
-ppc_power8.cpp
-ppc_power9.cpp
+power7_ppc.cpp
+power8_ppc.cpp
+power9_ppc.cpp
 ppc_simd.cpp
 ppc_simd.h
 pssr.cpp
