@@ -1701,18 +1701,6 @@ neon_simd.o : neon_simd.cpp
 ppc_simd.o : ppc_simd.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(ALTIVEC_FLAG) -c) $<
 
-# Power7 available
-ppc_power7.o : ppc_power7.cpp
-	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(POWER7_FLAG) -c) $<
-
-# Power8 available
-ppc_power8.o : ppc_power8.cpp
-	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(POWER8_FLAG) -c) $<
-
-# Power9 available
-ppc_power9.o : ppc_power9.cpp
-	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(POWER9_FLAG) -c) $<
-
 # AESNI or ARMv7a/ARMv8a available
 rijndael_simd.o : rijndael_simd.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(AES_FLAG) -c) $<

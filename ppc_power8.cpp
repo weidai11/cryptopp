@@ -43,12 +43,12 @@ bool CPU_ProbePower8()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (_ARCH_PWR8) && defined(CRYPTOPP_POWER8_AVAILABLE)
+#elif defined(CRYPTOPP_POWER8_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-    volatile int result = true;
+    volatile int result = false;
 
     volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
     if (oldHandler == SIG_ERR)
@@ -65,30 +65,16 @@ bool CPU_ProbePower8()
         result = false;
     else
     {
-        // POWER8 added 64-bit SIMD operations
-        const word64 x = W64LIT(0xffffffffffffffff);
-        word64 w1[2] = {x, x}, w2[2] = {4, 6}, w3[2];
-
-        // Specifically call the VSX loads and stores with 64-bit types
-        #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__)) || defined(__clang__)
-        const uint64x2_p v1 = vec_xl(0, (unsigned long long*)w1);
-        const uint64x2_p v2 = vec_xl(0, (unsigned long long*)w2);
-        const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
-        vec_xst(v3, 0, (unsigned long long*)w3);
-        #else
-        const uint64x2_p v1 = (uint64x2_p)vec_vsx_ld(0, (const byte*)w1);
-        const uint64x2_p v2 = (uint64x2_p)vec_vsx_ld(0, (const byte*)w2);
-        const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
-        vec_vsx_st((uint8x16_p)v3, 0, (byte*)w3);
-        #endif
-
-        // Try to tame the optimizer
-        // https://github.com/weidai11/cryptopp/issues/1112
-        volatile uint64x2_p z = v3;
-        CRYPTOPP_UNUSED(z);
-
-        // Relies on integer wrap
-        result = (w3[0] == 3 && w3[1] == 5);
+        // This is 64-bit add "vaddudm v0, v1, v0" from POWER8. We cannot use
+        // vec_add because GCC uses POWER8 instructions outside this SIGILL block.
+        // https://github.com/weidai11/cryptopp/issues/1112 and
+        // https://github.com/weidai11/cryptopp/issues/1115.
+#if CRYPTOPP_BIG_ENDIAN
+        __asm__ __volatile__ (".byte 0x10, 0x01, 0x00, 0xc0  \n\t" : : : "v0");
+#else
+        __asm__ __volatile__ (".byte 0xc0, 0x00, 0x01, 0x10  \n\t" : : : "v0");
+#endif
+        result = true;
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
@@ -100,16 +86,14 @@ bool CPU_ProbePower8()
 #endif  // _ARCH_PWR8
 }
 
-bool CPU_ProbeAES()
+///////////
+bool CPU_ProbePMULL()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (__CRYPTO__) && defined(CRYPTOPP_POWER8_AES_AVAILABLE)
-# if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
-
+#elif (CRYPTOPP_POWER8_VMULL_AVAILABLE)
     // longjmp and clobber warnings. Volatile is required.
-    // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-    volatile int result = true;
+    volatile bool result = false;
 
     volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
     if (oldHandler == SIG_ERR)
@@ -126,21 +110,62 @@ bool CPU_ProbeAES()
         result = false;
     else
     {
-        byte key[16] = {0xA0, 0xFA, 0xFE, 0x17, 0x88, 0x54, 0x2c, 0xb1,
-                        0x23, 0xa3, 0x39, 0x39, 0x2a, 0x6c, 0x76, 0x05};
-        byte state[16] = {0x19, 0x3d, 0xe3, 0xb3, 0xa0, 0xf4, 0xe2, 0x2b,
-                          0x9a, 0xc6, 0x8d, 0x2a, 0xe9, 0xf8, 0x48, 0x08};
-        byte r[16] = {255}, z[16] = {};
+        // This is AES 'vcipher v0,v0,v1' followed by 'vcipherlast v0,v0,v1'
+        // TODO: fix this to use vmull instruction.
+#if CRYPTOPP_BIG_ENDIAN
+        __asm__ __volatile__ (".byte 0x10, 0x00, 0x0d, 0x08  \n\t"
+                              ".byte 0x10, 0x00, 0x0d, 0x09  \n\t" : : : "v0");
+#else
+        __asm__ __volatile__ (".byte 0x08, 0x0d, 0x00, 0x10  \n\t"
+                              ".byte 0x09, 0x0d, 0x00, 0x10  \n\t" : : : "v0");
+#endif
+        result = true;
+    }
 
-        uint8x16_p k = (uint8x16_p)VecLoad(0, key);
-        uint8x16_p s = (uint8x16_p)VecLoad(0, state);
-        s = VecEncrypt(s, k);
-        s = VecEncryptLast(s, k);
-        s = VecDecrypt(s, k);
-        s = VecDecryptLast(s, k);
-        VecStore(s, r);
+    sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
+    signal(SIGILL, oldHandler);
+    return result;
+#else
+    return false;
+#endif  // CRYPTOPP_POWER8_VMULL_AVAILABLE
+}
+///////////
 
-        result = (0 != std::memcmp(r, z, 16));
+bool CPU_ProbeAES()
+{
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+    return false;
+#elif defined(CRYPTOPP_POWER8_AES_AVAILABLE)
+# if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
+
+    // longjmp and clobber warnings. Volatile is required.
+    // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
+    volatile int result = false;
+
+    volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
+    if (oldHandler == SIG_ERR)
+        return false;
+
+    volatile sigset_t oldMask;
+    if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+    {
+        signal(SIGILL, oldHandler);
+        return false;
+    }
+
+    if (setjmp(s_jmpSIGILL))
+        result = false;
+    else
+    {
+        // This is AES 'vcipher v0,v0,v1' followed by 'vcipherlast v0,v0,v1'
+#if CRYPTOPP_BIG_ENDIAN
+        __asm__ __volatile__ (".byte 0x10, 0x00, 0x0d, 0x08  \n\t"
+                              ".byte 0x10, 0x00, 0x0d, 0x09  \n\t" : : : "v0");
+#else
+        __asm__ __volatile__ (".byte 0x08, 0x0d, 0x00, 0x10  \n\t"
+                              ".byte 0x09, 0x0d, 0x00, 0x10  \n\t" : : : "v0");
+#endif
+        result = true;
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
@@ -156,7 +181,7 @@ bool CPU_ProbeSHA256()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (__CRYPTO__) && defined(CRYPTOPP_POWER8_SHA_AVAILABLE)
+#elif defined(CRYPTOPP_POWER8_SHA_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
@@ -178,16 +203,13 @@ bool CPU_ProbeSHA256()
         result = false;
     else
     {
-        byte r[16], z[16] = {0};
-        uint8x16_p x = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-        x = VecSHA256<0,0>(x);
-        x = VecSHA256<0,0xf>(x);
-        x = VecSHA256<1,0>(x);
-        x = VecSHA256<1,0xf>(x);
-        VecStore(x, r);
-
-        result = (0 == std::memcmp(r, z, 16));
+        // This is SHA-256 'vshasigmaw v0,v0,1,15'.
+#if CRYPTOPP_BIG_ENDIAN
+        __asm__ __volatile__ (".byte 0x10, 0x00, 0xfe, 0x82  \n\t" : : : "v0");
+#else
+        __asm__ __volatile__ (".byte 0x82, 0xfe, 0x00, 0x10  \n\t" : : : "v0");
+#endif
+        result = true;
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
@@ -203,7 +225,7 @@ bool CPU_ProbeSHA512()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (__CRYPTO__) && defined(CRYPTOPP_POWER8_SHA_AVAILABLE)
+#elif defined(CRYPTOPP_POWER8_SHA_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
@@ -225,16 +247,13 @@ bool CPU_ProbeSHA512()
         result = false;
     else
     {
-        byte r[16], z[16] = {0};
-        uint8x16_p x = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-        x = VecSHA512<0,0>(x);
-        x = VecSHA512<0,0xf>(x);
-        x = VecSHA512<1,0>(x);
-        x = VecSHA512<1,0xf>(x);
-        VecStore(x, r);
-
-        result = (0 == std::memcmp(r, z, 16));
+        // This is SHA-512 'vshasigmad v0,v0,1,15'.
+#if CRYPTOPP_BIG_ENDIAN
+        __asm__ __volatile__ (".byte 0x10, 0x00, 0xfe, 0xc2  \n\t" : : : "v0");
+#else
+        __asm__ __volatile__ (".byte 0xc2, 0xfe, 0x00, 0x10  \n\t" : : : "v0");
+#endif
+        result = true;
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
