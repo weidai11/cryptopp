@@ -202,7 +202,11 @@ case "$ANDROID_CPU" in
   armv7*|armeabi*)
     CC="armv7a-linux-androideabi${ANDROID_API}-clang"
     CXX="armv7a-linux-androideabi${ANDROID_API}-clang++"
-    LD="arm-linux-androideabi-ld"
+    if [ -z "${ANDROID_LD}" ]; then
+        LD="arm-linux-androideabi-ld"
+    else
+        LD="arm-linux-androideabi-ld.${ANDROID_LD}"
+    fi
     AS="arm-linux-androideabi-as"
     AR="arm-linux-androideabi-ar"
     RANLIB="arm-linux-androideabi-ranlib"
@@ -228,7 +232,11 @@ case "$ANDROID_CPU" in
   armv8*|aarch64|arm64*)
     CC="aarch64-linux-android${ANDROID_API}-clang"
     CXX="aarch64-linux-android${ANDROID_API}-clang++"
-    LD="aarch64-linux-android-ld"
+    if [ -z "${ANDROID_LD}" ]; then
+        LD="aarch64-linux-android-ld"
+    else
+        LD="aarch64-linux-android-ld.${ANDROID_LD}"
+    fi
     AS="aarch64-linux-android-as"
     AR="aarch64-linux-android-ar"
     RANLIB="aarch64-linux-android-ranlib"
@@ -251,7 +259,11 @@ case "$ANDROID_CPU" in
   i686|x86)
     CC="i686-linux-android${ANDROID_API}-clang"
     CXX="i686-linux-android${ANDROID_API}-clang++"
-    LD="i686-linux-android-ld"
+    if [ -z "${ANDROID_LD}" ]; then
+        LD="i686-linux-android-ld"
+    else
+        LD="i686-linux-android-ld.${ANDROID_LD}"
+    fi
     AS="i686-linux-android-as"
     AR="i686-linux-android-ar"
     RANLIB="i686-linux-android-ranlib"
@@ -276,7 +288,11 @@ case "$ANDROID_CPU" in
   x86_64|x64)
     CC="x86_64-linux-android${ANDROID_API}-clang"
     CXX="x86_64-linux-android${ANDROID_API}-clang++"
-    LD="x86_64-linux-android-ld"
+    if [ -z "${ANDROID_LD}" ]; then
+        LD="x86_64-linux-android-ld"
+    else
+        LD="x86_64-linux-android-ld.${ANDROID_LD}"
+    fi
     AS="x86_64-linux-android-as"
     AR="x86_64-linux-android-ar"
     RANLIB="x86_64-linux-android-ranlib"
@@ -355,7 +371,7 @@ fi
 
 # Error checking
 if [ ! -e "${ANDROID_TOOLCHAIN}/$LD" ]; then
-    echo "ERROR: Failed to find Android ld. Please edit this script."
+    echo "ERROR: Failed to find Android ld. Please edit this script. When using NDK 22 or hihger make sure to set ANDROID_LD! (bfd, gold)"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
