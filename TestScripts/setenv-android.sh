@@ -371,7 +371,7 @@ fi
 
 # Error checking
 if [ ! -e "${ANDROID_TOOLCHAIN}/$LD" ]; then
-    echo "ERROR: Failed to find Android ld. Please edit this script. When using NDK 22 or hihger make sure to set ANDROID_LD! (bfd, gold)"
+    echo "ERROR: Failed to find Android ld. Please edit this script. When using NDK 22 or higher make sure to set ANDROID_LD! (bfd, gold)"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
