@@ -346,21 +346,22 @@ fi
 mkdir -p "${TMPDIR}" &>/dev/null
 
 rm -f "${TMPDIR}/test.exe" &>/dev/null
-if [[ (-z "$HAVE_CXX17") ]]; then
-    HAVE_CXX17=0
+
+if [[ (-z "$HAVE_CXX23") ]]; then
+    HAVE_CXX23=0
     rm -f "${TMPDIR}/test.exe" &>/dev/null
-    "${CXX}" -std=c++17 "${test_prog}" -o "${TMPDIR}/test.exe" &>/dev/null
+    "${CXX}" -std=c++23 "${test_prog}" -o "${TMPDIR}/test.exe" &>/dev/null
     if [[ "$?" -eq 0 ]]; then
-        HAVE_CXX17=1
+        HAVE_CXX23=1
     fi
 fi
 
 rm -f "${TMPDIR}/test.exe" &>/dev/null
-if [[ (-z "$HAVE_GNU17") ]]; then
-    HAVE_GNU17=0
-    "${CXX}" -std=gnu++17 "${test_prog}" -o "${TMPDIR}/test.exe" &>/dev/null
+if [[ (-z "$HAVE_GNU23") ]]; then
+    HAVE_GNU23=0
+    "${CXX}" -std=gnu++23 "${test_prog}" -o "${TMPDIR}/test.exe" &>/dev/null
     if [[ "$?" -eq 0 ]]; then
-        HAVE_GNU17=1
+        HAVE_GNU23=1
     fi
 fi
 
@@ -380,6 +381,25 @@ if [[ (-z "$HAVE_GNU20") ]]; then
     "${CXX}" -std=gnu++20 "${test_prog}" -o "${TMPDIR}/test.exe" &>/dev/null
     if [[ "$?" -eq 0 ]]; then
         HAVE_GNU20=1
+    fi
+fi
+
+rm -f "${TMPDIR}/test.exe" &>/dev/null
+if [[ (-z "$HAVE_CXX17") ]]; then
+    HAVE_CXX17=0
+    rm -f "${TMPDIR}/test.exe" &>/dev/null
+    "${CXX}" -std=c++17 "${test_prog}" -o "${TMPDIR}/test.exe" &>/dev/null
+    if [[ "$?" -eq 0 ]]; then
+        HAVE_CXX17=1
+    fi
+fi
+
+rm -f "${TMPDIR}/test.exe" &>/dev/null
+if [[ (-z "$HAVE_GNU17") ]]; then
+    HAVE_GNU17=0
+    "${CXX}" -std=gnu++17 "${test_prog}" -o "${TMPDIR}/test.exe" &>/dev/null
+    if [[ "$?" -eq 0 ]]; then
+        HAVE_GNU17=1
     fi
 fi
 
@@ -991,6 +1011,8 @@ echo "HAVE_CXX17: $HAVE_CXX17" | tee -a "$TEST_RESULTS"
 echo "HAVE_GNU17: $HAVE_GNU17" | tee -a "$TEST_RESULTS"
 echo "HAVE_CXX20: $HAVE_CXX20" | tee -a "$TEST_RESULTS"
 echo "HAVE_GNU20: $HAVE_GNU20" | tee -a "$TEST_RESULTS"
+echo "HAVE_CXX23: $HAVE_CXX20" | tee -a "$TEST_RESULTS"
+echo "HAVE_GNU23: $HAVE_GNU20" | tee -a "$TEST_RESULTS"
 
 if [[ "$HAVE_LDGOLD" -ne 0 ]]; then
     echo "HAVE_LDGOLD: $HAVE_LDGOLD" | tee -a "$TEST_RESULTS"
@@ -3646,6 +3668,73 @@ if [[ "$HAVE_GNU20" -ne 0 ]]; then
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, gnu++20")
+        fi
+    fi
+fi
+
+############################################
+# gnu++23 debug and release build
+if [[ "$HAVE_GNU23" -ne 0 ]]; then
+
+    ############################################
+    # Debug build
+    echo
+    echo "************************************" | tee -a "$TEST_RESULTS"
+    echo "Testing: Debug, gnu++23" | tee -a "$TEST_RESULTS"
+    echo
+
+    TEST_LIST+=("Debug, gnu++23")
+
+    "$MAKE" clean &>/dev/null
+    rm -f "${TMPDIR}/test.exe" &>/dev/null
+
+    CXXFLAGS="$DEBUG_CXXFLAGS -std=gnu++23 $USER_CXXFLAGS"
+    CXX="${CXX}" CXXFLAGS="${CXXFLAGS}" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+    if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+        echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+        FAILED_LIST+=("Debug, gnu++23")
+    else
+        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+            FAILED_LIST+=("Debug, gnu++23")
+        fi
+        ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+            FAILED_LIST+=("Debug, gnu++23")
+        fi
+    fi
+
+    ############################################
+    # Release build
+    echo
+    echo "************************************" | tee -a "$TEST_RESULTS"
+    echo "Testing: Release, gnu++23" | tee -a "$TEST_RESULTS"
+    echo
+
+    TEST_LIST+=("Release, gnu++23")
+
+    "$MAKE" clean &>/dev/null
+    rm -f "${TMPDIR}/test.exe" &>/dev/null
+
+    CXXFLAGS="$RELEASE_CXXFLAGS -std=gnu++23 $USER_CXXFLAGS"
+    CXX="${CXX}" CXXFLAGS="${CXXFLAGS}" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+    if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+        echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+        FAILED_LIST+=("Release, gnu++23")
+    else
+        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+            FAILED_LIST+=("Release, gnu++23")
+        fi
+        ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+            FAILED_LIST+=("Release, gnu++23")
         fi
     fi
 fi
