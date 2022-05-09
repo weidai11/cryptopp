@@ -187,7 +187,7 @@ if [[ ("$IS_X86" -ne 0 || "$IS_X64" -ne 0) ]]; then
     elif [[ ("$IS_HURD" -ne 0) ]]; then
         : # Do nothing... cpuid is not helpful at the moment
     else
-        X86_CPU_FLAGS="$(${AWK} '{IGNORECASE=1}{if ($1 == "flags"){print;exit}}' < /proc/cpuinfo | cut -f 2 -d ':')"
+        X86_CPU_FLAGS="$(${AWK} '{IGNORECASE=1}{if ($1 == "flags"){print;exit}}' < /proc/cpuinfo 2>/dev/null | cut -f 2 -d ':')"
     fi
 elif [[ ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) ]]; then
     if [[ ("$IS_DARWIN" -ne 0) ]]; then
