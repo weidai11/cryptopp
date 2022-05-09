@@ -1137,7 +1137,10 @@ echo "CPU: $CPU_COUNT logical" | tee -a "$TEST_RESULTS"
 echo "FREQ: $CPU_FREQ GHz" | tee -a "$TEST_RESULTS"
 echo "MEM: $MEM_SIZE MB" | tee -a "$TEST_RESULTS"
 
-if [[ ("$CPU_COUNT" -ge 2 && "$MEM_SIZE" -ge 1280 && "$HAVE_SWAP" -ne 0) ]]; then
+if [[ -n "$MAKE_JOBS" ]]; then
+    MAKEARGS=(-j "$MAKE_JOBS")
+    echo "Using $MAKE -j $MAKE_JOBS"
+elif [[ ("$CPU_COUNT" -ge 2 && "$MEM_SIZE" -ge 1280 && "$HAVE_SWAP" -ne 0) ]]; then
     if [[ ("$WANT_NICE" -eq 1) ]]; then
         CPU_COUNT=$(echo -n "$CPU_COUNT 2" | "${AWK}" '{print int($1/$2)}')
     fi
@@ -1167,7 +1170,7 @@ else
 fi
 
 CXX_PATH=$(command -v "${CXX}" 2>/dev/null)
-CXX_SYMLINK=$(ls -l "${CXX_PATH}" 2>/dev/null | "${GREP}" -c '\->' | "${AWK}" '{print $1}')
+CXX_SYMLINK=$(ls -l "${CXX_PATH}" 2>/dev/null | "${GREP}" -c '^l' | "${AWK}" '{print $1}')
 if [[ ("${CXX_SYMLINK}" -ne 0) ]]; then CXX_PATH="${CXX_PATH} (symlinked)"; fi
 echo "Pathname: ${CXX_PATH}" | tee -a "$TEST_RESULTS"
 
