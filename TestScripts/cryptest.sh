@@ -310,7 +310,7 @@ fi
 # Now that the compiler is fixed, determine the compiler version for fixups
 CXX_VERSION=$("${CXX}" -v 2>&1)
 CXX_GCC_VERSION=$("${CXX}" --version 2>&1 | head -n 1 | ${GREP} -i -E '^(gcc|g++)' | ${AWK} '{print $(NF)}')
-GCC_4_8=$(echo "${CXX_GCC_VERSION}" | "${GREP}" -i -c -E '^4\.8' <<< "${CXX_GCC_VERSION}")
+GCC_4_8=$(echo "${CXX_GCC_VERSION}" | "${GREP}" -i -c -E '^4\.8')
 GCC_4_8_OR_ABOVE=$(echo "${CXX_GCC_VERSION}" | "${GREP}" -i -c -E '^(4\.[8-9]|[5-9]\.|[1-9][0-9]\.)')
 GCC_10_0_OR_ABOVE=$(echo "${CXX_GCC_VERSION}" | "${GREP}" -i -c -E '^(1[0-9]\.|[2-9][0-9]\.)')
 GCC_11_0_OR_ABOVE=$(echo "${CXX_GCC_VERSION}" | "${GREP}" -i -c -E '^(1[1-9]\.|[2-9][0-9]\.)')
