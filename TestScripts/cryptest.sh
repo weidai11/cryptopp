@@ -336,10 +336,12 @@ if [[ (-z "${TMPDIR}") ]]; then
     if [[ (-d "/tmp") ]] && [[ $(touch "/tmp/ok-to-delete" &>/dev/null) ]]; then
         TMPDIR=/tmp
         rm -f "/tmp/ok-to-delete"
-    elif [[ (-d "/temp") ]]; then
+    elif [[ (-d "/temp") ]] && [[ $(touch "/temp/ok-to-delete" &>/dev/null) ]]; then
         TMPDIR=/temp
-    elif [[ (-d "$HOME/tmp") ]]; then
+        rm -f "/temp/ok-to-delete"
+    elif [[ (-d "$HOME/tmp") ]] && [[ $(touch "$HOME/tmp/ok-to-delete" &>/dev/null) ]]; then
         TMPDIR="$HOME/tmp"
+        rm -f "$HOME/tmp/ok-to-delete"
     else
         echo "Please set TMPDIR to a valid directory"
         exit 1
