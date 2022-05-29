@@ -20,12 +20,12 @@
 /// </pre>
 ///
 /// <ul>
-///   <li>x1, y1, z1 are abstract interface classes defined in cryptlib.h
-///   <li>x2, y2, z2 are implementations of the interfaces using "abstract policies", which
-///       are pure virtual functions that should return interfaces to interchangeable algorithms.
-///       These classes have Base suffixes.
-///   <li>x3, y3, z3 hold actual algorithms and implement those virtual functions.
-///       These classes have Impl suffixes.
+///  <li>x1, y1, z1 are abstract interface classes defined in cryptlib.h
+///  <li>x2, y2, z2 are implementations of the interfaces using "abstract policies", which
+///      are pure virtual functions that should return interfaces to interchangeable algorithms.
+///      These classes have Base suffixes.
+///  <li>x3, y3, z3 hold actual algorithms and implement those virtual functions.
+///      These classes have Impl suffixes.
 /// </ul>
 ///
 /// \details The TF_ prefix means an implementation using trapdoor functions on integers.
@@ -78,16 +78,16 @@ public:
 	/// \return the maximum size of a message before the trapdoor function is applied
 	/// \details Derived classes must implement PreimageBound().
 	virtual Integer PreimageBound() const =0;
-	/// \brief Returns the maximum size of a message after the trapdoor function is applied
-	/// \return the maximum size of a message after the trapdoor function is applied
+	/// \brief Returns the maximum size of a representation after the trapdoor function is applied
+	/// \return the maximum size of a representation after the trapdoor function is applied
 	/// \details Derived classes must implement ImageBound().
 	virtual Integer ImageBound() const =0;
 	/// \brief Returns the maximum size of a message before the trapdoor function is applied bound to a public key
 	/// \return the maximum size of a message before the trapdoor function is applied bound to a public key
 	/// \details The default implementation returns <tt>PreimageBound() - 1</tt>.
 	virtual Integer MaxPreimage() const {return --PreimageBound();}
-	/// \brief Returns the maximum size of a message after the trapdoor function is applied bound to a public key
-	/// \return the maximum size of a message after the trapdoor function is applied bound to a public key
+	/// \brief Returns the maximum size of a representation after the trapdoor function is applied bound to a public key
+	/// \return the maximum size of a representation after the trapdoor function is applied bound to a public key
 	/// \details The default implementation returns <tt>ImageBound() - 1</tt>.
 	virtual Integer MaxImage() const {return --ImageBound();}
 };
@@ -107,8 +107,8 @@ public:
 	/// \param x the message on which the encryption function is applied
 	/// \return the message x encrypted under the public key
 	/// \details ApplyRandomizedFunction is a generalization of encryption under a public key
-	///   cryptosystem. The RandomNumberGenerator may (or may not) be required.
-	///   Derived classes must implement it.
+	///  cryptosystem. The RandomNumberGenerator may (or may not) be required.
+	///  Derived classes must implement it.
 	virtual Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const =0;
 
 	/// \brief Determines if the encryption algorithm is randomized
@@ -119,7 +119,7 @@ public:
 
 /// \brief Applies the trapdoor function
 /// \details ApplyFunction() is the foundation for encrypting a message under a public key.
-///   Derived classes will override it at some point.
+///  Derived classes will override it at some point.
 /// \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
 ///  RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TrapdoorFunction : public RandomizedTrapdoorFunction
@@ -131,8 +131,8 @@ public:
 	/// \param rng a RandomNumberGenerator derived class
 	/// \param x the message on which the encryption function is applied
 	/// \details ApplyRandomizedFunction is a generalization of encryption under a public key
-	///   cryptosystem. The RandomNumberGenerator may (or may not) be required.
-	/// \details Internally, ApplyRandomizedFunction() calls ApplyFunction() \a
+	///  cryptosystem. The RandomNumberGenerator may (or may not) be required.
+	/// \details Internally, ApplyRandomizedFunction() calls ApplyFunction()
 	///  without the RandomNumberGenerator.
 	Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const
 		{CRYPTOPP_UNUSED(rng); return ApplyFunction(x);}
@@ -142,7 +142,7 @@ public:
 	/// \param x the message on which the encryption function is applied
 	/// \return the message x encrypted under the public key
 	/// \details ApplyFunction is a generalization of encryption under a public key
-	///   cryptosystem. Derived classes must implement it.
+	///  cryptosystem. Derived classes must implement it.
 	virtual Integer ApplyFunction(const Integer &x) const =0;
 };
 
@@ -161,7 +161,7 @@ public:
 	/// \param x the message on which the decryption function is applied
 	/// \return the message x decrypted under the private key
 	/// \details CalculateRandomizedInverse is a generalization of decryption using the private key
-	///   The RandomNumberGenerator may (or may not) be required. Derived classes must implement it.
+	///  The RandomNumberGenerator may (or may not) be required. Derived classes must implement it.
 	virtual Integer CalculateRandomizedInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
 
 	/// \brief Determines if the decryption algorithm is randomized
@@ -185,7 +185,7 @@ public:
 	/// \param x the message on which the decryption function is applied
 	/// \return the message x decrypted under the private key
 	/// \details CalculateRandomizedInverse is a generalization of decryption using the private key
-	/// \details Internally, CalculateRandomizedInverse() calls CalculateInverse() \a
+	/// \details Internally, CalculateRandomizedInverse() calls CalculateInverse()
 	///  without the RandomNumberGenerator.
 	Integer CalculateRandomizedInverse(RandomNumberGenerator &rng, const Integer &x) const
 		{return CalculateInverse(rng, x);}
