@@ -559,6 +559,9 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 #endif
 
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
+    #define PERCENT_REG_(x) "%" #x
+    #define PERCENT_REG(x) PERCENT_REG_(x)
+
     case 1:        // SSE2 and 2K tables
         {
         #ifdef __GNUC__
@@ -725,10 +728,8 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
                 ATT_PREFIX
                     :
                     : "c" (data), "d" (len/16), "S" (hashBuffer), "D" (s_reductionTable)
-                    : "memory", "cc", "%eax"
-            #if CRYPTOPP_BOOL_X64
-                    , "%ebx", "%r11"
-            #endif
+                    : "memory", "cc", "%eax", "%ebx", PERCENT_REG(AS_REG_7), "%xmm0",
+                      "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5"
                 );
         #elif defined(CRYPTOPP_GENERATE_X64_MASM)
             pop rbx
@@ -804,7 +805,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
                 ATT_PREFIX
                     :
                     : "c" (data), "d" (len/16), "S" (hashBuffer)
-                    : "memory", "cc", "%edi", "%eax"
+                    : "memory", "cc", "%edi", "%eax", "%xmm0", "%xmm1"
                 );
         #elif defined(CRYPTOPP_GENERATE_X64_MASM)
             pop rdi
