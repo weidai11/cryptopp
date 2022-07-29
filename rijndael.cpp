@@ -88,10 +88,9 @@ being unloaded from L1 cache, until that round is finished.
 #include "misc.h"
 #include "cpu.h"
 
-// VS2017 and global optimization bug. TODO, figure out when
-// we can re-enable full optimizations for VS2017. Also see
+// VS2017 and global optimization bug. Also see
 // https://github.com/weidai11/cryptopp/issues/649
-#if (_MSC_VER >= 1910)
+#if (_MSC_VER >= 1910) && (_MSC_VER < 1916)
 # ifndef CRYPTOPP_DEBUG
 #  pragma optimize("", off)
 #  pragma optimize("ts", on)
