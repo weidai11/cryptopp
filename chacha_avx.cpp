@@ -36,13 +36,12 @@ extern const char CHACHA_AVX_FNAME[] = __FILE__;
 # define MAYBE_CONST const
 #endif
 
-// VS2017 and global optimization bug. TODO, figure out when
-// we can re-enable full optimizations for VS2017. Also see
+// VS2017 and global optimization bug. Also see
 // https://github.com/weidai11/cryptopp/issues/649 and
 // https://github.com/weidai11/cryptopp/issues/735. The
 // 649 issue affects AES but it is the same here. The 735
 // issue is ChaCha AVX2 cut-in where it surfaced again.
-#if (_MSC_VER >= 1910)
+#if (_MSC_VER >= 1910) && (_MSC_VER < 1916)
 # ifndef CRYPTOPP_DEBUG
 #  pragma optimize("", off)
 #  pragma optimize("ts", on)
