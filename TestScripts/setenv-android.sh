@@ -202,16 +202,22 @@ case "$ANDROID_CPU" in
   armv7*|armeabi*)
     CC="armv7a-linux-androideabi${ANDROID_API}-clang"
     CXX="armv7a-linux-androideabi${ANDROID_API}-clang++"
-    if [ -z "${ANDROID_LD}" ]; then
-        LD="arm-linux-androideabi-ld"
-    else
-        LD="arm-linux-androideabi-ld.${ANDROID_LD}"
-    fi
+    LD="arm-linux-androideabi-ld"
     AS="arm-linux-androideabi-as"
     AR="arm-linux-androideabi-ar"
     RANLIB="arm-linux-androideabi-ranlib"
     STRIP="arm-linux-androideabi-strip"
     OBJDUMP="arm-linux-androideabi-objdump"
+
+    # https://github.com/weidai11/cryptopp/pull/1119
+    if [ -n "${ANDROID_LD}" ]; then
+        if [ "$LD" != "ld.lld" ]; then
+            LD="arm-linux-androideabi-${ANDROID_LD}"
+        fi
+    elif [ "${ANDROID_API}" -ge 21 ]; then
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
+        LD="arm-linux-androideabi-ld.gold"
+    fi
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
@@ -232,16 +238,25 @@ case "$ANDROID_CPU" in
   armv8*|aarch64|arm64*)
     CC="aarch64-linux-android${ANDROID_API}-clang"
     CXX="aarch64-linux-android${ANDROID_API}-clang++"
-    if [ -z "${ANDROID_LD}" ]; then
-        LD="aarch64-linux-android-ld"
-    else
-        LD="aarch64-linux-android-ld.${ANDROID_LD}"
-    fi
+    LD="aarch64-linux-android-ld"
     AS="aarch64-linux-android-as"
     AR="aarch64-linux-android-ar"
     RANLIB="aarch64-linux-android-ranlib"
     STRIP="aarch64-linux-android-strip"
     OBJDUMP="aarch64-linux-android-objdump"
+
+    # https://github.com/weidai11/cryptopp/pull/1119
+    if [ -n "${ANDROID_LD}" ]; then
+        if [ "$LD" != "ld.lld" ]; then
+            LD="aarch64-linux-android-${ANDROID_LD}"
+        fi
+    elif [ "${ANDROID_API}" -ge 22 ]; then
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
+        LD="aarch64-linux-android-ld.gold"
+    elif [ "${ANDROID_API}" -ge 20 ]; then
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
+        LD="aarch64-linux-android-ld.bfd"
+    fi
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
@@ -259,16 +274,22 @@ case "$ANDROID_CPU" in
   i686|x86)
     CC="i686-linux-android${ANDROID_API}-clang"
     CXX="i686-linux-android${ANDROID_API}-clang++"
-    if [ -z "${ANDROID_LD}" ]; then
-        LD="i686-linux-android-ld"
-    else
-        LD="i686-linux-android-ld.${ANDROID_LD}"
-    fi
+    LD="i686-linux-android-ld"
     AS="i686-linux-android-as"
     AR="i686-linux-android-ar"
     RANLIB="i686-linux-android-ranlib"
     STRIP="i686-linux-android-strip"
     OBJDUMP="i686-linux-android-objdump"
+
+    # https://github.com/weidai11/cryptopp/pull/1119
+    if [ -n "${ANDROID_LD}" ]; then
+        if [ "$LD" != "ld.lld" ]; then
+            LD="i686-linux-android-${ANDROID_LD}"
+        fi
+    elif [ "${ANDROID_API}" -ge 21 ]; then
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
+        LD="i686-linux-android-ld.gold"
+    fi
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
@@ -288,16 +309,22 @@ case "$ANDROID_CPU" in
   x86_64|x64)
     CC="x86_64-linux-android${ANDROID_API}-clang"
     CXX="x86_64-linux-android${ANDROID_API}-clang++"
-    if [ -z "${ANDROID_LD}" ]; then
-        LD="x86_64-linux-android-ld"
-    else
-        LD="x86_64-linux-android-ld.${ANDROID_LD}"
-    fi
+    LD="x86_64-linux-android-ld"
     AS="x86_64-linux-android-as"
     AR="x86_64-linux-android-ar"
     RANLIB="x86_64-linux-android-ranlib"
     STRIP="x86_64-linux-android-strip"
     OBJDUMP="x86_64-linux-android-objdump"
+
+    # https://github.com/weidai11/cryptopp/pull/1119
+    if [ -n "${ANDROID_LD}" ]; then
+        if [ "$LD" != "ld.lld" ]; then
+            LD="x86_64-linux-android-${ANDROID_LD}"
+        fi
+    elif [ "${ANDROID_API}" -ge 21 ]; then
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
+        LD="x86_64-linux-android-ld.gold"
+    fi
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
@@ -369,8 +396,9 @@ if [ ! -e "${ANDROID_TOOLCHAIN}/$AS" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-# Error checking
-if [ ! -e "${ANDROID_TOOLCHAIN}/$LD" ]; then
+# Error checking. lld location is <NDK>/toolchains/llvm/prebuilt/<host-tag>/bin/ld.lld
+# https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
+if [ "$LD" != "ld.lld" ] && [ ! -e "${ANDROID_TOOLCHAIN}/$LD" ]; then
     echo "ERROR: Failed to find Android ld. Please edit this script. When using NDK 22 or higher make sure to set ANDROID_LD! (bfd, gold)"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
