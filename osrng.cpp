@@ -33,6 +33,19 @@
 # include <stdlib.h>
 #endif
 
+#if defined(__APPLE__)
+/* OS X 10.10+, iOS 8.0+ */
+#if defined(__MACH__) && __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 101000
+#define USE_CCRANDOMGENERATEBYTES
+#elif defined(__AVAILABILITY_INTERNAL__IPHONE_8_0_DEP__IPHONE_8_0)
+#define USE_CCRANDOMGENERATEBYTES
+#endif
+#endif
+
+#ifdef USE_CCRANDOMGENERATEBYTES
+#include <CommonCrypto/CommonRandom.h>
+#endif
+
 // Solaris links /dev/urandom -> ../devices/pseudo/random@0:urandom
 // We can't access the device. Avoid O_NOFOLLOW for the platform.
 #ifdef __sun
@@ -156,7 +169,7 @@ MicrosoftCryptoProvider::~MicrosoftCryptoProvider()
 
 NonblockingRng::NonblockingRng()
 {
-#if !defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(USE_FREEBSD_ARC4RANDOM)
+#if !defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(USE_FREEBSD_ARC4RANDOM) && !defined(USE_CCRANDOMGENERATEBYTES)
 # ifndef DONT_USE_O_NOFOLLOW
 	const int flags = O_RDONLY|O_NOFOLLOW;
 # else
@@ -172,7 +185,7 @@ NonblockingRng::NonblockingRng()
 
 NonblockingRng::~NonblockingRng()
 {
-#if !defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(USE_FREEBSD_ARC4RANDOM)
+#if !defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(USE_FREEBSD_ARC4RANDOM) && !defined(USE_CCRANDOMGENERATEBYTES)
 	close(m_fd);
 #endif
 }
@@ -221,6 +234,11 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 	// Cryptographic quality prng based on ChaCha20,
 	// https://www.freebsd.org/cgi/man.cgi?query=arc4random_buf
 	arc4random_buf(output, size);
+# elif defined(USE_CCRANDOMGENERATEBYTES)
+	// Cryptographic quality prng built into macOS 10.10+ and iOS 8.0+
+	// https://opensource.apple.com/source/CommonCrypto/CommonCrypto-60074/include/CommonRandom.h.auto.html
+	if (CCRandomGenerateBytes(output, size) != kCCSuccess)
+		throw OS_RNG_Err("CCRandomGenerateBytes");
 # else
 	while (size)
 	{
