@@ -126,19 +126,24 @@ void InvertibleRSAFunction::GenerateRandom(RandomNumberGenerator &rng, const Nam
 	if (m_e < 3 || m_e.IsEven())
 		throw InvalidArgument("InvertibleRSAFunction: invalid public exponent");
 
-	RSAPrimeSelector selector(m_e);
-	AlgorithmParameters primeParam = MakeParametersForTwoPrimesOfEqualSize(modulusSize)
-		(Name::PointerToPrimeSelector(), selector.GetSelectorPointer());
-	m_p.GenerateRandom(rng, primeParam);
-	m_q.GenerateRandom(rng, primeParam);
+	// Do this in a loop for small moduli. For small moduli, u' == 0 when p == q.
+	// https://github.com/weidai11/cryptopp/issues/1136
+	do
+	{
+		RSAPrimeSelector selector(m_e);
+		AlgorithmParameters primeParam = MakeParametersForTwoPrimesOfEqualSize(modulusSize)
+			(Name::PointerToPrimeSelector(), selector.GetSelectorPointer());
+		m_p.GenerateRandom(rng, primeParam);
+		m_q.GenerateRandom(rng, primeParam);
 
-	m_d = m_e.InverseMod(LCM(m_p-1, m_q-1));
-	CRYPTOPP_ASSERT(m_d.IsPositive());
+		m_d = m_e.InverseMod(LCM(m_p-1, m_q-1));
+		CRYPTOPP_ASSERT(m_d.IsPositive());
 
-	m_dp = m_d % (m_p-1);
-	m_dq = m_d % (m_q-1);
-	m_n = m_p * m_q;
-	m_u = m_q.InverseMod(m_p);
+		m_dp = m_d % (m_p-1);
+		m_dq = m_d % (m_q-1);
+		m_n = m_p * m_q;
+		m_u = m_q.InverseMod(m_p);
+	} while (m_u.IsZero());
 
 	if (FIPS_140_2_ComplianceEnabled())
 	{
