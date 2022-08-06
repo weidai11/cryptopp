@@ -326,125 +326,10 @@ bool ValidateECDSA_RFC6979()
 }
 
 // from http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf
-bool ValidateECGDSA(bool thorough)
+// ValidateECGDSA split into standard and thorough due to GH #1134
+bool ValidateECGDSAStandard()
 {
-	std::cout << "\nECGDSA validation suite running...\n\n";
-
 	bool fail, pass=true;
-
-	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 10)
-	if (thorough)
-	{
-		const OID oid = ASN1::brainpoolP192r1();
-		DL_GroupParameters_EC<ECP> params(oid);
-		Integer x("0x 80F2425E 89B4F585 F27F3536 ED834D68 E3E492DE 08FE84B9");
-		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
-		ECGDSA<ECP, RIPEMD160>::Verifier verifier(signer);
-
-		Integer e("0x 00000000 577EF842 B32FDE45 79727FFF 02F7A280 74ADC4EF");
-		Integer k("0x 22C17C2A 367DD85A B8A365ED 06F19C43 F9ED1834 9A9BC044");
-
-		Integer r, s;
-		signer.RawSign(k, e, r, s);
-
-		Integer rExp("0x 2D017BE7 F117FF99 4ED6FC63 CA5B4C7A 0430E9FA 095DAFC4");
-		Integer sExp("0x C02B5CC5 C51D5411 060BF024 5049F824 839F671D 78A1BBF1");
-
-		fail = (r != rExp) || (s != sExp);
-		pass = pass && !fail;
-
-		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
-		const size_t len = strlen((char*)msg);
-
-		byte signature[48];
-		r.Encode(signature+0, 24);
-		s.Encode(signature+24, 24);
-
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
-		pass = pass && !fail;
-
-		std::cout << (fail ? "FAILED    " : "passed    ");
-		std::cout << "brainpoolP192r1 using RIPEMD-160\n";
-
-		fail = !SignatureValidate(signer, verifier);
-		pass = pass && !fail;
-	}
-
-	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 13)
-	if (thorough)
-	{
-		const OID oid = ASN1::brainpoolP256r1();
-		DL_GroupParameters_EC<ECP> params(oid);
-		Integer x("0x 47B3A278 62DEF037 49ACF0D6 00E69F9B 851D01ED AEFA531F 4D168E78 7307F4D8");
-		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
-		ECGDSA<ECP, RIPEMD160>::Verifier verifier(signer);
-
-		Integer e("0x 00000000 00000000 00000000 577EF842 B32FDE45 79727FFF 02F7A280 74ADC4EF");
-		Integer k("0x 908E3099 776261A4 558FF7A9 FA6DFFE0 CA6BB3F9 CB35C2E4 E1DC73FD 5E8C08A3");
-
-		Integer r, s;
-		signer.RawSign(k, e, r, s);
-
-		Integer rExp("0x 62CCD1D2 91E62F6A 4FFBD966 C66C85AA BA990BB6 AB0C087D BD54A456 CCC84E4C");
-		Integer sExp("0x 9119719B 08EEA0D6 BC56E4D1 D37369BC F3768445 EF65CAE4 A37BF6D4 3BD01646");
-
-		fail = (r != rExp) || (s != sExp);
-		pass = pass && !fail;
-
-		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
-		const size_t len = strlen((char*)msg);
-
-		byte signature[64];
-		r.Encode(signature+0, 32);
-		s.Encode(signature+32, 32);
-
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
-		pass = pass && !fail;
-
-		std::cout << (fail ? "FAILED    " : "passed    ");
-		std::cout << "brainpoolP256r1 using RIPEMD-160\n";
-
-		fail = !SignatureValidate(signer, verifier);
-		pass = pass && !fail;
-	}
-
-	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 16)
-	if (thorough)
-	{
-		const OID oid = ASN1::brainpoolP320r1();
-		DL_GroupParameters_EC<ECP> params(oid);
-		Integer x("0x 48683594 5A3A284F FC52629A D48D8F37 F4B2E993 9C52BC72 362A9961 40192AEF 7D2AAFF0 C73A51C5");
-		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
-		ECGDSA<ECP, RIPEMD160>::Verifier verifier(signer);
-
-		Integer e("0x 00000000 00000000 00000000 00000000 00000000 577EF842 B32FDE45 79727FFF 02F7A280 74ADC4EF");
-		Integer k("0x C70BC00A 77AD7872 5D36CEEC 27D6F956 FB546EEF 6DC90E35 31452BD8 7ECE8A4A 7AD730AD C299D81B");
-
-		Integer r, s;
-		signer.RawSign(k, e, r, s);
-
-		Integer rExp("0x 3C925969 FAB22F7A E7B8CC5D 50CB0867 DFDB2CF4 FADA3D49 0DF75D72 F7563186 419494C9 8F9C82A6");
-		Integer sExp("0x 06AB5250 B31A8E93 56194894 61733200 E4FD5C12 75C0AB37 E7E41149 5BAAE145 41DF6DE6 66B8CA56");
-
-		fail = (r != rExp) || (s != sExp);
-		pass = pass && !fail;
-
-		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
-		const size_t len = strlen((char*)msg);
-
-		byte signature[80];
-		r.Encode(signature+0, 40);
-		s.Encode(signature+40, 40);
-
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
-		pass = pass && !fail;
-
-		std::cout << (fail ? "FAILED    " : "passed    ");
-		std::cout << "brainpoolP320r1 using RIPEMD-160\n";
-
-		fail = !SignatureValidate(signer, verifier);
-		pass = pass && !fail;
-	}
 
 	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-1 (p. 19)
 	{
@@ -632,6 +517,137 @@ bool ValidateECGDSA(bool thorough)
 	}
 
 	return pass;
+}
+
+// from http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf
+// ValidateECGDSA split into standard and thorough due to GH #1134
+bool ValidateECGDSAThorough()
+{
+	bool fail, pass=true;
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 10)
+	{
+		const OID oid = ASN1::brainpoolP192r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 80F2425E 89B4F585 F27F3536 ED834D68 E3E492DE 08FE84B9");
+		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
+		ECGDSA<ECP, RIPEMD160>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 577EF842 B32FDE45 79727FFF 02F7A280 74ADC4EF");
+		Integer k("0x 22C17C2A 367DD85A B8A365ED 06F19C43 F9ED1834 9A9BC044");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 2D017BE7 F117FF99 4ED6FC63 CA5B4C7A 0430E9FA 095DAFC4");
+		Integer sExp("0x C02B5CC5 C51D5411 060BF024 5049F824 839F671D 78A1BBF1");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[48];
+		r.Encode(signature+0, 24);
+		s.Encode(signature+24, 24);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "brainpoolP192r1 using RIPEMD-160\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 13)
+	{
+		const OID oid = ASN1::brainpoolP256r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 47B3A278 62DEF037 49ACF0D6 00E69F9B 851D01ED AEFA531F 4D168E78 7307F4D8");
+		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
+		ECGDSA<ECP, RIPEMD160>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 00000000 00000000 577EF842 B32FDE45 79727FFF 02F7A280 74ADC4EF");
+		Integer k("0x 908E3099 776261A4 558FF7A9 FA6DFFE0 CA6BB3F9 CB35C2E4 E1DC73FD 5E8C08A3");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 62CCD1D2 91E62F6A 4FFBD966 C66C85AA BA990BB6 AB0C087D BD54A456 CCC84E4C");
+		Integer sExp("0x 9119719B 08EEA0D6 BC56E4D1 D37369BC F3768445 EF65CAE4 A37BF6D4 3BD01646");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[64];
+		r.Encode(signature+0, 32);
+		s.Encode(signature+32, 32);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "brainpoolP256r1 using RIPEMD-160\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 16)
+	{
+		const OID oid = ASN1::brainpoolP320r1();
+		DL_GroupParameters_EC<ECP> params(oid);
+		Integer x("0x 48683594 5A3A284F FC52629A D48D8F37 F4B2E993 9C52BC72 362A9961 40192AEF 7D2AAFF0 C73A51C5");
+		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
+		ECGDSA<ECP, RIPEMD160>::Verifier verifier(signer);
+
+		Integer e("0x 00000000 00000000 00000000 00000000 00000000 577EF842 B32FDE45 79727FFF 02F7A280 74ADC4EF");
+		Integer k("0x C70BC00A 77AD7872 5D36CEEC 27D6F956 FB546EEF 6DC90E35 31452BD8 7ECE8A4A 7AD730AD C299D81B");
+
+		Integer r, s;
+		signer.RawSign(k, e, r, s);
+
+		Integer rExp("0x 3C925969 FAB22F7A E7B8CC5D 50CB0867 DFDB2CF4 FADA3D49 0DF75D72 F7563186 419494C9 8F9C82A6");
+		Integer sExp("0x 06AB5250 B31A8E93 56194894 61733200 E4FD5C12 75C0AB37 E7E41149 5BAAE145 41DF6DE6 66B8CA56");
+
+		fail = (r != rExp) || (s != sExp);
+		pass = pass && !fail;
+
+		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
+		const size_t len = strlen((char*)msg);
+
+		byte signature[80];
+		r.Encode(signature+0, 40);
+		s.Encode(signature+40, 40);
+
+		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "brainpoolP320r1 using RIPEMD-160\n";
+
+		fail = !SignatureValidate(signer, verifier);
+		pass = pass && !fail;
+	}
+
+	return pass;
+}
+
+// ValidateECGDSA split into standard and thorough due to GH #1134
+bool ValidateECGDSA(bool thorough)
+{
+	std::cout << "\nECGDSA validation suite running...\n\n";
+
+	if(thorough)
+		return ValidateECGDSAStandard() && ValidateECGDSAThorough();
+	else
+		return ValidateECGDSAStandard();
 }
 
 bool ValidateESIGN()
