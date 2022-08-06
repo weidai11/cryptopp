@@ -559,8 +559,6 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 #endif
 
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
-    #define PERCENT_REG_(x) "%" #x
-    #define PERCENT_REG(x) PERCENT_REG_(x)
 
     case 1:        // SSE2 and 2K tables
         {
