@@ -825,15 +825,14 @@ INTEL_NOPREFIX
     ATT_PREFIX
     :
     : "c" (state), "d" (data), "S" (SHA256_K+48), "D" (len)
-    #if CRYPTOPP_BOOL_X64
+    #if CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
         , "m" (workspace[0])
     #endif
     : "memory", "cc", "%eax", "%xmm0", "%xmm1", PERCENT_REG(AS_REG_7)
-    #if CRYPTOPP_BOOL_X32
-        , "%ebx"
-    #endif
-    #if CRYPTOPP_BOOL_X64
+    #if CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
         , "%rbx", "%r8", "%r10"
+    #else
+        , "%ebx"
     #endif
     );
 #endif
