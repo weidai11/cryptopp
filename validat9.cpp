@@ -354,11 +354,12 @@ bool ValidateECGDSAStandard()
 		const byte msg[] = "Example of ECGDSA with the hash function SHA-1";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[48];
-		r.Encode(signature+0, 24);
-		s.Encode(signature+24, 24);
+		const size_t maxLength = signer.MaxSignatureLength();
+		SecByteBlock signature(maxLength);
+		r.Encode(signature+          0, maxLength/2);
+		s.Encode(signature+maxLength/2, maxLength/2);
 
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		fail = !verifier.VerifyMessage(msg, len, signature, signature.size());
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -391,11 +392,12 @@ bool ValidateECGDSAStandard()
 		const byte msg[] = "Example of ECGDSA with the hash function SHA-224";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[80];
-		r.Encode(signature+0, 40);
-		s.Encode(signature+40, 40);
+		const size_t maxLength = signer.MaxSignatureLength();
+		SecByteBlock signature(maxLength);
+		r.Encode(signature+          0, maxLength/2);
+		s.Encode(signature+maxLength/2, maxLength/2);
 
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		fail = !verifier.VerifyMessage(msg, len, signature, signature.size());
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -428,11 +430,12 @@ bool ValidateECGDSAStandard()
 		const byte msg[] = "Example of ECGDSA with the hash function SHA-256";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[80];
-		r.Encode(signature+0, 40);
-		s.Encode(signature+40, 40);
+		const size_t maxLength = signer.MaxSignatureLength();
+		SecByteBlock signature(maxLength);
+		r.Encode(signature+          0, maxLength/2);
+		s.Encode(signature+maxLength/2, maxLength/2);
 
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		fail = !verifier.VerifyMessage(msg, len, signature, signature.size());
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -465,11 +468,12 @@ bool ValidateECGDSAStandard()
 		const byte msg[] = "Example of ECGDSA with the hash function SHA-384";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[128];
-		r.Encode(signature+0, 64);
-		s.Encode(signature+64, 64);
+		const size_t maxLength = signer.MaxSignatureLength();
+		SecByteBlock signature(maxLength);
+		r.Encode(signature+          0, maxLength/2);
+		s.Encode(signature+maxLength/2, maxLength/2);
 
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		fail = !verifier.VerifyMessage(msg, len, signature, signature.size());
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -502,11 +506,12 @@ bool ValidateECGDSAStandard()
 		const byte msg[] = "Example of ECGDSA with the hash function SHA-512";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[128];
-		r.Encode(signature+0, 64);
-		s.Encode(signature+64, 64);
+		const size_t maxLength = signer.MaxSignatureLength();
+		SecByteBlock signature(maxLength);
+		r.Encode(signature+          0, maxLength/2);
+		s.Encode(signature+maxLength/2, maxLength/2);
 
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		fail = !verifier.VerifyMessage(msg, len, signature, signature.size());
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -548,11 +553,12 @@ bool ValidateECGDSAThorough()
 		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[48];
-		r.Encode(signature+0, 24);
-		s.Encode(signature+24, 24);
+		const size_t maxLength = signer.MaxSignatureLength();
+		SecByteBlock signature(maxLength);
+		r.Encode(signature+          0, maxLength/2);
+		s.Encode(signature+maxLength/2, maxLength/2);
 
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		fail = !verifier.VerifyMessage(msg, len, signature, signature.size());
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -585,11 +591,12 @@ bool ValidateECGDSAThorough()
 		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[64];
-		r.Encode(signature+0, 32);
-		s.Encode(signature+32, 32);
+		const size_t maxLength = signer.MaxSignatureLength();
+		SecByteBlock signature(maxLength);
+		r.Encode(signature+          0, maxLength/2);
+		s.Encode(signature+maxLength/2, maxLength/2);
 
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		fail = !verifier.VerifyMessage(msg, len, signature, signature.size());
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -622,11 +629,12 @@ bool ValidateECGDSAThorough()
 		const byte msg[] = "Example of ECGDSA with the hash function RIPEMD-160";
 		const size_t len = strlen((char*)msg);
 
-		byte signature[80];
-		r.Encode(signature+0, 40);
-		s.Encode(signature+40, 40);
+		const size_t maxLength = signer.MaxSignatureLength();
+		SecByteBlock signature(maxLength);
+		r.Encode(signature+          0, maxLength/2);
+		s.Encode(signature+maxLength/2, maxLength/2);
 
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
+		fail = !verifier.VerifyMessage(msg, len, signature, signature.size());
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -644,7 +652,7 @@ bool ValidateECGDSA(bool thorough)
 {
 	std::cout << "\nECGDSA validation suite running...\n\n";
 
-	if(thorough)
+	if (thorough)
 		return ValidateECGDSAStandard() && ValidateECGDSAThorough();
 	else
 		return ValidateECGDSAStandard();
