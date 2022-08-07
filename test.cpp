@@ -398,7 +398,7 @@ int scoped_main(int argc, char *argv[])
 		else if (command == "ir")
 			InformationRecoverFile(argc-3, argv[2], argv+3);
 		else if (command == "v" || command == "vv")
-			return !Validate(argc>2 ? StringToValue<int, true>(argv[2]) : 0, argv[1][1] == 'v');
+			return !Validate(argc>2 ? StringToValue<int, true>(argv[2]) : 0, command == "vv" /*thorough*/);
 		else if (command.substr(0,1) == "b") // "b", "b1", "b2", ...
 			BenchmarkWithCommand(argc, argv);
 		else if (command == "z")
@@ -426,7 +426,7 @@ int scoped_main(int argc, char *argv[])
 		else if (command == "h")
 		{
 			FileSource usage(DataDir("TestData/usage.dat").c_str(), true, new FileSink(std::cout));
-			return 1;
+			return argv[1][0] == 'h' ? 0 : 1;
 		}
 		else if (command == "V")
 		{
