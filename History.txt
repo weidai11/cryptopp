@@ -567,3 +567,16 @@ last several releases.
       - remove CRYPTOPP_NO_CXX11 define
       - add -fno-common for Darwin builds
       - update documentation
+
+8.7.0 - August 7, 2022
+      - minor release, recompile of programs required
+      - expanded community input and support
+        * 81 unique contributors as of this release
+      - fix RSA key generation for small moduli
+      - fix AES-GCM with AESNI but without CLMUL
+      - fix Clang warning with C++17
+      - fix MinGW builds due to use of O_NOFOLLOW
+      - rework CFB_CipherTemplate::ProcessData and AdditiveCipherTemplate::ProcessData
+        * restored performance and avoided performance penalty of a temp buffer
+      - fix undersized SecBlock buffer in Integer bit operations
+      - work around several GCC 11 & 12 problems
