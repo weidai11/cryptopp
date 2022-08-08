@@ -426,7 +426,7 @@ int scoped_main(int argc, char *argv[])
 		else if (command == "h")
 		{
 			FileSource usage(DataDir("TestData/usage.dat").c_str(), true, new FileSink(std::cout));
-			return argv[1][0] == 'h' ? 0 : 1;
+			return argc >= 2 && argv[1][0] == 'h' ? 0 : 1;
 		}
 		else if (command == "V")
 		{
