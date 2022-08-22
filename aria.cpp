@@ -15,10 +15,6 @@
 # define CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS 1
 #endif
 
-// GCC cast warning. Note: this is used on round key table,
-// which is word32 and naturally aligned.
-#define UINT32_CAST(x) ((word32 *)(void *)(x))
-
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(ARIATab)
 
@@ -39,49 +35,67 @@ using CryptoPP::ARIATab::X1;
 using CryptoPP::ARIATab::X2;
 using CryptoPP::ARIATab::KRK;
 
+inline word32* UINT32_CAST(const byte* ptr) {
+	return reinterpret_cast<word32*>(const_cast<byte*>(ptr));
+}
+
 inline byte ARIA_BRF(const word32 x, const int y) {
 	return static_cast<byte>(GETBYTE(x, y));
 }
 
-// Key XOR Layer
-#define ARIA_KXL {  \
-    typedef BlockGetAndPut<word32, NativeByteOrder, true, true>  NativeBlock; \
-    NativeBlock::Put(rk, t)(t[0])(t[1])(t[2])(t[3]); \
-  }
+// Key XOR Layer. Bumps the round key pointer.
+inline const byte* ARIA_KXL(const byte rk[16], word32 t[4]) {
+	typedef BlockGetAndPut<word32, NativeByteOrder, true, true>  NativeBlock;
+	NativeBlock::Put(rk, t)(t[0])(t[1])(t[2])(t[3]);
+	return rk+16;
+}
 
 // S-Box Layer 1 + M
-#define SBL1_M(T0,T1,T2,T3) {  \
-    T0=S1[ARIA_BRF(T0,3)]^S2[ARIA_BRF(T0,2)]^X1[ARIA_BRF(T0,1)]^X2[ARIA_BRF(T0,0)];  \
-    T1=S1[ARIA_BRF(T1,3)]^S2[ARIA_BRF(T1,2)]^X1[ARIA_BRF(T1,1)]^X2[ARIA_BRF(T1,0)];  \
-    T2=S1[ARIA_BRF(T2,3)]^S2[ARIA_BRF(T2,2)]^X1[ARIA_BRF(T2,1)]^X2[ARIA_BRF(T2,0)];  \
-    T3=S1[ARIA_BRF(T3,3)]^S2[ARIA_BRF(T3,2)]^X1[ARIA_BRF(T3,1)]^X2[ARIA_BRF(T3,0)];  \
-  }
+inline void SBL1_M(word32& T0, word32& T1, word32& T2, word32& T3) {
+	T0=S1[ARIA_BRF(T0,3)]^S2[ARIA_BRF(T0,2)]^X1[ARIA_BRF(T0,1)]^X2[ARIA_BRF(T0,0)];
+	T1=S1[ARIA_BRF(T1,3)]^S2[ARIA_BRF(T1,2)]^X1[ARIA_BRF(T1,1)]^X2[ARIA_BRF(T1,0)];
+	T2=S1[ARIA_BRF(T2,3)]^S2[ARIA_BRF(T2,2)]^X1[ARIA_BRF(T2,1)]^X2[ARIA_BRF(T2,0)];
+	T3=S1[ARIA_BRF(T3,3)]^S2[ARIA_BRF(T3,2)]^X1[ARIA_BRF(T3,1)]^X2[ARIA_BRF(T3,0)];
+}
 
 // S-Box Layer 2 + M
-#define SBL2_M(T0,T1,T2,T3) {  \
-    T0=X1[ARIA_BRF(T0,3)]^X2[ARIA_BRF(T0,2)]^S1[ARIA_BRF(T0,1)]^S2[ARIA_BRF(T0,0)];  \
-    T1=X1[ARIA_BRF(T1,3)]^X2[ARIA_BRF(T1,2)]^S1[ARIA_BRF(T1,1)]^S2[ARIA_BRF(T1,0)];  \
-    T2=X1[ARIA_BRF(T2,3)]^X2[ARIA_BRF(T2,2)]^S1[ARIA_BRF(T2,1)]^S2[ARIA_BRF(T2,0)];  \
-    T3=X1[ARIA_BRF(T3,3)]^X2[ARIA_BRF(T3,2)]^S1[ARIA_BRF(T3,1)]^S2[ARIA_BRF(T3,0)];  \
+inline void SBL2_M(word32& T0, word32& T1, word32& T2, word32& T3) {
+	T0=X1[ARIA_BRF(T0,3)]^X2[ARIA_BRF(T0,2)]^S1[ARIA_BRF(T0,1)]^S2[ARIA_BRF(T0,0)];
+	T1=X1[ARIA_BRF(T1,3)]^X2[ARIA_BRF(T1,2)]^S1[ARIA_BRF(T1,1)]^S2[ARIA_BRF(T1,0)];
+	T2=X1[ARIA_BRF(T2,3)]^X2[ARIA_BRF(T2,2)]^S1[ARIA_BRF(T2,1)]^S2[ARIA_BRF(T2,0)];
+	T3=X1[ARIA_BRF(T3,3)]^X2[ARIA_BRF(T3,2)]^S1[ARIA_BRF(T3,1)]^S2[ARIA_BRF(T3,0)];
   }
 
-#define ARIA_P(T0,T1,T2,T3) {                                  \
-    (T1) = (((T1)<< 8)&0xff00ff00) ^ (((T1)>> 8)&0x00ff00ff);  \
-    (T2) = rotrConstant<16>(T2);                               \
-    (T3) = ByteReverse((T3));                                  \
-  }
+inline void ARIA_P(word32& T0, word32& T1, word32& T2, word32& T3) {
+	CRYPTOPP_UNUSED(T0);
+	T1 = ((T1<< 8)&0xff00ff00) ^ ((T1>> 8)&0x00ff00ff);
+	T2 = rotrConstant<16>(T2);
+	T3 = ByteReverse((T3));
+}
 
-#define ARIA_M(X,Y) {						\
-    Y=(X)<<8 ^ (X)>>8 ^ (X)<<16 ^ (X)>>16 ^ (X)<<24 ^ (X)>>24;	\
-  }
+inline void ARIA_M(word32& X, word32& Y) {
+	Y=X<<8 ^ X>>8 ^ X<<16 ^ X>>16 ^ X<<24 ^ X>>24;
+}
 
-#define ARIA_MM(T0,T1,T2,T3) {           \
-    (T1)^=(T2); (T2)^=(T3); (T0)^=(T1);  \
-    (T3)^=(T1); (T2)^=(T0); (T1)^=(T2);  \
-  }
 
-#define ARIA_FO {SBL1_M(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3]) ARIA_P(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3])}
-#define ARIA_FE {SBL2_M(t[0],t[1],t[2],t[3]) ARIA_MM(t[0],t[1],t[2],t[3]) ARIA_P(t[2],t[3],t[0],t[1]) ARIA_MM(t[0],t[1],t[2],t[3])}
+inline void ARIA_MM(word32& T0, word32& T1, word32& T2, word32& T3) {
+	T1^=T2; T2^=T3; T0^=T1;
+	T3^=T1; T2^=T0; T1^=T2;
+}
+
+inline void ARIA_FO(word32 t[4]) {
+	SBL1_M(t[0],t[1],t[2],t[3]);
+	ARIA_MM(t[0],t[1],t[2],t[3]);
+	ARIA_P(t[0],t[1],t[2],t[3]);
+	ARIA_MM(t[0],t[1],t[2],t[3]);
+}
+
+inline void ARIA_FE(word32 t[4]) {
+	SBL2_M(t[0],t[1],t[2],t[3]);
+	ARIA_MM(t[0],t[1],t[2],t[3]);
+	ARIA_P(t[2],t[3],t[0],t[1]);
+	ARIA_MM(t[0],t[1],t[2],t[3]);
+}
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 extern void ARIA_UncheckedSetKey_Schedule_NEON(byte* rk, word32* ws, unsigned int keylen);
@@ -109,8 +123,8 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 {
 	CRYPTOPP_UNUSED(params);
 
-	m_rk.New(16*17);  // round keys
-	m_w.New(4*7);     // w0, w1, w2, w3, t and u
+	m_rk.New(16*17);   // round keys
+	m_w.New(4*7+4);	// w0, w1, w2, w3, t and u
 
 	byte *rk = m_rk.data();
 	int Q, q, R, r;
@@ -143,7 +157,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	t[0]=w0[0]^KRK[q][0]; t[1]=w0[1]^KRK[q][1];
 	t[2]=w0[2]^KRK[q][2]; t[3]=w0[3]^KRK[q][3];
 
-	ARIA_FO;
+	ARIA_FO(t);
 
 	if (keylen == 32)
 	{
@@ -159,20 +173,20 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	}
 
 	w1[0]^=t[0]; w1[1]^=t[1]; w1[2]^=t[2]; w1[3]^=t[3];
-	::memcpy(t, w1, 16);
+	std::memcpy(t, w1, 16);
 
 	q = (q==2) ? 0 : (q+1);
 	t[0]^=KRK[q][0]; t[1]^=KRK[q][1]; t[2]^=KRK[q][2]; t[3]^=KRK[q][3];
 
-	ARIA_FE;
+	ARIA_FE(t);
 
 	t[0]^=w0[0]; t[1]^=w0[1]; t[2]^=w0[2]; t[3]^=w0[3];
-	::memcpy(w2, t, 16);
+	std::memcpy(w2, t, 16);
 
 	q = (q==2) ? 0 : (q+1);
 	t[0]^=KRK[q][0]; t[1]^=KRK[q][1]; t[2]^=KRK[q][2]; t[3]^=KRK[q][3];
 
-	ARIA_FO;
+	ARIA_FO(t);
 
 	w3[0]=t[0]^w1[0]; w3[1]=t[1]^w1[1]; w3[2]=t[2]^w1[2]; w3[3]=t[3]^w1[3];
 
@@ -219,23 +233,23 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		r = R; q = Q;
 
 		a=UINT32_CAST(rk); s=m_w.data()+24; z=a+r*4;
-		::memcpy(t, a, 16); ::memcpy(a, z, 16); ::memcpy(z, t, 16);
+		std::memcpy(t, a, 16); std::memcpy(a, z, 16); std::memcpy(z, t, 16);
 
 		a+=4; z-=4;
 		for (; a<z; a+=4, z-=4)
 		{
 			ARIA_M(a[0],t[0]); ARIA_M(a[1],t[1]); ARIA_M(a[2],t[2]); ARIA_M(a[3],t[3]);
 			ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
-			::memcpy(s, t, 16);
+			std::memcpy(s, t, 16);
 
 			ARIA_M(z[0],t[0]); ARIA_M(z[1],t[1]); ARIA_M(z[2],t[2]); ARIA_M(z[3],t[3]);
 			ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
-			::memcpy(a, t, 16); ::memcpy(z, s, 16);
+			std::memcpy(a, t, 16); std::memcpy(z, s, 16);
 		}
 
 		ARIA_M(a[0],t[0]); ARIA_M(a[1],t[1]); ARIA_M(a[2],t[2]); ARIA_M(a[3],t[3]);
 		ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
-		::memcpy(z, t, 16);
+		std::memcpy(z, t, 16);
 	}
 
 	// Silence warnings
@@ -263,21 +277,21 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	block(t[0])(t[1])(t[2])(t[3]);
 
 	if (m_rounds > 12) {
-		ARIA_KXL; rk+= 16; ARIA_FO;
-		ARIA_KXL; rk+= 16; ARIA_FE;
+		rk = ARIA_KXL(rk, t); ARIA_FO(t);
+		rk = ARIA_KXL(rk, t); ARIA_FE(t);
 	}
 
 	if (m_rounds > 14) {
-		ARIA_KXL; rk+= 16; ARIA_FO;
-		ARIA_KXL; rk+= 16; ARIA_FE;
+		rk = ARIA_KXL(rk, t); ARIA_FO(t);
+		rk = ARIA_KXL(rk, t); ARIA_FE(t);
 	}
 
-	ARIA_KXL; rk+= 16; ARIA_FO; ARIA_KXL; rk+= 16; ARIA_FE;
-	ARIA_KXL; rk+= 16; ARIA_FO; ARIA_KXL; rk+= 16; ARIA_FE;
-	ARIA_KXL; rk+= 16; ARIA_FO; ARIA_KXL; rk+= 16; ARIA_FE;
-	ARIA_KXL; rk+= 16; ARIA_FO; ARIA_KXL; rk+= 16; ARIA_FE;
-	ARIA_KXL; rk+= 16; ARIA_FO; ARIA_KXL; rk+= 16; ARIA_FE;
-	ARIA_KXL; rk+= 16; ARIA_FO; ARIA_KXL; rk+= 16;
+	rk = ARIA_KXL(rk, t); ARIA_FO(t); rk = ARIA_KXL(rk, t); ARIA_FE(t);
+	rk = ARIA_KXL(rk, t); ARIA_FO(t); rk = ARIA_KXL(rk, t); ARIA_FE(t);
+	rk = ARIA_KXL(rk, t); ARIA_FO(t); rk = ARIA_KXL(rk, t); ARIA_FE(t);
+	rk = ARIA_KXL(rk, t); ARIA_FO(t); rk = ARIA_KXL(rk, t); ARIA_FE(t);
+	rk = ARIA_KXL(rk, t); ARIA_FO(t); rk = ARIA_KXL(rk, t); ARIA_FE(t);
+	rk = ARIA_KXL(rk, t); ARIA_FO(t); rk = ARIA_KXL(rk, t);
 
 #if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	if (HasSSSE3())
