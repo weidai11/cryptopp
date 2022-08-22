@@ -825,12 +825,12 @@ INTEL_NOPREFIX
     ATT_PREFIX
     :
     : "c" (state), "d" (data), "S" (SHA256_K+48), "D" (len)
-    #if CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
+    #if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
         , "m" (workspace[0])
     #endif
-    : "memory", "cc", "%eax", "%xmm0", "%xmm1", PERCENT_REG(AS_REG_7)
-    #if CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
-        , "%rbx", "%r8", "%r10"
+    : "memory", "cc", "%eax"
+    #if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+        , PERCENT_REG(AS_REG_7), "%rbx", "%r8", "%r10", "%xmm0", "%xmm1"
     #else
         , "%ebx"
     #endif
@@ -1296,9 +1296,11 @@ void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const word64 *data)
     ATT_PREFIX
         :
         : "a" (SHA512_K), "c" (state), "d" (data)
-        : "%ebx", "%esi", "%edi", "%mm0", "%mm1", "%mm2", "%mm3", "%mm4", "%mm5",
-          "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7",
-          "memory", "cc"
+        : "%ebx", "%esi", "%edi", "memory", "cc"
+#if (CRYPTOPP_BOOL_X64)
+        , "%mm0", "%mm1", "%mm2", "%mm3", "%mm4", "%mm5",
+          "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7"
+#endif
     );
 #else
     AS1(    pop        edi)

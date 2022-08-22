@@ -726,8 +726,10 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
                 ATT_PREFIX
                     :
                     : "c" (data), "d" (len/16), "S" (hashBuffer), "D" (s_reductionTable)
-                    : "memory", "cc", "%eax", "%ebx", PERCENT_REG(AS_REG_7), "%xmm0",
-                      "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5"
+                    : "memory", "cc", "%eax", "%ebx"
+#if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+                    , PERCENT_REG(AS_REG_7), "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5"
+#endif
                 );
         #elif defined(CRYPTOPP_GENERATE_X64_MASM)
             pop rbx
@@ -803,7 +805,10 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
                 ATT_PREFIX
                     :
                     : "c" (data), "d" (len/16), "S" (hashBuffer)
-                    : "memory", "cc", "%edi", "%eax", "%xmm0", "%xmm1"
+                    : "memory", "cc", "%edi", "%eax"
+#if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+                    , "%xmm0", "%xmm1"
+#endif
                 );
         #elif defined(CRYPTOPP_GENERATE_X64_MASM)
             pop rdi
