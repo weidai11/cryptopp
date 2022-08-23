@@ -81,13 +81,6 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
-    - name: CMake build, GCC, Linux, amd64
-      os: linux
-      arch: amd64
-      compiler: gcc
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=cmake
     - name: Standard build, Clang, Linux, amd64
       os: linux
       arch: amd64
@@ -144,13 +137,6 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
-    - name: CMake build, Clang, Linux, amd64
-      os: linux
-      arch: amd64
-      compiler: clang
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=cmake
     - name: Standard build, Clang, OS X, amd64
       os: osx
       osx_image: xcode10.1
@@ -242,14 +228,6 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=autotools
-    - name: CMake build, Clang, OS X, amd64
-      os: osx
-      osx_image: xcode10.1
-      arch: amd64
-      compiler: clang
-      env:
-        - BUILD_OS=osx
-        - BUILD_MODE=cmake
     - name: Standard build, GCC, Linux, arm64
       os: linux
       arch: arm64
@@ -314,14 +292,6 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
-    - name: CMake build, GCC, Linux, arm64
-      os: linux
-      arch: arm64
-      compiler: gcc
-      dist: bionic
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=cmake
     - name: Standard build, Clang, Linux, arm64
       os: linux
       arch: arm64
@@ -386,14 +356,6 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
-    - name: CMake build, Clang, Linux, arm64
-      os: linux
-      arch: arm64
-      compiler: clang
-      dist: bionic
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=cmake
     - name: Standard build, GCC, Linux, ppc64le
       os: linux
       arch: ppc64le
@@ -621,8 +583,6 @@ script:
         make -f GNUmakefile-cross -j 2 all static dynamic
     elif [[ "$BUILD_MODE" == "autotools" ]]; then
         bash TestScripts/cryptest-autotools.sh
-    elif [[ "$BUILD_MODE" == "cmake" ]]; then
-        bash TestScripts/cryptest-cmake.sh
     elif [[ "$BUILD_MODE" == "pem" ]]; then
         bash TestScripts/cryptest-pem.sh
     elif [[ "$BUILD_MODE" == "osx-fat" ]]; then

@@ -25,7 +25,7 @@ Wiki pages are available for some platforms with specific build instructions. Th
 
 Crypto++ does not depend upon other tools or libraries. The library only needs GNU Make 3.80 on Unix & Linux; or Visual Studio 2010 and above build tools on Windows. The library does not use Autotools, does not use CMake, and does not use Boost.
 
-Autotools and CMake projects are not officially supported. The build systems take too much time and effort. Unofficial projects are available at https://github.com/noloader/cryptopp-autotools and https://github.com/noloader/cryptopp-cmake. The projects provide a central location to support Autotools and CMake. Collaborators for Autotools and CMake are welcomed.
+Autotools and CMake projects are not officially supported. The build systems take too much time and effort. Unofficial projects are available at https://github.com/noloader/cryptopp-autotools and https://github.com/abdes/cryptopp-cmake. The projects provide a central location to support Autotools and CMake. Collaborators for Autotools and CMake are welcomed.
 
 
 PREREQUISITES

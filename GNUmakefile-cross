@@ -832,18 +832,13 @@ autotools-clean:
 	@-$(RM) -f cryptest cryptestcwd libtool* libcryptopp.la libcryptopp.pc*
 	@-$(RM) -rf build-aux/ m4/ auto*.cache/ .deps/ .libs/
 
-.PHONY: cmake-clean
-cmake-clean:
-	@-$(RM) -f cryptopp-config.cmake CMakeLists.txt
-	@-$(RM) -rf cmake_build/
-
 .PHONY: android-clean
 android-clean:
 	@-$(RM) -f $(patsubst %_simd.cpp,%_simd.cpp.neon,$(wildcard *_simd.cpp))
 	@-$(RM) -rf obj/
 
 .PHONY: distclean
-distclean: clean autotools-clean cmake-clean android-clean
+distclean: clean autotools-clean android-clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt
 	-$(RM) cryptest_all.info cryptest_debug.info cryptest_noasm.info cryptest_base.info cryptest.info cryptest_release.info
 	@-$(RM) cryptest-*.txt cryptopp.tgz libcryptopp.pc *.o *.bc *.ii *~
