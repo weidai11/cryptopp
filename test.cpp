@@ -398,7 +398,10 @@ int scoped_main(int argc, char *argv[])
 		else if (command == "ir")
 			InformationRecoverFile(argc-3, argv[2], argv+3);
 		else if (command == "v" || command == "vv")
-			return !Validate(argc>2 ? StringToValue<int, true>(argv[2]) : 0, command == "vv" /*thorough*/);
+		{
+			int testNumber = argc>2 ? StringToValue<int, true>(argv[2]) : 0;
+			return Validate(testNumber, command == "vv" /*thorough*/) ? 0 : 1;
+        }
 		else if (command.substr(0,1) == "b") // "b", "b1", "b2", ...
 			BenchmarkWithCommand(argc, argv);
 		else if (command == "z")
