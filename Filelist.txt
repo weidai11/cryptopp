@@ -608,12 +608,12 @@ TestPrograms/test_cxx11_auto.cpp
 TestPrograms/test_cxx11_constexpr.cpp
 TestPrograms/test_cxx11.cpp
 TestPrograms/test_cxx11_deletefn.cpp
-TestPrograms/test_cxx11_staticinit.cpp
 TestPrograms/test_cxx11_enumtype.cpp
 TestPrograms/test_cxx11_initializer.cpp
 TestPrograms/test_cxx11_lambda.cpp
 TestPrograms/test_cxx11_noexcept.cpp
 TestPrograms/test_cxx11_nullptr.cpp
+TestPrograms/test_cxx11_staticinit.cpp
 TestPrograms/test_cxx11_sync.cpp
 TestPrograms/test_cxx11_vartemplates.cpp
 TestPrograms/test_cxx14.cpp
@@ -624,6 +624,7 @@ TestPrograms/test_cxx98_exception.cpp
 TestPrograms/test_cxx.cpp
 TestPrograms/test_glibc.cpp
 TestPrograms/test_newlib.cpp
+TestPrograms/test_nodevirtualize.cpp
 TestPrograms/test_ppc_aes.cpp
 TestPrograms/test_ppc_altivec.cpp
 TestPrograms/test_ppc_power7.cpp
