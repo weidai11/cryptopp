@@ -90,7 +90,7 @@ being unloaded from L1 cache, until that round is finished.
 
 // VS2017 and global optimization bug. Also see
 // https://github.com/weidai11/cryptopp/issues/649
-#if (_MSC_VER >= 1910) && (_MSC_VER < 1916)
+#if (_MSC_VER >= 1910) && (_MSC_VER <= 1916)
 # ifndef CRYPTOPP_DEBUG
 #  pragma optimize("", off)
 #  pragma optimize("ts", on)
