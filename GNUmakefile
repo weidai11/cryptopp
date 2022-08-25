@@ -846,6 +846,18 @@ ifeq ($(IS_X86)$(IS_CYGWIN)$(IS_MINGW),000)
   endif
 endif
 
+# Fix for GH #1134 and GH #1141. We need to add -fno-devirtualize because GCC is removing
+# code we are using. https://github.com/weidai11/cryptopp/issues/1134 and
+# https://github.com/weidai11/cryptopp/issues/1141
+ifeq ($(findstring -fno-devirtualize,$(CXXFLAGS)),)
+   TPROG = TestPrograms/test_nodevirtualize.cpp
+   TOPT = -fno-devirtualize
+   HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+   ifeq ($(strip $(HAVE_OPT)),0)
+      CRYPTOPP_CXXFLAGS += -fno-devirtualize
+   endif # CRYPTOPP_CXXFLAGS
+endif # -fno-devirtualize
+
 # Use -pthread whenever it is available. See http://www.hpl.hp.com/techreports/2004/HPL-2004-209.pdf
 #   http://stackoverflow.com/questions/2127797/gcc-significance-of-pthread-flag-when-compiling
 ifeq ($(DETECT_FEATURES),1)
@@ -857,7 +869,7 @@ ifeq ($(DETECT_FEATURES),1)
    ifeq ($(strip $(HAVE_OPT)),0)
     CRYPTOPP_CXXFLAGS += -qthreaded
    endif # CRYPTOPP_CXXFLAGS
-  endif # qthreaded
+  endif # -qthreaded
  else
   ifeq ($(findstring -pthread,$(CXXFLAGS)),)
    TPROG = TestPrograms/test_pthreads.cpp
@@ -866,7 +878,7 @@ ifeq ($(DETECT_FEATURES),1)
    ifeq ($(strip $(HAVE_OPT)),0)
     CRYPTOPP_CXXFLAGS += -pthread
    endif  # CRYPTOPP_CXXFLAGS
-  endif  # pthread
+  endif  # -pthread
  endif  # XLC/GCC and friends
 endif  # DETECT_FEATURES
 

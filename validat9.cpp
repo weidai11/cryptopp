@@ -652,20 +652,17 @@ bool ValidateECGDSA(bool thorough)
 {
 	std::cout << "\nECGDSA validation suite running...\n\n";
 
-	// 'thorough' forced to false due to GH #1134. There is something sideways
-	// with GCC 12 and ECGDSA+RIPEMD. The problem is present with
-	// CRYPTOPP_DISABLE_ASM, which indicates a C++ problem. However, Asan,
-	// UBsan and Valgrind fail to produce a finding. The program simply crashes
-	// with a junk backtrace. And GCC 11 (and earlier), Clang, MSVC, xlC are Ok.
-	// This is likely a compiler bug.
-#if CRYPTOPP_GCC_VERSION >= 120000
-	thorough = false;
-#endif
+	bool pass = true, fail;
 
-	if (thorough)
-		return ValidateECGDSAStandard() && ValidateECGDSAThorough();
-	else
-		return ValidateECGDSAStandard();
+	fail = !ValidateECGDSAStandard();
+	pass = pass && !fail;
+
+	if (thorough) {
+		fail = !ValidateECGDSAThorough();
+		pass = pass && !fail;
+	}
+
+	return pass;
 }
 
 bool ValidateESIGN()
