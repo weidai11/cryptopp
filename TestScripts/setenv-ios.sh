@@ -171,6 +171,8 @@ elif [[ "${IOS_SDK}" == "iPhoneSimulator" && "${IOS_CPU}" == "i386" ]]; then
     MIN_VER=-miphonesimulator-version-min=6
 elif [[ "${IOS_SDK}" == "iPhoneSimulator" && "${IOS_CPU}" == "x86_64" ]]; then
     MIN_VER=-miphonesimulator-version-min=6
+elif [[ "${IOS_SDK}" == "iPhoneSimulator" && "${IOS_CPU}" == "arm64" ]]; then
+    MIN_VER=-miphonesimulator-version-min=6
 
 # Apple TV can be 32-bit Intel (1st gen), 32-bit ARM (2nd, 3rd gen) or 64-bit ARM (4th gen)
 elif [[ "${IOS_SDK}" == "AppleTVOS" && "${IOS_CPU}" == "i386" ]]; then
