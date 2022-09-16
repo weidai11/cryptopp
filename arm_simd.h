@@ -308,28 +308,6 @@ inline uint64x2_t PMULL_HIGH(const uint64x2_t a, const uint64x2_t b)
 }
 
 /// \brief Vector extraction
-/// \param a the first value
-/// \param b the second value
-/// \param c the byte count
-/// \return vector
-/// \details VEXT_U8() extracts the first <tt>c</tt> bytes of vector
-///  <tt>a</tt> and the remaining bytes in <tt>b</tt>. VEXT_U8 is provided
-///  as GCC inline assembly due to Clang and lack of support for the intrinsic.
-/// \since Crypto++ 8.0
-inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b, unsigned int c)
-{
-#if defined(_MSC_VER)
-    return vreinterpretq_u64_u8(vextq_u8(
-        vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), c));
-#else
-    uint64x2_t r;
-    __asm__ ("ext   %0.16b, %1.16b, %2.16b, %3   \n\t"
-            :"=w" (r) : "w" (a), "w" (b), "I" (c) );
-    return r;
-#endif
-}
-
-/// \brief Vector extraction
 /// \tparam C the byte count
 /// \param a the first value
 /// \param b the second value
