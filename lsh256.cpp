@@ -394,7 +394,7 @@ inline void word_perm(lsh_u32 cv_l[8], lsh_u32 cv_r[8])
 	cv_l[7] = cv_r[5];
 	cv_r[5] = cv_r[3];
 	cv_r[3] = temp;
-};
+}
 
 /* -------------------------------------------------------- *
 * step function
