@@ -257,6 +257,14 @@ ifeq ($(DETECT_FEATURES),1)
 
   # Need SSE2 or higher for these tests
   ifneq ($(SSE2_FLAG),)
+
+    TPROG = TestPrograms/test_x86_sse3.cpp
+    TOPT = $(SSE3_FLAG)
+    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
+    ifneq ($(strip $(HAVE_OPT)),0)
+      SSE3_FLAG =
+    endif
+
     TPROG = TestPrograms/test_x86_ssse3.cpp
     TOPT = $(SSSE3_FLAG)
     HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
