@@ -319,7 +319,7 @@ inline void word_perm(lsh_u32 cv_l[8], lsh_u32 cv_r[8])
 	_mm256_storeu_si256(M256_CAST(cv_r),
 		_mm256_permute2x128_si256(temp,
 			_mm256_loadu_si256(CONST_M256_CAST(cv_r)), _MM_SHUFFLE(0,2,0,0)));
-};
+}
 
 /* -------------------------------------------------------- *
 * step function

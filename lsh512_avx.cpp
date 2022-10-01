@@ -396,7 +396,7 @@ inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 
 	_mm256_storeu_si256(M256_CAST(cv_r+0), temp[0]);
 	_mm256_storeu_si256(M256_CAST(cv_r+4), temp[1]);
-};
+}
 
 /* -------------------------------------------------------- *
 * step function

@@ -560,7 +560,7 @@ inline void word_perm(lsh_u64 cv_l[8], lsh_u64 cv_r[8])
 
 	_mm_storeu_si128(M128_CAST(cv_r+0), temp[0]);
 	_mm_storeu_si128(M128_CAST(cv_r+2), temp[1]);
-};
+}
 
 /* -------------------------------------------------------- *
 * step function
