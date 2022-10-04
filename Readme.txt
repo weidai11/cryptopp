@@ -136,7 +136,7 @@ To use the Crypto++ DLL in your application, #include "dll.h" before including
 any other Crypto++ header files, and place the DLL in the same directory as
 your .exe file. dll.h includes the line #pragma comment(lib, "cryptopp")
 so you don't have to explicitly list the import library in your project
-settings. To use a static library form of Crypto++, make the "cryptlib"
+settings. Otherwise, to use a static library form of Crypto++, make the "cryptlib"
 project a dependency of your application project, or specify it as
 an additional library to link with in your project settings.
 In either case you should check the compiler options to
