@@ -2373,7 +2373,7 @@ private:
 	// for ChannelPutWord16, ChannelPutWord32 and ChannelPutWord64,
 	// to ensure the buffer isn't deallocated before non-blocking
 	// operation completes
-	byte m_buf[8];
+	byte m_buf[8] = {};
 };
 
 /// \brief An input discarding BufferedTransformation
