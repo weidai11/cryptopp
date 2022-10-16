@@ -63,7 +63,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 
 		static const word32 rcon[];
 
-		unsigned int m_rounds;
+		unsigned int m_rounds = 0;
 		SecBlock<word32, AllocatorWithCleanup<word32, true> > m_key;
 		mutable SecByteBlock m_aliasBlock;
 	};
