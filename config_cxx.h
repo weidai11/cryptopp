@@ -237,6 +237,13 @@
 #  define CRYPTOPP_NO_THROW
 #endif // CRYPTOPP_CXX11_NOEXCEPT
 
+
+#if defined(CRYPTOPP_CXX11_INITIALIZER_LIST)
+#  define CRYPTOPP_DEFAULT_INIT = {}
+#else
+#  define CRYPTOPP_DEFAULT_INIT
+#endif // CRYPTOPP_CXX11_INITIALIZER_LIST
+
 // Hack... C++11 nullptr_t type safety and analysis
 #if defined(CRYPTOPP_CXX11_NULLPTR) && !defined(NULLPTR)
 # define NULLPTR nullptr
