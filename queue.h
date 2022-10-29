@@ -262,7 +262,7 @@ NAMESPACE_END
 
 #ifndef __BORLANDC__
 NAMESPACE_BEGIN(std)
-template<> inline void swap(CryptoPP::ByteQueue &a, CryptoPP::ByteQueue &b) CRYPTOPP_NO_THROW
+template<> inline void swap(CryptoPP::ByteQueue &a, CryptoPP::ByteQueue &b)
 {
 	a.swap(b);
 }
