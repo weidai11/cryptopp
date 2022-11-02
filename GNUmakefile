@@ -1373,7 +1373,7 @@ sources: adhoc.cpp
 DOCUMENT_DIRECTORY := ref$(LIB_VER)
 # Directory Doxygen uses (specified in Doygen config file)
 ifeq ($(wildcard Doxyfile),Doxyfile)
-DOXYGEN_DIRECTORY := $(strip $(shell $(GREP) "OUTPUT_DIRECTORY" Doxyfile | $(GREP) -v "#" | cut -d "=" -f 2))
+DOXYGEN_DIRECTORY := $(strip $(shell $(GREP) "OUTPUT_DIRECTORY" Doxyfile | $(GREP) -v '\#' | cut -d "=" -f 2))
 endif
 # Default directory (in case its missing in the config file)
 ifeq ($(strip $(DOXYGEN_DIRECTORY)),)
