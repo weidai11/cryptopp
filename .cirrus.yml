@@ -9,9 +9,9 @@ env:
 
 task:
   matrix:
-    - name: Debug build, FreeBSD 12.1
+    - name: Debug build, FreeBSD 13.1
       freebsd_instance:
-        image_family: freebsd-12-1
+        image_family: freebsd-13-1
       pkginstall_script:
         - pkg update -f
         - pkg install -y gmake
@@ -21,9 +21,9 @@ task:
       test_script:
         - ./cryptest.exe v
         - ./cryptest.exe tv all
-    - name: Release build, FreeBSD 12.1
+    - name: Release build, FreeBSD 13.1
       freebsd_instance:
-        image_family: freebsd-12-1
+        image_family: freebsd-13-1
       pkginstall_script:
         - pkg update -f
         - pkg install -y gmake
@@ -33,9 +33,9 @@ task:
       test_script:
         - ./cryptest.exe v
         - ./cryptest.exe tv all
-    - name: Debug build, FreeBSD 13.0 (snap)
+    - name: Debug build, FreeBSD 14.0 (snap)
       freebsd_instance:
-        image_family: freebsd-13-0-snap
+        image_family: freebsd-14-0-snap
       pkginstall_script:
         - pkg update -f
         - pkg install -y gmake
@@ -45,9 +45,9 @@ task:
       test_script:
         - ./cryptest.exe v
         - ./cryptest.exe tv all
-    - name: Release build, FreeBSD 13.0 (snap)
+    - name: Release build, FreeBSD 14.0 (snap)
       freebsd_instance:
-        image_family: freebsd-13-0-snap
+        image_family: freebsd-14-0-snap
       pkginstall_script:
         - pkg update -f
         - pkg install -y gmake
