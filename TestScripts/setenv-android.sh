@@ -214,15 +214,21 @@ case "$ANDROID_CPU" in
         if [ "$LD" != "ld.lld" ]; then
             LD="arm-linux-androideabi-${ANDROID_LD}"
         fi
-    elif [ "${ANDROID_API}" -ge 21 ]; then
-        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
-        LD="arm-linux-androideabi-ld.gold"
+    elif [ "${ANDROID_API}" -ge 22 ]; then
+        # New default linker
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r22/docs/BuildSystemMaintainers.md#Linkers
+        LD="ld.lld"
+    elif [ "${ANDROID_API}" -ge 19 ]; then
+        # New default linker. BFD used on all excpet aarch64; Gold used on aarch64
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r19/docs/BuildSystemMaintainers.md#Linkers
+        LD="arm-linux-androideabi-ld.bfd"
     fi
 
     # As of NDK r22, there are new names for some tools
     # https://developer.android.com/ndk/guides/other_build_systems
     if [ "${ANDROID_API}" -ge 22 ]; then
         AR="llvm-ar"
+        AS="llvm-as"
         RANLIB="llvm-ranlib"
         STRIP="llvm-strip"
     fi
@@ -259,17 +265,20 @@ case "$ANDROID_CPU" in
             LD="aarch64-linux-android-${ANDROID_LD}"
         fi
     elif [ "${ANDROID_API}" -ge 22 ]; then
-        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
+        # New default linker
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r22/docs/BuildSystemMaintainers.md#Linkers
+        LD="ld.lld"
+    elif [ "${ANDROID_API}" -ge 19 ]; then
+        # New default linker. BFD used on all excpet aarch64; Gold used on aarch64
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r19/docs/BuildSystemMaintainers.md#Linkers
         LD="aarch64-linux-android-ld.gold"
-    elif [ "${ANDROID_API}" -ge 20 ]; then
-        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
-        LD="aarch64-linux-android-ld.bfd"
     fi
 
     # As of NDK r22, there are new names for some tools
     # https://developer.android.com/ndk/guides/other_build_systems
     if [ "${ANDROID_API}" -ge 22 ]; then
         AR="llvm-ar"
+        AS="llvm-as"
         RANLIB="llvm-ranlib"
         STRIP="llvm-strip"
     fi
@@ -302,15 +311,21 @@ case "$ANDROID_CPU" in
         if [ "$LD" != "ld.lld" ]; then
             LD="i686-linux-android-${ANDROID_LD}"
         fi
-    elif [ "${ANDROID_API}" -ge 21 ]; then
-        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
-        LD="i686-linux-android-ld.gold"
+    elif [ "${ANDROID_API}" -ge 22 ]; then
+        # New default linker
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r22/docs/BuildSystemMaintainers.md#Linkers
+        LD="ld.lld"
+    elif [ "${ANDROID_API}" -ge 19 ]; then
+        # New default linker. BFD used on all excpet aarch64; Gold used on aarch64
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r19/docs/BuildSystemMaintainers.md#Linkers
+        LD="i686-linux-android-ld.bfd"
     fi
 
     # As of NDK r22, there are new names for some tools
     # https://developer.android.com/ndk/guides/other_build_systems
     if [ "${ANDROID_API}" -ge 22 ]; then
         AR="llvm-ar"
+        AS="llvm-as"
         RANLIB="llvm-ranlib"
         STRIP="llvm-strip"
     fi
@@ -345,15 +360,21 @@ case "$ANDROID_CPU" in
         if [ "$LD" != "ld.lld" ]; then
             LD="x86_64-linux-android-${ANDROID_LD}"
         fi
-    elif [ "${ANDROID_API}" -ge 21 ]; then
-        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
-        LD="x86_64-linux-android-ld.gold"
+    elif [ "${ANDROID_API}" -ge 22 ]; then
+        # New default linker
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r22/docs/BuildSystemMaintainers.md#Linkers
+        LD="ld.lld"
+    elif [ "${ANDROID_API}" -ge 19 ]; then
+        # New default linker. BFD used on all excpet aarch64; Gold used on aarch64
+        # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r19/docs/BuildSystemMaintainers.md#Linkers
+        LD="x86_64-linux-android-ld.bfd"
     fi
 
     # As of NDK r22, there are new names for some tools
     # https://developer.android.com/ndk/guides/other_build_systems
     if [ "${ANDROID_API}" -ge 22 ]; then
         AR="llvm-ar"
+        AS="llvm-as"
         RANLIB="llvm-ranlib"
         STRIP="llvm-strip"
     fi
