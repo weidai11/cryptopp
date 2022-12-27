@@ -78,7 +78,7 @@ for platform in "${PLATFORMS[@]}"
 do
     # setenv-android.sh reads these two variables for configuration info.
     # Android 5.0 is 21. Android 6.0 is 23.
-    export ANDROID_API="21"
+    export ANDROID_API="23"
     export ANDROID_CPU="${platform}"
 
     make -f GNUmakefile-cross distclean > /dev/null 2>&1
