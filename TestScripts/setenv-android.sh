@@ -97,23 +97,24 @@ unset ANDROID_SYSROOT
 
 ANDROID_CPU=$(tr '[:upper:]' '[:lower:]' <<< "${ANDROID_CPU}")
 
-if [[ "$ANDROID_CPU" == "amd64" || "$ANDROID_CPU" == "x86_64" ]] ; then
+if [[ "${ANDROID_CPU}" == "amd64" || "${ANDROID_CPU}" == "x86_64" ]] ; then
     ANDROID_CPU=x86_64
 fi
 
-if [[ "$ANDROID_CPU" == "i386" || "$ANDROID_CPU" == "i686" ]] ; then
+if [[ "${ANDROID_CPU}" == "i386" || "${ANDROID_CPU}" == "i686" ]] ; then
     ANDROID_CPU=i686
 fi
 
-if [[ "$ANDROID_CPU" == "armv7"* || "$ANDROID_CPU" == "armeabi"* ]] ; then
+if [[ "${ANDROID_CPU}" == "armv7"* || "${ANDROID_CPU}" == "armeabi"* ]] ; then
     ANDROID_CPU=armeabi-v7a
 fi
 
-if [[ "$ANDROID_CPU" == "aarch64" || "$ANDROID_CPU" == "arm64"* || "$ANDROID_CPU" == "armv8"* ]] ; then
+if [[ "${ANDROID_CPU}" == "aarch64" || "${ANDROID_CPU}" == "arm64"* || "${ANDROID_CPU}" == "armv8"* ]] ; then
     ANDROID_CPU=arm64-v8a
 fi
 
-echo "Configuring for $ANDROID_SDK ($ANDROID_CPU)"
+# Debug
+# echo "Configuring for ${ANDROID_API} (${ANDROID_CPU})"
 
 ########################################
 #####         Environment          #####
@@ -198,13 +199,14 @@ fi
 # add -std=c++11 -stdlib=libc++ to CXXFLAGS. This is
 # consistent with Android.mk and 'APP_STL := c++_shared'.
 
-case "$ANDROID_CPU" in
+case "${ANDROID_CPU}" in
   armv7*|armeabi*)
     CC="armv7a-linux-androideabi${ANDROID_API}-clang"
     CXX="armv7a-linux-androideabi${ANDROID_API}-clang++"
     LD="arm-linux-androideabi-ld"
     AS="arm-linux-androideabi-as"
     AR="arm-linux-androideabi-ar"
+    NM="arm-linux-androideabi-nm"
     RANLIB="arm-linux-androideabi-ranlib"
     STRIP="arm-linux-androideabi-strip"
     OBJDUMP="arm-linux-androideabi-objdump"
@@ -224,11 +226,13 @@ case "$ANDROID_CPU" in
         LD="arm-linux-androideabi-ld.bfd"
     fi
 
-    # As of NDK r22, there are new names for some tools
+    # As of NDK r22, there are new names for some tools.
     # https://developer.android.com/ndk/guides/other_build_systems
     if [ "${ANDROID_API}" -ge 22 ]; then
         AR="llvm-ar"
         AS="llvm-as"
+        NM="llvm-nm"
+        OBJDUMP="llvm-objdump"
         RANLIB="llvm-ranlib"
         STRIP="llvm-strip"
     fi
@@ -255,6 +259,7 @@ case "$ANDROID_CPU" in
     LD="aarch64-linux-android-ld"
     AS="aarch64-linux-android-as"
     AR="aarch64-linux-android-ar"
+    NM="aarch64-linux-android-nm"
     RANLIB="aarch64-linux-android-ranlib"
     STRIP="aarch64-linux-android-strip"
     OBJDUMP="aarch64-linux-android-objdump"
@@ -274,11 +279,13 @@ case "$ANDROID_CPU" in
         LD="aarch64-linux-android-ld.gold"
     fi
 
-    # As of NDK r22, there are new names for some tools
+    # As of NDK r22, there are new names for some tools.
     # https://developer.android.com/ndk/guides/other_build_systems
     if [ "${ANDROID_API}" -ge 22 ]; then
         AR="llvm-ar"
         AS="llvm-as"
+        NM="llvm-nm"
+        OBJDUMP="llvm-objdump"
         RANLIB="llvm-ranlib"
         STRIP="llvm-strip"
     fi
@@ -302,6 +309,7 @@ case "$ANDROID_CPU" in
     LD="i686-linux-android-ld"
     AS="i686-linux-android-as"
     AR="i686-linux-android-ar"
+    NM="i686-linux-android-nm"
     RANLIB="i686-linux-android-ranlib"
     STRIP="i686-linux-android-strip"
     OBJDUMP="i686-linux-android-objdump"
@@ -321,11 +329,13 @@ case "$ANDROID_CPU" in
         LD="i686-linux-android-ld.bfd"
     fi
 
-    # As of NDK r22, there are new names for some tools
+    # As of NDK r22, there are new names for some tools.
     # https://developer.android.com/ndk/guides/other_build_systems
     if [ "${ANDROID_API}" -ge 22 ]; then
         AR="llvm-ar"
         AS="llvm-as"
+        NM="llvm-nm"
+        OBJDUMP="llvm-objdump"
         RANLIB="llvm-ranlib"
         STRIP="llvm-strip"
     fi
@@ -351,6 +361,7 @@ case "$ANDROID_CPU" in
     LD="x86_64-linux-android-ld"
     AS="x86_64-linux-android-as"
     AR="x86_64-linux-android-ar"
+    NM="x86_64-linux-android-nm"
     RANLIB="x86_64-linux-android-ranlib"
     STRIP="x86_64-linux-android-strip"
     OBJDUMP="x86_64-linux-android-objdump"
@@ -370,11 +381,13 @@ case "$ANDROID_CPU" in
         LD="x86_64-linux-android-ld.bfd"
     fi
 
-    # As of NDK r22, there are new names for some tools
+    # As of NDK r22, there are new names for some tools.
     # https://developer.android.com/ndk/guides/other_build_systems
     if [ "${ANDROID_API}" -ge 22 ]; then
         AR="llvm-ar"
         AS="llvm-as"
+        NM="llvm-nm"
+        OBJDUMP="llvm-objdump"
         RANLIB="llvm-ranlib"
         STRIP="llvm-strip"
     fi
@@ -399,7 +412,7 @@ case "$ANDROID_CPU" in
     ;;
 esac
 
-echo "Configuring for Android API ${ANDROID_API} ($ANDROID_CPU)"
+echo "Configuring for Android API ${ANDROID_API} on ${ANDROID_CPU}"
 
 #####################################################################
 
@@ -527,7 +540,7 @@ fi
 # exported. At Crypto++ 8.6 CPPFLAGS, CXXFLAGS and LDFLAGS were exported.
 
 export IS_ANDROID=1
-export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
+export CPP CC CXX LD AS AR NM OBJDUMP RANLIB STRIP
 
 # Do NOT use ANDROID_SYSROOT_INC or ANDROID_SYSROOT_LD
 # https://github.com/android/ndk/issues/894#issuecomment-470837964
