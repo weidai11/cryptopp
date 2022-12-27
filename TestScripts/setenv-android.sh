@@ -219,6 +219,14 @@ case "$ANDROID_CPU" in
         LD="arm-linux-androideabi-ld.gold"
     fi
 
+    # As of NDK r22, there are new names for some tools
+    # https://developer.android.com/ndk/guides/other_build_systems
+    if [ "${ANDROID_API}" -ge 22 ]; then
+        AR="llvm-ar"
+        RANLIB="llvm-ranlib"
+        STRIP="llvm-strip"
+    fi
+
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
 
@@ -258,6 +266,14 @@ case "$ANDROID_CPU" in
         LD="aarch64-linux-android-ld.bfd"
     fi
 
+    # As of NDK r22, there are new names for some tools
+    # https://developer.android.com/ndk/guides/other_build_systems
+    if [ "${ANDROID_API}" -ge 22 ]; then
+        AR="llvm-ar"
+        RANLIB="llvm-ranlib"
+        STRIP="llvm-strip"
+    fi
+
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
 
@@ -289,6 +305,14 @@ case "$ANDROID_CPU" in
     elif [ "${ANDROID_API}" -ge 21 ]; then
         # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
         LD="i686-linux-android-ld.gold"
+    fi
+
+    # As of NDK r22, there are new names for some tools
+    # https://developer.android.com/ndk/guides/other_build_systems
+    if [ "${ANDROID_API}" -ge 22 ]; then
+        AR="llvm-ar"
+        RANLIB="llvm-ranlib"
+        STRIP="llvm-strip"
     fi
 
     # You may need this on older NDKs
@@ -324,6 +348,14 @@ case "$ANDROID_CPU" in
     elif [ "${ANDROID_API}" -ge 21 ]; then
         # https://android.googlesource.com/platform/ndk/+/refs/heads/ndk-release-r21/docs/BuildSystemMaintainers.md#Linkers
         LD="x86_64-linux-android-ld.gold"
+    fi
+
+    # As of NDK r22, there are new names for some tools
+    # https://developer.android.com/ndk/guides/other_build_systems
+    if [ "${ANDROID_API}" -ge 22 ]; then
+        AR="llvm-ar"
+        RANLIB="llvm-ranlib"
+        STRIP="llvm-strip"
     fi
 
     # You may need this on older NDKs
