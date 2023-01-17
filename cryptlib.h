@@ -127,7 +127,8 @@ enum CipherDir {
 	DECRYPTION};
 
 /// \brief Represents infinite time
-const unsigned long INFINITE_TIME = ULONG_MAX;
+/// \sa https://github.com/weidai11/cryptopp/issues/1185
+CRYPTOPP_CONST_OR_CONSTEXPR unsigned long INFINITE_TIME = ULONG_MAX;
 
 // VC60 workaround: using enums as template parameters causes problems
 /// \brief Converts an enumeration to a type suitable for use as a template parameter
