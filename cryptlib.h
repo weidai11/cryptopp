@@ -106,9 +106,14 @@ and getting us started on the manual.
 #include "stdcpp.h"
 #include "trap.h"
 
+// C5264 new for VS2022/v17.4, MSC v14.34
+// https://github.com/weidai11/cryptopp/issues/1185
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4127 4189 4505 4702)
+# if (CRYPTOPP_MSC_VERSION >= 1434)
+#  pragma warning(disable: 5264)
+# endif
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -127,7 +132,7 @@ enum CipherDir {
 	DECRYPTION};
 
 /// \brief Represents infinite time
-const unsigned long INFINITE_TIME = ULONG_MAX;
+CRYPTOPP_CONST_OR_CONSTEXPR unsigned long INFINITE_TIME = ULONG_MAX;
 
 // VC60 workaround: using enums as template parameters causes problems
 /// \brief Converts an enumeration to a type suitable for use as a template parameter
