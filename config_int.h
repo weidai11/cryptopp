@@ -27,6 +27,16 @@
 
 #include "config_ns.h"
 #include "config_ver.h"
+#include "config_misc.h"
+
+// C5264 new for VS2022/v17.4, MSC v14.34
+// https://github.com/weidai11/cryptopp/issues/1185
+#if (CRYPTOPP_MSC_VERSION)
+# pragma warning(push)
+# if (CRYPTOPP_MSC_VERSION >= 1434)
+#  pragma warning(disable: 5264)
+# endif
+#endif
 
 /// \brief Library byte guard
 /// \details CRYPTOPP_NO_GLOBAL_BYTE indicates <tt>byte</tt> is in the Crypto++
@@ -161,7 +171,7 @@ typedef word64 lword;
 /// \details LWORD_MAX is the maximum value for large word types.
 ///  Since an <tt>lword</tt> is an unsigned type, the value is
 ///  <tt>0xffffffffffffffff</tt>. W64LIT will append the proper suffix.
-const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
+CRYPTOPP_CONST_OR_CONSTEXPR lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	/// \brief Half word used for multiprecision integer arithmetic
@@ -242,12 +252,17 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 /// \brief Size of a platform word in bytes
 /// \details The size of a platform word, in bytes
-const unsigned int WORD_SIZE = sizeof(word);
+CRYPTOPP_CONST_OR_CONSTEXPR unsigned int WORD_SIZE = sizeof(word);
 
 /// \brief Size of a platform word in bits
 /// \details The size of a platform word, in bits
-const unsigned int WORD_BITS = WORD_SIZE * 8;
+/// \sa https://github.com/weidai11/cryptopp/issues/1185
+CRYPTOPP_CONST_OR_CONSTEXPR unsigned int WORD_BITS = WORD_SIZE * 8;
 
 NAMESPACE_END
+
+#if (CRYPTOPP_MSC_VERSION)
+# pragma warning(pop)
+#endif
 
 #endif  // CRYPTOPP_CONFIG_INT_H

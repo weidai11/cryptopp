@@ -145,6 +145,7 @@
 #endif
 
 // http://stackoverflow.com/a/13867690/608639
+// CRYPTOPP_CONST_OR_CONSTEXPR due to https://github.com/weidai11/cryptopp/issues/1185
 #if defined(CRYPTOPP_CXX11_CONSTEXPR)
 #  define CRYPTOPP_STATIC_CONSTEXPR static constexpr
 #  define CRYPTOPP_STATIC_CONST_OR_CONSTEXPR static constexpr
