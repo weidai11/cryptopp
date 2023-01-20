@@ -2251,7 +2251,7 @@ if true; then
         # Stop now if things are broke
         exit 1
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             # Stop now if things are broke
@@ -2285,7 +2285,7 @@ if true; then
         # Stop now if things are broke
         exit 1
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             # Stop now if things are broke
@@ -2322,7 +2322,7 @@ if [[ "$HAVE_LD_LIBRARY_PATH" -ne 0 ]]; then
     if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
     else
-        LD_LIBRARY_PATH="." ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        LD_LIBRARY_PATH="." ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
         fi
@@ -2351,7 +2351,7 @@ if [[ "$HAVE_LD_LIBRARY_PATH" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, shared object")
     else
-        LD_LIBRARY_PATH="." ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        LD_LIBRARY_PATH="." ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, shared object")
@@ -2388,7 +2388,7 @@ if [[ "$HAVE_DYLD_LIBRARY_PATH" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, dynamic library")
     else
-        DYLD_LIBRARY_PATH="." ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        DYLD_LIBRARY_PATH="." ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, dynamic library")
@@ -2419,7 +2419,7 @@ if [[ "$HAVE_DYLD_LIBRARY_PATH" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, dynamic library")
     else
-        DYLD_LIBRARY_PATH="." ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        DYLD_LIBRARY_PATH="." ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, dynamic library")
@@ -2461,7 +2461,7 @@ if [[ ("$IS_DEBIAN" -ne 0 || "$IS_UBUNTU" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debian standard build")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debian standard build")
@@ -2511,7 +2511,7 @@ if [[ ("$IS_FEDORA" -ne 0) ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Fedora standard build")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Fedora standard build")
@@ -2578,7 +2578,7 @@ if [[ ("$IS_SUSE" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("openSUSE standard build")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("openSUSE standard build")
@@ -2616,7 +2616,7 @@ if [[ ("$GCC_COMPILER" -ne 0 || "$CLANG_COMPILER" -ne 0 || "$INTEL_COMPILER" -ne
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, i686 minimum arch CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, i686 minimum arch CXXFLAGS")
@@ -2647,7 +2647,7 @@ if [[ ("$GCC_COMPILER" -ne 0 || "$CLANG_COMPILER" -ne 0 || "$INTEL_COMPILER" -ne
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, i686 minimum arch CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, i686 minimum arch CXXFLAGS")
@@ -2681,7 +2681,7 @@ if [[ ("$GCC_COMPILER" -ne 0 || "$CLANG_COMPILER" -ne 0 || "$INTEL_COMPILER" -ne
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, x86_64 minimum arch CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, x86_64 minimum arch CXXFLAGS")
@@ -2712,7 +2712,7 @@ if [[ ("$GCC_COMPILER" -ne 0 || "$CLANG_COMPILER" -ne 0 || "$INTEL_COMPILER" -ne
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, x86_64 minimum arch CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, x86_64 minimum arch CXXFLAGS")
@@ -2755,7 +2755,7 @@ if [[ ( ("$IS_X86" -ne 0 || "$IS_X32" -ne 0 || "$IS_X64" -ne 0) && "$HAVE_NATIVE
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, mismatched arch capabilities")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, mismatched arch capabilities")
@@ -2790,7 +2790,7 @@ if [[ ( ("$IS_X86" -ne 0 || "$IS_X32" -ne 0 || "$IS_X64" -ne 0) && "$HAVE_NATIVE
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, mismatched arch capabilities")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, mismatched arch capabilities")
@@ -2828,7 +2828,7 @@ if [[ ( ("$IS_X86" -ne 0 || "$IS_X32" -ne 0 || "$IS_X64" -ne 0) && "$HAVE_NATIVE
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, mismatched arch capabilities")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, mismatched arch capabilities")
@@ -2863,7 +2863,7 @@ if [[ ( ("$IS_X86" -ne 0 || "$IS_X32" -ne 0 || "$IS_X64" -ne 0) && "$HAVE_NATIVE
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, mismatched arch capabilities")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, mismatched arch capabilities")
@@ -2900,7 +2900,7 @@ if true; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, DISABLE_ASM")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, DISABLE_ASM")
@@ -2931,7 +2931,7 @@ if true; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, DISABLE_ASM")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, DISABLE_ASM")
@@ -2967,7 +2967,7 @@ if true; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, NO_CPU_FEATURE_PROBES")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, NO_CPU_FEATURE_PROBES")
@@ -2998,7 +2998,7 @@ if true; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, NO_CPU_FEATURE_PROBES")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, NO_CPU_FEATURE_PROBES")
@@ -3034,7 +3034,7 @@ if [[ "$HAVE_CXX03" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++03")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++03")
@@ -3065,7 +3065,7 @@ if [[ "$HAVE_CXX03" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++03")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++03")
@@ -3101,7 +3101,7 @@ if [[ "$HAVE_GNU03" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, gnu++03")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, gnu++03")
@@ -3132,7 +3132,7 @@ if [[ "$HAVE_GNU03" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, gnu++03")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, gnu++03")
@@ -3168,7 +3168,7 @@ if [[ "$HAVE_CXX11" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++11")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++11")
@@ -3199,7 +3199,7 @@ if [[ "$HAVE_CXX11" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++11")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++11")
@@ -3235,7 +3235,7 @@ if [[ "$HAVE_GNU11" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, gnu++11")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, gnu++11")
@@ -3266,7 +3266,7 @@ if [[ "$HAVE_GNU11" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, gnu++11")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, gnu++11")
@@ -3302,7 +3302,7 @@ if [[ "$HAVE_CXX14" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++14")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++14")
@@ -3333,7 +3333,7 @@ if [[ "$HAVE_CXX14" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++14")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++14")
@@ -3369,7 +3369,7 @@ if [[ "$HAVE_GNU14" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, gnu++14")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, gnu++14")
@@ -3400,7 +3400,7 @@ if [[ "$HAVE_GNU14" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, gnu++14")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, gnu++14")
@@ -3436,7 +3436,7 @@ if [[ "$HAVE_CXX17" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++17")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++17")
@@ -3467,7 +3467,7 @@ if [[ "$HAVE_CXX17" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++17")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++17")
@@ -3503,7 +3503,7 @@ if [[ "$HAVE_GNU17" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, gnu++17")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, gnu++17")
@@ -3534,7 +3534,7 @@ if [[ "$HAVE_GNU17" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, gnu++17")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, gnu++17")
@@ -3570,7 +3570,7 @@ if [[ "$HAVE_CXX20" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++20")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++20")
@@ -3601,7 +3601,7 @@ if [[ "$HAVE_CXX20" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++20")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++20")
@@ -3637,7 +3637,7 @@ if [[ "$HAVE_GNU20" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, gnu++20")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, gnu++20")
@@ -3668,7 +3668,7 @@ if [[ "$HAVE_GNU20" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, gnu++20")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, gnu++20")
@@ -3704,7 +3704,7 @@ if [[ "$HAVE_GNU23" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, gnu++23")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, gnu++23")
@@ -3735,7 +3735,7 @@ if [[ "$HAVE_GNU23" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, gnu++23")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, gnu++23")
@@ -3771,7 +3771,7 @@ if [[ "$HAVE_X32" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, X32")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, X32")
@@ -3802,7 +3802,7 @@ if [[ "$HAVE_X32" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, X32")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, X32")
@@ -3838,7 +3838,7 @@ if true; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, INIT_PRIORITY (0)")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, INIT_PRIORITY (0)")
@@ -3869,7 +3869,7 @@ if true; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, INIT_PRIORITY (0)")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, INIT_PRIORITY (0)")
@@ -3905,7 +3905,7 @@ if true; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, NO_OS_DEPENDENCE")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, NO_OS_DEPENDENCE")
@@ -3936,7 +3936,7 @@ if true; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, NO_OS_DEPENDENCE")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, NO_OS_DEPENDENCE")
@@ -3972,7 +3972,7 @@ if [[ "$HAVE_LDGOLD" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, ld-gold linker")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, ld-gold linker")
@@ -4003,7 +4003,7 @@ if [[ "$HAVE_LDGOLD" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, ld-gold linker")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, ld-gold linker")
@@ -4039,7 +4039,7 @@ if [[ "$HAVE_O2" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, -O2 optimizations")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, -O2 optimizations")
@@ -4070,7 +4070,7 @@ if [[ "$HAVE_O2" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, -O2 optimizations")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, -O2 optimizations")
@@ -4106,7 +4106,7 @@ if [[ "$HAVE_O3" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, -O3 optimizations")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, -O3 optimizations")
@@ -4137,7 +4137,7 @@ if [[ "$HAVE_O3" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, -O3 optimizations")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, -O3 optimizations")
@@ -4173,7 +4173,7 @@ if [[ "$HAVE_OS" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, -Os optimizations")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, -Os optimizations")
@@ -4204,7 +4204,7 @@ if [[ "$HAVE_OS" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, -Os optimizations")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, -Os optimizations")
@@ -4240,7 +4240,7 @@ if [[ "$HAVE_OZ" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, -Oz optimizations")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, -Oz optimizations")
@@ -4271,7 +4271,7 @@ if [[ "$HAVE_OZ" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, -Oz optimizations")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, -Oz optimizations")
@@ -4307,7 +4307,7 @@ if [[ "$HAVE_OFAST" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, -Ofast optimizations")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, -Ofast optimizations")
@@ -4338,7 +4338,7 @@ if [[ "$HAVE_OFAST" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, -Ofast optimizations")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, -Ofast optimizations")
@@ -4374,7 +4374,7 @@ if [[ ("$GNU_LINKER" -eq 1) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, dead code strip")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, dead code strip")
@@ -4405,7 +4405,7 @@ if [[ ("$GNU_LINKER" -eq 1) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, dead code strip")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, dead code strip")
@@ -4441,7 +4441,7 @@ if [[ ("$HAVE_OMP" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, OpenMP")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, OpenMP")
@@ -4472,7 +4472,7 @@ if [[ ("$HAVE_OMP" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, OpenMP")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, OpenMP")
@@ -4508,7 +4508,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_UBSAN" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++03, UBsan")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++03, UBsan")
@@ -4539,7 +4539,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_UBSAN" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++03, UBsan")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++03, UBsan")
@@ -4576,7 +4576,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
         FAILED_LIST+=("Debug, c++03, Asan")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, c++03, Asan")
@@ -4587,7 +4587,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
                 FAILED_LIST+=("Debug, c++03, Asan")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, c++03, Asan")
@@ -4621,7 +4621,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
         FAILED_LIST+=("Release, c++03, Asan")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++03, Asan")
@@ -4632,7 +4632,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
                 FAILED_LIST+=("Release, c++03, Asan")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++03, Asan")
@@ -4670,7 +4670,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
         FAILED_LIST+=("Debug, c++03, Bounds Sanitizer")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, c++03, Bounds Sanitizer")
@@ -4681,7 +4681,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
                 FAILED_LIST+=("Debug, c++03, Bounds Sanitizer")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, c++03, Bounds Sanitizer")
@@ -4715,7 +4715,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
         FAILED_LIST+=("Release, c++03, Bounds Sanitizer")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++03, Bounds Sanitizer")
@@ -4726,7 +4726,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
                 FAILED_LIST+=("Release, c++03, Bounds Sanitizer")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++03, Bounds Sanitizer")
@@ -4763,7 +4763,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_CET" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++03, CET")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++03, CET")
@@ -4794,7 +4794,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_CET" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++03, CET")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++03, CET")
@@ -4830,7 +4830,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_REPTOLINE" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++03, Specter")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++03, Specter")
@@ -4861,7 +4861,7 @@ if [[ ("$HAVE_CXX03" -ne 0 && "$HAVE_REPTOLINE" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++03, Specter")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++03, Specter")
@@ -4897,7 +4897,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_UBSAN" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++11, UBsan")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++11, UBsan")
@@ -4928,7 +4928,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_UBSAN" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++11, UBsan")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++11, UBsan")
@@ -4965,7 +4965,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
         FAILED_LIST+=("Debug, c++11, Asan")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, c++11, Asan")
@@ -4976,7 +4976,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
                 FAILED_LIST+=("Debug, c++11, Asan")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, c++11, Asan")
@@ -5010,7 +5010,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
         FAILED_LIST+=("Release, c++11, Asan")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++11, Asan")
@@ -5021,7 +5021,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
                 FAILED_LIST+=("Release, c++11, Asan")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++11, Asan")
@@ -5059,7 +5059,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
         FAILED_LIST+=("Debug, c++11, Bounds Sanitizer")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, c++11, Bounds Sanitizer")
@@ -5070,7 +5070,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
                 FAILED_LIST+=("Debug, c++11, Bounds Sanitizer")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Debug, c++11, Bounds Sanitizer")
@@ -5104,7 +5104,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
         FAILED_LIST+=("Release, c++11, Bounds Sanitizer")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++11, Bounds Sanitizer")
@@ -5115,7 +5115,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
                 FAILED_LIST+=("Release, c++11, Bounds Sanitizer")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++11, Bounds Sanitizer")
@@ -5152,7 +5152,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_CET" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++11, CET")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++11, CET")
@@ -5183,7 +5183,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_CET" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++11, CET")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++11, CET")
@@ -5219,7 +5219,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_REPTOLINE" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, c++11, Specter")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, c++11, Specter")
@@ -5250,7 +5250,7 @@ if [[ ("$HAVE_CXX11" -ne 0 && "$HAVE_REPTOLINE" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++11, Specter")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++11, Specter")
@@ -5283,7 +5283,7 @@ if [[ ("$HAVE_CXX14" -ne 0 && "$HAVE_UBSAN" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++14, UBsan")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++14, UBsan")
@@ -5317,7 +5317,7 @@ if [[ ("$HAVE_CXX14" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
         FAILED_LIST+=("Release, c++14, Asan")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++14, Asan")
@@ -5328,7 +5328,7 @@ if [[ ("$HAVE_CXX14" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
                 FAILED_LIST+=("Release, c++14, Asan")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++14, Asan")
@@ -5362,7 +5362,7 @@ if [[ ("$HAVE_CXX14" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++14, Bounds Sanitizer")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++14, Bounds Sanitizer")
@@ -5395,7 +5395,7 @@ if [[ ("$HAVE_CXX14" -ne 0 && "$HAVE_CET" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++14, CET")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++14, CET")
@@ -5428,7 +5428,7 @@ if [[ ("$HAVE_CXX14" -ne 0 && "$HAVE_REPTOLINE" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++14, Specter")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++14, Specter")
@@ -5461,7 +5461,7 @@ if [[ ("$HAVE_CXX17" -ne 0 && "$HAVE_UBSAN" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++17, UBsan")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++17, UBsan")
@@ -5495,7 +5495,7 @@ if [[ ("$HAVE_CXX17" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
         FAILED_LIST+=("Release, c++17, Asan")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++17, Asan")
@@ -5506,7 +5506,7 @@ if [[ ("$HAVE_CXX17" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
                 FAILED_LIST+=("Release, c++17, Asan")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++17, Asan")
@@ -5540,7 +5540,7 @@ if [[ ("$HAVE_CXX17" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++17, Bounds Sanitizer")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++17, Bounds Sanitizer")
@@ -5573,7 +5573,7 @@ if [[ ("$HAVE_CXX17" -ne 0 && "$HAVE_CET" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++17, CET")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++17, CET")
@@ -5606,7 +5606,7 @@ if [[ ("$HAVE_CXX17" -ne 0 && "$HAVE_REPTOLINE" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++17, Specter")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++17, Specter")
@@ -5639,7 +5639,7 @@ if [[ ("$HAVE_CXX20" -ne 0 && "$HAVE_UBSAN" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++20, UBsan")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++20, UBsan")
@@ -5673,7 +5673,7 @@ if [[ ("$HAVE_CXX20" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
         FAILED_LIST+=("Release, c++20, Asan")
     else
         if [[ ("$HAVE_SYMBOLIZE" -ne 0) ]]; then
-            ./cryptest.exe v 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | "$ASAN_SYMBOLIZE" 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++20, Asan")
@@ -5684,7 +5684,7 @@ if [[ ("$HAVE_CXX20" -ne 0 && "$HAVE_ASAN" -ne 0) ]]; then
                 FAILED_LIST+=("Release, c++20, Asan")
             fi
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Release, c++20, Asan")
@@ -5718,7 +5718,7 @@ if [[ ("$HAVE_CXX20" -ne 0 && "$HAVE_BSAN" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++20, Bounds Sanitizer")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++20, Bounds Sanitizer")
@@ -5751,7 +5751,7 @@ if [[ ("$HAVE_CXX20" -ne 0 && "$HAVE_CET" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++20, CET")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++20, CET")
@@ -5784,7 +5784,7 @@ if [[ ("$HAVE_CXX20" -ne 0 && "$HAVE_REPTOLINE" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, c++20, Specter")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, c++20, Specter")
@@ -5820,7 +5820,7 @@ if [[ "$HAVE_ANALYZER" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Debug, Analyze")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Debug, Analyze")
@@ -5851,7 +5851,7 @@ if [[ "$HAVE_ANALYZER" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Release, Analyze")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Release, Analyze")
@@ -5891,7 +5891,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Sun Studio 12.2, debug, platform CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Sun Studio 12.2, debug, platform CXXFLAGS")
@@ -5922,7 +5922,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Sun Studio 12.2, release, platform CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Sun Studio 12.2, release, platform CXXFLAGS")
@@ -5958,7 +5958,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Sun Studio 12.3, debug, platform CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Sun Studio 12.3, debug, platform CXXFLAGS")
@@ -5989,7 +5989,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Sun Studio 12.3, release, platform CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Sun Studio 12.3, release, platform CXXFLAGS")
@@ -6025,7 +6025,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Sun Studio 12.4, debug, platform CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Sun Studio 12.4, debug, platform CXXFLAGS")
@@ -6056,7 +6056,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Sun Studio 12.4, release, platform CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Sun Studio 12.4, release, platform CXXFLAGS")
@@ -6092,7 +6092,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Sun Studio 12.5, debug, platform CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Sun Studio 12.5, debug, platform CXXFLAGS")
@@ -6123,7 +6123,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Sun Studio 12.5, release, platform CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Sun Studio 12.5, release, platform CXXFLAGS")
@@ -6159,7 +6159,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Sun Studio 12.6, debug, platform CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Sun Studio 12.6, debug, platform CXXFLAGS")
@@ -6190,7 +6190,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Sun Studio 12.6, release, platform CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Sun Studio 12.6, release, platform CXXFLAGS")
@@ -6226,7 +6226,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Solaris GCC, debug, default CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Solaris GCC, debug, default CXXFLAGS")
@@ -6257,7 +6257,7 @@ if [[ "$IS_SOLARIS" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Solaris GCC, release, default CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Solaris GCC, release, default CXXFLAGS")
@@ -6294,7 +6294,7 @@ if [[ ("$IS_DARWIN" -ne 0) && ("$HAVE_CXX03" -ne 0 && "$CLANG_COMPILER" -ne 0) ]
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Darwin, c++03, libc++ (LLVM)")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++03, libc++ (LLVM)")
@@ -6327,7 +6327,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX03" -ne 0) && ("$HAVE_LIBSTDCXX" -ne 0) ]
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Darwin, c++03, libstdc++ (GNU)")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++03, libstdc++ (GNU)")
@@ -6360,7 +6360,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX11" -ne 0 && "$CLANG_COMPILER" -ne 0) ]];
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Darwin, c++11, libc++ (LLVM)")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++11, libc++ (LLVM)")
@@ -6393,7 +6393,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX11" -ne 0) && ("$HAVE_LIBSTDCXX" -ne 0) ]
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Darwin, c++11, libstdc++ (GNU)")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++11, libstdc++ (GNU)")
@@ -6426,7 +6426,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX14" -ne 0 && "$CLANG_COMPILER" -ne 0) ]];
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Darwin, c++14, libc++ (LLVM)")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++14, libc++ (LLVM)")
@@ -6459,7 +6459,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX14" -ne 0) && ("$HAVE_LIBSTDCXX" -ne 0) ]
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Darwin, c++14, libstdc++ (GNU)")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++14, libstdc++ (GNU)")
@@ -6492,7 +6492,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX17" -ne 0 && "$CLANG_COMPILER" -ne 0) ]];
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Darwin, c++17, libc++ (LLVM)")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++17, libc++ (LLVM)")
@@ -6525,7 +6525,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX17" -ne 0) && ("$HAVE_LIBSTDCXX" -ne 0) ]
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Darwin, c++17, libstdc++ (GNU)")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++17, libstdc++ (GNU)")
@@ -6559,7 +6559,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX03" -ne 0
         FAILED_LIST+=("Darwin, Intel multiarch, c++03")
     else
         echo "Running i386 version..."
-        arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        arch -i386 ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite (i386)" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, Intel multiarch (i386), c++03")
@@ -6571,7 +6571,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX03" -ne 0
         fi
 
         echo "Running x86_64 version..."
-        arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        arch -x86_64 ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite (x86_64)" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, Intel multiarch (x86_64), c++03")
@@ -6605,7 +6605,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX11" -ne 0
         FAILED_LIST+=("Darwin, Intel multiarch, c++11")
     else
         echo "Running i386 version..."
-        arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        arch -i386 ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite (i386)" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, Intel multiarch (i386), c++11")
@@ -6617,7 +6617,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX11" -ne 0
         fi
 
         echo "Running x86_64 version..."
-        arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        arch -x86_64 ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite (x86_64)" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, Intel multiarch (x86_64), c++11")
@@ -6651,7 +6651,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX14" -ne 0
         FAILED_LIST+=("Darwin, Intel multiarch, c++14")
     else
         echo "Running i386 version..."
-        arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        arch -i386 ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite (i386)" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, Intel multiarch (i386), c++14")
@@ -6663,7 +6663,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX14" -ne 0
         fi
 
         echo "Running x86_64 version..."
-        arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        arch -x86_64 ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite (x86_64)" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, Intel multiarch (x86_64), c++14")
@@ -6697,7 +6697,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX17" -ne 0
         FAILED_LIST+=("Darwin, Intel multiarch, c++17")
     else
         echo "Running i386 version..."
-        arch -i386 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        arch -i386 ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite (i386)" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, Intel multiarch (i386), c++17")
@@ -6709,7 +6709,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX17" -ne 0
         fi
 
         echo "Running x86_64 version..."
-        arch -x86_64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        arch -x86_64 ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite (x86_64)" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, Intel multiarch (x86_64), c++17")
@@ -6743,7 +6743,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_PPC_MULTIARCH" -ne 0) ]]; then
         FAILED_LIST+=("Darwin, PowerPC multiarch")
     else
         echo "Running PPC version..."
-        arch -ppc ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        arch -ppc ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite (PPC)" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, PowerPC multiarch (PPC)")
@@ -6755,7 +6755,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_PPC_MULTIARCH" -ne 0) ]]; then
         fi
 
         echo "Running PPC64 version..."
-        arch -ppc64 ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        arch -ppc64 ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite (PPC64)" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, PowerPC multiarch (PPC64)")
@@ -6792,7 +6792,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX03" -ne 0) ]]; then
         export MallocPreScribble=1
         export MallocGuardEdges=1
 
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++03, Malloc Guards")
@@ -6831,7 +6831,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX11" -ne 0) ]]; then
         export MallocPreScribble=1
         export MallocGuardEdges=1
 
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++11, Malloc Guards")
@@ -6870,7 +6870,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX14" -ne 0) ]]; then
         export MallocPreScribble=1
         export MallocGuardEdges=1
 
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++14, Malloc Guards")
@@ -6909,7 +6909,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX17" -ne 0) ]]; then
         export MallocPreScribble=1
         export MallocGuardEdges=1
 
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Darwin, c++17, Malloc Guards")
@@ -7036,7 +7036,7 @@ if [[ "$IS_MINGW" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("MinGW")
     else
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("MinGW")
@@ -7069,7 +7069,7 @@ if [[ "$HAVE_CXX03" -ne 0 && "$HAVE_VALGRIND" -ne 0 ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Valgrind, c++03")
     else
-        valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
     fi
 fi
@@ -7094,7 +7094,7 @@ if [[ ("$HAVE_VALGRIND" -ne 0 && "$HAVE_CXX11" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Valgrind, c++11")
     else
-        valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
     fi
 fi
@@ -7119,7 +7119,7 @@ if [[ ("$HAVE_VALGRIND" -ne 0 && "$HAVE_CXX14" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Valgrind, c++14")
     else
-        valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
     fi
 fi
@@ -7144,7 +7144,7 @@ if [[ ("$HAVE_VALGRIND" -ne 0 && "$HAVE_CXX17" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Valgrind, c++17")
     else
-        valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
     fi
 fi
@@ -7169,7 +7169,7 @@ if [[ ("$HAVE_VALGRIND" -ne 0 && "$HAVE_CXX20" -ne 0) ]]; then
         echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
         FAILED_LIST+=("Valgrind, c++20")
     else
-        valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
         valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
     fi
 fi
@@ -7423,7 +7423,7 @@ if [[ ("$CLANG_COMPILER" -eq 0) ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Clang compiler")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Clang compiler")
@@ -7463,7 +7463,7 @@ if [[ ("$GCC_COMPILER" -eq 0) ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("GCC compiler")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("GCC compiler")
@@ -7506,7 +7506,7 @@ if [[ ("$INTEL_COMPILER" -eq 0) ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Intel compiler")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Intel compiler")
@@ -7548,7 +7548,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$MACPORTS_COMPILER" -eq 0) ]]; then
                 echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("MacPorts 4.x GCC compiler")
             else
-                ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+                ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
                 if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                     echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                     FAILED_LIST+=("MacPorts 4.x GCC compiler")
@@ -7586,7 +7586,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$MACPORTS_COMPILER" -eq 0) ]]; then
                 echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("MacPorts 5.x GCC compiler")
             else
-                ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+                ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
                 if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                     echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                     FAILED_LIST+=("MacPorts 5.x GCC compiler")
@@ -7624,7 +7624,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$MACPORTS_COMPILER" -eq 0) ]]; then
                 echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("MacPorts 6.x GCC compiler")
             else
-                ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+                ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
                 if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                     echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                     FAILED_LIST+=("MacPorts 6.x GCC compiler")
@@ -7662,7 +7662,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$MACPORTS_COMPILER" -eq 0) ]]; then
                 echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("MacPorts 7.x GCC compiler")
             else
-                ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+                ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
                 if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                     echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                     FAILED_LIST+=("MacPorts 7.x GCC compiler")
@@ -7699,7 +7699,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$MACPORTS_COMPILER" -eq 0) ]]; then
                 echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("MacPorts 3.9 Clang compiler")
             else
-                ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+                ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
                 if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                     echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                     FAILED_LIST+=("MacPorts 3.9 Clang compiler")
@@ -7736,7 +7736,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$MACPORTS_COMPILER" -eq 0) ]]; then
                 echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("MacPorts 4.x Clang compiler")
             else
-                ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+                ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
                 if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                     echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                     FAILED_LIST+=("MacPorts 4.x Clang compiler")
@@ -7777,7 +7777,7 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Xcode Clang compiler")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Xcode Clang compiler")
@@ -7823,7 +7823,7 @@ if [[ ("$IS_CYGWIN" -eq 0) && ("$IS_MINGW" -eq 0) ]]; then
         echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
         echo "Testing: Install (validation suite)" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
         echo
-        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+        ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
             echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
             FAILED_LIST+=("Install with data directory")
@@ -7969,7 +7969,7 @@ if true; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Latest zip, unzip -a, Debug CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Latest zip, unzip -a, Debug CXXFLAGS")
@@ -8000,7 +8000,7 @@ if true; then
             echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
             FAILED_LIST+=("Latest zip, unzip -a, Release CXXFLAGS")
         else
-            ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+            ./cryptest.exe vv 2>&1 | tee -a "$TEST_RESULTS"
             if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
                 echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
                 FAILED_LIST+=("Latest zip, unzip -a, Release CXXFLAGS")
