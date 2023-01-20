@@ -7856,6 +7856,16 @@ if [[ ("$IS_CYGWIN" -eq 0) && ("$IS_MINGW" -eq 0) ]]; then
         echo "Testing: Install (help file)" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
         echo
         ./cryptest.exe h 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to provide help" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+            FAILED_LIST+=("Install with data directory")
+        fi
+
+        echo
+        echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+        echo "Testing: Install (no command)" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
+        echo
+        ./cryptest.exe h 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
         if [[ ("${PIPESTATUS[0]}" -ne 1) ]]; then
             echo "ERROR: failed to provide help" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
             FAILED_LIST+=("Install with data directory")
