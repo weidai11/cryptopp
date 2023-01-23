@@ -39,7 +39,10 @@
 
 // You may need to force include a C++ header on Android when using STLPort
 // to ensure _STLPORT_VERSION is defined
-#if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__MWERKS__) || (defined(_STLPORT_VERSION) && ((_STLPORT_VERSION < 0x450) || defined(_STLP_NO_UNCAUGHT_EXCEPT_SUPPORT)))
+#if (defined(_MSC_VER) && _MSC_VER <= 1300) || \
+	defined(__MWERKS__) || \
+	(defined(_STLPORT_VERSION) && ((_STLPORT_VERSION < 0x450) || defined(_STLP_NO_UNCAUGHT_EXCEPT_SUPPORT)) || \
+	(__cplusplus >= 202002L))
 #define CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
 #endif
 
