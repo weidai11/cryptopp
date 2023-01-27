@@ -1457,6 +1457,12 @@ ifneq ($(wildcard libcryptopp.a),)
 	$(CP) libcryptopp.a $(DESTDIR)$(LIBDIR)
 	$(CHMOD) u=rw,go=r $(DESTDIR)$(LIBDIR)/libcryptopp.a
 endif
+ifneq ($(wildcard cryptopp.dll),)
+	@-$(MKDIR) $(DESTDIR)$(BINDIR)
+	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
+	$(CP) cryptopp.dll $(DESTDIR)$(BINDIR)
+	$(CP) libcryptopp.dll.a $(DESTDIR)$(LIBDIR)
+endif
 ifneq ($(wildcard libcryptopp.dylib),)
 	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
 	$(CP) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
@@ -1484,6 +1490,10 @@ remove uninstall:
 	-$(RM) -r $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.a
 	-$(RM) $(DESTDIR)$(BINDIR)/cryptest.exe
+ifneq ($(wildcard $(DESTDIR)$(BINDIR)/cryptopp.dll),)
+	-$(RM) $(DESTDIR)$(BINDIR)/cryptopp.dll
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.dll.a
+endif
 ifneq ($(wildcard $(DESTDIR)$(LIBDIR)/libcryptopp.dylib),)
 	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 endif
