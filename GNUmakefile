@@ -1308,6 +1308,9 @@ all: static dynamic cryptest.exe
 ifneq ($(IS_DARWIN),0)
 static: libcryptopp.a
 shared dynamic dylib: libcryptopp.dylib
+else ifneq ($(IS_MINGW),0)
+static: libcryptopp.a
+shared dynamic: cryptopp.dll
 else
 static: libcryptopp.a
 shared dynamic: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
