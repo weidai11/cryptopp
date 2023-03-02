@@ -106,12 +106,12 @@ and getting us started on the manual.
 #include "stdcpp.h"
 #include "trap.h"
 
-// C5264 new for VS2022/v17.4, MSC v14.34
+// C5264 new for VS2022/v17.4, MSC v17.3.4
 // https://github.com/weidai11/cryptopp/issues/1185
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4127 4189 4505 4702)
-# if (CRYPTOPP_MSC_VERSION >= 1434)
+# if (CRYPTOPP_MSC_VERSION >= 1933)
 #  pragma warning(disable: 5264)
 # endif
 #endif
