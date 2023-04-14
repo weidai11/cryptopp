@@ -33,6 +33,7 @@
 #endif
 
 #define CONST_WORD32_CAST(x) ((const word32 *)(void*)(x))
+#define CONST_WORD64_CAST(x) ((const word64 *)(void*)(x))
 
 // Squash MS LNK4221 and libtool warnings
 extern const char CRC_SIMD_FNAME[] = __FILE__;
@@ -151,21 +152,41 @@ void CRC32C_Update_ARMV8(const byte *s, size_t n, word32& c)
 #if (CRYPTOPP_SSE42_AVAILABLE)
 void CRC32C_Update_SSE42(const byte *s, size_t n, word32& c)
 {
+    // Temporary due to https://github.com/weidai11/cryptopp/issues/1202
+    word32 v = c;
+
+    // 64-bit code path due to https://github.com/weidai11/cryptopp/issues/1202
+#if CRYPTOPP_BOOL_X64
+    for(; !IsAligned<word64>(s) && n > 0; s++, n--)
+        v = _mm_crc32_u8(v, *s);
+#else
     for(; !IsAligned<word32>(s) && n > 0; s++, n--)
-        c = _mm_crc32_u8(c, *s);
+        v = _mm_crc32_u8(v, *s);
+#endif
+
+#if CRYPTOPP_BOOL_X64
+    for(; n >= 32; s+=32, n-=32)
+    {
+        v = _mm_crc32_u64(_mm_crc32_u64(_mm_crc32_u64(_mm_crc32_u64(v,
+            *CONST_WORD64_CAST(s+ 0)), *CONST_WORD64_CAST(s+ 8)),
+            *CONST_WORD64_CAST(s+16)), *CONST_WORD64_CAST(s+24));
+    }
+#endif
 
     for(; n >= 16; s+=16, n-=16)
-	{
-        c = _mm_crc32_u32(_mm_crc32_u32(_mm_crc32_u32(_mm_crc32_u32(c,
+    {
+        v = _mm_crc32_u32(_mm_crc32_u32(_mm_crc32_u32(_mm_crc32_u32(v,
             *CONST_WORD32_CAST(s+ 0)), *CONST_WORD32_CAST(s+ 4)),
             *CONST_WORD32_CAST(s+ 8)), *CONST_WORD32_CAST(s+12));
-	}
+    }
 
     for(; n >= 4; s+=4, n-=4)
-        c = _mm_crc32_u32(c, *CONST_WORD32_CAST(s));
+        v = _mm_crc32_u32(v, *CONST_WORD32_CAST(s));
 
     for(; n > 0; s++, n--)
-        c = _mm_crc32_u8(c, *s);
+        v = _mm_crc32_u8(v, *s);
+
+    c = v;
 }
 #endif
 
