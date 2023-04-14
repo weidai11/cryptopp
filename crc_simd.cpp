@@ -186,7 +186,7 @@ void CRC32C_Update_SSE42(const byte *s, size_t n, word32& c)
     for(; n > 0; s++, n--)
         v = _mm_crc32_u8(v, *s);
 
-    c = v;
+    c = static_cast<word32>(v);
 }
 #endif
 
