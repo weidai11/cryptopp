@@ -28,6 +28,10 @@
 # include <setjmp.h>
 #endif
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4244)
+#endif
+
 #ifndef EXCEPTION_EXECUTE_HANDLER
 # define EXCEPTION_EXECUTE_HANDLER 1
 #endif
