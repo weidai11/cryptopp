@@ -27,12 +27,9 @@ NAMESPACE_BEGIN(CryptoPP)
 
 void CallNewHandler()
 {
-	using std::new_handler;
-	using std::set_new_handler;
-
-	new_handler newHandler = set_new_handler(NULLPTR);
+	std::new_handler newHandler = std::set_new_handler(NULLPTR);
 	if (newHandler)
-		set_new_handler(newHandler);
+		std::set_new_handler(newHandler);
 
 	if (newHandler)
 		newHandler();

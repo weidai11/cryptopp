@@ -250,7 +250,7 @@ void Poly1305_Base<T>::Update(const byte *input, size_t length)
 	}
 
 	if (rem)
-		memcpy(m_acc, input, rem);
+		std::memcpy(m_acc, input, rem);
 
 	m_idx = rem;
 }
@@ -366,7 +366,7 @@ void Poly1305TLS_Base::Update(const byte *input, size_t length)
 	}
 
 	if (rem)
-		memcpy(m_acc, input, rem);
+		std::memcpy(m_acc, input, rem);
 
 	m_idx = rem;
 }

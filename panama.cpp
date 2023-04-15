@@ -35,7 +35,7 @@ std::string Panama<B>::AlgorithmProvider() const
 template <class B>
 void Panama<B>::Reset()
 {
-	memset(m_state, 0, m_state.SizeInBytes());
+	std::memset(m_state, 0, m_state.SizeInBytes());
 #if CRYPTOPP_SSSE3_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_PANAMA_ASM)
 	m_state[17] = HasSSSE3();
 #endif
@@ -449,7 +449,7 @@ void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 
 	this->Iterate(1, NULLPTR, m_buf.BytePtr(), NULLPTR);
 
-	memcpy(hash, m_buf, size);
+	std::memcpy(hash, m_buf, size);
 
 	this->Restart();		// reinit for next use
 }
@@ -460,7 +460,7 @@ void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byt
 {
 	CRYPTOPP_UNUSED(params); CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length==32);
-	memcpy(m_key, key, 32);
+	std::memcpy(m_key, key, 32);
 }
 
 template <class B>
@@ -476,9 +476,9 @@ void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byt
 	else
 	{
 		if (iv)
-			memcpy(m_buf, iv, 32);
+			std::memcpy(m_buf, iv, 32);
 		else
-			memset(m_buf, 0, 32);
+			std::memset(m_buf, 0, 32);
 		this->Iterate(1, m_buf);
 	}
 

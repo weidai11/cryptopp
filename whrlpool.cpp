@@ -100,7 +100,7 @@ std::string Whirlpool::AlgorithmProvider() const
 
 void Whirlpool::InitState(HashWordType *state)
 {
-	memset(state, 0, 8*sizeof(state[0]));
+	std::memset(state, 0, 8*sizeof(state[0]));
 }
 
 void Whirlpool::TruncatedFinal(byte *hash, size_t size)
@@ -118,7 +118,7 @@ void Whirlpool::TruncatedFinal(byte *hash, size_t size)
 
 	Transform(m_state, m_data);
 	CorrectEndianess(m_state, m_state, DigestSize());
-	memcpy(hash, m_state, size);
+	std::memcpy(hash, m_state, size);
 
 	Restart();		// reinit for next use
 }

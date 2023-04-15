@@ -97,7 +97,7 @@ bool ValidateHmacDRBG()
 			"\x94\xf1\xc1\xa5\xcf\x73\x22\xec\x1a\xe0\x96\x4e\xd4\xbf\x12\x27\x46\xe0\x87\xfd"
 			"\xb5\xb3\xe9\x1b\x34\x93\xd5\xbb\x98\xfa\xed\x49\xe8\x5f\x13\x0f\xc8\xa4\x59\xb7";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "HMAC_DRBG SHA1/128/440 (COUNT=0, E=16, N=8)\n";
@@ -122,7 +122,7 @@ bool ValidateHmacDRBG()
 			"\xf5\x90\xf6\xc9\xb3\x8b\x46\x5b\x78\x3e\xcf\xf1\x3a\x77\x50\x20\x1f\x7e\xcf\x1b"
 			"\x8a\xb3\x93\x60\x4c\x73\xb2\x38\x93\x36\x60\x9a\xf3\x44\x0c\xde\x43\x29\x8b\x84";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "HMAC_DRBG SHA1/128/440 (COUNT=1, E=16, N=8)\n";
@@ -152,7 +152,7 @@ bool ValidateHmacDRBG()
 			"\x9d\xc3\x36\x52\xab\x58\xec\xb7\x65\x0e\xd8\x04\x67\xf7\x6a\x84\x9f\xb1\xcf\xc1"
 			"\xed\x0a\x09\xf7\x15\x50\x86\x06\x4d\xb3\x24\xb1\xe1\x24\xf3\xfc\x9e\x61\x4f\xcb";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "HMAC_DRBG SHA1/128/440 (COUNT=0, E=16, N=8, A=16)\n";
@@ -180,7 +180,7 @@ bool ValidateHmacDRBG()
 			"\xdb\x7a\x6e\x8e\x7a\xb9\x4c\x05\x50\x0b\x4d\x1e\x35\x7d\xf8\xe9\x57\xac\x89\x37"
 			"\xb0\x5f\xb3\xd0\x80\xa0\xf9\x06\x74\xd4\x4d\xe1\xbd\x6f\x94\xd2\x95\xc4\x51\x9d";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "HMAC_DRBG SHA1/128/440 (COUNT=1, E=16, N=8, A=16)\n";
@@ -249,11 +249,11 @@ bool BlockTransformationTest(const CipherFactory &cg, BufferedTransformation &va
 
 		member_ptr<BlockTransformation> transE(cg.NewEncryption(key));
 		transE->ProcessBlock(plain, out);
-		fail = memcmp(out, cipher, cg.BlockSize()) != 0;
+		fail = std::memcmp(out, cipher, cg.BlockSize()) != 0;
 
 		member_ptr<BlockTransformation> transD(cg.NewDecryption(key));
 		transD->ProcessBlock(out, outplain);
-		fail=fail || memcmp(outplain, plain, cg.BlockSize());
+		fail=fail || std::memcmp(outplain, plain, cg.BlockSize());
 
 		pass = pass && !fail;
 
@@ -522,7 +522,7 @@ bool ValidateCipherModes()
 		modeE.SetStolenIV(stolenIV);
 		fail = !TestFilter(StreamTransformationFilter(modeE).Ref(),
 			plain, 3, encrypted, sizeof(encrypted));
-		fail = memcmp(stolenIV, decryptionIV, 8) != 0 || fail;
+		fail = std::memcmp(stolenIV, decryptionIV, 8) != 0 || fail;
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ") << "CBC encryption with ciphertext and IV stealing" << std::endl;
 
@@ -690,11 +690,11 @@ bool ValidateRC2()
 
 		member_ptr<BlockTransformation> transE(new RC2Encryption(key, keyLen, effectiveLen));
 		transE->ProcessBlock(plain, out);
-		fail = memcmp(out, cipher, RC2Encryption::BLOCKSIZE) != 0;
+		fail = std::memcmp(out, cipher, RC2Encryption::BLOCKSIZE) != 0;
 
 		member_ptr<BlockTransformation> transD(new RC2Decryption(key, keyLen, effectiveLen));
 		transD->ProcessBlock(out, outplain);
-		fail=fail || memcmp(outplain, plain, RC2Encryption::BLOCKSIZE);
+		fail=fail || std::memcmp(outplain, plain, RC2Encryption::BLOCKSIZE);
 
 		pass = pass && !fail;
 
@@ -843,13 +843,13 @@ bool ValidateARC4()
 
 	arc4.reset(new Weak::ARC4(Key0, sizeof(Key0)));
 	arc4->ProcessString(Input0, sizeof(Input0));
-	fail = memcmp(Input0, Output0, sizeof(Input0)) != 0;
+	fail = std::memcmp(Input0, Output0, sizeof(Input0)) != 0;
 	std::cout << (fail ? "FAILED" : "passed") << "   Test 0" << std::endl;
 	pass = pass && !fail;
 
 	arc4.reset(new Weak::ARC4(Key1, sizeof(Key1)));
 	arc4->ProcessString(Key1, Input1, sizeof(Key1));
-	fail = memcmp(Output1, Key1, sizeof(Key1)) != 0;
+	fail = std::memcmp(Output1, Key1, sizeof(Key1)) != 0;
 	std::cout << (fail ? "FAILED" : "passed") << "   Test 1" << std::endl;
 	pass = pass && !fail;
 
@@ -1107,11 +1107,11 @@ bool ValidateBlowfish()
 	{
 		ECB_Mode<Blowfish>::Encryption enc2((byte *)key[i], strlen(key[i]));
 		enc2.ProcessData(out, plain[i], 8);
-		fail = memcmp(out, cipher[i], 8) != 0;
+		fail = std::memcmp(out, cipher[i], 8) != 0;
 
 		ECB_Mode<Blowfish>::Decryption dec2((byte *)key[i], strlen(key[i]));
 		dec2.ProcessData(outplain, cipher[i], 8);
-		fail = fail || memcmp(outplain, plain[i], 8);
+		fail = fail || std::memcmp(outplain, plain[i], 8);
 		pass3 = pass3 && !fail;
 
 		std::cout << (fail ? "FAILED   " : "passed   ");
@@ -1320,7 +1320,7 @@ bool ValidateSEAL()
 	unsigned int size = sizeof(input);
 	bool pass = true;
 
-	memset(output, 1, size);
+	std::memset(output, 1, size);
 	seal.ProcessString(output, input, size);
 	for (unsigned int i=0; i<size; i++)
 		if (output[i] != 0)
@@ -1329,7 +1329,7 @@ bool ValidateSEAL()
 	seal.Seek(1);
 	output[1] = seal.ProcessByte(output[1]);
 	seal.ProcessString(output+2, size-2);
-	pass = pass && memcmp(output+1, input+1, size-1) == 0;
+	pass = pass && std::memcmp(output+1, input+1, size-1) == 0;
 
 	std::cout << (pass ? "passed" : "FAILED") << std::endl;
 	return pass;
@@ -1461,7 +1461,7 @@ void MyEncoder::IsolatedInitialize(const NameValuePairs &parameters)
 	const char *lineBreak = insertLineBreaks ? "\n" : "";
 
 	char stars[64];
-	memset(stars, '*', 64);
+	std::memset(stars, '*', 64);
 
 	m_filter->Initialize(CombinedNameValuePairs(
 		parameters,

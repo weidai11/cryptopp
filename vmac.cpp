@@ -133,8 +133,8 @@ void VMAC_Base::Resynchronize(const byte *nonce, int len)
 
 	if (m_is128)
 	{
-		memset(storedNonce, 0, s-length);
-		memcpy(storedNonce+s-length, nonce, length);
+		std::memset(storedNonce, 0, s-length);
+		std::memcpy(storedNonce+s-length, nonce, length);
 		AccessCipher().ProcessBlock(storedNonce, m_pad());
 	}
 	else
@@ -147,8 +147,8 @@ void VMAC_Base::Resynchronize(const byte *nonce, int len)
 		}
 		if (!m_padCached)
 		{
-			memset(storedNonce, 0, s-length);
-			memcpy(storedNonce+s-length, nonce, length-1);
+			std::memset(storedNonce, 0, s-length);
+			std::memcpy(storedNonce+s-length, nonce, length-1);
 			storedNonce[s-1] = nonce[length-1] & 0xfe;
 			AccessCipher().ProcessBlock(storedNonce, m_pad());
 			m_padCached = true;
@@ -844,7 +844,7 @@ void VMAC_Base::TruncatedFinal(byte *mac, size_t size)
 
 	if (len)
 	{
-		memset(m_data()+len, 0, (0-len)%16);
+		std::memset(m_data()+len, 0, (0-len)%16);
 		VHASH_Update(DataBuf(), ((len+15)/16)*2);
 		len *= 8;	// convert to bits
 	}
@@ -874,7 +874,7 @@ void VMAC_Base::TruncatedFinal(byte *mac, size_t size)
 		{
 			t[0] = ConditionalByteReverse(BIG_ENDIAN_ORDER, t[0]);
 			t[1] = ConditionalByteReverse(BIG_ENDIAN_ORDER, t[1]);
-			memcpy(mac, t, size);
+			std::memcpy(mac, t, size);
 		}
 	}
 	else
@@ -886,7 +886,7 @@ void VMAC_Base::TruncatedFinal(byte *mac, size_t size)
 		else
 		{
 			t = ConditionalByteReverse(BIG_ENDIAN_ORDER, t);
-			memcpy(mac, &t, size);
+			std::memcpy(mac, &t, size);
 		}
 	}
 }

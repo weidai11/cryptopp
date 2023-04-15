@@ -559,7 +559,7 @@ inline void get_hash(LSH512_AVX2_Context* ctx, lsh_u8* pbHashVal)
 	lsh_uint hash_val_bit_len = LSH_GET_SMALL_HASHBIT(alg_type);
 
 	// Multiplying by sizeof(lsh_u8) looks odd...
-	memcpy(pbHashVal, ctx->cv_l, hash_val_byte_len);
+	std::memcpy(pbHashVal, ctx->cv_l, hash_val_byte_len);
 	if (hash_val_bit_len){
 		pbHashVal[hash_val_byte_len-1] &= (((lsh_u8)0xff) << hash_val_bit_len);
 	}
@@ -649,7 +649,7 @@ lsh_err lsh512_update_avx2(LSH512_AVX2_Context* ctx, const lsh_u8* data, size_t 
 	}
 
 	if (databytelen + remain_msg_byte < LSH512_MSG_BLK_BYTE_LEN){
-		memcpy(ctx->last_block + remain_msg_byte, data, databytelen);
+		std::memcpy(ctx->last_block + remain_msg_byte, data, databytelen);
 		ctx->remain_databitlen += (lsh_uint)databitlen;
 		remain_msg_byte += (lsh_uint)databytelen;
 		if (pos2){
@@ -660,7 +660,7 @@ lsh_err lsh512_update_avx2(LSH512_AVX2_Context* ctx, const lsh_u8* data, size_t 
 
 	if (remain_msg_byte > 0){
 		size_t more_byte = LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte;
-		memcpy(ctx->last_block + remain_msg_byte, data, more_byte);
+		std::memcpy(ctx->last_block + remain_msg_byte, data, more_byte);
 		compress(ctx, ctx->last_block);
 		data += more_byte;
 		databytelen -= more_byte;
@@ -679,7 +679,7 @@ lsh_err lsh512_update_avx2(LSH512_AVX2_Context* ctx, const lsh_u8* data, size_t 
 	}
 
 	if (databytelen > 0){
-		memcpy(ctx->last_block, data, databytelen);
+		std::memcpy(ctx->last_block, data, databytelen);
 		ctx->remain_databitlen = (lsh_uint)(databytelen << 3);
 	}
 
@@ -713,7 +713,7 @@ lsh_err lsh512_final_avx2(LSH512_AVX2_Context* ctx, lsh_u8* hashval)
 	else{
 		ctx->last_block[remain_msg_byte] = 0x80;
 	}
-	memset(ctx->last_block + remain_msg_byte + 1, 0, LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
+	std::memset(ctx->last_block + remain_msg_byte + 1, 0, LSH512_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
 
 	compress(ctx, ctx->last_block);
 

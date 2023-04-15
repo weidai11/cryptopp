@@ -83,7 +83,7 @@ public:
 		for (size_t i=0; i < size/4; i++, output += 4)
 		{
 			temp[0] = NextMersenneWord();
-			memcpy(output, temp+0, 4);
+			std::memcpy(output, temp+0, 4);
 		}
 
 		// No tail bytes

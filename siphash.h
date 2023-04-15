@@ -162,7 +162,7 @@ void SipHash_Base<C,D,T_128bit>::Update(const byte *input, size_t length)
 	if (m_idx)
 	{
 		size_t head = STDMIN(size_t(8U-m_idx), length);
-		memcpy(m_acc+m_idx, input, head);
+		std::memcpy(m_acc+m_idx, input, head);
 		m_idx += head; input += head; length -= head;
 
 		if (m_idx == 8)
@@ -197,7 +197,7 @@ void SipHash_Base<C,D,T_128bit>::Update(const byte *input, size_t length)
 	size_t tail = length % 8;
 	if (tail)
 	{
-		memcpy(m_acc+m_idx, input, tail);
+		std::memcpy(m_acc+m_idx, input, tail);
 		m_idx += tail;
 	}
 }

@@ -155,7 +155,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     m_buffer.resize(3*blockSize + tableSize);
     byte *mulTable = MulTable();
     byte *hashKey = HashKey();
-    memset(hashKey, 0, REQUIRED_BLOCKSIZE);
+    std::memset(hashKey, 0, REQUIRED_BLOCKSIZE);
     blockCipher.ProcessBlock(hashKey);
 
 #if CRYPTOPP_CLMUL_AVAILABLE
@@ -196,7 +196,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
         for (i=0; i<16; i++)
         {
-            memset(mulTable+i*256*16, 0, 16);
+            std::memset(mulTable+i*256*16, 0, 16);
 #if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
             if (HasSSE2())
                 for (j=2; j<=0x80; j*=2)
@@ -253,8 +253,8 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
 
         for (i=0; i<4; i++)
         {
-            memset(mulTable+i*256, 0, 16);
-            memset(mulTable+1024+i*256, 0, 16);
+            std::memset(mulTable+i*256, 0, 16);
+            std::memset(mulTable+1024+i*256, 0, 16);
 #if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
             if (HasSSE2())
                 for (j=2; j<=8; j*=2)
@@ -320,14 +320,14 @@ void GCM_Base::Resync(const byte *iv, size_t len)
 
     if (len == 12)
     {
-        memcpy(hashBuffer, iv, len);
-        memset(hashBuffer+len, 0, 3);
+        std::memcpy(hashBuffer, iv, len);
+        std::memset(hashBuffer+len, 0, 3);
         hashBuffer[len+3] = 1;
     }
     else
     {
         size_t origLen = len;
-        memset(hashBuffer, 0, HASH_BLOCKSIZE);
+        std::memset(hashBuffer, 0, HASH_BLOCKSIZE);
 
         if (len >= HASH_BLOCKSIZE)
         {
@@ -337,8 +337,8 @@ void GCM_Base::Resync(const byte *iv, size_t len)
 
         if (len > 0)
         {
-            memcpy(m_buffer, iv, len);
-            memset(m_buffer+len, 0, HASH_BLOCKSIZE-len);
+            std::memcpy(m_buffer, iv, len);
+            std::memset(m_buffer+len, 0, HASH_BLOCKSIZE-len);
             GCM_Base::AuthenticateBlocks(m_buffer, HASH_BLOCKSIZE);
         }
 
@@ -355,7 +355,7 @@ void GCM_Base::Resync(const byte *iv, size_t len)
 
     m_ctr.Seek(HASH_BLOCKSIZE);
 
-    memset(hashBuffer, 0, HASH_BLOCKSIZE);
+    std::memset(hashBuffer, 0, HASH_BLOCKSIZE);
 }
 
 unsigned int GCM_Base::OptimalDataAlignment() const
@@ -830,7 +830,7 @@ void GCM_Base::AuthenticateLastHeaderBlock()
 {
     if (m_bufferedDataLength > 0)
     {
-        memset(m_buffer+m_bufferedDataLength, 0, HASH_BLOCKSIZE-m_bufferedDataLength);
+        std::memset(m_buffer+m_bufferedDataLength, 0, HASH_BLOCKSIZE-m_bufferedDataLength);
         m_bufferedDataLength = 0;
         GCM_Base::AuthenticateBlocks(m_buffer, HASH_BLOCKSIZE);
     }

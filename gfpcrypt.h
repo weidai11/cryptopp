@@ -472,7 +472,7 @@ protected:
         else // block.size() < rlen
         {
             size_t offset = rlen - block.size();
-            memset(t, '\x00', offset);
+            std::memset(t, '\x00', offset);
             std::memcpy(t + offset, block, rlen - offset);
         }
 

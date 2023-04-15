@@ -40,9 +40,9 @@ void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputL
 
 	// DB = pHash || 00 ... || 01 || M
 	pHash->CalculateDigest(maskedDB, encodingParameters.begin(), encodingParameters.size());
-	memset(maskedDB+hLen, 0, dbLen-hLen-inputLength-1);
+	std::memset(maskedDB+hLen, 0, dbLen-hLen-inputLength-1);
 	maskedDB[dbLen-inputLength-1] = 0x01;
-	memcpy(maskedDB+dbLen-inputLength, input, inputLength);
+	std::memcpy(maskedDB+dbLen-inputLength, input, inputLength);
 
 	rng.GenerateBlock(maskedSeed, seedLen);
 	member_ptr<MaskGeneratingFunction> pMGF(NewMGF());
@@ -89,7 +89,7 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte
 		return DecodingResult();
 
 	M++;
-	memcpy(output, M, maskedDB+dbLen-M);
+	std::memcpy(output, M, maskedDB+dbLen-M);
 	return DecodingResult(maskedDB+dbLen-M);
 }
 

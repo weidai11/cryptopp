@@ -31,7 +31,7 @@ void EMSA2Pad::ComputeMessageRepresentative(RandomNumberGenerator& /*rng*/,
 	size_t representativeByteLength = BitsToBytes(representativeBitLength);
 
 	representative[0] = messageEmpty ? 0x4b : 0x6b;
-	memset(representative+1, 0xbb, representativeByteLength-digestSize-4);	// pad with 0xbb
+	std::memset(representative+1, 0xbb, representativeByteLength-digestSize-4);	// pad with 0xbb
 	byte *afterP2 = representative+representativeByteLength-digestSize-3;
 	afterP2[0] = 0xba;
 	hash.Final(afterP2+1);

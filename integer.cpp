@@ -303,10 +303,10 @@ public:
 #if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
 #  if (CRYPTOPP_LITTLE_ENDIAN)
 		const word t[2] = {low,high};
-		memcpy(&m_whole, t, sizeof(m_whole));
+		std::memcpy(&m_whole, t, sizeof(m_whole));
 #  else
 		const word t[2] = {high,low};
-		memcpy(&m_whole, t, sizeof(m_whole));
+		std::memcpy(&m_whole, t, sizeof(m_whole));
 #  endif
 #else
 		m_halfs.low = low;
@@ -2562,7 +2562,7 @@ void MontgomeryReduce(word *R, word *T, word *X, const word *M, const word *U, s
 			while (!Subtract(X+N, X+N, M, N)) {}
 	}
 
-	memcpy(R, X+N, N*WORD_SIZE);
+	std::memcpy(R, X+N, N*WORD_SIZE);
 #else
 	__m64 u = _mm_cvtsi32_si64(0-U[0]), p;
 	for (size_t i=0; i<N; i++)
@@ -2588,7 +2588,7 @@ void MontgomeryReduce(word *R, word *T, word *X, const word *M, const word *U, s
 			while (!Subtract(X+N, X+N, M, N)) {}
 	}
 
-	memcpy(R, X+N, N*WORD_SIZE);
+	std::memcpy(R, X+N, N*WORD_SIZE);
 	_mm_empty();
 #endif
 }
@@ -2721,7 +2721,7 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 		word P[4];
 		LowLevel::Multiply2(P, Q, B);
 		Add(P, P, T, 4);
-		CRYPTOPP_ASSERT(memcmp(P, A, 4*WORD_SIZE)==0);
+		CRYPTOPP_ASSERT(std::memcmp(P, A, 4*WORD_SIZE)==0);
 #endif
 	}
 }
@@ -2742,7 +2742,7 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 		word P[4];
 		s_pMul[0](P, Q, B);
 		Add(P, P, T, 4);
-		CRYPTOPP_ASSERT(memcmp(P, A, 4*WORD_SIZE)==0);
+		CRYPTOPP_ASSERT(std::memcmp(P, A, 4*WORD_SIZE)==0);
 	}
 #endif
 }
@@ -3556,7 +3556,7 @@ public:
 	KDF2_RNG(const byte *seed, size_t seedSize)
 		: m_counter(0), m_counterAndSeed(ClampSize(seedSize) + 4)
 	{
-		memcpy(m_counterAndSeed + 4, seed, ClampSize(seedSize));
+		std::memcpy(m_counterAndSeed + 4, seed, ClampSize(seedSize));
 	}
 
 	void GenerateBlock(byte *output, size_t size)

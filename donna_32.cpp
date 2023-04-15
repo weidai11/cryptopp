@@ -1286,7 +1286,7 @@ expand256_modm(bignum256modm out, const byte *in, size_t len) {
     bignum256modm_element_t x[16];
     bignum256modm q1;
 
-    memcpy(work, in, len);
+    std::memcpy(work, in, len);
     x[0] = U8TO32_LE(work +  0);
     x[1] = U8TO32_LE(work +  4);
     x[2] = U8TO32_LE(work +  8);
@@ -1700,7 +1700,7 @@ ge25519_double_scalarmult_vartime(ge25519 *r, const ge25519 *p1, const bignum256
         ge25519_pnielsadd(&pre1[i+1], &d1, &pre1[i]);
 
     /* set neutral */
-    memset(r, 0, sizeof(ge25519));
+    std::memset(r, 0, sizeof(ge25519));
     r->y[0] = 1;
     r->z[0] = 1;
 
@@ -1773,7 +1773,7 @@ ge25519_scalarmult_base_niels(ge25519 *r, const byte basepoint_table[256][96], c
     ge25519_scalarmult_base_choose_niels(&t, basepoint_table, 0, b[1]);
     curve25519_sub_reduce(r->x, t.xaddy, t.ysubx);
     curve25519_add_reduce(r->y, t.xaddy, t.ysubx);
-    memset(r->z, 0, sizeof(bignum25519));
+    std::memset(r->z, 0, sizeof(bignum25519));
     curve25519_copy(r->t, t.t2d);
     r->z[0] = 2;
     for (i = 3; i < 64; i += 2) {

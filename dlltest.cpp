@@ -73,7 +73,7 @@ void FIPS140_SampleApplication()
 	decryption_DES_EDE3_CFB.SetKeyWithIV(key, sizeof(key), iv);
 	decryption_DES_EDE3_CFB.ProcessString(decrypted, ciphertext, 24);
 
-	if (memcmp(plaintext, decrypted, 24) != 0)
+	if (std::memcmp(plaintext, decrypted, 24) != 0)
 	{
 		std::cerr << "DES-EDE3-CFB Encryption/decryption failed.\n";
 		abort();
@@ -89,7 +89,7 @@ void FIPS140_SampleApplication()
 	sha.Update(message, 3);
 	sha.Final(digest);
 
-	if (memcmp(digest, expectedDigest, 20) != 0)
+	if (std::memcmp(digest, expectedDigest, 20) != 0)
 	{
 		std::cerr << "SHA-1 hash failed.\n";
 		abort();

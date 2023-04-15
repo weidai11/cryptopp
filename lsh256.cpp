@@ -482,8 +482,8 @@ inline void load_iv(lsh_u32 cv_l[8], lsh_u32 cv_r[8], const lsh_u32 iv[16])
 
 inline void zero_iv(lsh_u32 cv_l[8], lsh_u32 cv_r[8])
 {
-	memset(cv_l, 0x00, 8*sizeof(lsh_u32));
-	memset(cv_r, 0x00, 8*sizeof(lsh_u32));
+	std::memset(cv_l, 0x00, 8*sizeof(lsh_u32));
+	std::memset(cv_r, 0x00, 8*sizeof(lsh_u32));
 }
 
 inline void zero_submsgs(LSH256_Context* ctx)
@@ -491,7 +491,7 @@ inline void zero_submsgs(LSH256_Context* ctx)
 	CRYPTOPP_ASSERT(ctx != NULLPTR);
 
 	lsh_u32* sub_msgs = ctx->sub_msgs;
-	memset(sub_msgs, 0x00, 32*sizeof(lsh_u32));
+	std::memset(sub_msgs, 0x00, 32*sizeof(lsh_u32));
 }
 
 inline void init224(LSH256_Context* ctx)
@@ -534,7 +534,7 @@ inline void get_hash(LSH256_Context* ctx, lsh_u8* pbHashVal)
 	lsh_uint hash_val_bit_len = LSH_GET_SMALL_HASHBIT(alg_type);
 
 	// Multiplying by looks odd...
-	memcpy(pbHashVal, ctx->cv_l, hash_val_byte_len);
+	std::memcpy(pbHashVal, ctx->cv_l, hash_val_byte_len);
 	if (hash_val_bit_len){
 		pbHashVal[hash_val_byte_len-1] &= (((lsh_u8)0xff) << hash_val_bit_len);
 	}
@@ -614,7 +614,7 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 
 	if (databytelen + remain_msg_byte < LSH256_MSG_BLK_BYTE_LEN)
 	{
-		memcpy(ctx->last_block + remain_msg_byte, data, databytelen);
+		std::memcpy(ctx->last_block + remain_msg_byte, data, databytelen);
 		ctx->remain_databitlen += (lsh_uint)databitlen;
 		remain_msg_byte += (lsh_uint)databytelen;
 		if (pos2){
@@ -625,7 +625,7 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 
 	if (remain_msg_byte > 0){
 		size_t more_byte = LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte;
-		memcpy(ctx->last_block + remain_msg_byte, data, more_byte);
+		std::memcpy(ctx->last_block + remain_msg_byte, data, more_byte);
 		compress(ctx, ctx->last_block);
 		data += more_byte;
 		databytelen -= more_byte;
@@ -644,7 +644,7 @@ lsh_err lsh256_update(LSH256_Context* ctx, const lsh_u8* data, size_t databitlen
 	}
 
 	if (databytelen > 0){
-		memcpy(ctx->last_block, data, databytelen);
+		std::memcpy(ctx->last_block, data, databytelen);
 		ctx->remain_databitlen = (lsh_uint)(databytelen << 3);
 	}
 
@@ -676,7 +676,7 @@ lsh_err lsh256_final(LSH256_Context* ctx, lsh_u8* hashval)
 	else{
 		ctx->last_block[remain_msg_byte] = 0x80;
 	}
-	memset(ctx->last_block + remain_msg_byte + 1, 0, LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
+	std::memset(ctx->last_block + remain_msg_byte + 1, 0, LSH256_MSG_BLK_BYTE_LEN - remain_msg_byte - 1);
 
 	compress(ctx, ctx->last_block);
 
@@ -809,7 +809,7 @@ void LSH256_Base::TruncatedFinal(byte *hash, size_t size)
 	LSH256_Base_TruncatedFinal_CXX(m_state, copyOut ? fullHash : hash, size);
 
 	if (copyOut)
-		memcpy(hash, fullHash, size);
+		std::memcpy(hash, fullHash, size);
 
     Restart();
 }

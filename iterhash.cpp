@@ -147,12 +147,12 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::PadLastBlock(unsi
 
 	data[num++] = padFirst;
 	if (num <= lastBlockSize)
-		memset(data+num, 0, lastBlockSize-num);
+		std::memset(data+num, 0, lastBlockSize-num);
 	else
 	{
-		memset(data+num, 0, blockSize-num);
+		std::memset(data+num, 0, blockSize-num);
 		HashBlock(dataBuf);
-		memset(data, 0, lastBlockSize);
+		std::memset(data, 0, lastBlockSize);
 	}
 }
 

@@ -713,7 +713,7 @@ void XSalsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key
 
 	GetUserKey(LITTLE_ENDIAN_ORDER, m_key.begin(), m_key.size(), key, length);
 	if (length == 16)
-		memcpy(m_key.begin()+4, m_key.begin(), 16);
+		std::memcpy(m_key.begin()+4, m_key.begin(), 16);
 
 	// "expand 32-byte k"
 	m_state[0] = 0x61707865;

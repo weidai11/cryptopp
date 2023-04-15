@@ -84,7 +84,7 @@ void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	xorbuf(xorStart + 1 + recoverableMessageLength, salt, salt.size());
 	if (hashIdentifier.first && hashIdentifier.second)
 	{
-		memcpy(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second);
+		std::memcpy(representative + representativeByteLength - u, hashIdentifier.first, hashIdentifier.second);
 		representative[representativeByteLength - 1] = 0xcc;
 	}
 	else
@@ -134,7 +134,7 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	   recoverableMessageLength <= MaxRecoverableLength(representativeBitLength, hashIdentifier.second, digestSize))
 	{
 		if (recoverableMessage)
-			memcpy(recoverableMessage, M+1, recoverableMessageLength);
+			std::memcpy(recoverableMessage, M+1, recoverableMessageLength);
 	}
 	else
 	{

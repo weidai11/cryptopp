@@ -274,7 +274,7 @@ protected:
 		for (int k=0; k<keySize;)
 		{
 			int pos = innerCount * blockSize - keySize + k;
-			memcpy(x + k, text[pos / blockSize] + pos % blockSize, blockSize - pos % blockSize);
+			std::memcpy(x + k, text[pos / blockSize] + pos % blockSize, blockSize - pos % blockSize);
 			k += blockSize - pos % blockSize;
 		}
 
@@ -918,8 +918,8 @@ protected:
 							Xor(CT[j], CT[j], PT[j]);
 							AssignLeftMostBits(PT[j+1], IB[j], K);
 							IB[j+1].resize(blockSize);
-							memcpy(IB[j+1], IB[j]+K/8, blockSize-K/8);
-							memcpy(IB[j+1]+blockSize-K/8, CT[j], K/8);
+							std::memcpy(IB[j+1], IB[j]+K/8, blockSize-K/8);
+							std::memcpy(IB[j+1]+blockSize-K/8, CT[j], K/8);
 						}
 						else
 						{
@@ -928,8 +928,8 @@ protected:
 							AssignLeftMostBits(PT[j], OB[j], K);
 							Xor(PT[j], PT[j], CT[j]);
 							IB[j+1].resize(blockSize);
-							memcpy(IB[j+1], IB[j]+K/8, blockSize-K/8);
-							memcpy(IB[j+1]+blockSize-K/8, CT[j], K/8);
+							std::memcpy(IB[j+1], IB[j]+K/8, blockSize-K/8);
+							std::memcpy(IB[j+1]+blockSize-K/8, CT[j], K/8);
 							AssignLeftMostBits(CT[j+1], OB[j], K);
 						}
 					}

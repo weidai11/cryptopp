@@ -201,7 +201,7 @@ inline void CopyOrZero(void *dest, size_t dsize, const void *src, size_t ssize)
 	if (src != NULLPTR)
 		memcpy_s(dest, dsize, src, ssize);
 	else
-		memset(dest, 0, dsize);
+		std::memset(dest, 0, dsize);
 }
 
 /// \brief OFB block cipher mode of operation

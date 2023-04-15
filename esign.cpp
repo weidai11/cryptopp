@@ -112,7 +112,7 @@ void InvertibleESIGNFunction::GenerateRandom(RandomNumberGenerator &rng, const N
 	if (param.GetValue("Seed", seedParam))
 	{
 		seed.resize(seedParam.size() + 4);
-		memcpy(seed + 4, seedParam.begin(), seedParam.size());
+		std::memcpy(seed + 4, seedParam.begin(), seedParam.size());
 
 		PutWord(false, BIG_ENDIAN_ORDER, seed, (word32)0);
 		m_p.GenerateRandom(rng, CombinedNameValuePairs(primeParam, MakeParameters("Seed", ConstByteArrayParameter(seed))));
@@ -177,17 +177,7 @@ Integer InvertibleESIGNFunction::CalculateRandomizedInverse(RandomNumberGenerato
 	Integer t = modp.Divide(w0 * r % m_p, m_e * re % m_p);
 	Integer s = r + t*pq;
 	CRYPTOPP_ASSERT(s < m_n);
-#if 0
-	using namespace std;
-	cout << "f = " << x << endl;
-	cout << "r = " << r << endl;
-	cout << "z = " << z << endl;
-	cout << "a = " << a << endl;
-	cout << "w0 = " << w0 << endl;
-	cout << "w1 = " << w1 << endl;
-	cout << "t = " << t << endl;
-	cout << "s = " << s << endl;
-#endif
+
 	return s;
 }
 

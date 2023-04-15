@@ -997,7 +997,7 @@ bool ValidateHashDRBG()
 			"\xBD\x0F\x05\xF2\x5A\x69\x88\xC1\x74\x36\x39\x62\x27\x18\x4A\xF8\x4A\x56\x43\x35"
 			"\x65\x8E\x2F\x85\x72\xBE\xA3\x33\xEE\xE2\xAB\xFF\x22\xFF\xA6\xDE\x3E\x22\xAC\xA2";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA1/128/440 (COUNT=0, E=16, N=8)\n";
@@ -1022,7 +1022,7 @@ bool ValidateHashDRBG()
 			"\x80\x2E\x68\x05\x4A\xAB\xA8\x7C\xD6\x3A\xD3\xE5\xC9\x7C\x06\xE7\xA3\x9F\xF6\xF9"
 			"\x8E\xB3\xD9\x72\xD4\x11\x35\xE5\xE7\x46\x1B\x49\x9C\x56\x45\x6A\xBE\x7F\x77\xD4";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA1/128/440 (COUNT=1, E=16, N=8)\n";
@@ -1050,7 +1050,7 @@ bool ValidateHashDRBG()
 			"\x58\x70\xB3\x39\x46\x8C\xDD\x8D\x6F\xAF\x8C\x56\x16\x3A\x70\x0A\x75\xB2\x3E\x59"
 			"\x9B\x5A\xEC\xF1\x6F\x3B\xAF\x6D\x5F\x24\x19\x97\x1F\x24\xF4\x46\x72\x0F\xEA\xBE";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA1/128/440 (C0UNT=0, E=16, N=8, A=16)\n";
@@ -1078,7 +1078,7 @@ bool ValidateHashDRBG()
 			"\x06\x94\x41\xD6\xB5\xC5\x44\x60\x54\x07\xE8\xE7\xDC\x1C\xD8\xE4\x70\xAD\x84\x77"
 			"\x5A\x65\x31\xBE\xE0\xFC\x81\x36\xE2\x8F\x0B\xFE\xEB\xE1\x98\x62\x7E\x98\xE0\xC1";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA1/128/440 (C0UNT=1, E=16, N=8, A=16)\n";
@@ -1104,7 +1104,7 @@ bool ValidateHashDRBG()
 			"\xB6\xC5\x68\xD8\x40\x6E\x2B\xD4\x3D\x23\xEB\x0F\x10\xBA\x5F\x24\x9C\xC9\xE9\x4A"
 			"\xD3\xA5\xF1\xDF\xA4\xF2\xB4\x80\x40\x91\xED\x8C\xD6\x6D\xE7\xB7\x53\xB2\x09\xD5";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA1/128/440 (C0UNT=0, E=16, N=8, A=0, P=16)\n";
@@ -1130,7 +1130,7 @@ bool ValidateHashDRBG()
 			"\xDC\x16\xBC\x5F\x69\xE5\xBB\x05\xD1\x43\x8F\x80\xAB\xC5\x8F\x9C\x3F\x75\x57\xEB"
 			"\x44\x0D\xF5\x0C\xF4\x95\x23\x94\x67\x11\x55\x98\x14\x43\xFF\x13\x14\x85\x5A\xBC";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA1/128/440 (C0UNT=1, E=16, N=8, A=0, P=16)\n";
@@ -1159,7 +1159,7 @@ bool ValidateHashDRBG()
 			"\xDD\x92\x33\x78\x6D\x5D\x41\xFF\xFA\xE9\x80\x59\x04\x85\x21\xE2\x52\x84\xBC\x6F"
 			"\xDB\x97\xF3\x4E\x6A\x12\x7A\xCD\x41\x0F\x50\x68\x28\x46\xBE\x56\x9E\x9A\x6B\xC8";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA1/128/440 (C0UNT=0, E=16, N=8, A=16, P=16)\n";
@@ -1188,7 +1188,7 @@ bool ValidateHashDRBG()
 			"\x73\x91\x27\xE9\x31\xC0\x55\x55\x11\xE8\xB6\x57\x02\x0D\xCE\x90\xAC\x31\xB9\x00"
 			"\x31\xC1\xD4\x4F\xE7\x12\x3B\xCC\x85\x16\x2F\x12\x8F\xB2\xDF\x84\x4E\xF7\x06\xBE";
 
-		fail = !!memcmp(result, expected, 640/8);
+		fail = !!std::memcmp(result, expected, 640/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA1/128/440 (C0UNT=1, E=16, N=8, A=16, P=16)\n";
@@ -1220,7 +1220,7 @@ bool ValidateHashDRBG()
 			"\xE1\x03\x3A\x76\x54\xFF\xD7\x24\x70\x5E\x8C\xB2\x41\x7D\x92\x0A\x2F\x4F\x27\xB8"
 			"\x45\x13\x7F\xFB\x87\x90\xA9\x49";
 
-		fail = !!memcmp(result, expected, 1024/8);
+		fail = !!std::memcmp(result, expected, 1024/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA256/128/440 (C0UNT=0, E=32, N=16, A=32, P=32)\n";
@@ -1252,7 +1252,7 @@ bool ValidateHashDRBG()
 			"\xDB\xB1\xED\x94\x12\x6A\x2F\x03\x98\x4A\xD4\xD1\x72\xF3\x7A\x66\x74\x7E\x2A\x5B"
 			"\xDE\xEF\x43\xBC\xB9\x8C\x49\x01";
 
-		fail = !!memcmp(result, expected, 1024/8);
+		fail = !!std::memcmp(result, expected, 1024/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA256/128/440 (C0UNT=1, E=32, N=16, A=32, P=32)\n";
@@ -1290,7 +1290,7 @@ bool ValidateHashDRBG()
 			"\xF2\x86\xE4\xED\x74\xF2\x5D\x8B\x6C\x4D\xB8\xDE\xD8\x4A\xD6\x5E\xD6\x6D\xAE\xB1"
 			"\x1B\xA2\x94\x52\x54\xAD\x3C\x3D\x25\xBD\x12\x46\x3C\xA0\x45\x9D";
 
-		fail = !!memcmp(result, expected, 2048/8);
+		fail = !!std::memcmp(result, expected, 2048/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA512/256/888 (C0UNT=0, E=32, N=16, A=32, P=32)\n";
@@ -1328,7 +1328,7 @@ bool ValidateHashDRBG()
 			"\x7D\x21\x14\x34\xA5\x87\x43\xA4\x0A\x96\x77\x00\xCC\xCA\xB1\xDA\xC4\x39\xE0\x66"
 			"\x37\x05\x6E\xAC\xF2\xE6\xC6\xC5\x4F\x79\xD3\xE5\x6A\x3D\x36\x3F";
 
-		fail = !!memcmp(result, expected, 2048/8);
+		fail = !!std::memcmp(result, expected, 2048/8);
 		pass = !fail && pass;
 
 		std::cout << (fail ? "FAILED   " : "passed   ") << "Hash_DRBG SHA512/256/888 (C0UNT=1, E=32, N=16, A=32, P=32)\n";

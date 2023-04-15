@@ -104,7 +104,7 @@ size_t EqualityComparisonFilter::ChannelPut2(const std::string &channel, const b
 			size_t len = length;
 			const byte *data = q2.Spy(len);
 			len = STDMIN(len, length);
-			if (memcmp(inString, data, len) != 0)
+			if (std::memcmp(inString, data, len) != 0)
 				goto mismatch;
 			inString += len;
 			length -= len;

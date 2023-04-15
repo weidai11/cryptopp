@@ -48,7 +48,7 @@ bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough)
 
 	pub.Encrypt(GlobalRNG(), message, messageLen, ciphertext);
 	fail = priv.Decrypt(GlobalRNG(), ciphertext, priv.CiphertextLength(messageLen), plaintext) != DecodingResult(messageLen);
-	fail = fail || memcmp(message, plaintext, messageLen);
+	fail = fail || std::memcmp(message, plaintext, messageLen);
 	pass = pass && !fail;
 
 	std::cout << (fail ? "FAILED    " : "passed    ");
@@ -74,8 +74,8 @@ bool SimpleKeyAgreementValidate(SimpleKeyAgreementDomain &d)
 	d.GenerateKeyPair(GlobalRNG(), priv1, pub1);
 	d.GenerateKeyPair(GlobalRNG(), priv2, pub2);
 
-	memset(val1.begin(), 0x10, val1.size());
-	memset(val2.begin(), 0x11, val2.size());
+	std::memset(val1.begin(), 0x10, val1.size());
+	std::memset(val2.begin(), 0x11, val2.size());
 
 	if (!(d.Agree(val1, priv1, pub2) && d.Agree(val2, priv2, pub1)))
 	{
@@ -83,7 +83,7 @@ bool SimpleKeyAgreementValidate(SimpleKeyAgreementDomain &d)
 		return false;
 	}
 
-	if (memcmp(val1.begin(), val2.begin(), d.AgreedValueLength()))
+	if (std::memcmp(val1.begin(), val2.begin(), d.AgreedValueLength()))
 	{
 		std::cout << "FAILED    simple agreed values not equal" << std::endl;
 		return false;
@@ -114,8 +114,8 @@ bool AuthenticatedKeyAgreementValidate(AuthenticatedKeyAgreementDomain &d)
 	d.GenerateEphemeralKeyPair(GlobalRNG(), epriv1, epub1);
 	d.GenerateEphemeralKeyPair(GlobalRNG(), epriv2, epub2);
 
-	memset(val1.begin(), 0x10, val1.size());
-	memset(val2.begin(), 0x11, val2.size());
+	std::memset(val1.begin(), 0x10, val1.size());
+	std::memset(val2.begin(), 0x11, val2.size());
 
 	if (d.Agree(val1, spriv1, epriv1, spub2, epub2) && d.Agree(val2, spriv2, epriv2, spub1, epub1))
 	{
@@ -127,7 +127,7 @@ bool AuthenticatedKeyAgreementValidate(AuthenticatedKeyAgreementDomain &d)
 		return false;
 	}
 
-	if (memcmp(val1.begin(), val2.begin(), d.AgreedValueLength()))
+	if (std::memcmp(val1.begin(), val2.begin(), d.AgreedValueLength()))
 	{
 		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
 		return false;
@@ -180,8 +180,8 @@ bool AuthenticatedKeyAgreementWithRolesValidate(AuthenticatedKeyAgreementDomain 
 	initiator.GenerateEphemeralKeyPair(GlobalRNG(), epriv1, epub1);
 	recipient.GenerateEphemeralKeyPair(GlobalRNG(), epriv2, epub2);
 
-	memset(val1.begin(), 0x10, val1.size());
-	memset(val2.begin(), 0x11, val2.size());
+	std::memset(val1.begin(), 0x10, val1.size());
+	std::memset(val2.begin(), 0x11, val2.size());
 
 	if (initiator.Agree(val1, spriv1, epriv1, spub2, epub2) && recipient.Agree(val2, spriv2, epriv2, spub1, epub1))
 	{
@@ -193,7 +193,7 @@ bool AuthenticatedKeyAgreementWithRolesValidate(AuthenticatedKeyAgreementDomain 
 		return false;
 	}
 
-	if (memcmp(val1.begin(), val2.begin(), initiator.AgreedValueLength()))
+	if (std::memcmp(val1.begin(), val2.begin(), initiator.AgreedValueLength()))
 	{
 		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
 		return false;
@@ -236,7 +236,7 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough)
 		signatureLength = priv.SignMessageWithRecovery(GlobalRNG(), message, messageLen, NULLPTR, 0, signature);
 		SecByteBlock recovered(priv.MaxRecoverableLengthFromSignatureLength(signatureLength));
 		DecodingResult result = pub.RecoverMessage(recovered, NULLPTR, 0, signature, signatureLength);
-		fail = !(result.isValidCoding && result.messageLength == messageLen && memcmp(recovered, message, messageLen) == 0);
+		fail = !(result.isValidCoding && result.messageLength == messageLen && std::memcmp(recovered, message, messageLen) == 0);
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -276,7 +276,7 @@ bool ValidateBBS()
 	std::ostringstream oss;
 
 	bbs.GenerateBlock(buf, 20);
-	fail = memcmp(output1, buf, 20) != 0;
+	fail = std::memcmp(output1, buf, 20) != 0;
 	pass = pass && !fail;
 
 	oss << (fail ? "FAILED    " : "passed    ");
@@ -286,7 +286,7 @@ bool ValidateBBS()
 
 	bbs.Seek(10);
 	bbs.GenerateBlock(buf, 10);
-	fail = memcmp(output1+10, buf, 10) != 0;
+	fail = std::memcmp(output1+10, buf, 10) != 0;
 	pass = pass && !fail;
 
 	oss << (fail ? "FAILED    " : "passed    ");
@@ -296,7 +296,7 @@ bool ValidateBBS()
 
 	bbs.Seek(1234567);
 	bbs.GenerateBlock(buf, 20);
-	fail = memcmp(output2, buf, 20) != 0;
+	fail = std::memcmp(output2, buf, 20) != 0;
 	pass = pass && !fail;
 
 	oss << (fail ? "FAILED    " : "passed    ");

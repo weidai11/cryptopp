@@ -73,7 +73,7 @@ bool ValidateRSA_Sign()
 
 		size_t signatureLength = rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
 		CRYPTOPP_ASSERT(signatureLength <= sizeof(out));
-		fail = memcmp(signature, out, signatureLength) != 0;
+		fail = std::memcmp(signature, out, signatureLength) != 0;
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -116,7 +116,7 @@ bool ValidateRSA_Sign()
 
 		size_t signatureLength = rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
 		CRYPTOPP_ASSERT(signatureLength <= sizeof(out));
-		fail = memcmp(signature, out, signatureLength) != 0;
+		fail = std::memcmp(signature, out, signatureLength) != 0;
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -259,8 +259,8 @@ bool ValidateECDSA()
 
 	// from Sample Test Vectors for P1363
 	GF2NT gf2n(191, 9, 0);
-	byte a[]="\x28\x66\x53\x7B\x67\x67\x52\x63\x6A\x68\xF5\x65\x54\xE1\x26\x40\x27\x6B\x64\x9E\xF7\x52\x62\x67";
-	byte b[]="\x2E\x45\xEF\x57\x1F\x00\x78\x6F\x67\xB0\x08\x1B\x94\x95\xA3\xD9\x54\x62\xF5\xDE\x0A\xA1\x85\xEC";
+	const byte a[]="\x28\x66\x53\x7B\x67\x67\x52\x63\x6A\x68\xF5\x65\x54\xE1\x26\x40\x27\x6B\x64\x9E\xF7\x52\x62\x67";
+	const byte b[]="\x2E\x45\xEF\x57\x1F\x00\x78\x6F\x67\xB0\x08\x1B\x94\x95\xA3\xD9\x54\x62\xF5\xDE\x0A\xA1\x85\xEC";
 	EC2N ec(gf2n, PolynomialMod2(a,24), PolynomialMod2(b,24));
 
 	EC2N::Point P;
