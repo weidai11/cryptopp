@@ -80,7 +80,7 @@ void PKCS_EncryptionPaddingScheme::Pad(RandomNumberGenerator& rng, const byte *i
 		pkcsBlock[i] = (byte)rng.GenerateWord32(1, 0xff);
 
 	pkcsBlock[pkcsBlockLen-inputLen-1] = 0;     // separator
-	memcpy(pkcsBlock+pkcsBlockLen-inputLen, input, inputLen);
+	std::memcpy(pkcsBlock+pkcsBlockLen-inputLen, input, inputLen);
 }
 
 DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, size_t pkcsBlockLen, byte *output, const NameValuePairs& parameters) const
@@ -112,7 +112,7 @@ DecodingResult PKCS_EncryptionPaddingScheme::Unpad(const byte *pkcsBlock, size_t
 	if (invalid)
 		return DecodingResult();
 
-	memcpy (output, pkcsBlock+i, outputLen);
+	std::memcpy (output, pkcsBlock+i, outputLen);
 	return DecodingResult(outputLen);
 }
 
@@ -147,9 +147,9 @@ void PKCS1v15_SignatureMessageEncodingMethod::ComputeMessageRepresentative(Rando
 	byte *pSeparator = pHashId - 1;
 
 	// pad with 0xff
-	memset(pPadding, 0xff, pSeparator-pPadding);
+	std::memset(pPadding, 0xff, pSeparator-pPadding);
 	*pSeparator = 0;
-	memcpy(pHashId, hashIdentifier.first, hashIdentifier.second);
+	std::memcpy(pHashId, hashIdentifier.first, hashIdentifier.second);
 	hash.Final(pDigest);
 }
 

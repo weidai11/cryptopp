@@ -48,7 +48,7 @@ static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int ite
 
 	while (iterations-- > 1)
 	{
-		memcpy(buf, outBuf, bufSize);
+		std::memcpy(buf, outBuf, bufSize);
 		for (i=0; i<bufSize; i+=H::DIGESTSIZE)
 		{
 			b[0] = (byte) (i >> 8);
@@ -59,7 +59,7 @@ static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int ite
 		}
 	}
 
-	memcpy(out, outBuf, outLen);
+	std::memcpy(out, outBuf, outLen);
 }
 
 template <class BC, class H, class Info>
@@ -68,15 +68,15 @@ static void GenerateKeyIV(const byte *passphrase, size_t passphraseLength, const
 	// UBsan. User supplied params, may be NULL
 	SecByteBlock temp(passphraseLength+saltLength);
 	if (passphrase != NULLPTR)
-		memcpy(temp, passphrase, passphraseLength);
+		std::memcpy(temp, passphrase, passphraseLength);
 	if (salt != NULLPTR)
-		memcpy(temp+passphraseLength, salt, saltLength);
+		std::memcpy(temp+passphraseLength, salt, saltLength);
 
 	// OK. Derived params, cannot be NULL
 	SecByteBlock keyIV(EnumToInt(Info::KEYLENGTH)+EnumToInt(+Info::BLOCKSIZE));
 	Mash<H>(temp, passphraseLength + saltLength, keyIV, EnumToInt(Info::KEYLENGTH)+EnumToInt(+Info::BLOCKSIZE), iterations);
-	memcpy(key, keyIV, Info::KEYLENGTH);
-	memcpy(IV, keyIV+Info::KEYLENGTH, Info::BLOCKSIZE);
+	std::memcpy(key, keyIV, Info::KEYLENGTH);
+	std::memcpy(IV, keyIV+Info::KEYLENGTH, Info::BLOCKSIZE);
 }
 
 // ********************************************************

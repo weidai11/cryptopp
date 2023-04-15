@@ -654,7 +654,7 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Generate(const byte* additional
         m_hmac.TruncatedFinal(m_v, m_v.size());
 
         size_t count = STDMIN(size, (size_t)HASH::DIGESTSIZE);
-        memcpy(output, m_v, count);
+        std::memcpy(output, m_v, count);
         size -= count; output += count;
     }
 

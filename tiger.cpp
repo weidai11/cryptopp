@@ -46,7 +46,7 @@ void Tiger::TruncatedFinal(byte *digest, size_t digestSize)
 
 	Transform(m_state, m_data);
 	CorrectEndianess(m_state, m_state, DigestSize());
-	memcpy(digest, m_state, digestSize);
+	std::memcpy(digest, m_state, digestSize);
 
 	Restart();		// reinit for next use
 }

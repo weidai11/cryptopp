@@ -79,8 +79,8 @@ inline void MakeOddKey(const word64 evenkey[NB], word64 oddkey[NB])
     const byte* even = reinterpret_cast<const byte*>(evenkey);
     byte* odd = reinterpret_cast<byte*>(oddkey);
 
-    memcpy(odd, even + V, U - V);
-    memcpy(odd + U - V, even, V);
+    std::memcpy(odd, even + V, U - V);
+    std::memcpy(odd + U - V, even, V);
 #endif
 }
 
@@ -421,7 +421,7 @@ void Kalyna128::Base::SetKey_22(const word64 key[2])
     word64 *ks = m_wspace+0, *ksc = m_wspace+2, *t1 = m_wspace+4;
     word64 *t2 = m_wspace+6, *k = m_wspace+8, *kswapped = m_wspace+10;
 
-    memset(t1, 0, 2*8);
+    std::memset(t1, 0, 2*8);
     t1[0] = (128 + 128 + 64) / 64;
 
     AddKey<2>(t1, t2, key);
@@ -432,7 +432,7 @@ void Kalyna128::Base::SetKey_22(const word64 key[2])
     word64 constant = W64LIT(0x0001000100010001);
 
     // round 0
-    memcpy(k, key, 16);
+    std::memcpy(k, key, 16);
     kswapped[1] = k[0];
     kswapped[0] = k[1];
 
@@ -496,10 +496,10 @@ void Kalyna128::Base::SetKey_24(const word64 key[4])
     word64 *ks = m_wspace+0, *ksc = m_wspace+2, *t1 = m_wspace+4, *t2 = m_wspace+6;
     word64 *k = m_wspace+8, *ka = m_wspace+12, *ko = m_wspace+14;
 
-    memset(t1, 0, 2*8);
+    std::memset(t1, 0, 2*8);
     t1[0] = (128 + 256 + 64) / 64;
-    memcpy(ka, key, 16);
-    memcpy(ko, key + 2, 16);
+    std::memcpy(ka, key, 16);
+    std::memcpy(ko, key + 2, 16);
 
     AddKey<2>(t1, t2, ka);
     G128(t2, t1, ko);
@@ -509,7 +509,7 @@ void Kalyna128::Base::SetKey_24(const word64 key[4])
     word64 constant = W64LIT(0x0001000100010001);
 
     // round 0
-    memcpy(k, key, 256 / 8);
+    std::memcpy(k, key, 256 / 8);
     AddConstant<2>(ks, ksc, constant);
     AddKey<2>(k, t2, ksc);
     G128(t2, t1, ksc);
@@ -597,7 +597,7 @@ void Kalyna256::Base::SetKey_44(const word64 key[4])
     word64 *ks = m_wspace+0, *ksc = m_wspace+4, *t1 = m_wspace+8;
     word64 *t2 = m_wspace+12, *k = m_wspace+16;
 
-    memset(t1, 0, 32);
+    std::memset(t1, 0, 32);
     t1[0] = (256 + 256 + 64) / 64;
 
     AddKey<4>(t1, t2, key);
@@ -608,7 +608,7 @@ void Kalyna256::Base::SetKey_44(const word64 key[4])
     word64 constant = W64LIT(0x0001000100010001);
 
     // round 0
-    memcpy(k, key, 32);
+    std::memcpy(k, key, 32);
     AddConstant<4>(ks, ksc, constant);
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
@@ -700,10 +700,10 @@ void Kalyna256::Base::SetKey_48(const word64 key[8])
     word64 *ks = m_wspace+0, *ksc = m_wspace+4, *t1 = m_wspace+8, *t2 = m_wspace+12;
     word64 *k = m_wspace+16, *ka = m_wspace+24, *ko = m_wspace+28;
 
-    memset(t1, 0, 4*8);
+    std::memset(t1, 0, 4*8);
     t1[0] = (512 + 256 + 64) / 64;
-    memcpy(ka, key, 32);
-    memcpy(ko, key+4, 32);
+    std::memcpy(ka, key, 32);
+    std::memcpy(ko, key+4, 32);
 
     AddKey<4>(t1, t2, ka);
     G256(t2, t1, ko);
@@ -713,7 +713,7 @@ void Kalyna256::Base::SetKey_48(const word64 key[8])
     word64 constant = W64LIT(0x0001000100010001);
 
     // round 0
-    memcpy(k, key, 512 / 8);
+    std::memcpy(k, key, 512 / 8);
     AddConstant<4>(ks, ksc, constant);
     AddKey<4>(k, t2, ksc);
     G256(t2, t1, ksc);
@@ -822,7 +822,7 @@ void Kalyna512::Base::SetKey_88(const word64 key[8])
     word64 *ks = m_wspace+0, *ksc = m_wspace+8, *t1 = m_wspace+16;
     word64 *t2 = m_wspace+24, *k = m_wspace+32;
 
-    memset(t1, 0, 8*8);
+    std::memset(t1, 0, 8*8);
     t1[0] = (512 + 512 + 64) / 64;
 
     AddKey<8>(t1, t2, key);
@@ -833,7 +833,7 @@ void Kalyna512::Base::SetKey_88(const word64 key[8])
     word64 constant = W64LIT(0x0001000100010001);
 
     // round 0
-    memcpy(k, key, 512 / 8);
+    std::memcpy(k, key, 512 / 8);
     AddConstant<8>(ks, ksc, constant);
     AddKey<8>(k, t2, ksc);
     G512(t2, t1, ksc);

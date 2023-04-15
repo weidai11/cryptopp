@@ -69,7 +69,7 @@ public:
 
 		SecByteBlock block(modulusLen-1);
 		rng.GenerateBlock(block, modulusLen-2-plainTextLength);
-		memcpy(block+modulusLen-2-plainTextLength, plainText, plainTextLength);
+		std::memcpy(block+modulusLen-2-plainTextLength, plainText, plainTextLength);
 		block[modulusLen-2] = (byte)plainTextLength;
 
 		a_times_b_mod_c(Integer(key, modulusLen), Integer(block, modulusLen-1), p).Encode(cipherText, modulusLen);

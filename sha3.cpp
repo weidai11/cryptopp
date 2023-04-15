@@ -52,7 +52,7 @@ void SHA3::Update(const byte *input, size_t length)
 
 void SHA3::Restart()
 {
-    memset(m_state, 0, m_state.SizeInBytes());
+    std::memset(m_state, 0, m_state.SizeInBytes());
     m_counter = 0;
 }
 

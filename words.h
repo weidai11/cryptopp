@@ -51,7 +51,7 @@ inline void CopyWords(word *r, const word *a, size_t n)
 #if CRYPTOPP_MSC_VERSION
 		memcpy_s(r, n*WORD_SIZE, a, n*WORD_SIZE);
 #else
-		memcpy(r, a, n*WORD_SIZE);
+		std::memcpy(r, a, n*WORD_SIZE);
 #endif
 }
 

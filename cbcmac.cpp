@@ -47,8 +47,8 @@ void CBC_MAC_Base::TruncatedFinal(byte *mac, size_t size)
 	if (m_counter)
 		ProcessBuf();
 
-	memcpy(mac, m_reg, size);
-	memset(m_reg, 0, AccessCipher().BlockSize());
+	std::memcpy(mac, m_reg, size);
+	std::memset(m_reg, 0, AccessCipher().BlockSize());
 }
 
 void CBC_MAC_Base::ProcessBuf()

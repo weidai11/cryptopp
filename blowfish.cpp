@@ -13,8 +13,8 @@ void Blowfish::Base::UncheckedSetKey(const byte *key_string, unsigned int keylen
 	unsigned i, j=0, k;
 	word32 data, dspace[2] = {0, 0};
 
-	memcpy(pbox, p_init, sizeof(p_init));
-	memcpy(sbox, s_init, sizeof(s_init));
+	std::memcpy(pbox, p_init, sizeof(p_init));
+	std::memcpy(sbox, s_init, sizeof(s_init));
 
 	// Xor key string into encryption key vector
 	for (i=0 ; i<ROUNDS+2 ; ++i)

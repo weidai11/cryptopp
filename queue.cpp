@@ -50,7 +50,7 @@ public:
 		if (!begin || !length) return length;
 		size_t l = STDMIN(length, MaxSize()-m_tail);
 		if (m_buf+m_tail != begin)
-			memcpy(m_buf+m_tail, begin, l);
+			std::memcpy(m_buf+m_tail, begin, l);
 		m_tail += l;
 		return l;
 	}
@@ -67,7 +67,7 @@ public:
 	inline size_t Peek(byte *target, size_t copyMax) const
 	{
 		size_t len = STDMIN(copyMax, m_tail-m_head);
-		memcpy(target, m_buf+m_head, len);
+		std::memcpy(target, m_buf+m_head, len);
 		return len;
 	}
 
@@ -410,7 +410,7 @@ void ByteQueue::Unget(const byte *inString, size_t length)
 	size_t len = STDMIN(length, m_head->m_head);
 	length -= len;
 	m_head->m_head = m_head->m_head - len;
-	memcpy(m_head->m_buf + m_head->m_head, inString + length, len);
+	std::memcpy(m_head->m_buf + m_head->m_head, inString + length, len);
 
 	if (length > 0)
 	{

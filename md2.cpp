@@ -29,9 +29,9 @@ MD2::MD2()
 
 void MD2::Init()
 {
-	memset(m_X, 0, 48);
-	memset(m_C, 0, 16);
-	memset(m_buf, 0, 16);
+	std::memset(m_X, 0, 48);
+	std::memset(m_C, 0, 16);
+	std::memset(m_buf, 0, 16);
 	m_count = 0;
 }
 
@@ -61,7 +61,7 @@ void MD2::Update(const byte *buf, size_t len)
 	while (len)
     {
 		unsigned int L = UnsignedMin(16U-m_count, len);
-		memcpy(m_buf+m_count, buf, L);
+		std::memcpy(m_buf+m_count, buf, L);
 		m_count+=L;
 		buf+=L;
 		len-=L;
@@ -71,7 +71,7 @@ void MD2::Update(const byte *buf, size_t len)
 			int i,j;
 
 			m_count=0;
-			memcpy(m_X+16, m_buf, 16);
+			std::memcpy(m_X+16, m_buf, 16);
 			t=m_C[15];
 			for(i=0; i<16; i++)
 			{
@@ -111,7 +111,7 @@ void MD2::TruncatedFinal(byte *hash, size_t size)
 	for(i=0; i<padlen; i++) padding[i]=(byte)padlen;
 	Update(padding, padlen);
 	Update(m_C, 16);
-	memcpy(hash, m_X, size);
+	std::memcpy(hash, m_X, size);
 
 	Init();
 }

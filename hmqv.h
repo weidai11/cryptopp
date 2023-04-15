@@ -213,7 +213,7 @@ public:
   void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
   {
     CRYPTOPP_UNUSED(rng);
-    memcpy(publicKey, privateKey+StaticPrivateKeyLength(), EphemeralPublicKeyLength());
+    std::memcpy(publicKey, privateKey+StaticPrivateKeyLength(), EphemeralPublicKeyLength());
   }
 
   /// \brief Derive agreed value or shared secret

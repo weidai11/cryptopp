@@ -504,14 +504,14 @@ constexpr int EnumToInt(T v) {
 
 #if (!__STDC_WANT_SECURE_LIB__ && !defined(_MEMORY_S_DEFINED)) || defined(CRYPTOPP_WANT_SECURE_LIB)
 
-/// \brief Bounds checking replacement for memcpy()
+/// \brief Bounds checking replacement for std::memcpy()
 /// \param dest pointer to the destination memory block
 /// \param sizeInBytes size of the destination memory block, in bytes
 /// \param src pointer to the source memory block
 /// \param count the number of bytes to copy
 /// \throw InvalidArgument
 /// \details ISO/IEC TR-24772 provides bounds checking interfaces for potentially
-///  unsafe functions like memcpy(), strcpy() and memmove(). However,
+///  unsafe functions like std::memcpy(), strcpy() and std::memmove(). However,
 ///  not all standard libraries provides them, like Glibc. The library's
 ///  memcpy_s() is a near-drop in replacement. Its only a near-replacement
 ///  because the library's version throws an InvalidArgument on a bounds violation.
@@ -550,14 +550,14 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 #endif
 }
 
-/// \brief Bounds checking replacement for memmove()
+/// \brief Bounds checking replacement for std::memmove()
 /// \param dest pointer to the destination memory block
 /// \param sizeInBytes size of the destination memory block, in bytes
 /// \param src pointer to the source memory block
 /// \param count the number of bytes to copy
 /// \throw InvalidArgument
 /// \details ISO/IEC TR-24772 provides bounds checking interfaces for potentially
-///  unsafe functions like memcpy(), strcpy() and memmove(). However,
+///  unsafe functions like std::memcpy(), strcpy() and std::memmove(). However,
 ///  not all standard libraries provides them, like Glibc. The library's
 ///  memmove_s() is a near-drop in replacement. Its only a near-replacement
 ///  because the library's version throws an InvalidArgument on a bounds violation.
@@ -595,7 +595,7 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 }
 
 #if __BORLANDC__ >= 0x620
-// C++Builder 2010 workaround: can't use std::memcpy_s
+// C++Builder 2010 workaround: can't use memcpy_s
 // because it doesn't allow 0 lengths
 # define memcpy_s CryptoPP::memcpy_s
 # define memmove_s CryptoPP::memmove_s
@@ -630,7 +630,7 @@ inline void vec_swap(T& a, T& b)
 /// \param ptr pointer to the memory block being written
 /// \param val the integer value to write for each byte
 /// \param num the size of the source memory block, in bytes
-/// \details Internally the function calls memset with the value <tt>val</tt>.
+/// \details Internally the function calls std::memset with the value <tt>val</tt>.
 ///  memset_z can be used to initialize a freshly allocated memory block.
 ///  To zeroize a memory block on destruction use <tt>SecureWipeBuffer</tt>.
 /// \return the pointer to the memory block

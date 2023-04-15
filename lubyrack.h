@@ -115,7 +115,7 @@ class LR : public LR_Info<T>, public BlockCipherDocumentation
 			if (xorBlock)
 				xorbuf(outBlock, xorBlock, this->buffer, 2*this->S);
 			else
-				memcpy(outBlock, this->buffer, 2*this->S);
+				std::memcpy(outBlock, this->buffer, 2*this->S);
 		}
 #undef KL
 #undef KR

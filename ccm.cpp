@@ -34,8 +34,8 @@ void CCM_Base::Resync(const byte *iv, size_t len)
 		m_L = 8;
 
 	m_buffer[0] = byte(m_L-1);	// flag
-	memcpy(m_buffer+1, iv, len);
-	memset(m_buffer+1+len, 0, REQUIRED_BLOCKSIZE-1-len);
+	std::memcpy(m_buffer+1, iv, len);
+	std::memset(m_buffer+1+len, 0, REQUIRED_BLOCKSIZE-1-len);
 
 	if (m_state >= State_IVSet)
 		m_ctr.Resynchronize(m_buffer, REQUIRED_BLOCKSIZE);
@@ -60,7 +60,7 @@ void CCM_Base::UncheckedSpecifyDataLengths(lword headerLength, lword messageLeng
 
 	cbcBuffer[0] = byte(64*(headerLength>0) + 8*((m_digestSize-2)/2) + (m_L-1));	// flag
 	PutWord<word64>(true, BIG_ENDIAN_ORDER, cbcBuffer+REQUIRED_BLOCKSIZE-8, m_messageLength);
-	memcpy(cbcBuffer+1, m_buffer+1, REQUIRED_BLOCKSIZE-1-m_L);
+	std::memcpy(cbcBuffer+1, m_buffer+1, REQUIRED_BLOCKSIZE-1-m_L);
 	cipher.ProcessBlock(cbcBuffer);
 
 	if (headerLength>0)

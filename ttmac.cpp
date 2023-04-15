@@ -44,7 +44,7 @@ void TTMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, co
 {
 	AssertValidKeyLength(keylength);
 
-	memcpy(m_key, userKey, KEYLENGTH);
+	std::memcpy(m_key, userKey, KEYLENGTH);
 	CorrectEndianess(m_key, m_key, KEYLENGTH);
 
 	Init();
@@ -105,7 +105,7 @@ void TTMAC_Base::TruncatedFinal(byte *hash, size_t size)
 	}
 
 	CorrectEndianess(m_digest, m_digest, size);
-	memcpy(hash, m_digest, size);
+	std::memcpy(hash, m_digest, size);
 
 	Restart();		// reinit for next use
 }

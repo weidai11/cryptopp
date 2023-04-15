@@ -255,7 +255,7 @@ void Inflator::OutputString(const byte *string, size_t length)
 	while (length)
 	{
 		size_t len = UnsignedMin(length, m_window.size() - m_current);
-		memcpy(m_window + m_current, string, len);
+		std::memcpy(m_window + m_current, string, len);
 		m_current += len;
 		if (m_current == m_window.size())
 		{
@@ -293,7 +293,7 @@ void Inflator::OutputPast(unsigned int length, unsigned int distance)
 	}
 	else
 	{
-		memcpy(m_window + m_current, m_window + start, length);
+		std::memcpy(m_window + m_current, m_window + start, length);
 		m_current += length;
 	}
 }

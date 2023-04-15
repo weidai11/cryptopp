@@ -51,7 +51,7 @@ size_t BaseN_Encoder::Put2(const byte *begin, size_t length, int messageEnd, boo
 	while (m_inputPosition < length)
 	{
 		if (m_bytePos == 0)
-			memset(m_outBuf, 0, m_outputBlockSize);
+			std::memset(m_outBuf, 0, m_outputBlockSize);
 
 		{
 		unsigned int b = begin[m_inputPosition++], bitsLeftInSource = 8;
@@ -103,7 +103,7 @@ size_t BaseN_Encoder::Put2(const byte *begin, size_t length, int messageEnd, boo
 
 		if (m_padding != -1 && m_bytePos > 0)
 		{
-			memset(m_outBuf+m_bytePos, m_padding, m_outputBlockSize-m_bytePos);
+			std::memset(m_outBuf+m_bytePos, m_padding, m_outputBlockSize-m_bytePos);
 			m_bytePos = m_outputBlockSize;
 		}
 		FILTER_OUTPUT(2, m_outBuf, m_bytePos, messageEnd);
@@ -141,7 +141,7 @@ size_t BaseN_Decoder::Put2(const byte *begin, size_t length, int messageEnd, boo
 			continue;
 
 		if (m_bytePos == 0 && m_bitPos == 0)
-			memset(m_outBuf, 0, m_outputBlockSize);
+			std::memset(m_outBuf, 0, m_outputBlockSize);
 
 		{
 			int newBitPos = m_bitPos + m_bitsPerChar;

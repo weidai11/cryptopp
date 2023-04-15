@@ -24,7 +24,7 @@ struct SEAL_Gamma
 		: H(5), Z(5), D(16), lastIndex(0xffffffff)
 	{
 		GetUserKey(BIG_ENDIAN_ORDER, H.begin(), 5, key, 20);
-		memset(D, 0, 64);
+		std::memset(D, 0, 64);
 	}
 
 	word32 Apply(word32 i);
@@ -38,7 +38,7 @@ word32 SEAL_Gamma::Apply(word32 i)
 	word32 shaIndex = i/5;
 	if (shaIndex != lastIndex)
 	{
-		memcpy(Z, H, 20);
+		std::memcpy(Z, H, 20);
 		D[0] = shaIndex;
 		SHA1::Transform(Z, D);
 		lastIndex = shaIndex;

@@ -22,7 +22,7 @@ void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_
 	{
 		if (num+len >= blockSize)
 		{
-			memcpy(data+num, input, blockSize-num);
+			std::memcpy(data+num, input, blockSize-num);
 			AuthenticateBlocks(data, blockSize);
 			input += (blockSize-num);
 			len -= (blockSize-num);
@@ -31,7 +31,7 @@ void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_
 		}
 		else
 		{
-			memcpy(data+num, input, len);
+			std::memcpy(data+num, input, len);
 			num += (unsigned int)len;
 			return;
 		}
@@ -46,7 +46,7 @@ void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_
 	}
 
 	if (data && len)
-		memcpy(data, input, len);
+		std::memcpy(data, input, len);
 	num = (unsigned int)len;
 }
 

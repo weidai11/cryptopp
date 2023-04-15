@@ -34,7 +34,7 @@ void RC2::Base::UncheckedSetKey(const byte *key, unsigned int keyLen, const Name
 		197,243,219, 71,229,165,156,119, 10,166, 32,104,254,127,193,173};
 
 	SecByteBlock L(128);
-	memcpy(L, key, keyLen);
+	std::memcpy(L, key, keyLen);
 
 	int i;
 	for (i=keyLen; i<128; i++)

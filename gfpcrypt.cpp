@@ -93,7 +93,7 @@ void DL_SignatureMessageEncodingMethod_DSA::ComputeMessageRepresentative(RandomN
 	const size_t digestSize = hash.DigestSize();
 	const size_t paddingLength = SaturatingSubtract(representativeByteLength, digestSize);
 
-	memset(representative, 0, paddingLength);
+	std::memset(representative, 0, paddingLength);
 	hash.TruncatedFinal(representative+paddingLength, STDMIN(representativeByteLength, digestSize));
 
 	if (digestSize*8 > representativeBitLength)
@@ -119,7 +119,7 @@ void DL_SignatureMessageEncodingMethod_NR::ComputeMessageRepresentative(RandomNu
 	const size_t digestSize = hash.DigestSize();
 	const size_t paddingLength = SaturatingSubtract(representativeByteLength, digestSize);
 
-	memset(representative, 0, paddingLength);
+	std::memset(representative, 0, paddingLength);
 	hash.TruncatedFinal(representative+paddingLength, STDMIN(representativeByteLength, digestSize));
 
 	if (digestSize*8 >= representativeBitLength)

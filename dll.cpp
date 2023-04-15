@@ -66,7 +66,7 @@ NAMESPACE_END
 
 USING_NAMESPACE(CryptoPP)
 
-using std::set_new_handler;
+using set_new_handler;
 
 static PNew s_pNew = NULLPTR;
 static PDelete s_pDelete = NULLPTR;

@@ -421,7 +421,7 @@ void SHA256_HashBlock_CXX(word32 *state, const word32 *data)
 {
     word32 W[16]={0}, T[8];
     /* Copy context->state[] to working vars */
-    memcpy(T, state, sizeof(T));
+    std::memcpy(T, state, sizeof(T));
     /* 64 operations, partially loop unrolled */
     for (unsigned int j=0; j<64; j+=16)
     {
@@ -503,7 +503,7 @@ void SHA224::InitState(HashWordType *state)
     static const word32 s[8] = {
         0xc1059ed8, 0x367cd507, 0x3070dd17, 0xf70e5939,
         0xffc00b31, 0x68581511, 0x64f98fa7, 0xbefa4fa4};
-    memcpy(state, s, sizeof(s));
+    std::memcpy(state, s, sizeof(s));
 }
 
 void SHA256::InitState(HashWordType *state)
@@ -511,7 +511,7 @@ void SHA256::InitState(HashWordType *state)
     static const word32 s[8] = {
         0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
-    memcpy(state, s, sizeof(s));
+    std::memcpy(state, s, sizeof(s));
 }
 #endif // Not CRYPTOPP_GENERATE_X64_MASM
 
@@ -1096,7 +1096,7 @@ void SHA384::InitState(HashWordType *state)
         W64LIT(0x9159015a3070dd17), W64LIT(0x152fecd8f70e5939),
         W64LIT(0x67332667ffc00b31), W64LIT(0x8eb44a8768581511),
         W64LIT(0xdb0c2e0d64f98fa7), W64LIT(0x47b5481dbefa4fa4)};
-    memcpy(state, s, sizeof(s));
+    std::memcpy(state, s, sizeof(s));
 }
 
 void SHA512::InitState(HashWordType *state)
@@ -1106,7 +1106,7 @@ void SHA512::InitState(HashWordType *state)
         W64LIT(0x3c6ef372fe94f82b), W64LIT(0xa54ff53a5f1d36f1),
         W64LIT(0x510e527fade682d1), W64LIT(0x9b05688c2b3e6c1f),
         W64LIT(0x1f83d9abfb41bd6b), W64LIT(0x5be0cd19137e2179)};
-    memcpy(state, s, sizeof(s));
+    std::memcpy(state, s, sizeof(s));
 }
 
 #if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86)

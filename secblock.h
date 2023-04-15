@@ -792,7 +792,7 @@ public:
 			if (m_ptr && ptr)
 				memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));
 			else if (m_ptr && m_size)
-				memset(m_ptr, 0, m_size*sizeof(T));
+				std::memset(m_ptr, 0, m_size*sizeof(T));
 		}
 
 	~SecBlock()
@@ -888,7 +888,7 @@ public:
 	/// \param ptr a pointer to an array of T
 	/// \param len the number of elements in the memory block
 	/// \details The array pointed to by <tt>ptr</tt> must be distinct
-	///  from this SecBlock because Assign() calls New() and then memcpy().
+	///  from this SecBlock because Assign() calls New() and then std::memcpy().
 	///  The call to New() will invalidate all pointers and iterators, like
 	///  the pointer returned from data().
 	/// \details If the memory block is reduced in size, then the reclaimed
@@ -941,7 +941,7 @@ public:
 	/// \param len the number of elements in the memory block
 	/// \throw InvalidArgument if resulting size would overflow
 	/// \details The array pointed to by <tt>ptr</tt> must be distinct
-	///  from this SecBlock because Append() calls Grow() and then memcpy().
+	///  from this SecBlock because Append() calls Grow() and then std::memcpy().
 	///  The call to Grow() will invalidate all pointers and iterators, like
 	///  the pointer returned from data().
 	/// \details Append() may be less efficient than a ByteQueue because

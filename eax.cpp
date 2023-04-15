@@ -16,7 +16,7 @@ void EAX_Base::Resync(const byte *iv, size_t len)
 	MessageAuthenticationCode &mac = AccessMAC();
 	unsigned int blockSize = mac.TagSize();
 
-	memset(m_buffer, 0, blockSize);
+	std::memset(m_buffer, 0, blockSize);
 	mac.Update(m_buffer, blockSize);
 	mac.CalculateDigest(m_buffer+blockSize, iv, len);
 
@@ -41,7 +41,7 @@ void EAX_Base::AuthenticateLastHeaderBlock()
 	mac.Final(m_buffer);
 	xorbuf(m_buffer+blockSize, m_buffer, blockSize);
 
-	memset(m_buffer, 0, blockSize);
+	std::memset(m_buffer, 0, blockSize);
 	m_buffer[blockSize-1] = 2;
 	mac.Update(m_buffer, blockSize);
 }

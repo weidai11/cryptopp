@@ -69,8 +69,8 @@ X917RNG::X917RNG(BlockTransformation *c, const byte *seed, const byte *determini
 	// Garbage in the tail creates a non-conforming X9.17 or X9.31 generator.
 	if (m_size > 8)
 	{
-		memset(m_datetime, 0x00, m_size);
-		memset(m_lastBlock, 0x00, m_size);
+		std::memset(m_datetime, 0x00, m_size);
+		std::memset(m_lastBlock, 0x00, m_size);
 	}
 
 	if (!deterministicTimeVector)
@@ -115,7 +115,7 @@ void X917RNG::GenerateIntoBufferedTransformation(BufferedTransformation &target,
 
 		// generate a new block of random bytes
 		m_cipher->ProcessBlock(m_randseed);
-		if (memcmp(m_lastBlock, m_randseed, m_size) == 0)
+		if (std::memcmp(m_lastBlock, m_randseed, m_size) == 0)
 			throw SelfTestFailure("X917RNG: Continuous random number generator test failed.");
 
 		// output random bytes
@@ -124,7 +124,7 @@ void X917RNG::GenerateIntoBufferedTransformation(BufferedTransformation &target,
 		size -= len;
 
 		// compute new seed vector
-		memcpy(m_lastBlock, m_randseed, m_size);
+		std::memcpy(m_lastBlock, m_randseed, m_size);
 		xorbuf(m_randseed, m_datetime, m_size);
 		m_cipher->ProcessBlock(m_randseed);
 	}
