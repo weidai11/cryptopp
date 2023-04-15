@@ -87,4 +87,10 @@
 # define CRYPTOPP_MSC_VERSION (_MSC_VER)
 #endif
 
+// To control <x86intrin.h> include. May need a guard, like GCC 4.5 and above
+// Also see https://stackoverflow.com/a/42493893 and https://github.com/weidai11/cryptopp/issues/1198
+#if defined(CRYPTOPP_GCC_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION) || defined(CRYPTOPP_LLVM_CLANG_VERSION)
+# define CRYPTOPP_GCC_COMPATIBLE 1
+#endif
+
 #endif  // CRYPTOPP_CONFIG_VERSION_H

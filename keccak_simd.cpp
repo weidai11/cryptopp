@@ -27,11 +27,11 @@
 #endif
 
 #if defined(__XOP__)
-# include <ammintrin.h>
-# if defined(__GNUC__)
+# if defined(CRYPTOPP_GCC_COMPATIBLE)
 #  include <x86intrin.h>
 # endif
-#endif
+# include <ammintrin.h>
+#endif  // XOP
 
 // Squash MS LNK4221 and libtool warnings
 extern const char KECCAK_SIMD_FNAME[] = __FILE__;

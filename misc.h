@@ -80,9 +80,11 @@
 #endif
 
 #if defined(__BMI__)
-# include <x86intrin.h>
+# if defined(CRYPTOPP_GCC_COMPATIBLE)
+#  include <x86intrin.h>
+# endif
 # include <immintrin.h>
-#endif  // GCC and BMI
+#endif  // BMI
 
 // More LLVM bullshit. Apple Clang 6.0 does not define them.
 // Later version of Clang defines them and results in warnings.

@@ -25,8 +25,7 @@ extern const char LSH256_AVX_FNAME[] = __FILE__;
 # include <immintrin.h>
 #endif
 
-// GCC at 4.5. Clang is unknown. Also see https://stackoverflow.com/a/42493893.
-#if (CRYPTOPP_GCC_VERSION >= 40500)
+#if defined(CRYPTOPP_GCC_COMPATIBLE)
 # include <x86intrin.h>
 #endif
 

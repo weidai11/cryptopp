@@ -23,11 +23,11 @@
 #endif
 
 #if defined(__XOP__)
-# include <ammintrin.h>
-# if defined(__GNUC__)
+# if defined(CRYPTOPP_GCC_COMPATIBLE)
 #  include <x86intrin.h>
 # endif
-#endif
+# include <ammintrin.h>
+#endif  // XOP
 
 // Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define DOUBLE_CAST(x) ((double*)(void*)(x))

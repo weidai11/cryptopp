@@ -23,11 +23,11 @@
 #endif
 
 #if defined(__XOP__)
-# include <ammintrin.h>
-# if defined(__GNUC__)
+# if defined(CRYPTOPP_GCC_COMPATIBLE)
 #  include <x86intrin.h>
 # endif
-#endif
+# include <ammintrin.h>
+#endif  // XOP
 
 #if (CRYPTOPP_ARM_NEON_HEADER)
 # include "adv_simd.h"
