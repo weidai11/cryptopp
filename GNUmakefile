@@ -1010,42 +1010,6 @@ ARFLAGS = -xar -o
 RANLIB = true
 endif
 
-# Native build testing. Issue 'make native'.
-ifeq ($(findstring native,$(MAKECMDGOALS)),native)
-  NATIVE_OPT =
-
-  # Try GCC and compatibles first
-  TPROG = TestPrograms/test_cxx.cpp
-  TOPT = -march=native
-  HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    NATIVE_OPT = -march=native
-  endif # NATIVE_OPT
-
-  # And tune
-  ifeq ($(NATIVE_OPT),)
-    TOPT = -mtune=native
-    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
-    ifeq ($(strip $(HAVE_OPT)),0)
-      NATIVE_OPT = -mtune=native
-    endif # NATIVE_OPT
-  endif
-
-  # Try SunCC next
-  ifeq ($(NATIVE_OPT),)
-    TOPT = -native
-    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
-    ifeq ($(strip $(HAVE_OPT)),0)
-      NATIVE_OPT = -native
-    endif # NATIVE_OPT
-  endif
-
-  ifneq ($(NATIVE_OPT),)
-    CRYPTOPP_CXXFLAGS += $(NATIVE_OPT)
-  endif
-
-endif # Native
-
 # Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.
 ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
   CRYPTOPP_CXXFLAGS := $(CRYPTOPP_CXXFLAGS:-g%=-g3)
