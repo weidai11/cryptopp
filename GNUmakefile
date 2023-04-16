@@ -100,14 +100,22 @@ endif
 DETECT_FEATURES ?= 1
 ifneq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CRYPTOPP_CPPFLAGS)$(CPPFLAGS)$(CXXFLAGS)),)
   DETECT_FEATURES := 0
-else ifneq ($(findstring clean,$(MAKECMDGOALS)),)
+else
+ifneq ($(findstring clean,$(MAKECMDGOALS)),)
   DETECT_FEATURES := 0
-else ifneq ($(findstring distclean,$(MAKECMDGOALS)),)
+else
+ifneq ($(findstring distclean,$(MAKECMDGOALS)),)
   DETECT_FEATURES := 0
-else ifneq ($(findstring trim,$(MAKECMDGOALS)),)
+else
+ifneq ($(findstring trim,$(MAKECMDGOALS)),)
   DETECT_FEATURES := 0
-else ifneq ($(findstring zip,$(MAKECMDGOALS)),)
+else
+ifneq ($(findstring zip,$(MAKECMDGOALS)),)
   DETECT_FEATURES := 0
+endif
+endif
+endif
+endif
 endif
 
 # Strip out -Wall, -Wextra and friends for feature testing. FORTIFY_SOURCE is removed
@@ -176,8 +184,10 @@ endif
 # sha512_armv4.S through the CC compiler
 ifeq ($(GCC_COMPILER),1)
   CC=gcc
-else ifeq ($(CLANG_COMPILER),1)
+else
+ifeq ($(CLANG_COMPILER),1)
   CC=clang
+endif
 endif
 
 # http://www.gnu.org/prep/standards/html_node/Directory-Variables.html
@@ -415,13 +425,19 @@ ifeq ($(DETECT_FEATURES),1)
 
     ifeq ($(SSE3_FLAG),)
       CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_SSE3
-    else ifeq ($(SSSE3_FLAG),)
+    else
+    ifeq ($(SSSE3_FLAG),)
       CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_SSSE3
-    else ifeq ($(SSE41_FLAG),)
+    else
+    ifeq ($(SSE41_FLAG),)
       CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_SSE4
-    else ifeq ($(SSE42_FLAG),)
+    else
+    ifeq ($(SSE42_FLAG),)
       CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_SSE4
-    endif
+    endif # SSE4.2
+    endif # SSE4.1
+    endif # SSSE3
+    endif # SSE3
 
     ifneq ($(SSE42_FLAG),)
       # Unusual GCC/Clang on Macports. It assembles AES, but not CLMUL.
@@ -435,9 +451,11 @@ ifeq ($(DETECT_FEATURES),1)
 
       ifeq ($(AVX_FLAG),)
         CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_AVX
-      else ifeq ($(AVX2_FLAG),)
+      else
+      ifeq ($(AVX2_FLAG),)
         CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_AVX2
-      endif
+      endif # AVX2
+      endif # AVX
       # SHANI independent of AVX per GH #1045
       ifeq ($(SHANI_FLAG),)
         CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_SHANI
@@ -817,13 +835,17 @@ ifeq ($(DETECT_FEATURES),1)
 
   ifeq ($(ALTIVEC_FLAG),)
     CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_ALTIVEC
-  else ifeq ($(POWER7_FLAG),)
+  else
+  ifeq ($(POWER7_FLAG),)
     CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_POWER7
-  else ifeq ($(POWER8_FLAG),)
+  else
+  ifeq ($(POWER8_FLAG),)
     CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_POWER8
   #else ifeq ($(POWER9_FLAG),)
   #  CRYPTOPP_CPPFLAGS += -DCRYPTOPP_DISABLE_POWER9
-  endif
+  endif # POWER8
+  endif # POWER7
+  endif # Altivec
 
 # DETECT_FEATURES
 endif
@@ -884,10 +906,10 @@ ifeq ($(DETECT_FEATURES),1)
    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
    ifeq ($(strip $(HAVE_OPT)),0)
     CRYPTOPP_CXXFLAGS += -pthread
-   endif  # CRYPTOPP_CXXFLAGS
-  endif  # -pthread
- endif  # XLC/GCC and friends
-endif  # DETECT_FEATURES
+   endif # CRYPTOPP_CXXFLAGS
+  endif # -pthread
+ endif # XLC/GCC and friends
+endif # DETECT_FEATURES
 
 # Remove -fPIC if present. SunCC use -KPIC, and needs the larger GOT table
 # https://docs.oracle.com/cd/E19205-01/819-5267/bkbaq/index.html
@@ -910,8 +932,8 @@ ifeq ($(XLC_COMPILER),1)
   HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CRYPTOPP_CXXFLAGS += -qsuppress=1500-036
-  endif  # -qsuppress
-endif  # IBM XL C++ compiler
+  endif # -qsuppress
+endif # IBM XL C++ compiler
 
 # libc++ is LLVM's standard C++ library. If we add libc++
 # here then all user programs must use it too. The open
@@ -937,14 +959,14 @@ ifneq ($(IS_SPARC32)$(IS_SPARC64),00)
   ifeq ($(SUN_COMPILER),1)
     ifeq ($(findstring -xregs=no%appl,$(CXXFLAGS)),)
       CRYPTOPP_CXXFLAGS += -xregs=no%appl
-    endif  # -xregs
-  endif  # SunCC
+    endif # -xregs
+  endif # SunCC
   ifeq ($(GCC_COMPILER),1)
     ifeq ($(findstring -mno-app-regs,$(CXXFLAGS)),)
       CRYPTOPP_CXXFLAGS += -mno-app-regs
-    endif  # no-app-regs
-  endif  # GCC
-endif  # Sparc
+    endif # no-app-regs
+  endif # GCC
+endif # Sparc
 
 # Add -pipe for everything except IBM XL C++, SunCC and ARM.
 # Allow ARM-64 because they seems to have >1 GB of memory
@@ -961,9 +983,9 @@ ifeq ($(IS_SUN)$(SUN_COMPILER),11)
   ifneq ($(IS_X86)$(IS_X64),00)
     ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CRYPTOPP_CPPFLAGS)$(CPPFLAGS)$(CXXFLAGS)),)
       CRYPTOPP_LDFLAGS += -M cryptopp.mapfile
-    endif  # No CRYPTOPP_DISABLE_ASM
-  endif  # X86/X32/X64
-endif  # SunOS
+    endif # No CRYPTOPP_DISABLE_ASM
+  endif # X86/X32/X64
+endif # SunOS
 
 ifneq ($(IS_LINUX)$(IS_HURD),00)
   ifeq ($(findstring -fopenmp,$(CXXFLAGS)),-fopenmp)
@@ -1121,9 +1143,9 @@ ifneq ($(filter -DDEBUG -DDEBUG=1,$(CPPFLAGS)$(CXXFLAGS)),)
    HAVE_OPT = $(shell $(TCOMMAND) 2>&1 | wc -w)
    ifeq ($(strip $(HAVE_OPT)),0)
      CRYPTOPP_CXXFLAGS += -qheapdebug -qro
-   endif  # CRYPTOPP_CXXFLAGS
+   endif # CRYPTOPP_CXXFLAGS
   endif # XLC_COMPILER
-endif  # Debug build
+endif # Debug build
 
 # Dead code stripping. Issue 'make lean'.
 ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
@@ -1610,12 +1632,14 @@ ifneq ($(IS_DARWIN),0)
 	$(CP) cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
 	hdiutil makehybrid -iso -joliet -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
 	@-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
-else ifneq ($(IS_LINUX)$(IS_HURD),00)
+else
+ifneq ($(IS_LINUX)$(IS_HURD),00)
 	$(MKDIR) $(PWD)/cryptopp$(LIB_VER)
 	$(CP) cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
 	genisoimage -q -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
 	@-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
-endif
+endif # Hurd
+endif # Darwin
 
 # CRYPTOPP_CPU_FREQ in GHz
 CRYPTOPP_CPU_FREQ ?= 0.0
@@ -1812,7 +1836,7 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 	$(info )
 	$(info WARNING: Only the symlinks to the shared-object library have been updated.)
 	$(info WARNING: If the library is installed in a system directory you will need)
-	$(info WARNING: to run 'ldconfig' to update the shared-object library cache.)
+	$(info WARNING: to run ldconfig to update the shared-object library cache.)
 	$(info )
 endif
 
@@ -1821,7 +1845,7 @@ osx_warning:
 ifeq ($(IS_DARWIN)$(CLANG_COMPILER),11)
   ifeq ($(findstring -stdlib=libc++,$(CRYPTOPP_CXXFLAGS)$(CXXFLAGS)),)
 	$(info )
-	$(info INFO: Crypto++ was built without LLVM's libc++. If you are using the library)
+	$(info INFO: Crypto++ was built without LLVM libc++. If you are using the library)
 	$(info INFO: with modern Xcode, then you should add -stdlib=libc++ to CXXFLAGS. It is)
 	$(info INFO: already present in the makefile, and you only need to uncomment it.)
 	$(info )
