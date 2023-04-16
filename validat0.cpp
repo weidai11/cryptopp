@@ -1556,7 +1556,7 @@ bool TestASN1Functions()
 
         len = DEREncodeOctetString(encoded, ConstBytePtr(message), BytePtrSize(message));
         DERReencode(encoded, reencoded);
-        rlen = reencoded.MaxRetrievable();
+        rlen = (size_t)reencoded.MaxRetrievable();
         (void)BERDecodeOctetString(reencoded, decoded);
 
         std::string recovered;
@@ -1589,7 +1589,7 @@ bool TestASN1Functions()
 
             len = DEREncodeTextString(encoded, ConstBytePtr(message), BytePtrSize(message), asnStringTypes[i]);
             DERReencode(encoded, reencoded);
-            rlen = reencoded.MaxRetrievable();
+            rlen = (size_t)reencoded.MaxRetrievable();
             (void)BERDecodeTextString(reencoded, recovered, asnStringTypes[i]);
 
             fail = (len != rlen || message != recovered);

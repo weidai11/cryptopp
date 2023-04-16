@@ -158,7 +158,7 @@ bool ValidateRSA_Encrypt()
 		rsaPriv.DEREncodePrivateKey(q);
 
 		RSA::PrivateKey rsaPriv2;
-		rsaPriv2.BERDecodePrivateKey(q, true, q.MaxRetrievable());
+		rsaPriv2.BERDecodePrivateKey(q, true, (size_t)q.MaxRetrievable());
 
 		fail = (rsaPriv != rsaPriv2);
 		pass = pass && !fail;

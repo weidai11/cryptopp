@@ -95,7 +95,7 @@ namespace std {
 // C++Builder's standard library (Dinkumware) do not have C's global log() function
 // https://github.com/weidai11/cryptopp/issues/520
 #ifdef __BORLANDC__
-using log;
+using std::log;
 #endif
 
 #endif  // CRYPTOPP_STDCPP_H

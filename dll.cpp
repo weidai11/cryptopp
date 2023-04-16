@@ -66,8 +66,6 @@ NAMESPACE_END
 
 USING_NAMESPACE(CryptoPP)
 
-using set_new_handler;
-
 static PNew s_pNew = NULLPTR;
 static PDelete s_pDelete = NULLPTR;
 
@@ -111,7 +109,7 @@ static void SetNewAndDeleteFunctionPointers()
 		{
 			s_pNew = &New;
 			s_pDelete = &free;
-			pSetNewAndDelete(s_pNew, s_pDelete, &set_new_handler);
+			pSetNewAndDelete(s_pNew, s_pDelete, &std::set_new_handler);
 			return;
 		}
 	}
