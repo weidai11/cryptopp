@@ -112,11 +112,11 @@ ifneq ($(findstring trim,$(MAKECMDGOALS)),)
 else
 ifneq ($(findstring zip,$(MAKECMDGOALS)),)
   DETECT_FEATURES := 0
-endif
-endif
-endif
-endif
-endif
+endif # zip
+endif # trim
+endif # distclean
+endif # clean
+endif # CRYPTOPP_DISABLE_ASM
 
 # Strip out -Wall, -Wextra and friends for feature testing. FORTIFY_SOURCE is removed
 # because it requires -O1 or higher, but we use -O0 to tame the optimizer.
@@ -1192,7 +1192,7 @@ ifeq ($(IS_SUN),1)
 # https://blogs.oracle.com/solaris/how-to-name-a-solaris-shared-object-v2
 SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
 SOLIB_FLAGS=-Wl,-h,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
-endif
+endif # IS_SUN
 endif # HAS_SOLIB_VERSION
 
 ###########################################################
