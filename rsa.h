@@ -203,17 +203,30 @@ struct RSASS_ISO : public TF_SS<RSA_ISO, P1363_EMSA2, H>
 
 /// \brief \ref RSAES<STANDARD> "RSAES<PKCS1v15>::Decryptor" typedef
 /// \details RSA encryption scheme defined in PKCS #1 v2.0
+/// \since Crypto++ 1.0
 DOCUMENTED_TYPEDEF(RSAES<PKCS1v15>::Decryptor, RSAES_PKCS1v15_Decryptor);
 /// \brief \ref RSAES<STANDARD> "RSAES<PKCS1v15>::Encryptor" typedef
 /// \details RSA encryption scheme defined in PKCS #1 v2.0
+/// \since Crypto++ 1.0
 DOCUMENTED_TYPEDEF(RSAES<PKCS1v15>::Encryptor, RSAES_PKCS1v15_Encryptor);
 
 /// \brief \ref RSAES<STANDARD> "RSAES<OAEP<SHA1>>::Decryptor" typedef
 /// \details RSA encryption scheme defined in PKCS #1 v2.0
+/// \since Crypto++ 1.0
 DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA1> >::Decryptor, RSAES_OAEP_SHA_Decryptor);
 /// \brief \ref RSAES<STANDARD> "RSAES<OAEP<SHA1>>::Encryptor" typedef
 /// \details RSA encryption scheme defined in PKCS #1 v2.0
+/// \since Crypto++ 1.0
 DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA1> >::Encryptor, RSAES_OAEP_SHA_Encryptor);
+
+/// \brief \ref RSAES<STANDARD> "RSAES<OAEP<SHA256>>::Decryptor" typedef
+/// \details RSA encryption scheme defined in PKCS #1 v2.0
+/// \since Crypto++ 8.7
+DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA256> >::Decryptor, RSAES_OAEP_SHA256_Decryptor);
+/// \brief \ref RSAES<STANDARD> "RSAES<OAEP<SHA256>>::Encryptor" typedef
+/// \details RSA encryption scheme defined in PKCS #1 v2.0
+/// \since Crypto++ 8.7
+DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA256> >::Encryptor, RSAES_OAEP_SHA256_Encryptor);
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 /// \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15,SHA1>::Signer" typedef
@@ -224,6 +237,15 @@ class RSASSA_PKCS1v15_SHA_Signer : public RSASS<PKCS1v15,SHA1>::Signer {};
 /// \details RSA signature schemes defined in PKCS #1 v2.0
 /// \since Crypto++ 1.0
 class RSASSA_PKCS1v15_SHA_Verifier : public RSASS<PKCS1v15,SHA1>::Verifier {};
+
+/// \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15,SHA256>::Signer" typedef
+/// \details RSA signature schemes defined in PKCS #1 v2.0
+/// \since Crypto++ 8.7
+class RSASSA_PKCS1v15_SHA256_Signer : public RSASS<PKCS1v15,SHA256>::Signer {};
+/// \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15,SHA256>::Verifier" typedef
+/// \details RSA signature schemes defined in PKCS #1 v2.0
+/// \since Crypto++ 8.7
+class RSASSA_PKCS1v15_SHA256_Verifier : public RSASS<PKCS1v15,SHA256>::Verifier {};
 
 namespace Weak {
 
@@ -249,6 +271,9 @@ class RSASSA_PKCS1v15_MD5_Verifier : public RSASS<PKCS1v15, Weak1::MD5>::Verifie
 #else
 typedef RSASS<PKCS1v15,SHA1>::Signer RSASSA_PKCS1v15_SHA_Signer;
 typedef RSASS<PKCS1v15,SHA1>::Verifier RSASSA_PKCS1v15_SHA_Verifier;
+
+typedef RSASS<PKCS1v15,SHA256>::Signer RSASSA_PKCS1v15_SHA256_Signer;
+typedef RSASS<PKCS1v15,SHA256>::Verifier RSASSA_PKCS1v15_SHA256_Verifier;
 
 namespace Weak {
 	typedef RSASS<PKCS1v15, Weak1::MD2>::Signer RSASSA_PKCS1v15_MD2_Signer;
