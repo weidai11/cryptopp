@@ -48,7 +48,7 @@ typedef std::map<std::string, std::string> TestData;
 const TestData *s_currentTestData = NULLPTR;
 const std::string testDataFilename = "cryptest.dat";
 
-// Handles CR, LF, and CRLF properly
+// Handles CR, LF, and CRLF properly. Early RFC's used '\r\0' on occasion.
 // For istream.fail() see https://stackoverflow.com/q/34395801/608639.
 bool Readline(std::istream& stream, std::string& line)
 {
@@ -66,6 +66,8 @@ bool Readline(std::istream& stream, std::string& line)
 			int next = stream.peek();
 			if (next == '\n')
 				(void)stream.get();
+			else if (next == '\0')
+				(void)stream.get();
 
 			break;
 		}
@@ -74,8 +76,6 @@ bool Readline(std::istream& stream, std::string& line)
 			break;
 		}
 
-		// Let string class manage its own capacity.
-		// The string will grow as needed.
 		temp.push_back(static_cast<char>(ch));
 	}
 
