@@ -205,7 +205,7 @@ library in your programs to help avoid unwanted redirections.
 *** Side Channel Attacks ***
 
 Crypto++ attempts to resist side channel attacks using various remediations.
-The remdiations are applied as a best effort but are probably incomplete. They
+The remediations are applied as a best effort but are probably incomplete. They
 are incomplete due to cpu speculation bugs like Spectre, Meltdown, Foreshadow.
 The attacks target both cpu caches and internal buffers. Intel generally refers
 to internal buffer attacks as "Microarchitectural Data Sampling" (MDS).
@@ -234,7 +234,7 @@ processed through Doxygen to produce an HTML reference manual. You can find
 a link to the manual from http://www.cryptopp.com. Also at that site is
 the Crypto++ FAQ, which you should browse through before attempting to
 use this library, because it will likely answer many of questions that
-may come up. Finally, the site provide the wiki which has many topics
+may come up. Finally, the site provides the wiki which has many topics
 and code examples.
 
 If you run into any problems, please try the Crypto++ mailing list.
@@ -268,7 +268,7 @@ who can help resolve the issue. If you want to contribute a bug fix to the libra
 then make a Pull Request or make a Diff available somewhere. Also see Bug Reports on
 the wiki.
 
-Features and enhancements are welcomend additions to the library. This category tends
+Features and enhancements are welcomed additions to the library. This category tends
 to be time consuming because algorithms and their test cases need to be reviewed and
 merged. Please be mindful of the test cases, and attempt to procure them from an
 independent source.
