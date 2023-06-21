@@ -9,9 +9,9 @@ env:
 
 task:
   matrix:
-    - name: Debug build, FreeBSD 13.1
+    - name: Debug build, FreeBSD 13.2
       freebsd_instance:
-        image_family: freebsd-13-1
+        image_family: freebsd-13-2
       pkginstall_script:
         - pkg update -f
         - pkg install -y gmake
@@ -21,9 +21,9 @@ task:
       test_script:
         - ./cryptest.exe v
         - ./cryptest.exe tv all
-    - name: Release build, FreeBSD 13.1
+    - name: Release build, FreeBSD 13.2
       freebsd_instance:
-        image_family: freebsd-13-1
+        image_family: freebsd-13-2
       pkginstall_script:
         - pkg update -f
         - pkg install -y gmake
