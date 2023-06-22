@@ -39,6 +39,13 @@
 	#define CRYPTOPP_BOOL_ALIGN16 0
 #endif
 
+// Required to remove crash when build with msvc
+// Start discussion: https://mail.google.com/mail/u/0/#inbox/WhctKKXxCwBrGvhjfgGVxcnSKKRPpJLncwnSzxkFsvqZJSRKWLbTfjsRZfWgTPdZZCbWVXb
+#if defined(_MSC_VER)
+    #undef CRYPTOPP_BOOL_ALIGN16
+    #define CRYPTOPP_BOOL_ALIGN16 1
+#endif
+
 // How to allocate 16-byte aligned memory (for SSE2)
 // posix_memalign see https://forum.kde.org/viewtopic.php?p=66274
 #if defined(_MSC_VER)
