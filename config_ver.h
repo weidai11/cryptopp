@@ -54,23 +54,23 @@
 
 // Compiler version macros
 
-#if defined(__GNUC__)
-# define CRYPTOPP_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-#endif
-
 // Apple and LLVM Clang versions. Apple Clang version 7.0 roughly equals
 // LLVM Clang version 3.7. Also see https://gist.github.com/yamaya/2924292
 #if defined(__clang__) && defined(__apple_build_version__)
-# undef CRYPTOPP_GCC_VERSION
 # define CRYPTOPP_APPLE_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 #elif defined(__clang__)
-# undef CRYPTOPP_GCC_VERSION
 # define CRYPTOPP_LLVM_CLANG_VERSION  (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 #endif
 
 // Clang pretends to be other compilers. The compiler gets into
 // code paths that it cannot compile. Unset Clang to save the grief.
 // Also see http://github.com/weidai11/cryptopp/issues/147.
+
+#if defined(__GNUC__)
+# undef CRYPTOPP_APPLE_CLANG_VERSION
+# undef CRYPTOPP_LLVM_CLANG_VERSION
+# define CRYPTOPP_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#endif
 
 #if defined(__xlc__) || defined(__xlC__)
 # undef CRYPTOPP_LLVM_CLANG_VERSION
