@@ -830,22 +830,6 @@ inline bool SafeConvert(word32 from, sword32 &to)
 	return true;
 }
 
-/// \brief Perform a conversion from \p from to \p to
-/// \param from the first value
-/// \param to the second value
-/// \return true if its safe to convert from \p from to \p to, false otherwise.
-/// \details if the function returns true, then it is safe to use \p to. If the function returns false,
-///  then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7
-template<>
-inline bool SafeConvert(lword from, size_t &to)
-{
-	if (from > static_cast<lword>(std::numeric_limits<size_t>::max()))
-		return false;
-	to = static_cast<size_t>(from);
-	return true;
-}
-
 /// \brief Converts a value to a string
 /// \tparam T class or type
 /// \param value the value to convert
