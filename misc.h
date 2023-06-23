@@ -706,10 +706,10 @@ template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2&
 /// \tparam T2 class or type
 /// \param from the first value
 /// \param to the second value
-/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function returns false,
 ///  then \p to is undefined and should not be used.
-/// \note: for integral conversions, a template specialization should be provided. The specialization
+/// \note for integral conversions, a template specialization should be provided. The specialization
 ///  will perform more efficiently, and avoid warnings for truncation and sign compares.
 template <class T1, class T2>
 inline bool SafeConvert(T1 from, T2 &to)
@@ -723,7 +723,7 @@ inline bool SafeConvert(T1 from, T2 &to)
 /// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
-/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function returns false,
 ///  then \p to is undefined and should not be used.
 /// \since Crypto++ 8.7
@@ -737,7 +737,7 @@ inline bool SafeConvert(word32 from, word64 &to)
 /// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
-/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function returns false,
 ///  then \p to is undefined and should not be used.
 /// \since Crypto++ 8.7
@@ -753,7 +753,7 @@ inline bool SafeConvert(word64 from, word32 &to)
 /// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
-/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function returns false,
 ///  then \p to is undefined and should not be used.
 /// \since Crypto++ 8.7
@@ -769,7 +769,7 @@ inline bool SafeConvert(word64 from, sword64 &to)
 /// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
-/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function returns false,
 ///  then \p to is undefined and should not be used.
 /// \since Crypto++ 8.7
@@ -785,7 +785,7 @@ inline bool SafeConvert(sword64 from, word64 &to)
 /// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
-/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function returns false,
 ///  then \p to is undefined and should not be used.
 /// \since Crypto++ 8.7
@@ -801,7 +801,7 @@ inline bool SafeConvert(word64 from, sword32 &to)
 /// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
-/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function returns false,
 ///  then \p to is undefined and should not be used.
 /// \since Crypto++ 8.7
@@ -817,7 +817,7 @@ inline bool SafeConvert(sword32 from, word64 &to)
 /// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
-/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function returns false,
 ///  then \p to is undefined and should not be used.
 /// \since Crypto++ 8.7
@@ -833,7 +833,7 @@ inline bool SafeConvert(word32 from, sword32 &to)
 /// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
-/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function returns false,
 ///  then \p to is undefined and should not be used.
 /// \since Crypto++ 8.7
