@@ -1287,7 +1287,11 @@ inline word128 NumericLimitsMin()
 template<>
 inline word128 NumericLimitsMax()
 {
+#if defined(CRYPTOPP_APPLE_CLANG_VERSION)
 	return (static_cast<word128>(LWORD_MAX) << 64U) | LWORD_MAX;
+#else
+	return (std::numeric_limits<word128>::max)();
+#endif
 }
 #endif
 
