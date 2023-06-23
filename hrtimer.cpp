@@ -33,7 +33,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 static TimerWord InitializePerformanceCounterFrequency()
 {
-	LARGE_INTEGER freq = {0,0};
+	LARGE_INTEGER freq = {{0,0}};
 	if (!QueryPerformanceFrequency(&freq))
 		throw Exception(Exception::OTHER_ERROR, "Timer: QueryPerformanceFrequency failed with error " + IntToString(GetLastError()));
 	return freq.QuadPart;
@@ -91,7 +91,7 @@ TimerWord Timer::GetCurrentTimerValue()
 {
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 	// Use the first union member to avoid an uninitialized warning
-	LARGE_INTEGER now = {0,0};
+	LARGE_INTEGER now = {{0,0}};
 	if (!QueryPerformanceCounter(&now))
 		throw Exception(Exception::OTHER_ERROR, "Timer: QueryPerformanceCounter failed with error " + IntToString(GetLastError()));
 	return now.QuadPart;
