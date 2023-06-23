@@ -701,7 +701,7 @@ template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2&
 		return (T1)b < a ? (T1)b : a;
 }
 
-/// \brief Tests whether a conversion from \p from to \p to is safe to perform
+/// \brief Perform a conversion from \p from to \p to
 /// \tparam T1 class or type
 /// \tparam T2 class or type
 /// \param from the first value
@@ -718,7 +718,7 @@ inline bool SafeConvert(T1 from, T2 &to)
 	return true;
 }
 
-/// \brief Tests whether a conversion from \p from to \p to is safe to perform
+/// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
 /// \return true if its safe to convert \p from to \p to, false otherwise.
@@ -732,7 +732,7 @@ inline bool SafeConvert(word32 from, word64 &to)
 	return true;
 }
 
-/// \brief Tests whether a conversion from \p from to \p to is safe to perform
+/// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
 /// \return true if its safe to convert \p from to \p to, false otherwise.
@@ -748,7 +748,7 @@ inline bool SafeConvert(word64 from, word32 &to)
 	return true;
 }
 
-/// \brief Tests whether a conversion from \p from to \p to is safe to perform
+/// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
 /// \return true if its safe to convert \p from to \p to, false otherwise.
@@ -764,7 +764,7 @@ inline bool SafeConvert(word64 from, sword64 &to)
 	return true;
 }
 
-/// \brief Tests whether a conversion from \p from to \p to is safe to perform
+/// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
 /// \return true if its safe to convert \p from to \p to, false otherwise.
@@ -780,7 +780,7 @@ inline bool SafeConvert(sword64 from, word64 &to)
 	return true;
 }
 
-/// \brief Tests whether a conversion from \p from to \p to is safe to perform
+/// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
 /// \return true if its safe to convert \p from to \p to, false otherwise.
@@ -796,7 +796,7 @@ inline bool SafeConvert(word64 from, sword32 &to)
 	return true;
 }
 
-/// \brief Tests whether a conversion from \p from to \p to is safe to perform
+/// \brief Perform a conversion from \p from to \p to
 /// \param from the first value
 /// \param to the second value
 /// \return true if its safe to convert \p from to \p to, false otherwise.
