@@ -225,7 +225,7 @@ size_t Grouper::Put2(const byte *begin, size_t length, int messageEnd, bool bloc
 			}
 
 			size_t len;
-			FILTER_OUTPUT2(2, len = STDMIN(length-m_inputPosition, m_groupSize-m_counter),
+			FILTER_OUTPUT2(2, (len = STDMIN(length-m_inputPosition, m_groupSize-m_counter)),
 				begin+m_inputPosition, len, 0);
 			m_inputPosition += len;
 			m_counter += len;
