@@ -1270,28 +1270,28 @@ if true; then
     TEST_LIST+=("C++ std::min, std::max")
     FAILED=0
 
-    # If this fires, then use the library's STDMIN(a,b) or (std::min)(a, b);
+    # If this fires, then use STDMIN(a,b) or (std::min)(a, b);
     COUNT=$(cat ./*.h ./*.cpp | "${GREP}" -v '//' | "${GREP}" -c -E 'std::min[[:space:]]*\(')
     if [[ "$COUNT" -ne 0 ]]; then
         FAILED=1
         echo "FAILED: found std::min" | tee -a "$TEST_RESULTS"
     fi
 
-    # If this fires, then use the library's STDMAX(a,b) or (std::max)(a, b);
+    # If this fires, then use STDMAX(a,b) or (std::max)(a, b);
     COUNT=$(cat ./*.h ./*.cpp | "${GREP}" -v '//' | "${GREP}" -c -E 'std::max[[:space:]]*\(')
     if [[ "$COUNT" -ne 0 ]]; then
         FAILED=1
         echo "FAILED: found std::max" | tee -a "$TEST_RESULTS"
     fi
 
-    # If this fires, then use the library's STDMIN(a,b) or (std::min)(a, b);
+    # If this fires, then use STDMIN(a,b) or (std::min)(a, b);
     COUNT=$(cat ./*.h ./*.cpp | "${GREP}" -v '//' | "${GREP}" -c -E 'std::numeric_limits<.*>::min[[:space:]]*\(')
     if [[ "$COUNT" -ne 0 ]]; then
         FAILED=1
         echo "FAILED: found std::numeric_limits<T>::min" | tee -a "$TEST_RESULTS"
     fi
 
-    # If this fires, then use the library's STDMAX(a,b) or (std::max)(a, b);
+    # If this fires, then use STDMAX(a,b) or (std::max)(a, b);
     COUNT=$(cat ./*.h ./*.cpp | "${GREP}" -v '//' | "${GREP}" -c -E 'std::numeric_limits<.*>::max[[:space:]]*\(')
     if [[ "$COUNT" -ne 0 ]]; then
         FAILED=1
