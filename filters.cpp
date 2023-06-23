@@ -4,11 +4,7 @@
 #include "config.h"
 
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4100 4189 4355)
-#endif
-
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wunused-value"
+# pragma warning(disable: 4189 4355)
 #endif
 
 #ifndef CRYPTOPP_IMPORTS

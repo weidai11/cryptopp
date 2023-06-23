@@ -3,11 +3,7 @@
 #include <string>
 
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4100 4189 4996)
-#endif
-
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wunused-variable"
+# pragma warning(disable: 4189 4996)
 #endif
 
 USING_NAMESPACE(CryptoPP)

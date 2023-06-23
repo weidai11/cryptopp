@@ -41,7 +41,7 @@
 #include "config.h"
 
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4100 4731)
+# pragma warning(disable: 4731)
 #endif
 
 #ifndef CRYPTOPP_IMPORTS
