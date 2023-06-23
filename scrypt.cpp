@@ -200,7 +200,7 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
         throw InvalidArgument("Scrypt: parallelization cannot be 0");
 
     // Optimizer should remove this on 32-bit platforms
-    if (std::numeric_limits<size_t>::max() > std::numeric_limits<word32>::max())
+    if ((std::numeric_limits<size_t>::max)() > (std::numeric_limits<word32>::max)())
     {
         const word64 maxLen = ((static_cast<word64>(1) << 32) - 1) * 32;
         if (derivedLen > maxLen) {
@@ -211,12 +211,12 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
     }
 
     // https://github.com/weidai11/cryptopp/issues/787
-    CRYPTOPP_ASSERT(parallelization <= static_cast<word64>(std::numeric_limits<int>::max()));
-    if (parallelization > static_cast<word64>(std::numeric_limits<int>::max()))
+    CRYPTOPP_ASSERT(parallelization <= static_cast<word64>((std::numeric_limits<int>::max)()));
+    if (parallelization > static_cast<word64>((std::numeric_limits<int>::max)()))
     {
         std::ostringstream oss;
         oss << " parallelization " << parallelization << " is larger than ";
-        oss << std::numeric_limits<int>::max();
+        oss << (std::numeric_limits<int>::max)();
         throw InvalidArgument("Scrypt: " + oss.str());
     }
 
@@ -297,7 +297,7 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
     // Visual Studio and OpenMP 2.0 fixup. We must use int, not size_t.
     int maxParallel=0;
     if (!SafeConvert(parallel, maxParallel))
-        maxParallel = std::numeric_limits<int>::max();
+        maxParallel = (std::numeric_limits<int>::max)();
 
     #ifdef _OPENMP
     int threads = STDMIN(omp_get_max_threads(), maxParallel);

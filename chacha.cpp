@@ -442,7 +442,7 @@ void ChaChaTLS_Policy::SeekToIteration(lword iterationCount)
     // large then we can wrap and process more data as long as
     // data processed in the security context does not exceed
     // 2^32 blocks or approximately 256 GB of data.
-    CRYPTOPP_ASSERT(iterationCount <= std::numeric_limits<word32>::max());
+    CRYPTOPP_ASSERT(iterationCount <= (std::numeric_limits<word32>::max)());
     m_state[12] = (word32)iterationCount;  // low word
 }
 
