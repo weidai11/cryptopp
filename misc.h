@@ -761,7 +761,39 @@ inline bool SafeConvert(sword64 from, word64 &to)
 {
 	if (from < 0)
 		return false;
-	to = static_cast<sword64>(from);
+	to = static_cast<word64>(from);
+	return true;
+}
+
+/// \brief Tests whether a conversion from -> to is safe to perform
+/// \param from the first value
+/// \param to the second value
+/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \details if the function returns true, then it is safe to use \p to. If the function returns false,
+///  then \p to is undefined and should not be used.
+/// \since Crypto++ 8.7
+template<>
+inline bool SafeConvert(word64 from, sword32 &to)
+{
+	if (from > static_cast<word64>(std::numeric_limits<sword32>::max()))
+		return false;
+	to = static_cast<sword32>(from);
+	return true;
+}
+
+/// \brief Tests whether a conversion from -> to is safe to perform
+/// \param from the first value
+/// \param to the second value
+/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \details if the function returns true, then it is safe to use \p to. If the function returns false,
+///  then \p to is undefined and should not be used.
+/// \since Crypto++ 8.7
+template<>
+inline bool SafeConvert(sword32 from, word64 &to)
+{
+	if (from < 0)
+		return false;
+	to = static_cast<word64>(from);
 	return true;
 }
 
