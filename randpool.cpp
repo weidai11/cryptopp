@@ -68,7 +68,7 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 		do
 		{
 			m_pCipher->ProcessBlock(m_seed);
-			size_t len = UnsignedMin(16, size);
+			size_t len = UnsignedMin(16u, size);
 			target.ChannelPut(channel, m_seed, len);
 			size -= len;
 		} while (size > 0);

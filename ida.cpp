@@ -250,7 +250,7 @@ size_t SecretSharing::Put2(const byte *begin, size_t length, int messageEnd, boo
 	if (!blocking)
 		throw BlockingInputOnly("SecretSharing");
 
-	SecByteBlock buf(UnsignedMin(256, length));
+	SecByteBlock buf(UnsignedMin(256u, length));
 	unsigned int threshold = m_ida.GetThreshold();
 	while (length > 0)
 	{
