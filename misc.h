@@ -709,6 +709,8 @@ template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2&
 /// \return true if its safe to convert \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function returns false,
 ///  then \p to is undefined and should not be used.
+/// \note: for integral conversions, a template specialization should be provided. The specialization
+///  will perform more efficiently, and avoid warnings for truncation and sign compares.
 template <class T1, class T2>
 inline bool SafeConvert(T1 from, T2 &to)
 {
@@ -809,6 +811,38 @@ inline bool SafeConvert(sword32 from, word64 &to)
 	if (from < 0)
 		return false;
 	to = static_cast<word64>(from);
+	return true;
+}
+
+/// \brief Perform a conversion from \p from to \p to
+/// \param from the first value
+/// \param to the second value
+/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \details if the function returns true, then it is safe to use \p to. If the function returns false,
+///  then \p to is undefined and should not be used.
+/// \since Crypto++ 8.7
+template<>
+inline bool SafeConvert(word32 from, sword32 &to)
+{
+	if (from > static_cast<word32>(std::numeric_limits<sword32>::max()))
+		return false;
+	to = static_cast<sword32>(from);
+	return true;
+}
+
+/// \brief Perform a conversion from \p from to \p to
+/// \param from the first value
+/// \param to the second value
+/// \return true if its safe to convert \p from to \p to, false otherwise.
+/// \details if the function returns true, then it is safe to use \p to. If the function returns false,
+///  then \p to is undefined and should not be used.
+/// \since Crypto++ 8.7
+template<>
+inline bool SafeConvert(lword from, size_t &to)
+{
+	if (from > static_cast<lword>(std::numeric_limits<size_t>::max()))
+		return false;
+	to = static_cast<size_t>(from);
 	return true;
 }
 
