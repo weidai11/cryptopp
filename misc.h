@@ -691,10 +691,12 @@ template <class T> inline const T& STDMAX(const T& a, const T& b)
 /// \param a the first value
 /// \param b the second value
 /// \return the minimum value based on a comparison a and b using <tt>operator&lt;</tt>.
-/// \details The comparison <tt>b \< a</tt> is performed and the value returned is a's type T1.
+/// \details The comparison <tt>b \< a</tt> is performed and the value returned is type T1.
 template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2& b)
 {
 	CRYPTOPP_COMPILE_ASSERT((sizeof(T1)<=sizeof(T2) && T2(-1)>0) || (sizeof(T1)>sizeof(T2) && T1(-1)>0));
+	CRYPTOPP_COMPILE_ASSERT(std::numeric_limits<T1>::is_signed == false);
+	CRYPTOPP_COMPILE_ASSERT(std::numeric_limits<T2>::is_signed == false);
 
 	if (sizeof(T1)<=sizeof(T2))
 		return b < (T2)a ? (T1)b : a;
