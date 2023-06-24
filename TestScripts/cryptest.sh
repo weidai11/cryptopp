@@ -1260,6 +1260,7 @@ fi
 ############################################
 # C++ std::min and std::max
 # This is due to Windows.h and NOMINMAX. Linux test fine, while Windows breaks.
+# http://support.microsoft.com/en-us/kb/143208
 if true; then
 
     echo
@@ -1267,7 +1268,7 @@ if true; then
     echo "Testing: C++ std::min and std::max" | tee -a "$TEST_RESULTS"
     echo
 
-    TEST_LIST+=("C++ std::min, std::max")
+    TEST_LIST+=("C++ std::min and std::max")
     FAILED=0
 
     # If this fires, then use STDMIN(a,b) or (std::min)(a, b);
