@@ -295,12 +295,18 @@ The items in this section comprise the most recent history. Please see History.t
 for the record back to Crypto++ 1.0.
 
 8.7.1 - June 24, 2023
-      - minor release, no recompile of programs required
+      - minor release, recompile of programs required
       - expanded community input and support
         * 88 unique contributors as of this release
-      - fix crash in cryptest.exe when invoked woth no options
-      - fix buid warnings
-      - documentation updates
+      - fix crash in cryptest.exe when invoked with no options
+      - fix crash in library due to GCC removing live code
+      - fix RSA with key size 16 may provide an invalid key
+      - fix failure to build on 32-bit x86
+      - fix failure to build on iPhone Simulator for arm64
+      - fix failure to build on Windows arm64
+      - test for SSSE3 before using the ISA
+      - fix include of <x86intrin.h> when using MSVC
+      - improve performance of CRC32C_Update_SSE42 for x86-64
 
 8.7.0 - August 7, 2022
       - minor release, recompile of programs required
