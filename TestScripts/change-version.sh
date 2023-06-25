@@ -19,7 +19,7 @@
 sed 's/Library 8.9 API/Library 8.8 API/g' cryptlib.h > cryptlib.h.new
 mv cryptlib.h.new cryptlib.h
 
-sed 's/= 8.9$/= 8.8/g' Doxyfile > Doxyfile.new
+sed 's/= 8.9/= 8.8/g' Doxyfile > Doxyfile.new
 mv Doxyfile.new Doxyfile
 
 sed 's/CRYPTOPP_MINOR 9/CRYPTOPP_MINOR 8/g' config_ver.h > config_ver.h.new
