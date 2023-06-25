@@ -444,6 +444,7 @@ public:
 		/// \param rng RandomNumberGenerator used to generate material
 		/// \param bitCount the number of bits in the resulting integer
 		/// \details The random integer created is uniformly distributed over <tt>[0, 2<sup>bitCount</sup>]</tt>.
+		/// \note If \p bitCount is 0, then this Integer is set to 0 (and not 0 or 1).
 		void Randomize(RandomNumberGenerator &rng, size_t bitCount);
 
 		/// \brief Set this Integer to random integer

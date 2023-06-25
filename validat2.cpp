@@ -1280,7 +1280,47 @@ bool TestIntegerOps()
        std::cout << "FAILED:";
     std::cout << "  Exponentiation operations\n";
 
-    return pass;
+    // ****************************** Integer Randomize ******************************
+
+	try
+	{
+		const word32 bitCounts[] = {
+            0,1,2,3,4,5,6,7,8,9,15,16,17,31,32,33,63,64,65,127,128,129
+		};
+
+		for (size_t i=0; i<COUNTOF(bitCounts); ++i)
+		{
+			result = true;
+            unsigned int maxBits = 0;
+			const size_t bitCount = bitCounts[i];
+			Integer n;
+
+			for (size_t j=0; j<128; ++j)
+			{
+				n.Randomize(prng, bitCount);
+				maxBits = (std::max)(maxBits, n.BitCount());
+			}
+
+			result &= (maxBits == bitCount);
+			if (!result)
+				std::cout << "FAILED:  Randomize " << bitCount << "-bits\n";
+
+			pass &= result;
+		}
+	}
+	catch (const Exception&)
+	{
+		pass = false;
+		result = false;
+	}
+
+	if (!pass)
+		std::cout << "FAILED:";
+	else
+		std::cout << "passed:";
+	std::cout << "  Randomize of various bit lengths\n";
+
+	return pass;
 }
 #endif
 

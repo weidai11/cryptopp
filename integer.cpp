@@ -3522,8 +3522,12 @@ void Integer::Randomize(RandomNumberGenerator &rng, size_t nbits)
 	const size_t nbytes = nbits/8 + 1;
 	SecByteBlock buf(nbytes);
 	rng.GenerateBlock(buf, nbytes);
-	if (nbytes)
-		buf[0] = (byte)Crop(buf[0], nbits % 8);
+
+	// https://github.com/weidai11/cryptopp/issues/1206
+	// if (nbytes)
+	//     buf[0] = (byte)Crop(buf[0], nbits % 8);
+
+	buf[0] = (byte)Crop(buf[0], nbits % 8);
 	Decode(buf, nbytes, UNSIGNED);
 }
 
