@@ -42,7 +42,7 @@
 ///  as a shared object if versions are inadvertently mixed and matched.
 /// \sa CRYPTOPP_VERSION, LibraryVersion(), HeaderVersion()
 /// \since Crypto++ 8.2
-#define CRYPTOPP_REVISION 0
+#define CRYPTOPP_REVISION 1
 
 /// \brief Full library version
 /// \details CRYPTOPP_VERSION reflects the version of the library the headers
@@ -50,7 +50,7 @@
 ///  shared object if versions are inadvertently mixed and matched.
 /// \sa CRYPTOPP_MAJOR, CRYPTOPP_MINOR, CRYPTOPP_REVISION, LibraryVersion(), HeaderVersion()
 /// \since Crypto++ 5.6
-#define CRYPTOPP_VERSION 870
+#define CRYPTOPP_VERSION 871
 
 // Compiler version macros
 
