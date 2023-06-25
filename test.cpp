@@ -57,7 +57,7 @@
 #define UNIX_PATH_FAMILY 1
 #endif
 
-#if (_MSC_VER >= 1000)
+#if (CRYPTOPP_MSC_VERSION >= 1000)
 #include <crtdbg.h>		// for the debug heap
 #endif
 
@@ -510,7 +510,7 @@ void SetArgvPathHint(const char* argv0, std::string& pathHint)
 #if defined(AT_EXECFN)
 	if (getauxval(AT_EXECFN))
 		pathHint = getauxval(AT_EXECFN);
-#elif defined(_MSC_VER) && (_MSC_VER > 1310)
+#elif defined(CRYPTOPP_MSC_VERSION) && (CRYPTOPP_MSC_VERSION > 1310)
 	char* pgmptr = NULLPTR;
 	errno_t err = _get_pgmptr(&pgmptr);
 	if (err == 0 && pgmptr != NULLPTR)

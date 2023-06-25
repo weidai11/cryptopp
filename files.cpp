@@ -57,7 +57,7 @@ void FileStore::StoreInitialize(const NameValuePairs &parameters)
 	m_file.release();
 
 	const char *fileName = NULLPTR;
-#if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || CRYPTOPP_MSC_VERSION >= 1400
 	const wchar_t *fileNameWide = NULLPTR;
 	if (!parameters.GetValue(Name::InputFileNameWide(), fileNameWide))
 #endif
@@ -74,7 +74,7 @@ void FileStore::StoreInitialize(const NameValuePairs &parameters)
 	if (fileNameWide)
 		fileName = (narrowed = StringNarrow(fileNameWide)).c_str();
 #endif
-#if _MSC_VER >= 1400
+#if CRYPTOPP_MSC_VERSION >= 1400
 	if (fileNameWide)
 	{
 		m_file->open(fileNameWide, std::ios::in | binary);
@@ -224,7 +224,7 @@ void FileSink::IsolatedInitialize(const NameValuePairs &parameters)
 	m_file.release();
 
 	const char *fileName = NULLPTR;
-#if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || CRYPTOPP_MSC_VERSION >= 1400
 	const wchar_t *fileNameWide = NULLPTR;
 	if (!parameters.GetValue(Name::OutputFileNameWide(), fileNameWide))
 #endif

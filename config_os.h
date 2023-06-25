@@ -29,8 +29,7 @@
 // https://www.cryptopp.com/wiki/Release_Process#Self_Tests
 // The problems with Clang pretending to be other compilers is
 // discussed at http://github.com/weidai11/cryptopp/issues/147.
-#if (defined(_MSC_VER) && defined(__clang__) && \
-   !(defined( __clang_analyzer__)) && !defined(__INTEL_LLVM_COMPILER))
+#if (defined(_MSC_VER) && defined(__clang__))
 # error: "Unsupported configuration"
 #endif
 
@@ -50,14 +49,14 @@
 #endif
 
 // Microsoft compilers
-#if defined(_MSC_VER) || defined(__fastcall)
+#if defined(CRYPTOPP_MSC_VERSION) || defined(__fastcall)
 	#define CRYPTOPP_FASTCALL __fastcall
 #else
 	#define CRYPTOPP_FASTCALL
 #endif
 
 // Microsoft compilers
-#if defined(_MSC_VER)
+#if defined(CRYPTOPP_MSC_VERSION)
 	#define CRYPTOPP_NO_VTABLE __declspec(novtable)
 #else
 	#define CRYPTOPP_NO_VTABLE

@@ -75,7 +75,7 @@
 
 #include <iostream>
 
-#if (_MSC_VER >= 1400) && !defined(_M_ARM)
+#if (CRYPTOPP_MSC_VERSION >= 1400) && !defined(_M_ARM)
 	#include <intrin.h>
 #endif
 
@@ -207,7 +207,7 @@ static word AtomicInverseModPower2(word A)
 	#define Add2WordsBy1(a, b, c)		a##0 = b##0 + c; a##1 = b##1 + (a##0 < c);
 	#define LowWord(a)					a##0
 	#define HighWord(a)					a##1
-	#ifdef _MSC_VER
+	#ifdef CRYPTOPP_MSC_VERSION
 		#define MultiplyWordsLoHi(p0, p1, a, b)		p0 = _umul128(a, b, &p1);
 		#ifndef __INTEL_COMPILER
 			#define Double3Words(c, d)		d##1 = __shiftleft128(d##0, d##1, 1); d##0 = __shiftleft128(c, d##0, 1); c *= 2;
@@ -249,7 +249,7 @@ static word AtomicInverseModPower2(word A)
 	#define GetBorrow(u)				u##1
 #else
 	#define Declare2Words(x)			dword x;
-	#if _MSC_VER >= 1400 && !defined(__INTEL_COMPILER) && (defined(_M_IX86) || defined(_M_X64) || defined(_M_IA64))
+	#if CRYPTOPP_MSC_VERSION >= 1400 && !defined(__INTEL_COMPILER) && (defined(_M_IX86) || defined(_M_X64) || defined(_M_IA64))
 		#define MultiplyWords(p, a, b)		p = __emulu(a, b);
 	#else
 		#define MultiplyWords(p, a, b)		p = (dword)a*b;
@@ -3056,7 +3056,7 @@ Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, Byt
 	else
 	{
 		SecByteBlock block(byteCount);
-#if (_MSC_VER >= 1500)
+#if (CRYPTOPP_MSC_VERSION >= 1500)
 		std::reverse_copy(encodedInteger, encodedInteger+byteCount,
 			stdext::make_checked_array_iterator(block.begin(), block.size()));
 #else

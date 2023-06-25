@@ -655,7 +655,7 @@ void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word3
         AS2(    mov        edi, [len])
         AS2(    lea        WORD_REG(si), [SHA256_K+48*4])
     #endif
-    #if !defined(_MSC_VER) || (_MSC_VER < 1400)
+    #if !defined(CRYPTOPP_MSC_VERSION) || (CRYPTOPP_MSC_VERSION < 1400)
         AS_PUSH_IF86(bx)
     #endif
 
@@ -807,7 +807,7 @@ INTEL_NOPREFIX
 
     AS_POP_IF86(sp)
     AS_POP_IF86(bp)
-    #if !defined(_MSC_VER) || (_MSC_VER < 1400)
+    #if !defined(CRYPTOPP_MSC_VERSION) || (CRYPTOPP_MSC_VERSION < 1400)
         AS_POP_IF86(bx)
     #endif
 

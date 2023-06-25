@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_STDCPP_H
 #define CRYPTOPP_STDCPP_H
 
-#if _MSC_VER >= 1500
+#if (CRYPTOPP_MSC_VERSION >= 1500)
 #define _DO_NOT_DECLARE_INTERLOCKED_INTRINSICS_IN_MEMORY
 #include <intrin.h>
 #endif
@@ -26,7 +26,7 @@
 #include <new>
 
 // http://connect.microsoft.com/VisualStudio/feedback/details/1600701/type-info-does-not-compile-with-has-exceptions-0
-#if defined(_MSC_VER) && (_MSC_VER < 1900) && defined(_HAS_EXCEPTIONS) && (_HAS_EXCEPTIONS == 0)
+#if defined(CRYPTOPP_MSC_VERSION) && (CRYPTOPP_MSC_VERSION < 1900) && defined(_HAS_EXCEPTIONS) && (_HAS_EXCEPTIONS == 0)
 namespace std {
   using ::type_info;
 }
@@ -43,7 +43,7 @@ namespace std {
 #endif
 
 // make_unchecked_array_iterator
-#if _MSC_VER >= 1600
+#if (CRYPTOPP_MSC_VERSION >= 1600)
 #include <iterator>
 #endif
 
@@ -68,7 +68,7 @@ namespace std {
 // program that includes <cstddef> without making users
 // do something special. "Epic fail" comes to mind.
 // Also see https://github.com/weidai11/cryptopp/issues/781
-#ifndef _MSC_VER
+#ifndef CRYPTOPP_MSC_VERSION
 # include <cstddef>
 #endif
 
@@ -77,8 +77,8 @@ namespace std {
 # if (__SUNPRO_CC >= 0x5100)
 #  include <stdint.h>
 # endif
-#elif defined(_MSC_VER)
-# if (_MSC_VER >= 1700)
+#elif defined(CRYPTOPP_MSC_VERSION)
+# if (CRYPTOPP_MSC_VERSION >= 1700)
 #  include <stdint.h>
 # else
 #  include <stddef.h>

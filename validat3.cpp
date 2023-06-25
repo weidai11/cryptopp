@@ -27,7 +27,7 @@
 #include <sstream>
 
 // Aggressive stack checking with VS2005 SP1 and above.
-#if (_MSC_VER >= 1500)
+#if (CRYPTOPP_MSC_VERSION >= 1500)
 # pragma strict_gs_check (on)
 #endif
 
@@ -224,7 +224,7 @@ bool TestSettings()
 	word32 w;
 	const byte s[] = "\x01\x02\x03\x04";
 
-#if (_MSC_VER >= 1400)
+#if (CRYPTOPP_MSC_VERSION >= 1400)
 	memcpy_s(&w, 4, s, 4);
 #else
 	std::copy(s, s+4, reinterpret_cast<byte*>(&w));

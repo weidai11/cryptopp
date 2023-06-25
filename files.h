@@ -46,7 +46,7 @@ public:
 	FileStore(const char *filename) : m_stream(NULLPTR), m_space(NULLPTR), m_len(0), m_waiting(0)
 		{StoreInitialize(MakeParameters(Name::InputFileName(), filename ? filename : ""));}
 
-#if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING) || _MSC_VER >= 1400
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING) || (CRYPTOPP_MSC_VERSION >= 1400)
 	/// \brief Construct a FileStore
 	/// \param filename the Unicode name of the file to open
 	/// \details On non-Windows OS, this function assumes that setlocale() has been called.
@@ -109,7 +109,7 @@ public:
 	FileSource(const char *filename, bool pumpAll, BufferedTransformation *attachment = NULLPTR, bool binary=true)
 		: SourceTemplate<FileStore>(attachment) {SourceInitialize(pumpAll, MakeParameters(Name::InputFileName(), filename)(Name::InputBinaryMode(), binary));}
 
-#if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING) || _MSC_VER >= 1400
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING) || (CRYPTOPP_MSC_VERSION >= 1400)
 	/// \brief Construct a FileSource
 	/// \param filename the Unicode name of the file to open
 	/// \param pumpAll flag indicating if source data should be pumped to its attached transformation
@@ -155,7 +155,7 @@ public:
 	FileSink(const char *filename, bool binary=true)
 		{IsolatedInitialize(MakeParameters(Name::OutputFileName(), filename)(Name::OutputBinaryMode(), binary));}
 
-#if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || (CRYPTOPP_MSC_VERSION >= 1400)
 	/// \brief Construct a FileSink
 	/// \param filename the Unicode name of the file to open
 	/// \details On non-Windows OS, this function assumes that setlocale() has been called.

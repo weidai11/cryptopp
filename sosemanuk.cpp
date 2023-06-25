@@ -406,7 +406,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS2(	mov		SSE2_output, WORD_REG(di))
 		AS2(	mov		SSE2_input, WORD_REG(dx))
 		AS2(	mov		SSE2_state, WORD_REG(ax))
-#ifndef _MSC_VER
+#ifndef CRYPTOPP_MSC_VERSION
 		AS2(	mov		SSE2_pMulTables, WORD_REG(si))
 #endif
 		AS2(	lea		WORD_REG(cx), [4*WORD_REG(cx)+WORD_REG(cx)])
@@ -469,7 +469,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS2(	mov		SSE2_wordsLeft2, WORD_REG(si))
 		AS2(	lea		WORD_REG(si), [WORD_REG(di)+WORD_REG(si)])		// use to end first inner loop
 		AS2(	mov		SSE2_diEnd, WORD_REG(si))
-#ifdef _MSC_VER
+#ifdef CRYPTOPP_MSC_VERSION
 		AS2(	lea		WORD_REG(si), s_sosemanukMulTables)
 #else
 		AS2(	mov		WORD_REG(si), SSE2_pMulTables)

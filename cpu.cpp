@@ -16,7 +16,7 @@
 
 // For _xgetbv on Microsoft 32-bit and 64-bit Intel platforms
 // https://github.com/weidai11/cryptopp/issues/972
-#if _MSC_VER >= 1600 && (defined(_M_IX86) || defined(_M_X64))
+#if (CRYPTOPP_MSC_VERSION >= 1600) && (defined(_M_IX86) || defined(_M_X64))
 # include <immintrin.h>
 #endif
 
@@ -80,7 +80,7 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 
 // Visual Studio 2008 and below are missing _xgetbv and _cpuidex.
 // The 32-bit versions use inline ASM below. The 64-bit versions are in x64dll.asm.
-#if defined(_MSC_VER) && defined(_M_X64)
+#if defined(CRYPTOPP_MSC_VERSION) && defined(_M_X64)
 extern "C" unsigned long long __fastcall XGETBV64(unsigned int);
 extern "C" unsigned long long __fastcall CPUID64(unsigned int, unsigned int, unsigned int*);
 #endif
@@ -389,17 +389,17 @@ word64 XGetBV(word32 num)
 {
 // Visual Studio 2010 SP1 and above, 32 and 64-bit
 // https://github.com/weidai11/cryptopp/issues/972
-#if defined(_MSC_VER) && (_MSC_FULL_VER >= 160040219)
+#if defined(CRYPTOPP_MSC_VERSION) && (_MSC_FULL_VER >= 160040219)
 
 	return _xgetbv(num);
 
 // Visual Studio 2008 and below, 64-bit
-#elif defined(_MSC_VER) && defined(_M_X64)
+#elif defined(CRYPTOPP_MSC_VERSION) && defined(_M_X64)
 
 	return XGETBV64(num);
 
 // Visual Studio 2008 and below, 32-bit
-#elif defined(_MSC_VER) && defined(_M_IX86)
+#elif defined(CRYPTOPP_MSC_VERSION) && defined(_M_IX86)
 
 	word32 a=0, d=0;
 	__asm {
@@ -450,19 +450,19 @@ word64 XGetBV(word32 num)
 bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
 // Visual Studio 2010 and above, 32 and 64-bit
-#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+#if defined(CRYPTOPP_MSC_VERSION) && ((CRYPTOPP_MSC_VERSION >= 1600))
 
 	__cpuidex((int *)output, func, subfunc);
 	return true;
 
 // Visual Studio 2008 and below, 64-bit
-#elif defined(_MSC_VER) && defined(_M_X64)
+#elif defined(CRYPTOPP_MSC_VERSION) && defined(_M_X64)
 
 	CPUID64(func, subfunc, output);
 	return true;
 
 // Visual Studio 2008 and below, 32-bit
-#elif (defined(_MSC_VER) && defined(_M_IX86)) || defined(__BORLANDC__)
+#elif (defined(CRYPTOPP_MSC_VERSION) && defined(_M_IX86)) || defined(__BORLANDC__)
 
 	__try
 	{

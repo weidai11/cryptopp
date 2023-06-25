@@ -41,7 +41,7 @@
 
 // How to allocate 16-byte aligned memory (for SSE2)
 // posix_memalign see https://forum.kde.org/viewtopic.php?p=66274
-#if defined(_MSC_VER)
+#if defined(CRYPTOPP_MSC_VERSION)
 	#define CRYPTOPP_MM_MALLOC_AVAILABLE
 #elif defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
 	#define CRYPTOPP_MEMALIGN_AVAILABLE
@@ -59,7 +59,7 @@
 // CRYPTOPP_ALIGN_DATA may not be reliable on AIX.
 #if defined(CRYPTOPP_CXX11_ALIGNAS)
 	#define CRYPTOPP_ALIGN_DATA(x) alignas(x)
-#elif defined(_MSC_VER)
+#elif defined(CRYPTOPP_MSC_VERSION)
 	#define CRYPTOPP_ALIGN_DATA(x) __declspec(align(x))
 #elif defined(__GNUC__) || defined(__clang__) || (__SUNPRO_CC >= 0x5100)
 	#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))

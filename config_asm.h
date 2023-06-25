@@ -100,12 +100,12 @@
 #endif
 
 // 32-bit SunCC does not enable SSE2 by default.
-#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__) || (__SUNPRO_CC >= 0x5100))
+#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(CRYPTOPP_MSC_VERSION) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__) || (__SUNPRO_CC >= 0x5100))
 	#define CRYPTOPP_SSE2_INTRIN_AVAILABLE 1
 #endif
 
 #if !defined(CRYPTOPP_DISABLE_SSSE3)
-# if defined(__SSSE3__) || (_MSC_VER >= 1500) || \
+# if defined(__SSSE3__) || (CRYPTOPP_MSC_VERSION >= 1500) || \
 	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1000) || (__SUNPRO_CC >= 0x5110) || \
 	(CRYPTOPP_LLVM_CLANG_VERSION >= 20300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40000)
 	#define CRYPTOPP_SSSE3_AVAILABLE 1
@@ -312,7 +312,7 @@
 #endif
 
 // Buggy Microsoft compiler, https://github.com/weidai11/cryptopp/issues/1096
-#if defined(_MSC_VER)
+#if defined(CRYPTOPP_MSC_VERSION)
 # undef CRYPTOPP_ARM_SHA1_AVAILABLE
 # undef CRYPTOPP_ARM_SHA2_AVAILABLE
 #endif

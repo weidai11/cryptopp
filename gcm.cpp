@@ -13,7 +13,7 @@
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 // Visual Studio .Net 2003 compiler crash
-#if defined(_MSC_VER) && (_MSC_VER < 1400)
+#if defined(CRYPTOPP_MSC_VERSION) && (CRYPTOPP_MSC_VERSION < 1400)
 # pragma optimize("", off)
 #endif
 
@@ -35,7 +35,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #if defined(CRYPTOPP_DISABLE_MIXED_ASM)
 // 'movd eax, xmm0' only. REG_WORD() macro not used. Clang path.
 # define USE_MOVD_REG32 1
-#elif defined(__GNUC__) || defined(_MSC_VER)
+#elif defined(__GNUC__) || defined(CRYPTOPP_MSC_VERSION)
 // 'movd eax, xmm0' or 'movd rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
 # define USE_MOVD_REG32_OR_REG64 1
 #else
@@ -146,7 +146,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         else
             tableSize = (GetTablesOption() == GCM_64K_Tables) ? 64*1024 : 2*1024;
 
-        //#if defined(_MSC_VER) && (_MSC_VER < 1400)
+        //#if defined(CRYPTOPP_MSC_VERSION) && (CRYPTOPP_MSC_VERSION < 1400)
         // VC 2003 workaround: compiler generates bad code for 64K tables
         //tableSize = 2*1024;
         //#endif

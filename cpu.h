@@ -46,7 +46,7 @@
 	#define INTEL_NOPREFIX ".intel_syntax;"
 	#define ATT_PREFIX ".att_syntax;"
 	#define ATT_NOPREFIX ".att_syntax;"
-#elif defined(__GNUC__)
+#elif defined(CRYPTOPP_GCC_VERSION)
 	#define NEW_LINE
 	#define INTEL_PREFIX ".intel_syntax prefix;"
 	#define INTEL_NOPREFIX ".intel_syntax noprefix;"
@@ -909,7 +909,7 @@ inline int GetCacheLineSize()
 	#define ASJ(x, y, z) x label##y*newline*
 	#define ASC(x, y) x label##y*newline*
 	#define AS_HEX(y) 0##y##h
-#elif defined(_MSC_VER) || defined(__BORLANDC__)
+#elif defined(CRYPTOPP_MSC_VERSION) || defined(__BORLANDC__)
 	#define AS1(x) __asm {x}
 	#define AS2(x, y) __asm {x, y}
 	#define AS3(x, y, z) __asm {x, y, z}

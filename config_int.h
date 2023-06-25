@@ -145,7 +145,7 @@ typedef signed int sword32;
 	///  where the cpu is slow even with a 64-bit cpu.
 	#define CRYPTOPP_BOOL_SLOW_WORD64 ...
 
-#elif defined(_MSC_VER) || defined(__BORLANDC__)
+#elif defined(CRYPTOPP_MSC_VERSION) || defined(__BORLANDC__)
 	typedef signed __int64 sword64;
 	typedef unsigned __int64 word64;
 	#define SW64LIT(x) x##i64
@@ -215,7 +215,7 @@ CRYPTOPP_CONST_OR_CONSTEXPR lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 #else
 	// define hword, word, and dword. these are used for multiprecision integer arithmetic
 	// Intel compiler won't have _umul128 until version 10.0. See http://softwarecommunity.intel.com/isn/Community/en-US/forums/thread/30231625.aspx
-	#if (defined(_MSC_VER) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && defined(__x86_64__)) || (defined(__SUNPRO_CC) && defined(__x86_64__))
+	#if (defined(CRYPTOPP_MSC_VERSION) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && defined(__x86_64__)) || (defined(__SUNPRO_CC) && defined(__x86_64__))
 		typedef word32 hword;
 		typedef word64 word;
 	#else

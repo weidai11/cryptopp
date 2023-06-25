@@ -69,11 +69,11 @@ private:
 	ProviderHandle m_hProvider;
 };
 
-#if defined(_MSC_VER) && defined(USE_MS_CRYPTOAPI)
+#if defined(CRYPTOPP_MSC_VERSION) && defined(USE_MS_CRYPTOAPI)
 # pragma comment(lib, "advapi32.lib")
 #endif
 
-#if defined(_MSC_VER) && defined(USE_MS_CNGAPI)
+#if defined(CRYPTOPP_MSC_VERSION) && defined(USE_MS_CNGAPI)
 # pragma comment(lib, "bcrypt.lib")
 #endif
 

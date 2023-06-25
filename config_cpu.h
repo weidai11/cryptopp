@@ -202,7 +202,7 @@
 	/// \details CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY is defined when neither
 	///  <tt>_MSC_VER</tt> nor <tt>__BORLANDC__</tt> are defined.
 	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY ...
-#elif defined(_MSC_VER) || defined(__BORLANDC__)
+#elif defined(CRYPTOPP_MSC_VERSION) || defined(__BORLANDC__)
 	#define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY 1
 #else
 	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY 1

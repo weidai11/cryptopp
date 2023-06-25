@@ -39,7 +39,7 @@
 
 // You may need to force include a C++ header on Android when using STLPort
 // to ensure _STLPORT_VERSION is defined
-#if (defined(_MSC_VER) && _MSC_VER <= 1300) || \
+#if (defined(CRYPTOPP_MSC_VERSION) && CRYPTOPP_MSC_VERSION <= 1300) || \
 	defined(__MWERKS__) || \
 	(defined(_STLPORT_VERSION) && ((_STLPORT_VERSION < 0x450) || defined(_STLP_NO_UNCAUGHT_EXCEPT_SUPPORT)) || \
 	(__cplusplus >= 202002L))
@@ -58,7 +58,7 @@
 #endif
 
 // C++11 macro version, https://stackoverflow.com/q/7223991/608639
-#if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
+#if ((CRYPTOPP_MSC_VERSION >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
 #  define CRYPTOPP_CXX11 1
 #endif
 
@@ -76,14 +76,14 @@
 
 // C++14 macro version, https://stackoverflow.com/q/26089319/608639
 #if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_NO_CXX14)
-#  if ((_MSC_VER >= 1900) || (__cplusplus >= 201402L)) && !defined(_STLPORT_VERSION)
+#  if ((CRYPTOPP_MSC_VERSION >= 1900) || (__cplusplus >= 201402L)) && !defined(_STLPORT_VERSION)
 #    define CRYPTOPP_CXX14 1
 #  endif
 #endif
 
 // C++17 macro version, https://stackoverflow.com/q/38456127/608639
 #if defined(CRYPTOPP_CXX14) && !defined(CRYPTOPP_NO_CXX17)
-#  if ((_MSC_VER >= 1900) || (__cplusplus >= 201703L)) && !defined(_STLPORT_VERSION)
+#  if ((CRYPTOPP_MSC_VERSION >= 1900) || (__cplusplus >= 201703L)) && !defined(_STLPORT_VERSION)
 #    define CRYPTOPP_CXX17 1
 #  endif
 #endif

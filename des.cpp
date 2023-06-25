@@ -283,7 +283,7 @@ namespace {
 /* Set key (initialize key schedule array) */
 void RawDES::RawSetKey(CipherDir dir, const byte *key)
 {
-#if (_MSC_VER >= 1600) || (__cplusplus >= 201103L)
+#if (CRYPTOPP_MSC_VERSION >= 1600) || (__cplusplus >= 201103L)
 # define REGISTER /* Define to nothing for C++11 and above */
 #else
 # define REGISTER register

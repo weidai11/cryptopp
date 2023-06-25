@@ -66,23 +66,23 @@
 // code paths that it cannot compile. Unset Clang to save the grief.
 // Also see http://github.com/weidai11/cryptopp/issues/147.
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 # undef CRYPTOPP_APPLE_CLANG_VERSION
 # undef CRYPTOPP_LLVM_CLANG_VERSION
 # define CRYPTOPP_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
 
-#if defined(__xlc__) || defined(__xlC__)
+#if defined(__xlc__) || defined(__xlC__) && !defined(__clang__)
 # undef CRYPTOPP_LLVM_CLANG_VERSION
 # define CRYPTOPP_XLC_VERSION ((__xlC__ / 256) * 10000 + (__xlC__ % 256) * 100)
 #endif
 
-#ifdef __INTEL_COMPILER
+#if defined(__INTEL_COMPILER) && !defined(__clang__)
 # undef CRYPTOPP_LLVM_CLANG_VERSION
 # define CRYPTOPP_INTEL_VERSION (__INTEL_COMPILER)
 #endif
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(__clang__)
 # undef CRYPTOPP_LLVM_CLANG_VERSION
 # define CRYPTOPP_MSC_VERSION (_MSC_VER)
 #endif

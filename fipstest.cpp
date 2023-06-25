@@ -29,13 +29,13 @@
 
 #include <windows.h>
 
-#if defined(_MSC_VER) && _MSC_VER >= 1400
+#if defined(CRYPTOPP_MSC_VERSION) && CRYPTOPP_MSC_VERSION >= 1400
 # ifdef _M_IX86
 #  define _CRT_DEBUGGER_HOOK _crt_debugger_hook
 # else
 #  define _CRT_DEBUGGER_HOOK __crt_debugger_hook
 # endif
-# if _MSC_VER < 1900
+# if CRYPTOPP_MSC_VERSION < 1900
 extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
 # else
 extern "C" {void __cdecl _CRT_DEBUGGER_HOOK(int); }
@@ -299,7 +299,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 	char moduleFilenameBuf[FIPS_MODULE_MAX_PATH] = "";
 	if (moduleFilename == NULLPTR)
 	{
-#if (_MSC_VER >= 1400 && !defined(_STLPORT_VERSION))	// ifstream doesn't support wide filename on other compilers
+#if (CRYPTOPP_MSC_VERSION >= 1400 && !defined(_STLPORT_VERSION))	// ifstream doesn't support wide filename on other compilers
 		wchar_t wideModuleFilename[FIPS_MODULE_MAX_PATH];
 		if (GetModuleFileNameW(s_hModule, wideModuleFilename, FIPS_MODULE_MAX_PATH) > 0)
 		{
@@ -403,7 +403,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 
 				// Visual Studio 2019 is MSC_VER == 1920
 				// https://dev.to/yumetodo/list-of-mscver-and-mscfullver-8nds
-#if (_MSC_VER >= 1400 && _MSC_VER < 1920) && (defined(_M_IX86) || defined(_M_X64))
+#if (CRYPTOPP_MSC_VERSION >= 1400 && CRYPTOPP_MSC_VERSION < 1920) && (defined(_M_IX86) || defined(_M_X64))
 				// first byte of _CRT_DEBUGGER_HOOK gets modified in memory by the debugger invisibly, so read it from file
 				if (IsDebuggerPresent())
 				{

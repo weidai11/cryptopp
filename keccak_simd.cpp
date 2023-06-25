@@ -67,7 +67,7 @@ rho56[2] = {W64LIT(0x0007060504030201), W64LIT(0x080F0E0D0C0B0A09)};
 // Damn Visual Studio is missing too many intrinsics...
 inline __m128i SPLAT64(const word64 a)
 {
-#if defined(_MSC_VER)
+#if defined(CRYPTOPP_MSC_VERSION)
     double x; std::memcpy(&x, &a, 8);
     return _mm_castpd_si128(_mm_loaddup_pd(&x));
 #else

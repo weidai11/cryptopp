@@ -11,7 +11,7 @@
 #include "misc.h"
 #include "stdcpp.h"
 
-#if CRYPTOPP_MSC_VERSION
+#if defined(CRYPTOPP_MSC_VERSION)
 # pragma warning(push)
 # pragma warning(disable: 4231 4275 4700)
 # if (CRYPTOPP_MSC_VERSION >= 1400)
@@ -56,7 +56,7 @@ public:
 	/// \since Crypto++ 6.0
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	static const size_type ELEMS_MAX = ...;
-#elif defined(_MSC_VER) && (_MSC_VER <= 1400)
+#elif defined(CRYPTOPP_MSC_VERSION) && (CRYPTOPP_MSC_VERSION <= 1400)
 	static const size_type ELEMS_MAX = (~(size_type)0)/sizeof(T);
 #elif defined(CRYPTOPP_CXX11_STRONG_ENUM)
 	enum : size_type {ELEMS_MAX = SIZE_MAX/sizeof(T)};
@@ -270,7 +270,7 @@ public:
 	/// \details VS.NET STL enforces the policy of "All STL-compliant allocators
 	///  have to provide a template class member called rebind".
     template <class V> struct rebind { typedef AllocatorWithCleanup<V, T_Align16> other; };
-#if _MSC_VER >= 1500
+#if (CRYPTOPP_MSC_VERSION >= 1500)
 	AllocatorWithCleanup() {}
 	template <class V, bool A> AllocatorWithCleanup(const AllocatorWithCleanup<V, A> &) {}
 #endif
@@ -749,7 +749,7 @@ public:
 	/// \since Crypto++ 6.0
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	static const size_type ELEMS_MAX = ...;
-#elif defined(_MSC_VER) && (_MSC_VER <= 1400)
+#elif defined(CRYPTOPP_MSC_VERSION) && (CRYPTOPP_MSC_VERSION <= 1400)
 	static const size_type ELEMS_MAX = (~(size_type)0)/sizeof(T);
 #elif defined(CRYPTOPP_CXX11_STRONG_ENUM)
 	enum : size_type {ELEMS_MAX = A::ELEMS_MAX};
@@ -1303,7 +1303,7 @@ __stl_alloc_rebind(CryptoPP::AllocatorWithCleanup<_Tp1>& __a, const _Tp2*)
 
 NAMESPACE_END
 
-#if CRYPTOPP_MSC_VERSION
+#if defined(CRYPTOPP_MSC_VERSION)
 # pragma warning(pop)
 #endif
 

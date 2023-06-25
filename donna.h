@@ -26,6 +26,7 @@
 #ifndef CRYPTOPP_DONNA_H
 #define CRYPTOPP_DONNA_H
 
+#include "config.h"
 #include "cryptlib.h"
 #include "stdcpp.h"
 
@@ -140,7 +141,7 @@ ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte sig
 // error "The operand ___LCM cannot be assigned to".
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE) || \
-   (defined(_MSC_VER) && defined(_M_X64))
+   (defined(CRYPTOPP_MSC_VERSION) && defined(_M_X64))
 # define CRYPTOPP_CURVE25519_64BIT 1
 #else
 # define CRYPTOPP_CURVE25519_32BIT 1
@@ -162,7 +163,7 @@ ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte sig
 //   * x64, no SSE2, 0.081
 //   * x64, SSE2, 0.071
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(_MSC_VER)
+#if defined(CRYPTOPP_MSC_VERSION) && (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # define CRYPTOPP_CURVE25519_SSE2 1
 #endif
 

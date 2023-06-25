@@ -11,7 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if (defined(_MSC_VER) && (_MSC_VER < 1400)) && !defined(__MWERKS__)
+#if (defined(CRYPTOPP_MSC_VERSION) && (CRYPTOPP_MSC_VERSION < 1400)) && !defined(__MWERKS__)
 	// VC60 and VC7 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
 	typedef std::reverse_bidirectional_iterator<const byte *, const byte> RevIt;
 #elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)

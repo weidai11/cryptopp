@@ -41,7 +41,7 @@ extern const char CHACHA_AVX_FNAME[] = __FILE__;
 // https://github.com/weidai11/cryptopp/issues/735. The
 // 649 issue affects AES but it is the same here. The 735
 // issue is ChaCha AVX2 cut-in where it surfaced again.
-#if (_MSC_VER >= 1910) && (_MSC_VER <= 1916)
+#if (CRYPTOPP_MSC_VERSION >= 1910) && (CRYPTOPP_MSC_VERSION <= 1916)
 # ifndef CRYPTOPP_DEBUG
 #  pragma optimize("", off)
 #  pragma optimize("ts", on)
