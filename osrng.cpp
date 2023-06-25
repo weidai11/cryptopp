@@ -100,12 +100,12 @@ OS_RNG_Err::OS_RNG_Err(const std::string &operation)
 #if defined(USE_MS_CNGAPI)
 inline DWORD NtStatusToErrorCode(NTSTATUS status)
 {
-	if (status == (NTSTATUS)STATUS_INVALID_PARAMETER)
+	if (status == static_cast<NTSTATUS>(STATUS_INVALID_PARAMETER))
 		return ERROR_INVALID_PARAMETER;
-	else if (status == (NTSTATUS)STATUS_INVALID_HANDLE)
+	else if (status == static_cast<NTSTATUS>(STATUS_INVALID_HANDLE))
 		return ERROR_INVALID_HANDLE;
 	else
-		return (DWORD)status;
+		return static_cast<DWORD>(status);
 }
 #endif
 
