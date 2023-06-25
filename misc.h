@@ -346,8 +346,8 @@ template <class T, class F, int instance>
 		return *p;
 
 	T *newObject = m_objectFactory();
-	s_pObject.store(newObject, std::memory_order_relaxed);
 	std::atomic_thread_fence(std::memory_order_release);
+	s_pObject.store(newObject, std::memory_order_relaxed);
 
 	return *newObject;
 #else
