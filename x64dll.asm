@@ -1980,7 +1980,8 @@ SHA256_HashMultipleBlocks_SSE2 ENDP
 ;; ctrl = rcx
 
     ALIGN   8
-XGETBV64	PROC
+XGETBV64	PROC FRAME
+.endprolog
     ;; query
     DB  	0fh, 01h, 0d0h
     ;; xcr = (EDX << 32) | EAX
@@ -1996,9 +1997,11 @@ XGETBV64	ENDP
 ;; output = r8
 
     ALIGN   8
-CPUID64	PROC
+CPUID64	PROC FRAME
     ;; preserve per ABI
-    mov 	r9, rbx
+    mov 	[rsp+8], rbx
+.savereg 	rbx, 8
+.endprolog
     ;; eax = func
     mov 	rax, rcx
     ;; ecx = subfunc
@@ -2010,10 +2013,10 @@ CPUID64	PROC
     mov 	[r8+4],  ebx
     mov 	[r8+8],  ecx
     mov 	[r8+12], edx
-    ;; restore
-    mov 	rbx, r9
-    ;; return
+    ;; return value
     mov 	rax, 1
+    ;; restore
+    mov 	rbx, [rsp+8]
     ret
 CPUID64	ENDP
 

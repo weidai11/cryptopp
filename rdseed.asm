@@ -141,11 +141,13 @@ OPTION EPILOGUE:NONE
 ;;   RCX (in): arg1, byte* buffer
 ;;   RDX (in): arg2, size_t bsize
 
-MASM_RDSEED_GenerateBlock PROC   ;; arg1:QWORD, arg2:QWORD
+MASM_RDSEED_GenerateBlock PROC FRAME ;; arg1:QWORD, arg2:QWORD
 
     MWSIZE EQU 08h    ;; machine word size
     buffer EQU rcx
     bsize  EQU rdx
+
+.endprolog
 
             ;; Top of While loop
 RDSEED_GenerateBlock_Top:
