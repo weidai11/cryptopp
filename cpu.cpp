@@ -599,10 +599,12 @@ void DetectX86Features()
 		            (cpuid1[ECX_REG] & OSXSAVE_FLAG) != 0;
 #endif
 
+#if defined(__sun)
 	// Solaris 11 i86pc does not signal SSE support using
 	// OSXSAVE. We need to probe for SSE support.
 	if (g_hasSSE2 == false)
 		g_hasSSE2 = CPU_ProbeSSE2();
+#endif
 
 	if (g_hasSSE2 == false)
 		goto done;
