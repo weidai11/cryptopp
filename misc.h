@@ -736,7 +736,7 @@ inline bool SafeConvert(T1 from, T2 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(sword64 from, word64 &to)
 {
@@ -752,7 +752,7 @@ inline bool SafeConvert(sword64 from, word64 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(word32 from, word64 &to)
 {
@@ -766,7 +766,7 @@ inline bool SafeConvert(word32 from, word64 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(sword32 from, word64 &to)
 {
@@ -782,7 +782,7 @@ inline bool SafeConvert(sword32 from, word64 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(word64 from, sword64 &to)
 {
@@ -798,7 +798,7 @@ inline bool SafeConvert(word64 from, sword64 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(word32 from, sword64 &to)
 {
@@ -812,7 +812,7 @@ inline bool SafeConvert(word32 from, sword64 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(sword32 from, sword64 &to)
 {
@@ -826,7 +826,7 @@ inline bool SafeConvert(sword32 from, sword64 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(word64 from, word32 &to)
 {
@@ -842,7 +842,7 @@ inline bool SafeConvert(word64 from, word32 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(sword64 from, word32 &to)
 {
@@ -860,7 +860,7 @@ inline bool SafeConvert(sword64 from, word32 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(sword32 from, word32 &to)
 {
@@ -876,7 +876,7 @@ inline bool SafeConvert(sword32 from, word32 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(word64 from, sword32 &to)
 {
@@ -892,7 +892,7 @@ inline bool SafeConvert(word64 from, sword32 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(sword64 from, sword32 &to)
 {
@@ -910,7 +910,7 @@ inline bool SafeConvert(sword64 from, sword32 &to)
 /// \return true if its safe to convert from \p from to \p to, false otherwise.
 /// \details if the function returns true, then it is safe to use \p to. If the function
 ///  returns false, then \p to is undefined and should not be used.
-/// \since Crypto++ 8.7.1
+/// \since Crypto++ 8.8
 template<>
 inline bool SafeConvert(word32 from, sword32 &to)
 {

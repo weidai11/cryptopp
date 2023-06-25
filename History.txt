@@ -581,7 +581,7 @@ last several releases.
       - fix undersized SecBlock buffer in Integer bit operations
       - work around several GCC 11 & 12 problems
 
-8.7.1 - June 24, 2023
+8.8.0 - June 25, 2023
       - minor release, recompile of programs required
       - expanded community input and support
         * 88 unique contributors as of this release
@@ -594,3 +594,4 @@ last several releases.
       - test for SSSE3 before using the ISA
       - fix include of <x86intrin.h> when using MSVC
       - improve performance of CRC32C_Update_SSE42 for x86-64
+      - update documentation

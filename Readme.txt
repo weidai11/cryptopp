@@ -1,5 +1,5 @@
 Crypto++: free C++ Class Library of Cryptographic Schemes
-Version 8.7.1 - June 24, 2023
+Version 8.8 - June 25, 2023
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -294,7 +294,7 @@ documentation is one of the highest returns on investment.
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
 
-8.7.1 - June 24, 2023
+8.8.0 - June 25, 2023
       - minor release, recompile of programs required
       - expanded community input and support
         * 88 unique contributors as of this release
@@ -307,6 +307,7 @@ for the record back to Crypto++ 1.0.
       - test for SSSE3 before using the ISA
       - fix include of <x86intrin.h> when using MSVC
       - improve performance of CRC32C_Update_SSE42 for x86-64
+      - update documentation
 
 8.7.0 - August 7, 2022
       - minor release, recompile of programs required
