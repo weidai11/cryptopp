@@ -521,6 +521,11 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word32 *data, size_t len)
 {
+    // Due to the inline asm
+    CRYPTOPP_UNUSED(state);
+    CRYPTOPP_UNUSED(data);
+    CRYPTOPP_UNUSED(len);
+
     #define LOCALS_SIZE  8*4 + 16*4 + 4*WORD_SZ
     #define H(i)         [BASE+ASM_MOD(1024+7-(i),8)*4]
     #define G(i)         H(i+1)
@@ -835,9 +840,6 @@ INTEL_NOPREFIX
         , "%ebx"
     #endif
     );
-#else
-    CRYPTOPP_UNUSED(state);
-    CRYPTOPP_UNUSED(data);
 #endif
 }
 
@@ -1125,6 +1127,10 @@ ANONYMOUS_NAMESPACE_BEGIN
 CRYPTOPP_NOINLINE CRYPTOPP_NAKED
 void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const word64 *data)
 {
+    // Due to the inline asm
+    CRYPTOPP_UNUSED(state);
+    CRYPTOPP_UNUSED(data);
+
 #ifdef __GNUC__
     __asm__ __volatile__
     (
@@ -1306,8 +1312,6 @@ void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const word64 *data)
 #endif
     );
 #else
-    CRYPTOPP_UNUSED(state);
-    CRYPTOPP_UNUSED(data);
     AS1(    pop        edi)
     AS1(    pop        esi)
     AS1(    pop        ebx)
