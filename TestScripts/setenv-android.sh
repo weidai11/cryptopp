@@ -342,14 +342,15 @@ case "${ANDROID_CPU}" in
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
+    # Newer NDK's choke on -mtune=intel, so omit it
 
     ANDROID_CFLAGS="-target i686-none-linux-android${ANDROID_API}"
-    ANDROID_CFLAGS="${ANDROID_CFLAGS} -mtune=intel -mssse3 -mfpmath=sse"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -mssse3 -mfpmath=sse"
     ANDROID_CFLAGS="${ANDROID_CFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
     ANDROID_CFLAGS="${ANDROID_CFLAGS} -fno-addrsig -fno-experimental-isel"
 
     ANDROID_CXXFLAGS="-target i686-none-linux-android${ANDROID_API}"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -mtune=intel -mssse3 -mfpmath=sse"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -mssse3 -mfpmath=sse"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
@@ -394,14 +395,15 @@ case "${ANDROID_CPU}" in
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
+    # Newer NDK's choke on -mtune=intel, so omit it
 
     ANDROID_CFLAGS="-target x86_64-none-linux-android${ANDROID_API}"
-    ANDROID_CFLAGS="${ANDROID_CFLAGS} -march=x86-64 -msse4.2 -mpopcnt -mtune=intel"
+    ANDROID_CFLAGS="${ANDROID_CFLAGS} -march=x86-64 -msse4.2 -mpopcnt"
     ANDROID_CFLAGS="${ANDROID_CFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
     ANDROID_CFLAGS="${ANDROID_CFLAGS} -fno-addrsig -fno-experimental-isel"
 
     ANDROID_CXXFLAGS="-target x86_64-none-linux-android${ANDROID_API}"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -march=x86-64 -msse4.2 -mpopcnt -mtune=intel"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -march=x86-64 -msse4.2 -mpopcnt"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
