@@ -226,6 +226,7 @@
     <ClCompile Include="oaep.cpp" />
     <ClCompile Include="osrng.cpp" />
     <ClCompile Include="pkcspad.cpp" />
+    <ClCompile Include="primetab.cpp" />
     <ClCompile Include="pssr.cpp" />
     <ClCompile Include="pubkey.cpp" />
     <ClCompile Include="queue.cpp" />

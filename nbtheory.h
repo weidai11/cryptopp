@@ -13,7 +13,10 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief The Small Prime table
-/// \details GetPrimeTable obtains pointer to small prime table and provides the size of the table.
+/// \param size number of elements in the table
+/// \return prime table with /p size elements
+/// \details GetPrimeTable() obtains pointer to small prime table and provides the size of the table.
+///  /p size is an out parameter.
 CRYPTOPP_DLL const word16 * CRYPTOPP_API GetPrimeTable(unsigned int &size);
 
 // ************ primality testing ****************

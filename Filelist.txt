@@ -262,6 +262,7 @@ power8_ppc.cpp
 power9_ppc.cpp
 ppc_simd.cpp
 ppc_simd.h
+primetab.cpp
 pssr.cpp
 pssr.h
 pubkey.cpp

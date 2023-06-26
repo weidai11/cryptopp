@@ -146,6 +146,9 @@
     <ClCompile Include="pkcspad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="primetab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="pssr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
