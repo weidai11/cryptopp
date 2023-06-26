@@ -835,6 +835,9 @@ INTEL_NOPREFIX
         , "%ebx"
     #endif
     );
+#else
+    CRYPTOPP_UNUSED(state);
+    CRYPTOPP_UNUSED(data);
 #endif
 }
 
@@ -1303,6 +1306,8 @@ void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const word64 *data)
 #endif
     );
 #else
+    CRYPTOPP_UNUSED(state);
+    CRYPTOPP_UNUSED(data);
     AS1(    pop        edi)
     AS1(    pop        esi)
     AS1(    pop        ebx)
