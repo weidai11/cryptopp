@@ -221,7 +221,11 @@ endif
 
 # We honor ARFLAGS, but the "v" option used by default causes a noisy make
 ifeq ($(ARFLAGS),rv)
-ARFLAGS = r
+  ARFLAGS = r
+else
+  ifeq ($(ARFLAGS),-rv)
+    ARFLAGS = -r
+  endif
 endif
 
 # Original MinGW targets Win2k by default, but lacks proper Win2k support
