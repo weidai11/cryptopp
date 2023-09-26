@@ -766,6 +766,97 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters, 
 	}
 }
 
+// Subset of TestSymmetricCipher. The test suite lacked tests for in-place encryption,
+// where inString == outString. Also see https://github.com/weidai11/cryptopp/issues/1231.
+void TestSymmetricCipherWithInplaceEncryption(TestData &v, const NameValuePairs &overrideParameters, unsigned int &totalTests)
+{
+	std::string name = GetRequiredDatum(v, "Name");
+	std::string test = GetRequiredDatum(v, "Test");
+
+	std::string key = GetDecodedDatum(v, "Key");
+	std::string plaintext = GetDecodedDatum(v, "Plaintext");
+
+	TestDataNameValuePairs testDataPairs(v);
+	CombinedNameValuePairs pairs(overrideParameters, testDataPairs);
+
+	if (test != "Encrypt" ) { return; }
+
+	static member_ptr<SymmetricCipher> encryptor, decryptor;
+	static std::string lastName;
+
+	if (name != lastName)
+	{
+		encryptor.reset(ObjectFactoryRegistry<SymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
+		decryptor.reset(ObjectFactoryRegistry<SymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
+		lastName = name;
+	}
+
+	// Only test stream ciphers at the moment
+	if (encryptor->MandatoryBlockSize() != 1) { return; }
+
+	totalTests++;
+
+	ConstByteArrayParameter iv;
+	if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize())
+		SignalTestFailure();
+
+	encryptor->SetKey(ConstBytePtr(key), BytePtrSize(key), pairs);
+	decryptor->SetKey(ConstBytePtr(key), BytePtrSize(key), pairs);
+
+	word64 seek64 = pairs.GetWord64ValueWithDefault("Seek64", 0);
+	if (seek64)
+	{
+		encryptor->Seek(seek64);
+		decryptor->Seek(seek64);
+	}
+	else
+	{
+		int seek = pairs.GetIntValueWithDefault("Seek", 0);
+		if (seek)
+		{
+			encryptor->Seek(seek);
+			decryptor->Seek(seek);
+		}
+	}
+
+	// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it
+	// in test vectors. 0 is NoPadding, 1 is ZerosPadding, 2 is PkcsPadding,
+	// 3 is OneAndZerosPadding, etc. Note: The machinery is wired such that
+	// paddingScheme is effectively latched. An old paddingScheme may be
+	// unintentionally used in a subsequent test.
+	int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
+
+	const std::string plainText = GetDecodedDatum(v, "Plaintext");
+	const std::string cipherText = GetDecodedDatum(v, "Ciphertext");
+
+	// Use buffer for in-place encryption and decryption
+	std::string buffer(plainText);
+
+	// Test in-place encryption
+	encryptor->ProcessString(BytePtr(buffer), BytePtrSize(buffer));
+
+	if (buffer != cipherText)
+	{
+		std::cout << "\nincorrectly encrypted: ";
+		StringSource ss(buffer, false, new HexEncoder(new FileSink(std::cout)));
+		ss.Pump(256); ss.Flush(false);
+		std::cout << "\n";
+		SignalTestFailure();
+	}
+
+	// Test in-place decryption
+	decryptor->ProcessString(BytePtr(buffer), BytePtrSize(buffer));
+
+	if (buffer != plainText)
+	{
+		std::cout << "\nincorrectly decrypted: ";
+		StringSource ss(buffer, false, new HexEncoder(new FileSink(std::cout)));
+		ss.Pump(256); ss.Flush(false);
+		std::cout << "\n";
+		SignalTestFailure();
+	}
+}
+
 // Subset of TestSymmetricCipher. We picked the tests that have data that is easy to write to a file.
 // Also see https://github.com/weidai11/cryptopp/issues/1010, where HIGHT broke when using FileSource.
 void TestSymmetricCipherWithFileSource(TestData &v, const NameValuePairs &overrideParameters, unsigned int &totalTests)
@@ -1264,6 +1355,7 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 				else if (algType == "SymmetricCipher")
 				{
 					TestSymmetricCipher(v, overrideParameters, totalTests);
+					TestSymmetricCipherWithInplaceEncryption(v, overrideParameters, totalTests);
 					TestSymmetricCipherWithFileSource(v, overrideParameters, totalTests);
 				}
 				else if (algType == "AuthenticatedSymmetricCipher")
