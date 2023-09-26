@@ -1026,7 +1026,7 @@ public:
 	virtual unsigned int MinLastBlockSize() const {return 0;}
 
 	/// \brief Determines if the last block receives special processing
-	/// \return true if the last block reveives special processing, false otherwise.
+	/// \return true if the last block receives special processing, false otherwise.
 	/// \details Some authenticated encryption modes are not expressed well with
 	///  MandatoryBlockSize() and MinLastBlockSize(). For example, AES/OCB uses
 	///  16-byte blocks (MandatoryBlockSize = 16) and the last block requires special processing
