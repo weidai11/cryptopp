@@ -10,7 +10,18 @@
 
 #include "rabbit.h"
 #include "secblock.h"
+#include "strciphr.h"
 #include "misc.h"
+
+#define WordType word32
+
+#define BYTES_PER_ITERATION 16
+
+#define RABBIT_OUTPUT(x){\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 0, (m_wx[0] ^ (m_wx[5] >> 16) ^ (m_wx[3] << 16)));\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 1, (m_wx[2] ^ (m_wx[7] >> 16) ^ (m_wx[5] << 16)));\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 2, (m_wx[4] ^ (m_wx[1] >> 16) ^ (m_wx[7] << 16)));\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 3, (m_wx[6] ^ (m_wx[3] >> 16) ^ (m_wx[1] << 16)));}
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -113,15 +124,15 @@ void RabbitPolicy::CipherSetKey(const NameValuePairs &params, const byte *userKe
 	m_mcy = 0;
 
 	/* Iterate the system four times */
-	for (unsigned int i = 0; i<4; i++)
+	for (size_t i = 0; i<4; i++)
 		m_mcy = NextState(m_mc, m_mx, m_mcy);
 
 	/* Modify the counters */
-	for (unsigned int i = 0; i<8; i++)
+	for (size_t i = 0; i<8; i++)
 		m_mc[i] ^= m_mx[(i + 4) & 0x7];
 
 	/* Copy master instance to work instance */
-	for (unsigned int i = 0; i<8; i++)
+	for (size_t i = 0; i<8; i++)
 	{
 		m_wx[i] = m_mx[i];
 		m_wc[i] = m_mc[i];
@@ -131,27 +142,14 @@ void RabbitPolicy::CipherSetKey(const NameValuePairs &params, const byte *userKe
 
 void RabbitPolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
-	byte* out = output;
-	for (size_t i = 0; i<iterationCount; ++i, out += 16)
+	do
 	{
 		/* Iterate the system */
 		m_wcy = NextState(m_wc, m_wx, m_wcy);
 
-		/* Encrypt/decrypt 16 bytes of data */
-		PutWord(false, LITTLE_ENDIAN_ORDER, out +  0, m_wx[0] ^ (m_wx[5] >> 16) ^ (m_wx[3] << 16));
-		PutWord(false, LITTLE_ENDIAN_ORDER, out +  4, m_wx[2] ^ (m_wx[7] >> 16) ^ (m_wx[5] << 16));
-		PutWord(false, LITTLE_ENDIAN_ORDER, out +  8, m_wx[4] ^ (m_wx[1] >> 16) ^ (m_wx[7] << 16));
-		PutWord(false, LITTLE_ENDIAN_ORDER, out + 12, m_wx[6] ^ (m_wx[3] >> 16) ^ (m_wx[1] << 16));
-	}
+		CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(RABBIT_OUTPUT, BYTES_PER_ITERATION);
 
-	// If AdditiveCipherTemplate does not have an accumulated keystream
-	//  then it will ask OperateKeystream to generate one. Optionally it
-	//  will ask for an XOR of the input with the keystream while
-	//  writing the result to the output buffer. In all cases the
-	//  keystream is written to the output buffer. The optional part is
-	//  adding the input buffer and keystream.
-	if ((operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL))
-		xorbuf(output, input, GetBytesPerIteration() * iterationCount);
+	} while (--iterationCount);
 }
 
 void RabbitWithIVPolicy::CipherSetKey(const NameValuePairs &params, const byte *userKey, size_t keylen)
@@ -184,15 +182,15 @@ void RabbitWithIVPolicy::CipherSetKey(const NameValuePairs &params, const byte *
 	m_mcy = 0;
 
 	/* Iterate the system four times */
-	for (unsigned int i = 0; i<4; i++)
+	for (size_t i = 0; i<4; i++)
 		m_mcy = NextState(m_mc, m_mx, m_mcy);
 
 	/* Modify the counters */
-	for (unsigned int i = 0; i<8; i++)
+	for (size_t i = 0; i<8; i++)
 		m_mc[i] ^= m_mx[(i + 4) & 0x7];
 
 	/* Copy master instance to work instance */
-	for (unsigned int i = 0; i<8; i++)
+	for (size_t i = 0; i<8; i++)
 	{
 		m_wx[i] = m_mx[i];
 		m_wc[i] = m_mc[i];
@@ -222,38 +220,25 @@ void RabbitWithIVPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *
 	m_wc[7] = m_mc[7] ^ m_t[3];
 
 	/* Copy state variables */
-	for (unsigned int i = 0; i<8; i++)
+	for (size_t i = 0; i<8; i++)
 		m_wx[i] = m_mx[i];
 	m_wcy = m_mcy;
 
 	/* Iterate the system four times */
-	for (unsigned int i = 0; i<4; i++)
+	for (size_t i = 0; i<4; i++)
 		m_wcy = NextState(m_wc, m_wx, m_wcy);
 }
 
 void RabbitWithIVPolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
-	byte* out = output;
-	for (unsigned int i = 0; i<iterationCount; ++i, out += 16)
+	do
 	{
 		/* Iterate the system */
 		m_wcy = NextState(m_wc, m_wx, m_wcy);
 
-		/* Encrypt/decrypt 16 bytes of data */
-		PutWord(false, LITTLE_ENDIAN_ORDER, out +  0, m_wx[0] ^ (m_wx[5] >> 16) ^ (m_wx[3] << 16));
-		PutWord(false, LITTLE_ENDIAN_ORDER, out +  4, m_wx[2] ^ (m_wx[7] >> 16) ^ (m_wx[5] << 16));
-		PutWord(false, LITTLE_ENDIAN_ORDER, out +  8, m_wx[4] ^ (m_wx[1] >> 16) ^ (m_wx[7] << 16));
-		PutWord(false, LITTLE_ENDIAN_ORDER, out + 12, m_wx[6] ^ (m_wx[3] >> 16) ^ (m_wx[1] << 16));
-	}
+		CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(RABBIT_OUTPUT, BYTES_PER_ITERATION);
 
-	// If AdditiveCipherTemplate does not have an accumulated keystream
-	//  then it will ask OperateKeystream to generate one. Optionally it
-	//  will ask for an XOR of the input with the keystream while
-	//  writing the result to the output buffer. In all cases the
-	//  keystream is written to the output buffer. The optional part is
-	//  adding the input buffer and keystream.
-	if ((operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL))
-		xorbuf(output, input, GetBytesPerIteration() * iterationCount);
+	} while (--iterationCount);
 }
 
 NAMESPACE_END
