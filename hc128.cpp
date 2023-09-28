@@ -9,6 +9,7 @@
 
 #include "hc128.h"
 #include "secblock.h"
+#include "strciphr.h"
 #include "misc.h"
 
 /*h1 function*/
@@ -72,6 +73,28 @@
      (m_T[(u)]) = ((m_T[(u)]) + tem2+(tem0^tem1)) ^ tem3; \
      (m_Y[(a)]) = (m_T[(u)]);                 \
 }
+
+#define BYTES_PER_ITERATION 64
+
+#define WordType word32
+
+#define HC128_OUTPUT(x){\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  0, keystream[ 0]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  1, keystream[ 1]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  2, keystream[ 2]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  3, keystream[ 3]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  4, keystream[ 4]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  5, keystream[ 5]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  6, keystream[ 6]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  7, keystream[ 7]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  8, keystream[ 8]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  9, keystream[ 9]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 10, keystream[10]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 11, keystream[11]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 12, keystream[12]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 13, keystream[13]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 14, keystream[14]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 15, keystream[15]);}
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -202,40 +225,10 @@ void HC128Policy::OperateKeystream(KeystreamOperation operation, byte *output, c
 {
 	while (iterationCount--)
 	{
-		word32 keystream[16];
+		FixedSizeSecBlock<word32, 16> keystream;
 		GenerateKeystream(keystream);
 
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 0, keystream[0]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 4, keystream[1]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 8, keystream[2]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 12, keystream[3]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 16, keystream[4]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 20, keystream[5]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 24, keystream[6]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 28, keystream[7]);
-
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 32, keystream[8]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 36, keystream[9]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 40, keystream[10]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 44, keystream[11]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 48, keystream[12]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 52, keystream[13]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 56, keystream[14]);
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 60, keystream[15]);
-
-		// If AdditiveCipherTemplate does not have an accumulated keystream
-		//  then it will ask OperateKeystream to generate one. Optionally it
-		//  will ask for an XOR of the input with the keystream while
-		//  writing the result to the output buffer. In all cases the
-		//  keystream is written to the output buffer. The optional part is
-		//  adding the input buffer and keystream.
-		if ((operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL))
-		{
-			xorbuf(output, input, BYTES_PER_ITERATION);
-			input += BYTES_PER_ITERATION;
-		}
-
-		output += BYTES_PER_ITERATION;
+		CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(HC128_OUTPUT, BYTES_PER_ITERATION);
 	}
 }
 

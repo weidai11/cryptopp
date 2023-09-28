@@ -9,7 +9,18 @@
 
 #include "hc256.h"
 #include "secblock.h"
+#include "strciphr.h"
 #include "misc.h"
+
+#define BYTES_PER_ITERATION 16
+
+#define WordType word32
+
+#define HC256_OUTPUT(x){\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  0, keystream[0]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  1, keystream[1]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  2, keystream[2]);\
+    CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER,  3, keystream[3]);}
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -96,24 +107,13 @@ void HC256Policy::OperateKeystream(KeystreamOperation operation, byte *output, c
 {
 	while (iterationCount--)
 	{
-		PutWord(false, LITTLE_ENDIAN_ORDER, output +  0, Generate());
-		PutWord(false, LITTLE_ENDIAN_ORDER, output +  4, Generate());
-		PutWord(false, LITTLE_ENDIAN_ORDER, output +  8, Generate());
-		PutWord(false, LITTLE_ENDIAN_ORDER, output + 12, Generate());
+		FixedSizeSecBlock<word32, 4> keystream;
+		keystream[0] = Generate();
+		keystream[1] = Generate();
+		keystream[2] = Generate();
+		keystream[3] = Generate();
 
-		// If AdditiveCipherTemplate does not have an accumulated keystream
-		//  then it will ask OperateKeystream to generate one. Optionally it
-		//  will ask for an XOR of the input with the keystream while
-		//  writing the result to the output buffer. In all cases the
-		//  keystream is written to the output buffer. The optional part is
-		//  adding the input buffer and keystream.
-		if ((operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL))
-		{
-			xorbuf(output, input, BYTES_PER_ITERATION);
-			input += BYTES_PER_ITERATION;
-		}
-
-		output += BYTES_PER_ITERATION;
+		CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(HC256_OUTPUT, BYTES_PER_ITERATION);
 	}
 }
 
