@@ -382,6 +382,10 @@
 # endif
 #endif
 
+// We are still having trouble with integrating Cryptogams AES. Ugh...
+// https://github.com/weidai11/cryptopp/issues/1236
+#undef CRYPTOGAMS_ARM_AES
+
 // Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define UINT64_CAST(x) ((uint64_t *)(void *)(x))
 #define CONST_UINT64_CAST(x) ((const uint64_t *)(const void *)(x))
