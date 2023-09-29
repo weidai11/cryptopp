@@ -1566,12 +1566,12 @@ endif
 trim:
 ifneq ($(IS_DARWIN),0)
 	$(SED) -i '' -e's/[[:space:]]*$$//' *.supp *.txt .*.yml *.h *.cpp *.asm *.S
-	$(SED) -i '' -e's/[[:space:]]*$$//' *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
+	$(SED) -i '' -e's/[[:space:]]*$$//' *.sln *.vcxproj *.filters *.rc GNUmakefile GNUmakefile-cross
 	$(SED) -i '' -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestPrograms/*.cpp TestScripts/*.*
 	make convert
 else
 	$(SED) -i -e's/[[:space:]]*$$//' *.supp *.txt .*.yml *.h *.cpp *.asm *.S
-	$(SED) -i -e's/[[:space:]]*$$//' *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
+	$(SED) -i -e's/[[:space:]]*$$//' *.sln *.vcxproj *.filters *.rc GNUmakefile GNUmakefile-cross
 	$(SED) -i -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestPrograms/*.cpp TestScripts/*.*
 	make convert
 endif
