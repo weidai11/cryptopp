@@ -104,7 +104,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	CRYPTOPP_UNUSED(params);
 
 	m_rk.New(4*17);  // round keys
-	m_w.New(4*28);	 // w0, w1, w2, w3, t and u
+	m_w.New(4*24);	 // w0, w1, w2, w3, t and u
 
 	int Q, q, R, r;
 
@@ -127,9 +127,9 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		CRYPTOPP_ASSERT(0);
 	}
 
-	// w0 has room for 32 bytes. w1-w3 each has room for 16 bytes. t and u are 16 byte temp areas.
-	// The storage requrements for w0-w3, t and u are 112 bytes or 28 words.
-	word32 *w0 = m_w.data(), *w1 = m_w.data()+8, *w2 = m_w.data()+12, *w3 = m_w.data()+16, *t = m_w.data()+20;
+	// w0-w3 each has room for 16 bytes. t and u are 16 byte temp areas.
+	// The storage requrements for w0-w3, t and u are 96 bytes or 24 words.
+	word32 *w0 = m_w.data(), *w1 = m_w.data()+4, *w2 = m_w.data()+8, *w3 = m_w.data()+12, *t = m_w.data()+16;
 
 	GetBlock<word32, BigEndian, false>block(key);
 	block(w0[0])(w0[1])(w0[2])(w0[3]);
