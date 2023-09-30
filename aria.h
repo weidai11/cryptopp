@@ -53,7 +53,7 @@ public:
 		typedef SecBlock<byte, AllocatorWithCleanup<byte, true> >     AlignedByteBlock;
 		typedef SecBlock<word32, AllocatorWithCleanup<word32, true> > AlignedWordBlock;
 
-		AlignedByteBlock  m_rk;  // round keys
+		AlignedWordBlock  m_rk;  // round keys
 		AlignedWordBlock  m_w;   // w0, w1, w2, w3, t and u
 		unsigned int m_rounds;
 	};

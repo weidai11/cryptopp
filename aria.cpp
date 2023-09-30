@@ -27,10 +27,6 @@ using CryptoPP::ARIATab::X1;
 using CryptoPP::ARIATab::X2;
 using CryptoPP::ARIATab::KRK;
 
-inline word32* UINT32_CAST(const byte* ptr) {
-	return reinterpret_cast<word32*>(const_cast<byte*>(ptr));
-}
-
 inline byte ARIA_BRF(const word32 x, const int y) {
 	return static_cast<byte>(GETBYTE(x, y));
 }
@@ -91,22 +87,22 @@ inline void ARIA_FE(word32 t[4]) {
 
 // n-bit right shift of Y XORed to X
 template <unsigned int N>
-inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], byte RK[16])
+inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], word32 RK[4])
 {
 	// MSVC is not generating a "rotate immediate". Constify to help it along.
 	static const unsigned int Q = 4-(N/32);
 	static const unsigned int R = N % 32;
 
 #if (CRYPTOPP_LITTLE_ENDIAN)
-	PutWord(false, LITTLE_ENDIAN_ORDER, RK+ 0, (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R)));
-	PutWord(false, LITTLE_ENDIAN_ORDER, RK+ 4, (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R)));
-	PutWord(false, LITTLE_ENDIAN_ORDER, RK+ 8, (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R)));
-	PutWord(false, LITTLE_ENDIAN_ORDER, RK+12, (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R)));
+	RK[0] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R)));
+	RK[1] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R)));
+	RK[2] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R)));
+	RK[3] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R)));
 #else
-	PutWord(false, BIG_ENDIAN_ORDER, RK+ 0, (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R)));
-	PutWord(false, BIG_ENDIAN_ORDER, RK+ 4, (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R)));
-	PutWord(false, BIG_ENDIAN_ORDER, RK+ 8, (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R)));
-	PutWord(false, BIG_ENDIAN_ORDER, RK+12, (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R)));
+	RK[0] = ConditionalByteReverse(BIG_ENDIAN_ORDER, (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R)));
+	RK[1] = ConditionalByteReverse(BIG_ENDIAN_ORDER, (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R)));
+	RK[2] = ConditionalByteReverse(BIG_ENDIAN_ORDER, (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R)));
+	RK[3] = ConditionalByteReverse(BIG_ENDIAN_ORDER, (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R)));
 #endif
 }
 
@@ -114,10 +110,9 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 {
 	CRYPTOPP_UNUSED(params);
 
-	m_rk.New(16*17);   // round keys
-	m_w.New(4*7+4);	// w0, w1, w2, w3, t and u
+	m_rk.New(4*17);  // round keys
+	m_w.New(4*28);	 // w0, w1, w2, w3, t and u
 
-	byte *rk = m_rk.data();
 	int Q, q, R, r;
 
 	switch (keylen)
@@ -140,6 +135,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	}
 
 	// w0 has room for 32 bytes. w1-w3 each has room for 16 bytes. t and u are 16 byte temp areas.
+	// The storage requrements for w0-w3, t and u are 112 bytes or 28 words.
 	word32 *w0 = m_w.data(), *w1 = m_w.data()+8, *w2 = m_w.data()+12, *w3 = m_w.data()+16, *t = m_w.data()+20;
 
 	GetBlock<word32, BigEndian, false>block(key);
@@ -181,29 +177,29 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 
 	w3[0]=t[0]^w1[0]; w3[1]=t[1]^w1[1]; w3[2]=t[2]^w1[2]; w3[3]=t[3]^w1[3];
 
-	ARIA_GSRK<19>(w0, w1, rk +   0);
-	ARIA_GSRK<19>(w1, w2, rk +  16);
-	ARIA_GSRK<19>(w2, w3, rk +  32);
-	ARIA_GSRK<19>(w3, w0, rk +  48);
-	ARIA_GSRK<31>(w0, w1, rk +  64);
-	ARIA_GSRK<31>(w1, w2, rk +  80);
-	ARIA_GSRK<31>(w2, w3, rk +  96);
-	ARIA_GSRK<31>(w3, w0, rk + 112);
-	ARIA_GSRK<67>(w0, w1, rk + 128);
-	ARIA_GSRK<67>(w1, w2, rk + 144);
-	ARIA_GSRK<67>(w2, w3, rk + 160);
-	ARIA_GSRK<67>(w3, w0, rk + 176);
-	ARIA_GSRK<97>(w0, w1, rk + 192);
+	ARIA_GSRK<19>(w0, w1, m_rk +  0);
+	ARIA_GSRK<19>(w1, w2, m_rk +  4);
+	ARIA_GSRK<19>(w2, w3, m_rk +  8);
+	ARIA_GSRK<19>(w3, w0, m_rk + 12);
+	ARIA_GSRK<31>(w0, w1, m_rk + 16);
+	ARIA_GSRK<31>(w1, w2, m_rk + 20);
+	ARIA_GSRK<31>(w2, w3, m_rk + 24);
+	ARIA_GSRK<31>(w3, w0, m_rk + 28);
+	ARIA_GSRK<67>(w0, w1, m_rk + 32);
+	ARIA_GSRK<67>(w1, w2, m_rk + 36);
+	ARIA_GSRK<67>(w2, w3, m_rk + 40);
+	ARIA_GSRK<67>(w3, w0, m_rk + 44);
+	ARIA_GSRK<97>(w0, w1, m_rk + 48);
 
 	if (keylen > 16)
 	{
-		ARIA_GSRK<97>(w1, w2, rk + 208);
-		ARIA_GSRK<97>(w2, w3, rk + 224);
+		ARIA_GSRK<97>(w1, w2, m_rk + 52);
+		ARIA_GSRK<97>(w2, w3, m_rk + 56);
 
 		if (keylen > 24)
 		{
-			ARIA_GSRK< 97>(w3, w0, rk + 240);
-			ARIA_GSRK<109>(w0, w1, rk + 256);
+			ARIA_GSRK< 97>(w3, w0, m_rk + 60);
+			ARIA_GSRK<109>(w0, w1, m_rk + 64);
 		}
 	}
 
@@ -211,10 +207,10 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	if (!IsForwardTransformation())
 	{
 		word32 *a, *z, *s;
-		rk = m_rk.data();
 		r = R; q = Q;
 
-		a=UINT32_CAST(rk); s=m_w.data()+24; z=a+r*4;
+		// s reuses w0 temp area
+		a=m_rk.data(); s=m_w.data()+0; z=a+r*4;
 		std::memcpy(t, a, 16); std::memcpy(a, z, 16); std::memcpy(z, t, 16);
 
 		a+=4; z-=4;
