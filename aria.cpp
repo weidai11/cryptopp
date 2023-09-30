@@ -96,10 +96,18 @@ inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], byte RK[16])
 	// MSVC is not generating a "rotate immediate". Constify to help it along.
 	static const unsigned int Q = 4-(N/32);
 	static const unsigned int R = N % 32;
-	UINT32_CAST(RK)[0] = (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R));
-	UINT32_CAST(RK)[1] = (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R));
-	UINT32_CAST(RK)[2] = (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R));
-	UINT32_CAST(RK)[3] = (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R));
+
+#if (CRYPTOPP_LITTLE_ENDIAN)
+	PutWord(false, LITTLE_ENDIAN_ORDER, RK+ 0, (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R)));
+	PutWord(false, LITTLE_ENDIAN_ORDER, RK+ 4, (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R)));
+	PutWord(false, LITTLE_ENDIAN_ORDER, RK+ 8, (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R)));
+	PutWord(false, LITTLE_ENDIAN_ORDER, RK+12, (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R)));
+#else
+	PutWord(false, BIG_ENDIAN_ORDER, RK+ 0, (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R)));
+	PutWord(false, BIG_ENDIAN_ORDER, RK+ 4, (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R)));
+	PutWord(false, BIG_ENDIAN_ORDER, RK+ 8, (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R)));
+	PutWord(false, BIG_ENDIAN_ORDER, RK+12, (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R)));
+#endif
 }
 
 void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
