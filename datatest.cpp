@@ -819,13 +819,6 @@ void TestSymmetricCipherWithInplaceEncryption(TestData &v, const NameValuePairs 
 		}
 	}
 
-	// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it
-	// in test vectors. 0 is NoPadding, 1 is ZerosPadding, 2 is PkcsPadding,
-	// 3 is OneAndZerosPadding, etc. Note: The machinery is wired such that
-	// paddingScheme is effectively latched. An old paddingScheme may be
-	// unintentionally used in a subsequent test.
-	int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
-
 	const std::string plainText = GetDecodedDatum(v, "Plaintext");
 	const std::string cipherText = GetDecodedDatum(v, "Ciphertext");
 

@@ -81,7 +81,6 @@ void CFB_ModePolicy::CipherResynchronize(const byte *iv, size_t length)
 
 void CFB_ModePolicy::SetFeedbackSize(unsigned int feedbackSize)
 {
-	CRYPTOPP_ASSERT(feedbackSize >= 0);
 	CRYPTOPP_ASSERT(feedbackSize <= BlockSize());
 	if (feedbackSize > BlockSize())
 		throw InvalidArgument("CFB_Mode: invalid feedback size");

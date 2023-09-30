@@ -195,10 +195,10 @@ void HIGHT::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
         outBlock[5] = static_cast<byte>(m_xx[6] ^ xorBlock[5]);
         outBlock[7] = static_cast<byte>(m_xx[0] ^ xorBlock[7]);
 
-        outBlock[0] = static_cast<byte>(m_xx[1] + m_rkey[4] ^ xorBlock[0]);
-        outBlock[2] = static_cast<byte>(m_xx[3] ^ m_rkey[5] ^ xorBlock[2]);
-        outBlock[4] = static_cast<byte>(m_xx[5] + m_rkey[6] ^ xorBlock[4]);
-        outBlock[6] = static_cast<byte>(m_xx[7] ^ m_rkey[7] ^ xorBlock[6]);
+        outBlock[0] = static_cast<byte>((m_xx[1] + m_rkey[4]) ^ xorBlock[0]);
+        outBlock[2] = static_cast<byte>((m_xx[3] ^ m_rkey[5]) ^ xorBlock[2]);
+        outBlock[4] = static_cast<byte>((m_xx[5] + m_rkey[6]) ^ xorBlock[4]);
+        outBlock[6] = static_cast<byte>((m_xx[7] ^ m_rkey[7]) ^ xorBlock[6]);
     }
     else
     {
@@ -275,10 +275,10 @@ void HIGHT::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
         outBlock[5] = static_cast<byte>(m_xx[5] ^ xorBlock[5]);
         outBlock[7] = static_cast<byte>(m_xx[7] ^ xorBlock[7]);
 
-        outBlock[0] = static_cast<byte>(m_xx[0] - m_rkey[0] ^ xorBlock[0]);
-        outBlock[2] = static_cast<byte>(m_xx[2] ^ m_rkey[1] ^ xorBlock[2]);
-        outBlock[4] = static_cast<byte>(m_xx[4] - m_rkey[2] ^ xorBlock[4]);
-        outBlock[6] = static_cast<byte>(m_xx[6] ^ m_rkey[3] ^ xorBlock[6]);
+        outBlock[0] = static_cast<byte>((m_xx[0] - m_rkey[0]) ^ xorBlock[0]);
+        outBlock[2] = static_cast<byte>((m_xx[2] ^ m_rkey[1]) ^ xorBlock[2]);
+        outBlock[4] = static_cast<byte>((m_xx[4] - m_rkey[2]) ^ xorBlock[4]);
+        outBlock[6] = static_cast<byte>((m_xx[6] ^ m_rkey[3]) ^ xorBlock[6]);
     }
     else
     {
