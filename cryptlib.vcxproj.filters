@@ -35,9 +35,6 @@
     <ClCompile Include="aria.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="aria_simd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ariatab.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -7,14 +7,6 @@
 #include "misc.h"
 #include "cpu.h"
 
-#if CRYPTOPP_SSE2_INTRIN_AVAILABLE
-# define CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS 1
-#endif
-
-#if CRYPTOPP_SSSE3_AVAILABLE
-# define CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS 1
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(ARIATab)
 
@@ -96,15 +88,6 @@ inline void ARIA_FE(word32 t[4]) {
 	ARIA_P(t[2],t[3],t[0],t[1]);
 	ARIA_MM(t[0],t[1],t[2],t[3]);
 }
-
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-extern void ARIA_UncheckedSetKey_Schedule_NEON(byte* rk, word32* ws, unsigned int keylen);
-extern void ARIA_ProcessAndXorBlock_NEON(const byte* xorBlock, byte* outblock, const byte *rk, word32 *t);
-#endif
-
-#if (CRYPTOPP_SSSE3_AVAILABLE)
-extern void ARIA_ProcessAndXorBlock_SSSE3(const byte* xorBlock, byte* outBlock, const byte *rk, word32 *t);
-#endif
 
 // n-bit right shift of Y XORed to X
 template <unsigned int N>
@@ -190,38 +173,29 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 
 	w3[0]=t[0]^w1[0]; w3[1]=t[1]^w1[1]; w3[2]=t[2]^w1[2]; w3[3]=t[3]^w1[3];
 
-#if CRYPTOPP_ARM_NEON_AVAILABLE
-	if (HasNEON())
-	{
-		ARIA_UncheckedSetKey_Schedule_NEON(rk, m_w, keylen);
-	}
-	else
-#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
-	{
-		ARIA_GSRK<19>(w0, w1, rk +   0);
-		ARIA_GSRK<19>(w1, w2, rk +  16);
-		ARIA_GSRK<19>(w2, w3, rk +  32);
-		ARIA_GSRK<19>(w3, w0, rk +  48);
-		ARIA_GSRK<31>(w0, w1, rk +  64);
-		ARIA_GSRK<31>(w1, w2, rk +  80);
-		ARIA_GSRK<31>(w2, w3, rk +  96);
-		ARIA_GSRK<31>(w3, w0, rk + 112);
-		ARIA_GSRK<67>(w0, w1, rk + 128);
-		ARIA_GSRK<67>(w1, w2, rk + 144);
-		ARIA_GSRK<67>(w2, w3, rk + 160);
-		ARIA_GSRK<67>(w3, w0, rk + 176);
-		ARIA_GSRK<97>(w0, w1, rk + 192);
+	ARIA_GSRK<19>(w0, w1, rk +   0);
+	ARIA_GSRK<19>(w1, w2, rk +  16);
+	ARIA_GSRK<19>(w2, w3, rk +  32);
+	ARIA_GSRK<19>(w3, w0, rk +  48);
+	ARIA_GSRK<31>(w0, w1, rk +  64);
+	ARIA_GSRK<31>(w1, w2, rk +  80);
+	ARIA_GSRK<31>(w2, w3, rk +  96);
+	ARIA_GSRK<31>(w3, w0, rk + 112);
+	ARIA_GSRK<67>(w0, w1, rk + 128);
+	ARIA_GSRK<67>(w1, w2, rk + 144);
+	ARIA_GSRK<67>(w2, w3, rk + 160);
+	ARIA_GSRK<67>(w3, w0, rk + 176);
+	ARIA_GSRK<97>(w0, w1, rk + 192);
 
-		if (keylen > 16)
+	if (keylen > 16)
+	{
+		ARIA_GSRK<97>(w1, w2, rk + 208);
+		ARIA_GSRK<97>(w2, w3, rk + 224);
+
+		if (keylen > 24)
 		{
-			ARIA_GSRK<97>(w1, w2, rk + 208);
-			ARIA_GSRK<97>(w2, w3, rk + 224);
-
-			if (keylen > 24)
-			{
-				ARIA_GSRK< 97>(w3, w0, rk + 240);
-				ARIA_GSRK<109>(w0, w1, rk + 256);
-			}
+			ARIA_GSRK< 97>(w3, w0, rk + 240);
+			ARIA_GSRK<109>(w0, w1, rk + 256);
 		}
 	}
 
@@ -293,22 +267,6 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	rk = ARIA_KXL(rk, t); ARIA_FO(t); rk = ARIA_KXL(rk, t); ARIA_FE(t);
 	rk = ARIA_KXL(rk, t); ARIA_FO(t); rk = ARIA_KXL(rk, t);
 
-#if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
-	if (HasSSSE3())
-	{
-		ARIA_ProcessAndXorBlock_SSSE3(xorBlock, outBlock, rk, t);
-		return;
-	}
-	else
-#endif  // CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-	if (HasNEON())
-	{
-		ARIA_ProcessAndXorBlock_NEON(xorBlock, outBlock, rk, t);
-		return;
-	}
-	else
-#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 #if (CRYPTOPP_LITTLE_ENDIAN)
 	{
 		outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   ) ^ rk[ 3];

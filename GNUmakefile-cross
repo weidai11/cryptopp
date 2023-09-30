@@ -975,10 +975,6 @@ aes_armv4.o : aes_armv4.S
 cpu-features.o: cpu-features.h cpu-features.c
 	$(CXX) -x c $(strip $(CPPFLAGS) $(NOSTD_CXXFLAGS) -c) cpu-features.c
 
-# SSSE3 or NEON available
-aria_simd.o : aria_simd.cpp
-	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(ARIA_FLAG) -c) $<
-
 # SSE, NEON or POWER7 available
 blake2s_simd.o : blake2s_simd.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(BLAKE2S_FLAG) -c) $<

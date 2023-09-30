@@ -174,7 +174,6 @@
     <ClCompile Include="allocate.cpp" />
     <ClCompile Include="arc4.cpp" />
     <ClCompile Include="aria.cpp" />
-    <ClCompile Include="aria_simd.cpp" />
     <ClCompile Include="ariatab.cpp" />
     <ClCompile Include="asn.cpp" />
     <ClCompile Include="authenc.cpp" />

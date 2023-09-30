@@ -1635,10 +1635,6 @@ NOSTD_CXXFLAGS=$(filter-out -stdlib=%,$(filter-out -std=%,$(CXXFLAGS)))
 aes_armv4.o : aes_armv4.S
 	$(CXX) $(strip $(CPPFLAGS) $(ASFLAGS) $(NOSTD_CXXFLAGS) $(CRYPTOGAMS_ARM_THUMB_FLAG) -c) $<
 
-# SSSE3 or NEON available
-aria_simd.o : aria_simd.cpp
-	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(ARIA_FLAG) -c) $<
-
 # SSE, NEON or POWER7 available
 blake2s_simd.o : blake2s_simd.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(BLAKE2S_FLAG) -c) $<
