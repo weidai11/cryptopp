@@ -93,17 +93,10 @@ inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], word32 RK[4])
 	static const unsigned int Q = 4-(N/32);
 	static const unsigned int R = N % 32;
 
-#if (CRYPTOPP_LITTLE_ENDIAN)
-	RK[0] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R)));
-	RK[1] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R)));
-	RK[2] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R)));
-	RK[3] = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R)));
-#else
-	RK[0] = ConditionalByteReverse(BIG_ENDIAN_ORDER, (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R)));
-	RK[1] = ConditionalByteReverse(BIG_ENDIAN_ORDER, (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R)));
-	RK[2] = ConditionalByteReverse(BIG_ENDIAN_ORDER, (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R)));
-	RK[3] = ConditionalByteReverse(BIG_ENDIAN_ORDER, (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R)));
-#endif
+	RK[0] = (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R));
+	RK[1] = (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R));
+	RK[2] = (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R));
+	RK[3] = (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R));
 }
 
 void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
