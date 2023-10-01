@@ -127,7 +127,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		CRYPTOPP_ASSERT(0);
 	}
 
-	// w0-w3 each has room for 16 bytes. t and u are 16 byte temp areas.
+	// w0-w3 each has room for 4 words (16 bytes). t and u are each 4 words (16 bytes) temp areas.
 	// The storage requrements for w0-w3, t and u are 96 bytes or 24 words.
 	word32 *w0 = m_w.data(), *w1 = m_w.data()+4, *w2 = m_w.data()+8, *w3 = m_w.data()+12, *t = m_w.data()+16;
 
@@ -231,7 +231,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
 	const byte *rk = reinterpret_cast<const byte*>(m_rk.data());
-	word32 *t = const_cast<word32*>(m_w.data()+20);
+	word32 *t = const_cast<word32*>(m_w.data()+16);
 
 	// Timing attack countermeasure. See comments in Rijndael for more details.
 	// We used Yun's 32-bit implementation, so we use words rather than bytes.
