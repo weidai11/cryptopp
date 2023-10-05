@@ -5,6 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "modes.h"
+#include "strciphr.h"
 #include "misc.h"
 
 #if defined(CRYPTOPP_DEBUG)
@@ -80,6 +81,7 @@ void CFB_ModePolicy::CipherResynchronize(const byte *iv, size_t length)
 
 void CFB_ModePolicy::SetFeedbackSize(unsigned int feedbackSize)
 {
+	CRYPTOPP_ASSERT(feedbackSize <= BlockSize());
 	if (feedbackSize > BlockSize())
 		throw InvalidArgument("CFB_Mode: invalid feedback size");
 	m_feedbackSize = feedbackSize ? feedbackSize : BlockSize();
@@ -137,25 +139,29 @@ void CTR_ModePolicy::IncrementCounterBy256()
 	IncrementCounterByOne(m_counterArray, BlockSize()-1);
 }
 
-void CTR_ModePolicy::OperateKeystream(KeystreamOperation /*operation*/, byte *output, const byte *input, size_t iterationCount)
+void CTR_ModePolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
+	CRYPTOPP_ASSERT(output);
+	// CRYPTOPP_ASSERT(input);  // input is sometimes NULL
 	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());
 	CRYPTOPP_ASSERT(m_counterArray.size() == BlockSize());
+	CRYPTOPP_UNUSED(operation);
 
-	const unsigned int s = BlockSize();
-	const unsigned int inputIncrement = input ? s : 0;
+	const size_t s = BlockSize();
 
 	while (iterationCount)
 	{
 		const byte lsb = m_counterArray[s-1];
-		const size_t blocks = UnsignedMin(iterationCount, 256U-lsb);
+		const size_t blocks = UnsignedMin(iterationCount, 256u-lsb);
+		const size_t outIncrement = output ? blocks*s : 0;
+		const size_t inIncrement = input ? blocks*s : 0;
 
 		m_cipher->AdvancedProcessBlocks(m_counterArray, input, output, blocks*s, BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_AllowParallel);
-		if ((m_counterArray[s-1] = byte(lsb + blocks)) == 0)
+		if ((m_counterArray[s-1] = static_cast<byte>(lsb + blocks)) == 0)
 			IncrementCounterBy256();
 
-		output = PtrAdd(output, blocks*s);
-		input = PtrAdd(input, blocks*inputIncrement);
+		output = PtrAdd(output, outIncrement);
+		input = PtrAdd(input, inIncrement);
 		iterationCount -= blocks;
 	}
 }

@@ -88,6 +88,14 @@ inline word32 HC256Policy::Generate() /*one step of the cipher*/
 	return (output);
 }
 
+void HC256Policy::GenerateKeystream(word32 keystream[4])
+{
+	keystream[0] = Generate();
+	keystream[1] = Generate();
+	keystream[2] = Generate();
+	keystream[3] = Generate();
+}
+
 void HC256Policy::CipherSetKey(const NameValuePairs &params, const byte *userKey, size_t keylen)
 {
 	CRYPTOPP_UNUSED(params); CRYPTOPP_UNUSED(keylen);
@@ -108,10 +116,7 @@ void HC256Policy::OperateKeystream(KeystreamOperation operation, byte *output, c
 	while (iterationCount--)
 	{
 		FixedSizeSecBlock<word32, 4> keystream;
-		keystream[0] = Generate();
-		keystream[1] = Generate();
-		keystream[2] = Generate();
-		keystream[3] = Generate();
+		GenerateKeystream(keystream);
 
 		CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(HC256_OUTPUT, BYTES_PER_ITERATION);
 	}

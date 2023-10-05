@@ -27,12 +27,12 @@
 #include "config_cpu.h"
 #include "config_ver.h"
 
-// Define this to disable ASM, intrinsics and built-ins. The library will be
-// compiled using C++ only. The library code will not include SSE2 (and
-// above), NEON, Aarch32, Aarch64, or Altivec (and above). Note the compiler
-// may use higher ISAs depending on compiler options, but the library will not
-// explicitly use the ISAs. When disabling ASM, it is best to do it from
-// config.h to ensure the library and all programs share the setting.
+// Define this to disable ASM, intrinsics and built-ins. The library code will
+// not explicitly include SSE2 (and above), NEON, Aarch32, Aarch64, or Altivec
+// (and above). Note the compiler may use higher ISAs depending on compiler
+// options, but the library will not explicitly use the ISAs. When disabling ASM,
+// it is best to do it from config_asm.h to ensure the library and all programs
+// share the setting.
 // #define CRYPTOPP_DISABLE_ASM 1
 
 // https://github.com/weidai11/cryptopp/issues/719
@@ -381,6 +381,10 @@
 #  endif
 # endif
 #endif
+
+// We are still having trouble with integrating Cryptogams AES. Ugh...
+// https://github.com/weidai11/cryptopp/issues/1236
+#undef CRYPTOGAMS_ARM_AES
 
 // Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define UINT64_CAST(x) ((uint64_t *)(void *)(x))

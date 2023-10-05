@@ -595,3 +595,16 @@ last several releases.
       - fix include of <x86intrin.h> when using MSVC
       - improve performance of CRC32C_Update_SSE42 for x86-64
       - update documentation
+
+8.9.0 - October 1, 2023
+      - minor release, recompile of programs required
+      - expanded community input and support
+        * 88 unique contributors as of this release
+      - fix SIMON128 Asan finding on POWER8
+      - fix AES/CFB and AES/CTR modes self test failures when using Cryptogams AES on ARMv7
+      - fix ARIA/CTR mode self test failures when inString==outString
+      - fix HIGHT/CTR mode self test failures when inString==outString
+      - fix Rabbit/CTR mode self test failures when inString==outString
+      - fix Prime Table and dangling reference to a temporary>
+      - fix Singleton::Ref when using C++11 memory fences
+      - remove unneeded call to Crop() in Randomize()

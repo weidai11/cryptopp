@@ -1,15 +1,4 @@
-// strciphr.cpp - originally written and placed in the public domain by Wei Dai
-
-//     TODO: Figure out what is happening in ProcessData. The issue surfaced
-//     for CFB_CipherTemplate<BASE>::ProcessData when we cut-in Cryptogams
-//     AES ARMv7 asm. Then again in AdditiveCipherTemplate<S>::ProcessData
-//     for CTR mode with HIGHT, which is a 64-bit block cipher. In both cases,
-//     inString == outString leads to incorrect results. We think it relates
-//     to aliasing violations because inString == outString.
-//
-//     Also see https://github.com/weidai11/cryptopp/issues/683,
-//     https://github.com/weidai11/cryptopp/issues/1010 and
-//     https://github.com/weidai11/cryptopp/issues/1088.
+// strciphr.cpp - originally written and placed in the public domain by Wei Dai.
 
 #include "pch.h"
 
@@ -76,17 +65,6 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 	}
 }
 
-// TODO: Figure out what is happening in ProcessData. The issue surfaced
-// for CFB_CipherTemplate<BASE>::ProcessData when we cut-in Cryptogams
-// AES ARMv7 asm. Then again in AdditiveCipherTemplate<S>::ProcessData
-// for CTR mode with HIGHT, which is a 64-bit block cipher. In both cases,
-// inString == outString leads to incorrect results. We think it relates
-// to aliasing violations because inString == outString.
-//
-// Also see https://github.com/weidai11/cryptopp/issues/683,
-// https://github.com/weidai11/cryptopp/issues/1010 and
-// https://github.com/weidai11/cryptopp/issues/1088.
-
 template <class S>
 void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
@@ -120,10 +98,6 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 			(inAligned ? EnumToInt(INPUT_ALIGNED) : 0) | (outAligned ? EnumToInt(OUTPUT_ALIGNED) : 0));
 		KeystreamOperation operation = KeystreamOperation(flags);
 		policy.OperateKeystream(operation, outString, inString, iterations);
-
-		// Try to tame the optimizer. This is GH #683, #1010, and #1088.
-		volatile byte* unused = const_cast<volatile byte*>(outString);
-		CRYPTOPP_UNUSED(unused);
 
 		inString = PtrAdd(inString, iterations * bytesPerIteration);
 		outString = PtrAdd(outString, iterations * bytesPerIteration);
@@ -206,17 +180,6 @@ void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv, int length)
 	m_leftOver = policy.GetBytesPerIteration();
 }
 
-// TODO: Figure out what is happening in ProcessData. The issue surfaced
-// for CFB_CipherTemplate<BASE>::ProcessData when we cut-in Cryptogams
-// AES ARMv7 asm. Then again in AdditiveCipherTemplate<S>::ProcessData
-// for CTR mode with HIGHT, which is a 64-bit block cipher. In both cases,
-// inString == outString leads to incorrect results. We think it relates
-// to aliasing violations because inString == outString.
-//
-// Also see https://github.com/weidai11/cryptopp/issues/683,
-// https://github.com/weidai11/cryptopp/issues/1010 and
-// https://github.com/weidai11/cryptopp/issues/1088.
-
 template <class BASE>
 void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
@@ -248,10 +211,6 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	{
 		CipherDir cipherDir = GetCipherDir(*this);
 		policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
-
-		// Try to tame the optimizer. This is GH #683, #1010, and #1088.
-		volatile byte* unused = const_cast<volatile byte*>(outString);
-		CRYPTOPP_UNUSED(unused);
 
 		const size_t remainder = length % bytesPerIteration;
 		inString = PtrAdd(inString, length - remainder);

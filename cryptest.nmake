@@ -57,7 +57,7 @@
 
 LIB_SRCS = \
     cryptlib.cpp cpu.cpp integer.cpp 3way.cpp adler32.cpp algebra.cpp \
-    algparam.cpp allocate.cpp arc4.cpp aria.cpp aria_simd.cpp ariatab.cpp \
+    algparam.cpp allocate.cpp arc4.cpp aria.cpp ariatab.cpp \
     asn.cpp authenc.cpp base32.cpp base64.cpp basecode.cpp bfinit.cpp \
     blake2.cpp blake2b_simd.cpp blake2s_simd.cpp blowfish.cpp blumshub.cpp \
     camellia.cpp cast.cpp casts.cpp cbcmac.cpp ccm.cpp chacha.cpp \
@@ -88,7 +88,7 @@ LIB_SRCS = \
 
 LIB_OBJS = \
     cryptlib.obj cpu.obj integer.obj 3way.obj adler32.obj algebra.obj \
-    algparam.obj allocate.obj arc4.obj aria.obj aria_simd.obj ariatab.obj \
+    algparam.obj allocate.obj arc4.obj aria.obj ariatab.obj \
     asn.obj authenc.obj base32.obj base64.obj basecode.obj bfinit.obj \
     blake2.obj blake2b_simd.obj blake2s_simd.obj blowfish.obj blumshub.obj \
     camellia.obj cast.obj casts.obj cbcmac.obj ccm.obj chacha.obj \

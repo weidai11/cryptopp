@@ -109,7 +109,7 @@ do
         then
 
             # Test NEON code generation
-            count=$(otool -tV aria_simd.o 2>&1 | grep -c -E 'vld|vst|vshl|vshr|veor')
+            count=$(otool -tV chacha_simd.o 2>&1 | grep -c -E 'vld|vst|vshl|vshr|veor')
             if [[ "${count}" -gt 64 ]]
             then
                 echo "${platform} : NEON ==> SUCCESS" >> "${TMPDIR}/build.log"
@@ -122,7 +122,7 @@ do
         then
 
             # Test ASIMD code generation
-            count=$(otool -tV aria_simd.o 2>&1 | grep -c -E 'ldr[[:space:]]*q|str[[:space:]]*q|shl.4|shr.4|eor.16')
+            count=$(otool -tV chacha_simd.o 2>&1 | grep -c -E 'ldr[[:space:]]*q|str[[:space:]]*q|shl.4|shr.4|eor.16')
             if [[ "${count}" -gt 64 ]]
             then
                 echo "${platform} : ASIMD ==> SUCCESS" >> "${TMPDIR}/build.log"

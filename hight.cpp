@@ -187,19 +187,32 @@ void HIGHT::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
     HIGHT_ENC(32,  1,0,7,6,5,4,3,2);
     HIGHT_ENC(33,  0,7,6,5,4,3,2,1);
 
-    // Final Round
-    outBlock[1] = static_cast<byte>(m_xx[2]);
-    outBlock[3] = static_cast<byte>(m_xx[4]);
-    outBlock[5] = static_cast<byte>(m_xx[6]);
-    outBlock[7] = static_cast<byte>(m_xx[0]);
-
-    outBlock[0] = static_cast<byte>(m_xx[1] + m_rkey[4]);
-    outBlock[2] = static_cast<byte>(m_xx[3] ^ m_rkey[5]);
-    outBlock[4] = static_cast<byte>(m_xx[5] + m_rkey[6]);
-    outBlock[6] = static_cast<byte>(m_xx[7] ^ m_rkey[7]);
-
     if (xorBlock)
-        xorbuf(outBlock, xorBlock, 8);
+    {
+        // Final Round
+        outBlock[1] = static_cast<byte>(m_xx[2] ^ xorBlock[1]);
+        outBlock[3] = static_cast<byte>(m_xx[4] ^ xorBlock[3]);
+        outBlock[5] = static_cast<byte>(m_xx[6] ^ xorBlock[5]);
+        outBlock[7] = static_cast<byte>(m_xx[0] ^ xorBlock[7]);
+
+        outBlock[0] = static_cast<byte>((m_xx[1] + m_rkey[4]) ^ xorBlock[0]);
+        outBlock[2] = static_cast<byte>((m_xx[3] ^ m_rkey[5]) ^ xorBlock[2]);
+        outBlock[4] = static_cast<byte>((m_xx[5] + m_rkey[6]) ^ xorBlock[4]);
+        outBlock[6] = static_cast<byte>((m_xx[7] ^ m_rkey[7]) ^ xorBlock[6]);
+    }
+    else
+    {
+        // Final Round
+        outBlock[1] = static_cast<byte>(m_xx[2]);
+        outBlock[3] = static_cast<byte>(m_xx[4]);
+        outBlock[5] = static_cast<byte>(m_xx[6]);
+        outBlock[7] = static_cast<byte>(m_xx[0]);
+
+        outBlock[0] = static_cast<byte>(m_xx[1] + m_rkey[4]);
+        outBlock[2] = static_cast<byte>(m_xx[3] ^ m_rkey[5]);
+        outBlock[4] = static_cast<byte>(m_xx[5] + m_rkey[6]);
+        outBlock[6] = static_cast<byte>(m_xx[7] ^ m_rkey[7]);
+    }
 }
 
 void HIGHT::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -254,18 +267,32 @@ void HIGHT::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
     HIGHT_DEC( 3,  5,4,3,2,1,0,7,6);
     HIGHT_DEC( 2,  6,5,4,3,2,1,0,7);
 
-    outBlock[1] = static_cast<byte>(m_xx[1]);
-    outBlock[3] = static_cast<byte>(m_xx[3]);
-    outBlock[5] = static_cast<byte>(m_xx[5]);
-    outBlock[7] = static_cast<byte>(m_xx[7]);
-
-    outBlock[0] = static_cast<byte>(m_xx[0] - m_rkey[0]);
-    outBlock[2] = static_cast<byte>(m_xx[2] ^ m_rkey[1]);
-    outBlock[4] = static_cast<byte>(m_xx[4] - m_rkey[2]);
-    outBlock[6] = static_cast<byte>(m_xx[6] ^ m_rkey[3]);
-
     if (xorBlock)
-        xorbuf(outBlock, xorBlock, 8);
+    {
+        // Final Round
+        outBlock[1] = static_cast<byte>(m_xx[1] ^ xorBlock[1]);
+        outBlock[3] = static_cast<byte>(m_xx[3] ^ xorBlock[3]);
+        outBlock[5] = static_cast<byte>(m_xx[5] ^ xorBlock[5]);
+        outBlock[7] = static_cast<byte>(m_xx[7] ^ xorBlock[7]);
+
+        outBlock[0] = static_cast<byte>((m_xx[0] - m_rkey[0]) ^ xorBlock[0]);
+        outBlock[2] = static_cast<byte>((m_xx[2] ^ m_rkey[1]) ^ xorBlock[2]);
+        outBlock[4] = static_cast<byte>((m_xx[4] - m_rkey[2]) ^ xorBlock[4]);
+        outBlock[6] = static_cast<byte>((m_xx[6] ^ m_rkey[3]) ^ xorBlock[6]);
+    }
+    else
+    {
+        // Final Round
+        outBlock[1] = static_cast<byte>(m_xx[1]);
+        outBlock[3] = static_cast<byte>(m_xx[3]);
+        outBlock[5] = static_cast<byte>(m_xx[5]);
+        outBlock[7] = static_cast<byte>(m_xx[7]);
+
+        outBlock[0] = static_cast<byte>(m_xx[0] - m_rkey[0]);
+        outBlock[2] = static_cast<byte>(m_xx[2] ^ m_rkey[1]);
+        outBlock[4] = static_cast<byte>(m_xx[4] - m_rkey[2]);
+        outBlock[6] = static_cast<byte>(m_xx[6] ^ m_rkey[3]);
+    }
 }
 
 NAMESPACE_END

@@ -1645,7 +1645,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
 
         TEST_LIST+=("ARM NEON code generation")
 
-        OBJFILE=aria_simd.o; rm -f "$OBJFILE" 2>/dev/null
+        OBJFILE=chacha_simd.o; rm -f "$OBJFILE" 2>/dev/null
         CXX="${CXX}" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
         COUNT=0
@@ -7944,7 +7944,7 @@ fi
 
 ############################################
 # Test latest zip with unzip -a
-if true; then
+if command -v zip &>/dev/null && command -v unzip &>/dev/null; then
 
     if command -v wget &>/dev/null; then
         FETCH_CMD="wget -q -O"
@@ -7954,7 +7954,7 @@ if true; then
         FETCH_CMD="wget-and-curl-not-found"
     fi
 
-    major=8; minor=6; rev=0
+    major=8; minor=9; rev=0
     filebase="cryptopp${major}${minor}${rev}"
     filename="${filebase}.zip"
     url="https://cryptopp.com/${filename}"

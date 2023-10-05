@@ -17,7 +17,6 @@ arc4.cpp
 arc4.h
 ariatab.cpp
 aria.cpp
-aria_simd.cpp
 aria.h
 argnames.h
 arm_simd.h

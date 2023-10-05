@@ -39,6 +39,8 @@ protected:
 
 	word32 H1(word32 u);
 	word32 H2(word32 u);
+
+	void GenerateKeystream(word32* keystream);
 	word32 Generate();
 
 private:

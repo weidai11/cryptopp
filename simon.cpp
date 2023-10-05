@@ -247,12 +247,12 @@ void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
     switch (m_kwords)
     {
     case 3:
-        m_rkeys.New((m_rounds = 42));
+        m_rkeys.New((m_rounds = 42)+1);
         kblk(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SIMON64_ExpandKey_3W(m_rkeys, m_wspace);
         break;
     case 4:
-        m_rkeys.New((m_rounds = 44));
+        m_rkeys.New((m_rounds = 44)+1);
         kblk(m_wspace[3])(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SIMON64_ExpandKey_4W(m_rkeys, m_wspace);
         break;
@@ -364,17 +364,17 @@ void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
     switch (m_kwords)
     {
     case 2:
-        m_rkeys.New((m_rounds = 68));
+        m_rkeys.New((m_rounds = 68)+1);
         kblk(m_wspace[1])(m_wspace[0]);
         SIMON128_ExpandKey_2W(m_rkeys, m_wspace);
         break;
     case 3:
-        m_rkeys.New((m_rounds = 69));
+        m_rkeys.New((m_rounds = 69)+1);
         kblk(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SIMON128_ExpandKey_3W(m_rkeys, m_wspace);
         break;
     case 4:
-        m_rkeys.New((m_rounds = 72));
+        m_rkeys.New((m_rounds = 72)+1);
         kblk(m_wspace[3])(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SIMON128_ExpandKey_4W(m_rkeys, m_wspace);
         break;
