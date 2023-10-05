@@ -177,17 +177,16 @@ NonblockingRng::~NonblockingRng()
 #endif
 }
 
-void NonblockingRng::GenerateBlock(byte *output, size_t size)
+void NonblockingRng::GenerateBlock(byte* output, size_t size)
 {
 #ifdef CRYPTOPP_WIN32_AVAILABLE
-// Acquiring a provider is expensive. Do it once and retain the reference.
+	// Acquiring a provider is expensive. Do it once and retain the reference.
+# if defined(CRYPTOPP_CXX11_STATIC_INIT)
+	static const MicrosoftCryptoProvider hProvider = MicrosoftCryptoProvider();
+# else
+	const MicrosoftCryptoProvider& hProvider = Singleton<MicrosoftCryptoProvider>().Ref();
+# endif
 # if defined(USE_MS_CRYPTOAPI)
-	# if defined(CRYPTOPP_CXX11_STATIC_INIT)
-		static const MicrosoftCryptoProvider hProvider = MicrosoftCryptoProvider();
-	# else
-		const MicrosoftCryptoProvider& hProvider = Singleton<MicrosoftCryptoProvider>().Ref();
-	# endif
-	
 	DWORD dwSize;
 	CRYPTOPP_ASSERT(SafeConvert(size, dwSize));
 	if (!SafeConvert(size, dwSize))
@@ -195,9 +194,7 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 		SetLastError(ERROR_INCORRECT_SIZE);
 		throw OS_RNG_Err("GenerateBlock size");
 	}
-	
-	BOOL ret = CryptGenRandom(hProvider.GetProviderHandle(), dwSize, output); // We still need the provider if we use CRYPTOAPI
-	
+	BOOL ret = CryptGenRandom(hProvider.GetProviderHandle(), dwSize, output);
 	CRYPTOPP_ASSERT(ret != FALSE);
 	if (ret == FALSE)
 		throw OS_RNG_Err("CryptGenRandom");
@@ -209,9 +206,11 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 		SetLastError(ERROR_INCORRECT_SIZE);
 		throw OS_RNG_Err("GenerateBlock size");
 	}
-	
+#if WINVER >= 0x0A00 
 	NTSTATUS ret = BCryptGenRandom(BCRYPT_RNG_ALG_HANDLE, output, ulSize, 0);
-	
+#else
+	NTSTATUS ret = BCryptGenRandom(hProvider.GetProviderHandle(), output, ulSize, 0);
+#endif
 	CRYPTOPP_ASSERT(BCRYPT_SUCCESS(ret));
 	if (!(BCRYPT_SUCCESS(ret)))
 	{
