@@ -58,6 +58,8 @@
 // LLVM Clang version 3.7. Also see https://gist.github.com/yamaya/2924292
 #if defined(__clang__) && defined(__apple_build_version__)
 # define CRYPTOPP_APPLE_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
+#elif defined(__clang__) && defined(_MSC_VER)
+# define CRYPTOPP_MSVC_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 #elif defined(__clang__)
 # define CRYPTOPP_LLVM_CLANG_VERSION  (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 #endif
