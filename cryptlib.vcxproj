@@ -368,6 +368,11 @@
     <None Include="Readme.txt" />
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Condition="'$(Platform)'=='x64'" Include="cpuid64.asm">
+      <Message>Building and Assembling cpuid64.asm</Message>
+      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Zi /Fo"$(IntDir)cpuid64.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)cpuid64.obj;%(Outputs)</Outputs>
+    </CustomBuild>
     <CustomBuild Condition="'$(Platform)'=='Win32'" Include="rdrand.asm">
       <Message>Building and assembling rdrand.asm</Message>
       <Command>ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo"$(IntDir)rdrand-x86.obj" "%(FullPath)"</Command>

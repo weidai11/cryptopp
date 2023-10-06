@@ -1088,6 +1088,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="cpuid64.asm">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="rdrand.asm">
       <Filter>Source Files</Filter>
     </CustomBuild>
