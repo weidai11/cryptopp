@@ -37,6 +37,8 @@ fi
 # This is fixed since we are building for MacOS
 MACOS_SDK=MacOSX
 
+MACOS_CATALYST=0
+
 # This supports 'source setenv-macos.sh x86_64' and
 # 'source setenv-macos.sh MACOS_CPU=arm64'
 if [[ -n "$1" ]]
@@ -49,6 +51,20 @@ then
         MACOS_CPU="${arg1}"
     fi
     printf "Using positional arg, MACOS_CPU=%s\n" "${MACOS_CPU}"
+fi
+
+# This supports 'source setenv-macos.sh x86_64 1' and
+# 'source setenv-macos.sh MACOS_CPU=arm64 MACOS_CATALYST=1'
+if [[ -n "$2" ]]
+then
+    arg1=$(echo "$2" | cut -f 1 -d '=')
+    arg2=$(echo "$2" | cut -f 2 -d '=')
+    if [[ -n "${arg2}" ]]; then
+        MACOS_CATALYST="${arg2}"
+    else
+        MACOS_CATALYST="${arg1}"
+    fi
+    printf "Using positional arg, MACOS_CATALYST=%s\n" "${MACOS_CATALYST}"
 fi
 
 # Sane default. Use current machine.
@@ -141,10 +157,20 @@ elif [[ "$MACOS_CPU" == "i386" ]]; then
     MIN_VER="-mmacosx-version-min=10.7"
 
 elif [[ "$MACOS_CPU" == "x86_64" ]]; then
-    MIN_VER="-mmacosx-version-min=10.7"
+    if [[ "$MACOS_CATALYST" == "1" ]]; then
+        MIN_VER=""
+        TARGET_TRIPLE="-target x86_64-apple-ios15.0-macabi"
+    else
+        MIN_VER="-mmacosx-version-min=10.7"
+    fi
 
 elif [[ "$MACOS_CPU" == "arm64" ]]; then
-    MIN_VER="-mmacosx-version-min=11.0"
+    if [[ "$MACOS_CATALYST" == "1" ]]; then
+        MIN_VER=""
+        TARGET_TRIPLE="-target arm64-apple-ios15.0-macabi"
+    else
+        MIN_VER="-mmacosx-version-min=11.0"
+    fi
 
 # And the final catch-all
 else
@@ -297,7 +323,7 @@ if [ ! -d "${XCODE_TOOLCHAIN}" ]; then
 fi
 
 MACOS_CFLAGS="-arch $MACOS_CPU $MIN_VER -fno-common"
-MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER ${MACOS_STDLIB} -fno-common"
+MACOS_CXXFLAGS="-arch $MACOS_CPU $TARGET_TRIPLE $MIN_VER ${MACOS_STDLIB} -fno-common"
 MACOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
 if [ ! -d "${MACOS_SYSROOT}" ]; then
@@ -378,6 +404,7 @@ if [ "$VERBOSE" -gt 0 ]; then
     echo "MACOS_LDFLAGS: ${MACOS_LDFLAGS}"
   fi
   echo "MACOS_SYSROOT: ${MACOS_SYSROOT}"
+  echo "MACOS_CATALYST: ${MACOS_CATALYST}"
 fi
 
 #####################################################################
