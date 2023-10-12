@@ -603,15 +603,16 @@ void DetectX86Features()
 		            (cpuid1[ECX_REG] & OSXSAVE_FLAG) != 0;
 #endif
 
-#if defined(__sun)
 	// Solaris 11 i86pc does not signal SSE support using
-	// OSXSAVE. We need to probe for SSE support.
+	// OSXSAVE. Additionally, Fedora 38 on a 2015 Celeron
+	// N3700 does not set OSXSAVE. So we need to explicitly
+	// probe for SSE support on rare occasions. Ugh...
 	if (g_hasSSE2 == false)
+	{
 		g_hasSSE2 = CPU_ProbeSSE2();
-#endif
-
-	if (g_hasSSE2 == false)
-		goto done;
+		if (g_hasSSE2 == false)
+			goto done;
+	}
 
 	g_hasSSSE3 = (cpuid1[ECX_REG] & SSSE3_FLAG) != 0;
 	g_hasSSE41 = (cpuid1[ECX_REG] & SSE41_FLAG) != 0;
