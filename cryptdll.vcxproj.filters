@@ -449,5 +449,8 @@
     <CustomBuild Include="x64dll.asm">
       <Filter>Source Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="cpuid64.asm">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
