@@ -256,7 +256,13 @@ bool TestSettings()
 		pass = false;
 	}
 
-	if (sizeof(void*) == 8)
+	// Morello uses 129-bit pointers. Also see
+	// https://developer.arm.com/documentation/den0133/0100/Morello-prototype-architecture/Pointers-and-capabilities
+	if (sizeof(void*) == 16)
+	{
+		std::cout << "passed:  Your machine is 128-bit.\n";
+	}
+	else if (sizeof(void*) == 8)
 	{
 		std::cout << "passed:  Your machine is 64-bit.\n";
 	}
