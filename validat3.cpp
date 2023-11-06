@@ -256,23 +256,43 @@ bool TestSettings()
 		pass = false;
 	}
 
+	// Machine word size does not agree with pointer size on Morello. Also see
+	// https://developer.arm.com/documentation/den0133/0100/Morello-prototype-architecture/Pointers-and-capabilities
+	if (sizeof(size_t) == 16)
+	{
+		std::cout << "passed:  Your machine has 128-bit words.\n";
+	}
+	else if (sizeof(size_t) == 8)
+	{
+		std::cout << "passed:  Your machine has 64-bit words.\n";
+	}
+	else if (sizeof(size_t) == 4)
+	{
+		std::cout << "passed:  Your machine has 32-bit words.\n";
+	}
+	else
+	{
+		std::cout << "FAILED:  Your machine uses unknown word size.\n";
+		pass = false;
+	}
+
 	// Morello uses 129-bit pointers. Also see
 	// https://developer.arm.com/documentation/den0133/0100/Morello-prototype-architecture/Pointers-and-capabilities
 	if (sizeof(void*) == 16)
 	{
-		std::cout << "passed:  Your machine is 128-bit.\n";
+		std::cout << "passed:  Your machine has 128-bit pointers.\n";
 	}
 	else if (sizeof(void*) == 8)
 	{
-		std::cout << "passed:  Your machine is 64-bit.\n";
+		std::cout << "passed:  Your machine has 64-bit pointers.\n";
 	}
 	else if (sizeof(void*) == 4)
 	{
-		std::cout << "passed:  Your machine is 32-bit.\n";
+		std::cout << "passed:  Your machine has 32-bit pointers.\n";
 	}
 	else
 	{
-		std::cout << "FAILED:  Your machine is neither 32-bit nor 64-bit.\n";
+		std::cout << "FAILED:  Your machine uses unknown pointer size.\n";
 		pass = false;
 	}
 
