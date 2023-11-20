@@ -69,9 +69,11 @@ public:
 		static PolynomialMod2 CRYPTOPP_API Monomial(size_t i);
 		/// \brief Provides x^t0 + x^t1 + x^t2
 		/// \return x^t0 + x^t1 + x^t2
+		/// \pre The coefficients should be provided in descending order. That is, <pre>t0 > t1 > t2<pre>.
 		static PolynomialMod2 CRYPTOPP_API Trinomial(size_t t0, size_t t1, size_t t2);
 		/// \brief Provides x^t0 + x^t1 + x^t2 + x^t3 + x^t4
 		/// \return x^t0 + x^t1 + x^t2 + x^t3 + x^t4
+		/// \pre The coefficients should be provided in descending order. That is, <pre>t0 > t1 > t2 > t3 > t4<pre>.
 		static PolynomialMod2 CRYPTOPP_API Pentanomial(size_t t0, size_t t1, size_t t2, size_t t3, size_t t4);
 		/// \brief Provides x^(n-1) + ... + x + 1
 		/// \return x^(n-1) + ... + x + 1

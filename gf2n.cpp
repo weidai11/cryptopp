@@ -135,6 +135,9 @@ PolynomialMod2 PolynomialMod2::Monomial(size_t i)
 
 PolynomialMod2 PolynomialMod2::Trinomial(size_t t0, size_t t1, size_t t2)
 {
+	CRYPTOPP_ASSERT(t0 > t1);
+	CRYPTOPP_ASSERT(t1 > t2);
+
 	PolynomialMod2 r((word)0, t0+1);
 	r.SetBit(t0);
 	r.SetBit(t1);
@@ -144,6 +147,11 @@ PolynomialMod2 PolynomialMod2::Trinomial(size_t t0, size_t t1, size_t t2)
 
 PolynomialMod2 PolynomialMod2::Pentanomial(size_t t0, size_t t1, size_t t2, size_t t3, size_t t4)
 {
+	CRYPTOPP_ASSERT(t0 > t1);
+	CRYPTOPP_ASSERT(t1 > t2);
+	CRYPTOPP_ASSERT(t2 > t3);
+	CRYPTOPP_ASSERT(t3 > t4);
+
 	PolynomialMod2 r((word)0, t0+1);
 	r.SetBit(t0);
 	r.SetBit(t1);
