@@ -543,6 +543,9 @@ Integer CRT(const Integer &xp, const Integer &p, const Integer &xq, const Intege
 
 Integer ModularSquareRoot(const Integer &a, const Integer &p)
 {
+	if (!IsPrime(p))
+		throw InvalidArgument("ModularSquareRoot: p must be a prime");
+
 	if (p%4 == 3)
 		return a_exp_b_mod_c(a, (p+1)/4, p);
 
