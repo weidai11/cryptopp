@@ -52,7 +52,7 @@
 	#define CRYPTOPP_BOOL_X86 ...
 #elif (defined(__ILP32__) || defined(_ILP32)) && defined(__x86_64__)
 	#define CRYPTOPP_BOOL_X32 1
-#elif (defined(_M_X64) || defined(__x86_64__))
+#elif ((defined(_M_X64) && !defined(_M_ARM64EC)) || defined(__x86_64__))
 	#define CRYPTOPP_BOOL_X64 1
 #elif (defined(_M_IX86) || defined(__i386__) || defined(__i386) || defined(_X86_) || defined(__I86__) || defined(__INTEL__))
 	#define CRYPTOPP_BOOL_X86 1
@@ -79,7 +79,7 @@
 	// Microsoft added ARM64 define December 2017.
 	#define CRYPTOPP_BOOL_ARMV8 1
 #endif
-#if defined(__arm64__) || defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__arm64__) || defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
 	#define CRYPTOPP_BOOL_ARM64 1
 #elif defined(__arm__) || defined(_M_ARM)
 	#define CRYPTOPP_BOOL_ARM32 1
