@@ -17,6 +17,9 @@ SED=sed
 AWK=awk
 MAKE=make
 
+# Set make jobs to 2 if not set
+MAKEJOBS="${MAKEJOBS:-2}"
+
 # Fixup, Solaris and friends
 if [[ (-d /usr/xpg4/bin) ]]; then
 	SED=/usr/xpg4/bin/sed
@@ -87,7 +90,7 @@ echo ""
 
 "$MAKE" clean &>/dev/null
 
-if ! "$MAKE" -j 2; then
+if ! "$MAKE" -j ${MAKEJOBS}; then
 	echo "make failed."
 	exit 1
 fi
