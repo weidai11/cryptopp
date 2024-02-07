@@ -331,7 +331,8 @@ public:
 protected:
 	friend bool operator==(const OID &lhs, const OID &rhs);
 	friend bool operator!=(const OID &lhs, const OID &rhs);
-	friend bool operator<(const OID &lhs, const OID &rhs);
+	friend bool operator< (const OID &lhs, const OID &rhs);
+	friend bool operator> (const OID &lhs, const OID &rhs);
 	friend bool operator<=(const OID &lhs, const OID &rhs);
 	friend bool operator>=(const OID &lhs, const OID &rhs);
 
@@ -913,8 +914,15 @@ inline bool operator!=(const OID &lhs, const OID &rhs);
 /// \param lhs the first OID
 /// \param rhs the second OID
 /// \return true if the first OID is less than the second OID, false otherwise
-/// \details operator<() calls std::lexicographical_compare() on each element in the array of values.
+/// \details operator<() calls std::lexicographical_compare() on the values.
 inline bool operator<(const OID &lhs, const OID &rhs);
+/// \brief Compare two OIDs for ordering
+/// \param lhs the first OID
+/// \param rhs the second OID
+/// \return true if the first OID is greater than the second OID, false otherwise
+/// \details operator>() is implemented in terms of operator==() and operator<().
+/// \since Crypto++ 8.3
+inline bool operator>(const OID &lhs, const OID &rhs);
 /// \brief Compare two OIDs for ordering
 /// \param lhs the first OID
 /// \param rhs the second OID
@@ -944,6 +952,8 @@ inline bool operator!=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
 	{return lhs.m_values != rhs.m_values;}
 inline bool operator<(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
 	{return std::lexicographical_compare(lhs.m_values.begin(), lhs.m_values.end(), rhs.m_values.begin(), rhs.m_values.end());}
+inline bool operator>(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
+	{return ! (lhs<rhs || lhs==rhs);}
 inline bool operator<=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
 	{return lhs<rhs || lhs==rhs;}
 inline bool operator>=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
