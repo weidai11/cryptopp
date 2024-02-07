@@ -936,8 +936,7 @@ inline OID operator+(const OID &lhs, unsigned long rhs);
 /// \brief Print a OID value
 /// \param out the output stream
 /// \param oid the OID
-inline std::ostream& operator<<(std::ostream& out, const OID &oid)
-	{ return oid.Print(out); }
+inline std::ostream& operator<<(std::ostream& out, const OID &oid);
 #else
 inline bool operator==(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
 	{return lhs.m_values == rhs.m_values;}
