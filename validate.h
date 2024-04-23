@@ -21,7 +21,7 @@ NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
 // A hint to help locate TestData/ and TestVectors/ after install. Due to
-// execve the path can be malicious. If the path is ficticous then we move
+// execve the path can be malicious. If the path is fictitious then we move
 // onto the next potential path. Also note we only read from the path; we
 // never write through it. Storage for the string is in test.cpp.
 extern std::string g_argvPathHint;

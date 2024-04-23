@@ -23,7 +23,7 @@
 
 // FreeBSD links /dev/urandom -> /dev/random. It showed up when we added
 // O_NOFOLLOW to harden the non-blocking generator. Use Arc4Random instead
-// for a non-blocking generator. Arc4Random is cryptograhic quality prng
+// for a non-blocking generator. Arc4Random is cryptographic quality prng
 // based on ChaCha20. The ChaCha20 generator is seeded from /dev/random,
 // so we can't completely avoid the blocking.
 // https://www.freebsd.org/cgi/man.cgi?query=arc4random_buf.
