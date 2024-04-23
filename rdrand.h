@@ -20,7 +20,7 @@
 //   GenerateBlock unconditionally retries and always fulfills the request.
 
 // Throughput varies wildly depending on processor and manufacturer. A Core i5 or
-//   Core i7 RDRAND can generate at over 200 MiB/s. It is below theroetical
+//   Core i7 RDRAND can generate at over 200 MiB/s. It is below theoretical
 //   maximum, but it takes about 5 instructions to generate, retry and store a
 //   result. A low-end Celeron may perform RDRAND at about 7 MiB/s. RDSEED
 //   performs at about 1/4 to 1/2 the rate of RDRAND. AMD RDRAND performed poorly
