@@ -111,6 +111,9 @@ void InvertibleESIGNFunction::GenerateRandom(RandomNumberGenerator &rng, const N
 
 	if (param.GetValue("Seed", seedParam))
 	{
+		if (seedParam.size() > seed.ELEMS_MAX - 4)
+			throw InvalidArgument("InvertibleESIGNFunction::GenerateRandom: buffer overflow");
+
 		seed.resize(seedParam.size() + 4);
 		std::memcpy(seed + 4, seedParam.begin(), seedParam.size());
 
