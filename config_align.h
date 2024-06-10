@@ -40,7 +40,7 @@
 #endif
 
 // Required to remove crash when build with msvc
-// Start discussion: https://mail.google.com/mail/u/0/#inbox/WhctKKXxCwBrGvhjfgGVxcnSKKRPpJLncwnSzxkFsvqZJSRKWLbTfjsRZfWgTPdZZCbWVXb
+// Discussion: https://groups.google.com/g/cryptopp-users/c/4FhTDREatGo/m/x1wUF1V7BQAJ
 #if defined(_MSC_VER)
     #undef CRYPTOPP_BOOL_ALIGN16
     #define CRYPTOPP_BOOL_ALIGN16 1
