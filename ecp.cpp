@@ -119,7 +119,11 @@ bool ECP::DecodePoint(ECP::Point &P, BufferedTransformation &bt, size_t encodedP
 		if (encodedPointLen != EncodedPointSize(true))
 			return false;
 
-		Integer p = FieldSize();
+		// Check for p is prime due to GH #1249
+		const Integer p = FieldSize();
+		CRYPTOPP_ASSERT(IsPrime(p));
+		if (!IsPrime(p))
+			return false;
 
 		P.identity = false;
 		P.x.Decode(bt, GetField().MaxElementByteLength());
@@ -128,6 +132,7 @@ bool ECP::DecodePoint(ECP::Point &P, BufferedTransformation &bt, size_t encodedP
 		if (Jacobi(P.y, p) !=1)
 			return false;
 
+		// Callers must ensure p is prime, GH #1249
 		P.y = ModularSquareRoot(P.y, p);
 
 		if ((type & 1) != P.y.GetBit(0))

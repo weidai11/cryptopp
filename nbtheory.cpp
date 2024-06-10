@@ -11,6 +11,7 @@
 #include "smartptr.h"
 #include "misc.h"
 #include "stdcpp.h"
+#include "trap.h"
 
 #ifdef _OPENMP
 # include <omp.h>
@@ -524,6 +525,9 @@ Integer MaurerProvablePrime(RandomNumberGenerator &rng, unsigned int bits)
 
 Integer CRT(const Integer &xp, const Integer &p, const Integer &xq, const Integer &q, const Integer &u)
 {
+	// Callers must ensure p and q are prime, GH #1249
+	CRYPTOPP_ASSERT(IsPrime(p) && IsPrime(q));
+
 	// isn't operator overloading great?
 	return p * (u * (xq-xp) % q) + xp;
 /*
@@ -543,6 +547,9 @@ Integer CRT(const Integer &xp, const Integer &p, const Integer &xq, const Intege
 
 Integer ModularSquareRoot(const Integer &a, const Integer &p)
 {
+	// Callers must ensure p is prime, GH #1249
+	CRYPTOPP_ASSERT(IsPrime(p));
+
 	if (p%4 == 3)
 		return a_exp_b_mod_c(a, (p+1)/4, p);
 
@@ -592,6 +599,9 @@ Integer ModularSquareRoot(const Integer &a, const Integer &p)
 
 bool SolveModularQuadraticEquation(Integer &r1, Integer &r2, const Integer &a, const Integer &b, const Integer &c, const Integer &p)
 {
+	// Callers must ensure p is prime, GH #1249
+	CRYPTOPP_ASSERT(IsPrime(p));
+
 	Integer D = (b.Squared() - 4*a*c) % p;
 	switch (Jacobi(D, p))
 	{
@@ -618,6 +628,9 @@ bool SolveModularQuadraticEquation(Integer &r1, Integer &r2, const Integer &a, c
 Integer ModularRoot(const Integer &a, const Integer &dp, const Integer &dq,
 					const Integer &p, const Integer &q, const Integer &u)
 {
+	// Callers must ensure p and q are prime, GH #1249
+	CRYPTOPP_ASSERT(IsPrime(p) && IsPrime(q));
+
 	// GCC warning bug, https://stackoverflow.com/q/12842306/608639
 #ifdef _OPENMP
 	Integer p2, q2;
@@ -640,6 +653,9 @@ Integer ModularRoot(const Integer &a, const Integer &dp, const Integer &dq,
 Integer ModularRoot(const Integer &a, const Integer &e,
 					const Integer &p, const Integer &q)
 {
+	// Callers must ensure p and q are prime, GH #1249
+	CRYPTOPP_ASSERT(IsPrime(p) && IsPrime(q));
+
 	Integer dp = EuclideanMultiplicativeInverse(e, p-1);
 	Integer dq = EuclideanMultiplicativeInverse(e, q-1);
 	Integer u = EuclideanMultiplicativeInverse(p, q);
@@ -976,6 +992,8 @@ Integer Lucas(const Integer &n, const Integer &P, const Integer &modulus)
 
 Integer InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q, const Integer &u)
 {
+	// Callers must ensure p and q are prime, GH #1249
+	CRYPTOPP_ASSERT(IsPrime(p) && IsPrime(q));
 
 	// GCC warning bug, https://stackoverflow.com/q/12842306/608639
 #ifdef _OPENMP

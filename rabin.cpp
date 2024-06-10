@@ -7,6 +7,7 @@
 #include "modarith.h"
 #include "asn.h"
 #include "sha.h"
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -130,6 +131,9 @@ void InvertibleRabinFunction::BERDecode(BufferedTransformation &bt)
 	m_q.BERDecode(seq);
 	m_u.BERDecode(seq);
 	seq.MessageEnd();
+
+	CRYPTOPP_ASSERT(IsPrime(m_p));
+	CRYPTOPP_ASSERT(IsPrime(m_q));
 }
 
 void InvertibleRabinFunction::DEREncode(BufferedTransformation &bt) const
@@ -146,6 +150,9 @@ void InvertibleRabinFunction::DEREncode(BufferedTransformation &bt) const
 
 Integer InvertibleRabinFunction::CalculateInverse(RandomNumberGenerator &rng, const Integer &in) const
 {
+	CRYPTOPP_ASSERT(IsPrime(m_p));
+	CRYPTOPP_ASSERT(IsPrime(m_q));
+
 	DoQuickSanityCheck();
 
 	ModularArithmetic modn(m_n);
