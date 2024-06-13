@@ -149,6 +149,7 @@ bool ValidateHmacDRBG();
 
 bool TestX25519();
 bool TestEd25519();
+bool TestBIP32Ed25519();
 bool ValidateX25519();
 bool ValidateEd25519();
 bool ValidateNaCl();
