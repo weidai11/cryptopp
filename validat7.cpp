@@ -701,5 +701,165 @@ bool TestEd25519()
 	return pass;
 }
 
+// TestBIP32Ed25519 includes validation of the public APIs added to support
+// BIP32-Ed25519 hierarchical-deterministic (HD) wallet keys. The API uses only
+// existing cryptographic methods but uses extended secret keys.
+// TestBIP32Ed25519 called in Debug builds.
+bool TestBIP32Ed25519()
+{
+	std::cout << "\nTesting BIP32-Ed25519 Keys and Signatures...\n\n";
+	bool pass = true, fail;
+
+	size_t i = 0;
+	unsigned int failed = 0;
+
+	const unsigned int SIGN_COUNT = 64, MSG_SIZE=128;
+	const unsigned int NACL_EXTRA=NaCl::crypto_sign_BYTES;
+
+	// Test key conversion
+	byte seed[32], sk1[64], sk2[64], pk1[32], pk2[32];
+	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
+	{
+		GlobalRNG().GenerateBlock(seed, 32);
+		std::memcpy(sk1, seed, 32);
+		int ret1 = Donna::bip32_ed25519_extend(sk2, sk1);
+
+        int ret2 = Donna::ed25519_publickey(pk1, sk1);
+		int ret3 = Donna::bip32_ed25519_publickey(pk2, sk2);
+		int ret4 = std::memcmp(pk1, pk2, 32);
+
+		fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ret4 != 0;
+		if (fail) failed++;
+	}
+
+	failed ? fail = true : fail = false;
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << SIGN_COUNT << " public keys" << std::endl;
+
+#ifndef CRYPTOPP_DISABLE_NACL
+	// Test signature generation
+	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
+	{
+		// Fresh keypair
+		(void)NaCl::crypto_sign_keypair(pk1, sk1);
+		Donna::bip32_ed25519_extend(sk2, sk1);
+		Donna::bip32_ed25519_publickey(pk2, sk2);
+
+		// Message and signatures
+		byte msg[MSG_SIZE], sig1[64], sig2[64];
+		GlobalRNG().GenerateBlock(msg, MSG_SIZE);
+		size_t len = GlobalRNG().GenerateWord32(0, MSG_SIZE);
+
+		// Spike the signatures
+		sig1[1] = 1; sig2[2] = 2;
+
+		int ret1 = Donna::ed25519_sign(msg, len, sk1, pk1, sig1);
+		int ret2 = Donna::bip32_ed25519_sign(msg, len, sk2, pk2, sig2);
+		int ret3 = std::memcmp(sig1, sig2, 64);
+
+		fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
+		if (fail) failed++;
+	}
+
+	failed ? fail = true : fail = false;
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << SIGN_COUNT << " signatures" << std::endl;
+
+	// Test signature verification
+	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
+	{
+		// Fresh keypair
+		(void)NaCl::crypto_sign_keypair(pk1, sk1);
+		Donna::bip32_ed25519_extend(sk2, sk1);
+		Donna::bip32_ed25519_publickey(pk2, sk2);
+
+		// Message and signatures
+		byte msg[MSG_SIZE], sig1[64], sig2[64];
+		GlobalRNG().GenerateBlock(msg, MSG_SIZE);
+		size_t len = GlobalRNG().GenerateWord32(0, MSG_SIZE);
+
+		// Spike the signatures
+		sig1[1] = 1; sig2[2] = 2;
+
+		int ret1 = Donna::ed25519_sign(msg, len, sk1, pk1, sig1);
+		int ret2 = Donna::bip32_ed25519_sign(msg, len, sk2, pk2, sig2);
+		int ret3 = std::memcmp(sig1, sig2, 64);
+
+		bool tamper = !!GlobalRNG().GenerateBit();
+		if (tamper)
+		{
+			sig1[1] ^= 1;
+			sig2[1] ^= 1;
+		}
+
+		// Verify the other's signature using the other's key
+		int ret4 = Donna::ed25519_sign_open(msg, len, pk2, sig1);
+		int ret5 = Donna::ed25519_sign_open(msg, len, pk1, sig2);
+
+		fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
+		if (fail) failed++;
+	}
+
+	failed ? fail = true : fail = false;
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << SIGN_COUNT << " verifications" << std::endl;
+
+	// Test signature verification using streams
+	for (i = 0, failed = 0; i<SIGN_COUNT; ++i)
+	{
+		// Fresh keypair
+		(void)NaCl::crypto_sign_keypair(pk1, sk1);
+		Donna::bip32_ed25519_extend(sk2, sk1);
+		Donna::bip32_ed25519_publickey(pk2, sk2);
+
+		// Message and signatures
+		byte msg[MSG_SIZE], sig1[64], sig2[64];
+		GlobalRNG().GenerateBlock(msg, MSG_SIZE);
+		size_t len = GlobalRNG().GenerateWord32(0, MSG_SIZE);
+
+		// Spike the signatures
+		sig1[1] = 1; sig2[2] = 2;
+
+		// Create a stream
+		std::string str2((const char*)msg, len);
+		std::istringstream iss(str2);
+
+		int ret1 = Donna::ed25519_sign(iss, sk1, pk1, sig1);
+		int ret2 = Donna::bip32_ed25519_sign(iss, sk2, pk2, sig2);
+		int ret3 = std::memcmp(sig1, sig2, 64);
+
+		bool tamper = !!GlobalRNG().GenerateBit();
+		if (tamper)
+		{
+			sig1[1] ^= 1;
+			sig2[1] ^= 1;
+		}
+
+		// Reset stream
+		iss.clear();
+		iss.seekg(0);
+
+		// Verify the other's signature using the other's key
+		int ret4 = Donna::ed25519_sign_open(iss, pk2, sig1);
+		int ret5 = Donna::ed25519_sign_open(iss, pk1, sig2);
+
+		fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
+	}
+
+	failed ? fail = true : fail = false;
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED" : "passed") << "  ";
+	std::cout << SIGN_COUNT << " streams" << std::endl;
+#endif
+	return pass;
+}
+
 NAMESPACE_END  // Test
 NAMESPACE_END  // CryptoPP

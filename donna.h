@@ -129,6 +129,76 @@ ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKe
 int
 ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte signature[64]);
 
+//**************************** bip32-ed25519 ****************************//
+
+/// \brief Extend the Ed25519 key.
+/// \param secretKey byte array for the extended private key
+/// \param secretKey byte array with the private key (seed)
+/// \return 0 on success, non-0 otherwise
+int bip32_ed25519_extend(byte secretKey[64], const byte seed[32]);
+
+/// \brief Creates a public key from an extended secret key
+/// \param publicKey byte array for the public key
+/// \param secretKey byte array with the extended private key
+/// \return 0 on success, non-0 otherwise
+/// \details ed25519_publickey() generates a public key from an extended
+///   secret key. Internally ed25519_publickey() performs a scalar
+///   multiplication using the secret key and then writes the result to
+///   <tt>publicKey</tt>.
+int bip32_ed25519_publickey(byte publicKey[32], const byte secretKey[64]);
+
+/// \brief Creates a signature on a message
+/// \param message byte array with the message
+/// \param messageLength size of the message, in bytes
+/// \param publicKey byte array with the public key
+/// \param secretKey byte array with the extended private key
+/// \param signature byte array for the signature
+/// \return 0 on success, non-0 otherwise
+/// \details ed25519_sign() generates a signature on a message using
+///   the public and private keys. The various buffers can be exact
+///   sizes, and do not require extra space like when using the
+///   NaCl library functions.
+/// \details At the moment the hash function for signing is fixed at
+///   SHA512.
+int bip32_ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[64], const byte publicKey[32], byte signature[64]);
+
+/// \brief Creates a signature on a message
+/// \param stream std::istream derived class
+/// \param publicKey byte array with the public key
+/// \param secretKey byte array with the extended private key
+/// \param signature byte array for the signature
+/// \return 0 on success, non-0 otherwise
+/// \details ed25519_sign() generates a signature on a message using
+///   the public and private keys. The various buffers can be exact
+///   sizes, and do not require extra space like when using the
+///   NaCl library functions.
+/// \details This ed25519_sign() overload handles large streams. It
+///   was added for signing and verifying files that are too large
+///   for a memory allocation.
+/// \details At the moment the hash function for signing is fixed at
+///   SHA512.
+int bip32_ed25519_sign(std::istream& stream, const byte secretKey[64], const byte publicKey[32], byte signature[64]);
+
+/// \brief Add the lower bytes of two secret keys as scalar values.
+/// \param secretKey1 byte array with the extended private key
+/// \param secretKey2 byte array with the extended private key
+/// \param res 32 byte array for the result
+/// \details Add the lower 32 bytes of two extended secret keys as two large scalars.
+///   The result is a 32 byte array. This may be used during child key
+///   derivation when the keys are part of BIP32 style wallets.
+/// \details We only need the leftmost 32 bytes of the extended secret key.
+int bip32_ed25519_scalar_add(const byte secretKey1[64], const byte secretKey2[64], byte res[32]);
+
+/// \brief Add two public keys as curve 25519 points.
+/// \param publicKey1 byte array with the first public key to add.
+/// \param publicKey2 byte array with the second public key to add.
+/// \param res byte array with the public key result.
+/// \return A public key that is the result of the summation.
+/// \details Add two public keys as two points on the elliptic curve 25519. This is
+///   useful during child key derivation when the keys are part of BIP32 style
+///   wallets.
+int bip32_ed25519_point_add(const byte publicKey1[32], const byte publicKey2[32], byte res[32]);
+    
 //****************************** Internal ******************************//
 
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
