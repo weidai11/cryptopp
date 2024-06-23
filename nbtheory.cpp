@@ -525,9 +525,6 @@ Integer MaurerProvablePrime(RandomNumberGenerator &rng, unsigned int bits)
 
 Integer CRT(const Integer &xp, const Integer &p, const Integer &xq, const Integer &q, const Integer &u)
 {
-	// Callers must ensure p and q are prime, GH #1249
-	CRYPTOPP_ASSERT(IsPrime(p) && IsPrime(q));
-
 	// isn't operator overloading great?
 	return p * (u * (xq-xp) % q) + xp;
 /*
