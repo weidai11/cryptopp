@@ -76,6 +76,9 @@
 #include <iostream>
 
 #if (CRYPTOPP_MSC_VERSION >= 1400) && !defined(_M_ARM)
+	#ifdef _M_ARM64EC
+		#include <minwindef.h> // __shiftleft128
+	#endif
 	#include <intrin.h>
 #endif
 

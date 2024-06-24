@@ -35,7 +35,7 @@
 #  include <immintrin.h>
 # endif
 
-# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
 #  if (CRYPTOPP_ARM_NEON_HEADER) || (CRYPTOPP_ARM_ASIMD_AVAILABLE)
 #   include <arm_neon.h>
 #  endif
@@ -96,7 +96,7 @@ void xorbuf(byte *buf, const byte *mask, size_t count)
 		buf += 16; mask += 16; count -= 16;
 	}
 # endif
-# if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
+# if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64) || defined(_M_ARM64EC)
 	while (count >= 16)
 	{
 		vst1q_u8(buf, veorq_u8(vld1q_u8(buf), vld1q_u8(mask)));
@@ -170,7 +170,7 @@ void xorbuf(byte *output, const byte *input, const byte *mask, size_t count)
 		output += 16; input += 16; mask += 16; count -= 16;
 	}
 # endif
-# if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64)
+# if defined(__aarch64__) || defined(__aarch32__) || defined(_M_ARM64) || defined(_M_ARM64EC)
 	while (count >= 16)
 	{
 		vst1q_u8(output, veorq_u8(vld1q_u8(input), vld1q_u8(mask)));
