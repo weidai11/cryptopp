@@ -84,9 +84,28 @@
 # define CRYPTOPP_INTEL_VERSION (__INTEL_COMPILER)
 #endif
 
-#if defined(_MSC_VER) && !defined(__clang__)
-# undef CRYPTOPP_LLVM_CLANG_VERSION
-# define CRYPTOPP_MSC_VERSION (_MSC_VER)
+#if defined(_MSC_VER)
+#include <yvals_core.h>		// needed for _MSVC_STL_VERSION
+# if !defined(__clang__)
+#  undef CRYPTOPP_LLVM_CLANG_VERSION
+#  define CRYPTOPP_MSC_VERSION (_MSC_VER)
+# endif
+#endif
+
+#if defined(_MSVC_STL_VERSION) // VS2017 (14.1) and above
+# define CRYPTOPP_MSSTL_VERSION _MSVC_STL_VERSION
+#elif defined(_CPPLIB_VER) && _CPPLIB_VER >= 650 // VS2015 (14.0)
+# define CRYPTOPP_MSSTL_VERSION 140
+#elif defined(_CPPLIB_VER) && _CPPLIB_VER >= 610 // VS2013 (12.0)
+# define CRYPTOPP_MSSTL_VERSION 120
+#elif defined(_CPPLIB_VER) && _CPPLIB_VER >= 540 // VS2012 (11.0)
+# define CRYPTOPP_MSSTL_VERSION 110
+#elif defined(_CPPLIB_VER) && _CPPLIB_VER >= 520 // VS2010 (10.0)
+# define CRYPTOPP_MSSTL_VERSION 100
+#elif defined(_CPPLIB_VER) && _CPPLIB_VER >= 505 // VS2008SP1 (9.0)
+# define CRYPTOPP_MSSTL_VERSION 91
+#elif defined(_CPPLIB_VER) && _CPPLIB_VER >= 503 // VS2008 (also 9.0)
+# define CRYPTOPP_MSSTL_VERSION 90
 #endif
 
 // To control <x86intrin.h> include. May need a guard, like GCC 4.5 and above
