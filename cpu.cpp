@@ -716,9 +716,10 @@ void DetectX86Features()
 			g_hasPadlockPMM  = (cpuid2[EDX_REG] & PMM_FLAGS) != 0;
 		}
 
-		if (extendedFeatures >= 0xC0000005)
-		{
-			CpuId(0xC0000005, 0, cpuid2);
+		CpuId(0x80000000, 0, cpuid2);
+		extendedFeatures = cpuid2[EAX_REG];
+		if (extendedFeatures >= 0x80000005) {
+			CpuId(0x80000005, 0, cpuid2);
 			g_cacheLineSize = GETBYTE(cpuid2[ECX_REG], 0);
 		}
 	}
