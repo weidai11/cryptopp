@@ -278,9 +278,9 @@
 // Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
 #if !defined(CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_AES)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
-#  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
+#  if defined(__ARM_FEATURE_CRYPTO) && ((CRYPTOPP_GCC_VERSION >= 40800) || \
       (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300) || \
-      (CRYPTOPP_MSC_VERSION >= 1916)
+      (CRYPTOPP_MSC_VERSION >= 1916))
 #   define CRYPTOPP_ARM_AES_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
@@ -290,9 +290,9 @@
 // Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
 #if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_PMULL)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
-#  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
+#  if defined(__ARM_FEATURE_CRYPTO) && ((CRYPTOPP_GCC_VERSION >= 40800) || \
       (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300) || \
-      (CRYPTOPP_MSC_VERSION >= 1916)
+      (CRYPTOPP_MSC_VERSION >= 1916))
 #   define CRYPTOPP_ARM_PMULL_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
@@ -302,9 +302,9 @@
 // Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
 #if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_SHA)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
-#  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
+#  if defined(__ARM_FEATURE_CRYPTO) && ((CRYPTOPP_GCC_VERSION >= 40800) || \
       (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300) || \
-      (CRYPTOPP_MSC_VERSION >= 1916)
+      (CRYPTOPP_MSC_VERSION >= 1916))
 #   define CRYPTOPP_ARM_SHA1_AVAILABLE 1
 #   define CRYPTOPP_ARM_SHA2_AVAILABLE 1
 #  endif  // Compilers
