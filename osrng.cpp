@@ -76,6 +76,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/random.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -302,6 +303,14 @@ void BlockingRng::GenerateBlock(byte *output, size_t size)
 
 void OS_GenerateRandomBlock(bool blocking, byte *output, size_t size)
 {
+#if __linux__ || __NetBSD__ || __FreeBSD__ || __DragonFly__
+	auto got = std::max(getrandom(output, size, blocking ? 0 : GRND_NONBLOCK), static_cast<ssize_t>(0));
+	output += got;
+	size -= got;
+#endif
+	if (size == 0)
+		return;
+
 #ifdef NONBLOCKING_RNG_AVAILABLE
 	if (blocking)
 #endif
