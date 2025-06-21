@@ -259,9 +259,9 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 BlockingRng::BlockingRng()
 {
 #ifndef DONT_USE_O_NOFOLLOW
-	const int flags = O_RDONLY|O_NOFOLLOW;
+	const int flags = O_RDONLY|O_CLOEXEC|O_NOFOLLOW;
 #else
-	const int flags = O_RDONLY;
+	const int flags = O_RDONLY|O_CLOEXEC;
 #endif
 
 	m_fd = open(CRYPTOPP_BLOCKING_RNG_FILENAME, flags);
