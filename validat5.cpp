@@ -33,6 +33,7 @@
 #include "pssr.h"
 #include "hkdf.h"
 #include "scrypt.h"
+#include "argon2.h"
 #include "pwdbased.h"
 
 #include "cmac.h"
@@ -999,6 +1000,123 @@ bool ValidateScrypt()
 
 	std::cout << "\nRFC 7914 Scrypt validation suite running...\n\n";
 	pass = TestScrypt(pbkdf, testSet, COUNTOF(testSet)) && pass;
+
+	return pass;
+}
+
+struct Argon2_TestTuple
+{
+	unsigned int variant;
+	unsigned int timeCost;
+	unsigned int memoryCost;
+	unsigned int parallelism;
+	const char *password;
+	const char *salt;
+	const char *secret;
+	const char *associatedData;
+	const char *derived;
+};
+
+static bool TestArgon2(Argon2& kdf, const Argon2_TestTuple* testSet, unsigned int testCount)
+{
+	bool pass = true;
+
+	for (unsigned int i = 0; i < testCount; ++i)
+	{
+		const Argon2_TestTuple& test = testSet[i];
+
+		// Decode hex strings
+		std::string password, salt, secret, associatedData, expected;
+		StringSource(test.password, true, new HexDecoder(new StringSink(password)));
+		StringSource(test.salt, true, new HexDecoder(new StringSink(salt)));
+
+		if (test.secret && test.secret[0])
+			StringSource(test.secret, true, new HexDecoder(new StringSink(secret)));
+
+		if (test.associatedData && test.associatedData[0])
+			StringSource(test.associatedData, true, new HexDecoder(new StringSink(associatedData)));
+
+		StringSource(test.derived, true, new HexDecoder(new StringSink(expected)));
+
+		// Derive key
+		SecByteBlock derived(expected.size());
+		const byte* secretPtr = secret.empty() ? NULLPTR : reinterpret_cast<const byte*>(secret.data());
+		const byte* adPtr = associatedData.empty() ? NULLPTR : reinterpret_cast<const byte*>(associatedData.data());
+
+		kdf.DeriveKey(derived, derived.size(),
+			reinterpret_cast<const byte*>(password.data()), password.size(),
+			reinterpret_cast<const byte*>(salt.data()), salt.size(),
+			test.timeCost, test.memoryCost, test.parallelism,
+			secretPtr, secret.size(),
+			adPtr, associatedData.size());
+
+		// Verify result
+		bool fail = (0 != std::memcmp(derived, expected.data(), expected.size()));
+
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED   " : "passed   ");
+		std::cout << "variant=" << test.variant;
+		std::cout << ", t=" << test.timeCost;
+		std::cout << ", m=" << test.memoryCost;
+		std::cout << ", p=" << test.parallelism;
+		std::cout << ", pwd=" << password.size() << " bytes";
+		std::cout << ", salt=" << salt.size() << " bytes";
+		if (!secret.empty())
+			std::cout << ", secret=" << secret.size() << " bytes";
+		if (!associatedData.empty())
+			std::cout << ", ad=" << associatedData.size() << " bytes";
+		std::cout << std::endl;
+	}
+
+	return pass;
+}
+
+bool ValidateArgon2()
+{
+	bool pass = true;
+
+	// RFC 9106 and reference implementation test vectors
+	std::cout << "\nRFC 9106 Argon2 validation suite running...\n\n";
+
+	// Argon2d tests (RFC 9106 verified)
+	{
+		const Argon2_TestTuple testSet[] =
+		{
+			// variant, t, m, p, password, salt, secret, ad, derived
+			{ 0, 3, 32, 4, "0101010101010101010101010101010101010101010101010101010101010101", "02020202020202020202020202020202", "0303030303030303", "040404040404040404040404", "512b391b6f1162975371d30919734294f868e3be3984f3c1a13a4db9fabe4acb" },
+		};
+
+		Argon2 kdf(Argon2::ARGON2D);
+		std::cout << "Argon2d tests:\n";
+		pass = TestArgon2(kdf, testSet, COUNTOF(testSet)) && pass;
+	}
+
+	// Argon2i tests (RFC 9106 verified)
+	{
+		const Argon2_TestTuple testSet[] =
+		{
+			// variant, t, m, p, password, salt, secret, ad, derived
+			{ 1, 3, 32, 4, "0101010101010101010101010101010101010101010101010101010101010101", "02020202020202020202020202020202", "0303030303030303", "040404040404040404040404", "c814d9d1dc7f37aa13f0d77f2494bda1c8de6b016dd388d29952a4c4672b6ce8" },
+		};
+
+		Argon2 kdf(Argon2::ARGON2I);
+		std::cout << "Argon2i tests:\n";
+		pass = TestArgon2(kdf, testSet, COUNTOF(testSet)) && pass;
+	}
+
+	// Argon2id tests (RFC 9106 verified)
+	{
+		const Argon2_TestTuple testSet[] =
+		{
+			// variant, t, m, p, password, salt, secret, ad, derived
+			{ 2, 3, 32, 4, "0101010101010101010101010101010101010101010101010101010101010101", "02020202020202020202020202020202", "0303030303030303", "040404040404040404040404", "0d640df58d78766c08c037a34a8b53c9d01ef0452d75b65eb52520e96b01e659" },
+		};
+
+		Argon2 kdf(Argon2::ARGON2ID);
+		std::cout << "Argon2id tests:\n";
+		pass = TestArgon2(kdf, testSet, COUNTOF(testSet)) && pass;
+	}
 
 	return pass;
 }

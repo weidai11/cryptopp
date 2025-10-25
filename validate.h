@@ -75,6 +75,7 @@ bool ValidateCipherModes();
 bool ValidatePBKDF();
 bool ValidateHKDF();
 bool ValidateScrypt();
+bool ValidateArgon2();
 
 bool ValidateDES();
 bool ValidateIDEA();

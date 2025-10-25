@@ -1021,6 +1021,7 @@ bool Validate(int alg, bool thorough)
 	case 74: result = ValidateRabbit(); break;
 	case 75: result = ValidateHC128(); break;
 	case 76: result = ValidateHC256(); break;
+	case 77: result = ValidateArgon2(); break;
 	case 80: result = ValidateVMAC(); break;
 	case 81: result = ValidateCCM(); break;
 	case 82: result = ValidateGCM(); break;
