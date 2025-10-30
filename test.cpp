@@ -1030,11 +1030,12 @@ bool Validate(int alg, bool thorough)
 	case 85: result = ValidateSM3(); break;
 	case 86: result = ValidateBLAKE2s(); break;
 	case 87: result = ValidateBLAKE2b(); break;
-	case 88: result = ValidatePoly1305(); break;
-	case 89: result = ValidateSipHash(); break;
-	case 90: result = ValidateHashDRBG(); break;
-	case 91: result = ValidateHmacDRBG(); break;
-	case 92: result = ValidateNaCl(); break;
+	case 88: result = ValidateBLAKE3(); break;
+	case 89: result = ValidatePoly1305(); break;
+	case 90: result = ValidateSipHash(); break;
+	case 91: result = ValidateHashDRBG(); break;
+	case 92: result = ValidateHmacDRBG(); break;
+	case 93: result = ValidateNaCl(); break;
 
 	case 100: result = ValidateCHAM(); break;
 	case 101: result = ValidateSIMECK(); break;

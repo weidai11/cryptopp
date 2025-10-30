@@ -65,6 +65,7 @@ bool ValidateLSH();
 bool ValidateSM3();
 bool ValidateBLAKE2s();
 bool ValidateBLAKE2b();
+bool ValidateBLAKE3();
 bool ValidatePoly1305();
 bool ValidateSipHash();
 

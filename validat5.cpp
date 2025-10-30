@@ -24,6 +24,7 @@
 #include "keccak.h"
 #include "tiger.h"
 #include "blake2.h"
+#include "blake3.h"
 #include "ripemd.h"
 #include "siphash.h"
 #include "poly1305.h"
@@ -2329,6 +2330,35 @@ bool ValidateBLAKE2b()
 	}
 
 	std::cout << (!pass ? "FAILED   " : "passed   ") << COUNTOF(tests)+1 << " hashes and keyed hashes" << std::endl;
+
+	return pass;
+}
+
+bool ValidateBLAKE3()
+{
+	std::cout << "\nBLAKE3 validation suite running...\n\n";
+	bool pass = true, fail;
+
+	// Test 1: Algorithm name
+	fail = std::string(BLAKE3::StaticAlgorithmName()) != "BLAKE3";
+	pass = !fail && pass;
+	std::cout << (fail ? "FAILED   " : "passed   ") << "Algorithm name\n";
+
+	// Test 2: Empty string hash
+	{
+		const std::string expected = "\xaf\x13\x49\xb9\xf5\xf9\xa1\xa6\xa0\x40\x4d\xea\x36\xdc\xc9\x49"
+		                             "\x9b\xcb\x25\xc9\xad\xc1\x12\xb7\xcc\x9a\x93\xca\xe4\x1f\x32\x62";
+		BLAKE3 hash;
+		std::string digest;
+		StringSource(digest.data(), 0, true, new HashFilter(hash, new StringSink(digest)));
+
+		fail = (digest != expected);
+		pass = !fail && pass;
+		std::cout << (fail ? "FAILED   " : "passed   ") << "Empty string\n";
+	}
+
+	// Use test vectors file for comprehensive testing
+	pass = RunTestDataFile("TestVectors/blake3.txt", MakeParameters(Name::TruncatedSize(), 32)) && pass;
 
 	return pass;
 }
