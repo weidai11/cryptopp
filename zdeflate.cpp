@@ -412,17 +412,7 @@ unsigned int Deflator::LongestMatch(unsigned int &bestMatch) const
 		if (scan[bestLength-1] == match[bestLength-1] && scan[bestLength] == match[bestLength] && scan[0] == match[0] && scan[1] == match[1])
 		{
 			CRYPTOPP_ASSERT(scan[2] == match[2]);
-			unsigned int len = (unsigned int)(
-#if defined(_STDEXT_BEGIN) && !(defined(CRYPTOPP_MSC_VERSION) && (CRYPTOPP_MSC_VERSION < 1400 || CRYPTOPP_MSC_VERSION >= 1600)) && !defined(_STLPORT_VERSION)
-				stdext::unchecked_mismatch
-#else
-				std::mismatch
-#endif
-#if CRYPTOPP_MSC_VERSION >= 1600
-				(stdext::make_unchecked_array_iterator(scan)+3, stdext::make_unchecked_array_iterator(scanEnd), stdext::make_unchecked_array_iterator(match)+3).first - stdext::make_unchecked_array_iterator(scan));
-#else
-				(scan+3, scanEnd, match+3).first - scan);
-#endif
+			unsigned int len = (unsigned int)(std::mismatch(scan+3, scanEnd, match+3).first - scan);
 			CRYPTOPP_ASSERT(len != bestLength);
 			if (len > bestLength)
 			{
