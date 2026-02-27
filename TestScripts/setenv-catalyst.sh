@@ -18,27 +18,21 @@
 # If your Autotools project results in "configure:6560: error: C preprocessor
 # cpp fails sanity check", then file a bug report with Autotools.
 #
-# See http://www.cryptopp.com/wiki/OS_X_(Command_Line) for more details
 #############################################################################
 
 #########################################
 #####        Some validation        #####
 #########################################
 
-# In the past we could mostly infer arch or cpu from the SDK (and mostly
-# vice-versa). Nowadays we need the user to set it for us because Apple
-# platforms have both 32-bit or 64-bit variations.
-
-# cryptest-macos.sh may run this script without sourcing.
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
-    echo "setenv-macos.sh is usually sourced, but not this time."
+    echo "setenv-catalyst.sh is usually sourced, but not this time."
 fi
 
 # This is fixed since we are building for MacOS
 MACOS_SDK=MacOSX
 
-# This supports 'source setenv-macos.sh x86_64' and
-# 'source setenv-macos.sh MACOS_CPU=arm64'
+# This supports 'source setenv-catalyst.sh x86_64' and
+# 'source setenv-catalyst.sh MACOS_CPU=arm64'
 if [[ -n "$1" ]]
 then
     arg1=$(echo "$1" | cut -f 1 -d '=')
@@ -121,52 +115,16 @@ echo "Configuring for $MACOS_SDK ($MACOS_CPU)"
 #####         Environment          #####
 ########################################
 
-# The flags below were tested with Xcode 8 on Travis. If
-# you use downlevel versions of Xcode, then you can push
-# xxx-version-min=n lower. For example, Xcode 7 can use
-# -mmacosx-version-min=5. However, you cannot link
-# against LLVM's libc++.
-
-# Also see https://github.com/rust-lang/rust/issues/48862
-# and https://developer.apple.com/documentation/bundleresources/information_property_list/minimumosversion
-
-# PowerMacs and Intels can be either 32-bit or 64-bit
-if [[ "$MACOS_CPU" == "ppc" ]]; then
-    MIN_VER="-mmacosx-version-min=10.4"
-
-elif [[ "$MACOS_CPU" == "ppc64" ]]; then
-    MIN_VER="-mmacosx-version-min=10.4"
-
-elif [[ "$MACOS_CPU" == "i386" ]]; then
-    MIN_VER="-mmacosx-version-min=10.7"
-
-elif [[ "$MACOS_CPU" == "x86_64" ]]; then
-    MIN_VER="-mmacosx-version-min=10.7"
+if [[ "$MACOS_CPU" == "x86_64" ]]; then
+    TARGET="-target x86_64-apple-ios15.0-macabi"
 
 elif [[ "$MACOS_CPU" == "arm64" ]]; then
-    MIN_VER="-mmacosx-version-min=11.0"
+    TARGET="-target arm64-apple-ios15.0-macabi"
 
 # And the final catch-all
 else
     echo "MACOS_CPU is not valid. Please fix it"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
-fi
-
-# The first cut if MIN_VER gets the full version, like 10.7. The
-# second cut gets the major or minor version
-if echo "${MIN_VER}" | grep -q '.'; then
-    MAJOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f 2 -d '=' | cut -f 1 -d '.')
-    MINOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f 2 -d '=' | cut -f 2 -d '.')
-else
-    MAJOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f 2 -d '=' | cut -f 1 -d '.')
-    MINOR_VER=0
-fi
-
-# OS X 10.7 minimum required for LLVM and -stdlib=libc++
-if [[ "${MAJOR_VER}" -eq 10 && "${MINOR_VER}" -ge 7 ]]; then
-     MACOS_STDLIB="-stdlib=libc++"
-elif [[ "${MAJOR_VER}" -ge 11 ]]; then
-     MACOS_STDLIB="-stdlib=libc++"
 fi
 
 # Allow a user override? I think we should be doing this. The use case is:
@@ -296,8 +254,8 @@ if [ ! -d "${XCODE_TOOLCHAIN}" ]; then
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-MACOS_CFLAGS="-arch $MACOS_CPU $MIN_VER -fno-common"
-MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER ${MACOS_STDLIB} -fno-common"
+MACOS_CFLAGS="-arch $MACOS_CPU -fno-common"
+MACOS_CXXFLAGS="-arch $MACOS_CPU $TARGET -fno-common"
 MACOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
 if [ ! -d "${MACOS_SYSROOT}" ]; then
