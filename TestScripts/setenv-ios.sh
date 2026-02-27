@@ -91,7 +91,6 @@ unset IOS_CFLAGS
 unset IOS_CXXFLAGS
 unset IOS_LDFLAGS
 unset IOS_SYSROOT
-unset CRC
 
 #########################################
 #####    Small Fixups, if needed    #####
@@ -134,7 +133,6 @@ fi
 
 if [[ "${IOS_CPU}" == "aarch64" || "${IOS_CPU}" == "arm64"* || "${IOS_CPU}" == "armv8"* ]] ; then
     IOS_CPU=arm64
-    CRC="-mcrc"
 fi
 
 echo "Configuring for ${IOS_SDK} (${IOS_CPU})"
@@ -284,7 +282,7 @@ if [ -z "${XCODE_SDK}" ]; then
 fi
 
 IOS_CFLAGS="-arch ${IOS_CPU} ${MIN_VER} -fno-common"
-IOS_CXXFLAGS="-arch ${IOS_CPU} ${CRC} ${MIN_VER} -stdlib=libc++ -fno-common"
+IOS_CXXFLAGS="-arch ${IOS_CPU} ${MIN_VER} -stdlib=libc++ -fno-common"
 IOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
 if [ ! -d "${IOS_SYSROOT}" ]; then
