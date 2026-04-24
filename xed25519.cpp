@@ -65,6 +65,15 @@ bool HasSmallOrder(const byte y[32])
     return (bool)((k >> 8) & 1);
 }
 
+// Reject y >= p (RFC 8032 canonical encoding check).
+bool IsCanonicalY(const byte y[32])
+{
+    if ((y[31] & 0x7f) != 0x7f) return true;
+    for (int i = 30; i >= 1; --i)
+        if (y[i] != 0xff) return true;
+    return y[0] < 0xed;
+}
+
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -835,7 +844,7 @@ const Integer& ed25519PublicKey::GetPublicElement() const
 bool ed25519PublicKey::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
     CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(level);
-    return true;
+    return IsCanonicalY(m_pk);
 }
 
 ////////////////////////
