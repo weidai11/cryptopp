@@ -438,6 +438,15 @@ using CryptoPP::SHA512;
 // Bring in all the symbols from the 64-bit header
 using namespace CryptoPP::Donna::Arch64;
 
+/* Reject y >= p (RFC 8032 canonical encoding check). */
+inline bool
+ed25519_pubkey_is_canonical(const byte pk[32]) {
+    if ((pk[31] & 0x7f) != 0x7f) return true;
+    for (int i = 30; i >= 1; --i)
+        if (pk[i] != 0xff) return true;
+    return pk[0] < 0xed;
+}
+
 /* out = in */
 inline void
 curve25519_copy(bignum25519 out, const bignum25519 in) {
@@ -1751,7 +1760,8 @@ ed25519_sign_open_CXX(const byte *m, size_t mlen, const byte pk[32], const byte 
     bignum256modm hram, S;
     byte checkR[32];
 
-    if ((RS[63] & 224) || !ge25519_unpack_negative_vartime(&A, pk))
+    if ((RS[63] & 224) || !ed25519_pubkey_is_canonical(pk) ||
+        !ge25519_unpack_negative_vartime(&A, pk))
         return -1;
 
     /* hram = H(R,A,m) */
@@ -1779,7 +1789,8 @@ ed25519_sign_open_CXX(std::istream& stream, const byte pk[32], const byte RS[64]
     bignum256modm hram, S;
     byte checkR[32];
 
-    if ((RS[63] & 224) || !ge25519_unpack_negative_vartime(&A, pk))
+    if ((RS[63] & 224) || !ed25519_pubkey_is_canonical(pk) ||
+        !ge25519_unpack_negative_vartime(&A, pk))
         return -1;
 
     /* hram = H(R,A,m) */

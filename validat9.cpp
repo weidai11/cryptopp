@@ -728,6 +728,63 @@ bool ValidateEd25519()
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	std::cout << "verification check against test vector\n";
 
+	// Non-canonical public-key rejection (RFC 8032).
+	try {
+		// canonical y
+		const byte pk_id[32] = { 0x01 };
+		const byte pk_pminus1[32] = {
+			0xec,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+			0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x7f };
+		// non-canonical y: p, p+1, 2^255-1
+		const byte pk_p[32] = {
+			0xed,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+			0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x7f };
+		const byte pk_pplus1[32] = {
+			0xee,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+			0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x7f };
+		const byte pk_top[32] = {
+			0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+			0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x7f };
+
+		ed25519PublicKey k_id; k_id.SetPublicElement(pk_id);
+		ed25519PublicKey k_pminus1; k_pminus1.SetPublicElement(pk_pminus1);
+		ed25519PublicKey k_p; k_p.SetPublicElement(pk_p);
+		ed25519PublicKey k_pplus1; k_pplus1.SetPublicElement(pk_pplus1);
+		ed25519PublicKey k_top; k_top.SetPublicElement(pk_top);
+
+		const bool v_id = k_id.Validate(NullRNG(), 3);
+		const bool v_pminus1 = k_pminus1.Validate(NullRNG(), 3);
+		const bool v_p = k_p.Validate(NullRNG(), 3);
+		const bool v_pplus1 = k_pplus1.Validate(NullRNG(), 3);
+		const bool v_top = k_top.Validate(NullRNG(), 3);
+
+		// R = identity, S = 0 verifies against the identity key and any of its aliases.
+		byte sig[64] = { 0 };
+		sig[0] = 0x01;
+		const byte msg[] = { 't','e','s','t' };
+
+		ed25519Verifier ver_id(pk_id);
+		ed25519Verifier ver_p(pk_p);
+		ed25519Verifier ver_pplus1(pk_pplus1);
+		ed25519Verifier ver_top(pk_top);
+
+		const bool s_id = ver_id.VerifyMessage(msg, sizeof(msg), sig, sizeof(sig));
+		const bool s_p = ver_p.VerifyMessage(msg, sizeof(msg), sig, sizeof(sig));
+		const bool s_pplus1 = ver_pplus1.VerifyMessage(msg, sizeof(msg), sig, sizeof(sig));
+		const bool s_top = ver_top.VerifyMessage(msg, sizeof(msg), sig, sizeof(sig));
+
+		fail = !(v_id && v_pminus1 && !v_p && !v_pplus1 && !v_top &&
+		         s_id && !s_p && !s_pplus1 && !s_top);
+	}
+	catch (const Exception&) {
+		fail = true;
+	}
+
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "non-canonical public-key rejection\n";
+
 	return pass;
 }
 
