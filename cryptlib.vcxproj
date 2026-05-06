@@ -12,6 +12,10 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -19,6 +23,10 @@
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="DLL-Import Debug|Win32">
       <Configuration>DLL-Import Debug</Configuration>
@@ -28,6 +36,10 @@
       <Configuration>DLL-Import Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL-Import Debug|ARM64">
+      <Configuration>DLL-Import Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="DLL-Import Release|Win32">
       <Configuration>DLL-Import Release</Configuration>
       <Platform>Win32</Platform>
@@ -35,6 +47,10 @@
     <ProjectConfiguration Include="DLL-Import Release|x64">
       <Configuration>DLL-Import Release</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="DLL-Import Release|ARM64">
+      <Configuration>DLL-Import Release</Configuration>
+      <Platform>ARM64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <!-- Microsoft documentation clearly shows the Global property group -->
@@ -160,12 +176,19 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Lib>
   </ItemDefinitionGroup>
+  <!-- ARM64 Configurations -->
+  <ItemDefinitionGroup Condition="'$(Platform)'=='ARM64'" Label="ARM64 Configuration">
+    <Lib>
+      <TargetMachine>MachineARM64</TargetMachine>
+    </Lib>
+  </ItemDefinitionGroup>
   <!-- Original File with special treatment -->
   <!-- Source Files -->
   <!-- The order of the first three matters -->
   <ItemGroup>
     <ClCompile Include="cryptlib.cpp" />
     <ClCompile Include="cpu.cpp" />
+    <ClCompile Include="neon_simd.cpp" />
     <ClCompile Include="integer.cpp" />
     <ClCompile Include="3way.cpp" />
     <ClCompile Include="adler32.cpp" />
