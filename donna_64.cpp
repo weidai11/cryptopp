@@ -1741,6 +1741,22 @@ ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32]
     return ed25519_sign_CXX(message, messageLength, secretKey, publicKey, signature);
 }
 
+/* Reject S >= L (RFC 8032 canonical encoding check). */
+inline bool
+ed25519_scalar_is_canonical(const byte S[32]) {
+    static const byte L[32] = {
+        0xed,0xd3,0xf5,0x5c,0x1a,0x63,0x12,0x58,
+        0xd6,0x9c,0xf7,0xa2,0xde,0xf9,0xde,0x14,
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x10
+    };
+    for (int i = 31; i >= 0; --i) {
+        if (S[i] < L[i]) return true;
+        if (S[i] > L[i]) return false;
+    }
+    return false;
+}
+
 int
 ed25519_sign_open_CXX(const byte *m, size_t mlen, const byte pk[32], const byte RS[64]) {
 
@@ -1751,7 +1767,7 @@ ed25519_sign_open_CXX(const byte *m, size_t mlen, const byte pk[32], const byte 
     bignum256modm hram, S;
     byte checkR[32];
 
-    if ((RS[63] & 224) || !ge25519_unpack_negative_vartime(&A, pk))
+    if (!ed25519_scalar_is_canonical(RS + 32) || !ge25519_unpack_negative_vartime(&A, pk))
         return -1;
 
     /* hram = H(R,A,m) */
@@ -1779,7 +1795,7 @@ ed25519_sign_open_CXX(std::istream& stream, const byte pk[32], const byte RS[64]
     bignum256modm hram, S;
     byte checkR[32];
 
-    if ((RS[63] & 224) || !ge25519_unpack_negative_vartime(&A, pk))
+    if (!ed25519_scalar_is_canonical(RS + 32) || !ge25519_unpack_negative_vartime(&A, pk))
         return -1;
 
     /* hram = H(R,A,m) */
