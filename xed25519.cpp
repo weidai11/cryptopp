@@ -834,7 +834,11 @@ const Integer& ed25519PublicKey::GetPublicElement() const
 
 bool ed25519PublicKey::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
-    CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(level);
+    CRYPTOPP_UNUSED(rng);
+    CRYPTOPP_ASSERT(HasSmallOrder(m_pk) == false);
+
+    if (level >= 2 && HasSmallOrder(m_pk) == true)
+        return false;
     return true;
 }
 
