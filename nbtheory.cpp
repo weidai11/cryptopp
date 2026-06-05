@@ -547,6 +547,10 @@ Integer ModularSquareRoot(const Integer &a, const Integer &p)
 	// Callers must ensure p is prime, GH #1249
 	CRYPTOPP_ASSERT(IsPrime(p));
 
+	// Cap loop iterations to bound work on a non-prime modulus.
+	// The cap is well beyond the expected count for normal prime moduli.
+	const unsigned int MAX_MODULAR_SQRT_ITERATIONS = 10000;
+
 	if (p%4 == 3)
 		return a_exp_b_mod_c(a, (p+1)/4, p);
 
@@ -559,8 +563,13 @@ Integer ModularSquareRoot(const Integer &a, const Integer &p)
 	}
 
 	Integer n=2;
+	unsigned int iters = 0;
 	while (Jacobi(n, p) != -1)
+	{
+		if (++iters > MAX_MODULAR_SQRT_ITERATIONS)
+			throw InvalidArgument("ModularSquareRoot: iteration cap exceeded");
 		++n;
+	}
 
 	Integer y = a_exp_b_mod_c(n, q, p);
 	Integer x = a_exp_b_mod_c(a, (q-1)/2, p);
@@ -568,8 +577,12 @@ Integer ModularSquareRoot(const Integer &a, const Integer &p)
 	x = a*x%p;
 	Integer tempb, t;
 
+	// Bound the outer Tonelli-Shanks loop.
+	unsigned int outerIters = 0;
 	while (b != 1)
 	{
+		if (++outerIters > MAX_MODULAR_SQRT_ITERATIONS)
+			throw InvalidArgument("ModularSquareRoot: iteration cap exceeded");
 		unsigned m=0;
 		tempb = b;
 		do
