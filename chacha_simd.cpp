@@ -309,25 +309,32 @@ void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *
         vld1q_u32(w+0), vld1q_u32(w+4), vld1q_u32(w+8)
     };
 
+    // Precompute each block's initial counter state.
+    // Feed-forward uses 32-bit word adds.
+    const uint32x4_t state3_0 = state3;
+    const uint32x4_t state3_1 = Add64(state3, CTRS[0]);
+    const uint32x4_t state3_2 = Add64(state3, CTRS[1]);
+    const uint32x4_t state3_3 = Add64(state3, CTRS[2]);
+
     uint32x4_t r0_0 = state0;
     uint32x4_t r0_1 = state1;
     uint32x4_t r0_2 = state2;
-    uint32x4_t r0_3 = state3;
+    uint32x4_t r0_3 = state3_0;
 
     uint32x4_t r1_0 = state0;
     uint32x4_t r1_1 = state1;
     uint32x4_t r1_2 = state2;
-    uint32x4_t r1_3 = Add64(r0_3, CTRS[0]);
+    uint32x4_t r1_3 = state3_1;
 
     uint32x4_t r2_0 = state0;
     uint32x4_t r2_1 = state1;
     uint32x4_t r2_2 = state2;
-    uint32x4_t r2_3 = Add64(r0_3, CTRS[1]);
+    uint32x4_t r2_3 = state3_2;
 
     uint32x4_t r3_0 = state0;
     uint32x4_t r3_1 = state1;
     uint32x4_t r3_2 = state2;
-    uint32x4_t r3_3 = Add64(r0_3, CTRS[2]);
+    uint32x4_t r3_3 = state3_3;
 
     for (int i = static_cast<int>(rounds); i > 0; i -= 2)
     {
@@ -487,25 +494,22 @@ void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *
     r0_0 = vaddq_u32(r0_0, state0);
     r0_1 = vaddq_u32(r0_1, state1);
     r0_2 = vaddq_u32(r0_2, state2);
-    r0_3 = vaddq_u32(r0_3, state3);
+    r0_3 = vaddq_u32(r0_3, state3_0);
 
     r1_0 = vaddq_u32(r1_0, state0);
     r1_1 = vaddq_u32(r1_1, state1);
     r1_2 = vaddq_u32(r1_2, state2);
-    r1_3 = vaddq_u32(r1_3, state3);
-    r1_3 = Add64(r1_3, CTRS[0]);
+    r1_3 = vaddq_u32(r1_3, state3_1);
 
     r2_0 = vaddq_u32(r2_0, state0);
     r2_1 = vaddq_u32(r2_1, state1);
     r2_2 = vaddq_u32(r2_2, state2);
-    r2_3 = vaddq_u32(r2_3, state3);
-    r2_3 = Add64(r2_3, CTRS[1]);
+    r2_3 = vaddq_u32(r2_3, state3_2);
 
     r3_0 = vaddq_u32(r3_0, state0);
     r3_1 = vaddq_u32(r3_1, state1);
     r3_2 = vaddq_u32(r3_2, state2);
-    r3_3 = vaddq_u32(r3_3, state3);
-    r3_3 = Add64(r3_3, CTRS[2]);
+    r3_3 = vaddq_u32(r3_3, state3_3);
 
     if (input)
     {
@@ -573,25 +577,32 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *
     const __m128i state2 = _mm_load_si128(reinterpret_cast<const __m128i*>(state+2*4));
     const __m128i state3 = _mm_load_si128(reinterpret_cast<const __m128i*>(state+3*4));
 
+    // Precompute each block's initial counter state.
+    // Feed-forward uses 32-bit word adds.
+    const __m128i state3_0 = state3;
+    const __m128i state3_1 = _mm_add_epi64(state3, _mm_set_epi32(0, 0, 0, 1));
+    const __m128i state3_2 = _mm_add_epi64(state3, _mm_set_epi32(0, 0, 0, 2));
+    const __m128i state3_3 = _mm_add_epi64(state3, _mm_set_epi32(0, 0, 0, 3));
+
     __m128i r0_0 = state0;
     __m128i r0_1 = state1;
     __m128i r0_2 = state2;
-    __m128i r0_3 = state3;
+    __m128i r0_3 = state3_0;
 
     __m128i r1_0 = state0;
     __m128i r1_1 = state1;
     __m128i r1_2 = state2;
-    __m128i r1_3 = _mm_add_epi64(r0_3, _mm_set_epi32(0, 0, 0, 1));
+    __m128i r1_3 = state3_1;
 
     __m128i r2_0 = state0;
     __m128i r2_1 = state1;
     __m128i r2_2 = state2;
-    __m128i r2_3 = _mm_add_epi64(r0_3, _mm_set_epi32(0, 0, 0, 2));
+    __m128i r2_3 = state3_2;
 
     __m128i r3_0 = state0;
     __m128i r3_1 = state1;
     __m128i r3_2 = state2;
-    __m128i r3_3 = _mm_add_epi64(r0_3, _mm_set_epi32(0, 0, 0, 3));
+    __m128i r3_3 = state3_3;
 
     for (int i = static_cast<int>(rounds); i > 0; i -= 2)
     {
@@ -751,25 +762,22 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *
     r0_0 = _mm_add_epi32(r0_0, state0);
     r0_1 = _mm_add_epi32(r0_1, state1);
     r0_2 = _mm_add_epi32(r0_2, state2);
-    r0_3 = _mm_add_epi32(r0_3, state3);
+    r0_3 = _mm_add_epi32(r0_3, state3_0);
 
     r1_0 = _mm_add_epi32(r1_0, state0);
     r1_1 = _mm_add_epi32(r1_1, state1);
     r1_2 = _mm_add_epi32(r1_2, state2);
-    r1_3 = _mm_add_epi32(r1_3, state3);
-    r1_3 = _mm_add_epi64(r1_3, _mm_set_epi32(0, 0, 0, 1));
+    r1_3 = _mm_add_epi32(r1_3, state3_1);
 
     r2_0 = _mm_add_epi32(r2_0, state0);
     r2_1 = _mm_add_epi32(r2_1, state1);
     r2_2 = _mm_add_epi32(r2_2, state2);
-    r2_3 = _mm_add_epi32(r2_3, state3);
-    r2_3 = _mm_add_epi64(r2_3, _mm_set_epi32(0, 0, 0, 2));
+    r2_3 = _mm_add_epi32(r2_3, state3_2);
 
     r3_0 = _mm_add_epi32(r3_0, state0);
     r3_1 = _mm_add_epi32(r3_1, state1);
     r3_2 = _mm_add_epi32(r3_2, state2);
-    r3_3 = _mm_add_epi32(r3_3, state3);
-    r3_3 = _mm_add_epi64(r3_3, _mm_set_epi32(0, 0, 0, 3));
+    r3_3 = _mm_add_epi32(r3_3, state3_3);
 
     if (input)
     {
@@ -844,25 +852,32 @@ inline void ChaCha_OperateKeystream_CORE(const word32 *state, const byte* input,
         {1,0,0,0}, {2,0,0,0}, {3,0,0,0}
     };
 
+    // Precompute each block's initial counter state.
+    // Feed-forward uses 32-bit word adds.
+    const uint32x4_p state3_0 = state3;
+    const uint32x4_p state3_1 = VecAdd64(state3, CTRS[0]);
+    const uint32x4_p state3_2 = VecAdd64(state3, CTRS[1]);
+    const uint32x4_p state3_3 = VecAdd64(state3, CTRS[2]);
+
     uint32x4_p r0_0 = state0;
     uint32x4_p r0_1 = state1;
     uint32x4_p r0_2 = state2;
-    uint32x4_p r0_3 = state3;
+    uint32x4_p r0_3 = state3_0;
 
     uint32x4_p r1_0 = state0;
     uint32x4_p r1_1 = state1;
     uint32x4_p r1_2 = state2;
-    uint32x4_p r1_3 = VecAdd64(r0_3, CTRS[0]);
+    uint32x4_p r1_3 = state3_1;
 
     uint32x4_p r2_0 = state0;
     uint32x4_p r2_1 = state1;
     uint32x4_p r2_2 = state2;
-    uint32x4_p r2_3 = VecAdd64(r0_3, CTRS[1]);
+    uint32x4_p r2_3 = state3_2;
 
     uint32x4_p r3_0 = state0;
     uint32x4_p r3_1 = state1;
     uint32x4_p r3_2 = state2;
-    uint32x4_p r3_3 = VecAdd64(r0_3, CTRS[2]);
+    uint32x4_p r3_3 = state3_3;
 
     for (int i = static_cast<int>(rounds); i > 0; i -= 2)
     {
@@ -1022,25 +1037,22 @@ inline void ChaCha_OperateKeystream_CORE(const word32 *state, const byte* input,
     r0_0 = VecAdd(r0_0, state0);
     r0_1 = VecAdd(r0_1, state1);
     r0_2 = VecAdd(r0_2, state2);
-    r0_3 = VecAdd(r0_3, state3);
+    r0_3 = VecAdd(r0_3, state3_0);
 
     r1_0 = VecAdd(r1_0, state0);
     r1_1 = VecAdd(r1_1, state1);
     r1_2 = VecAdd(r1_2, state2);
-    r1_3 = VecAdd(r1_3, state3);
-    r1_3 = VecAdd64(r1_3, CTRS[0]);
+    r1_3 = VecAdd(r1_3, state3_1);
 
     r2_0 = VecAdd(r2_0, state0);
     r2_1 = VecAdd(r2_1, state1);
     r2_2 = VecAdd(r2_2, state2);
-    r2_3 = VecAdd(r2_3, state3);
-    r2_3 = VecAdd64(r2_3, CTRS[1]);
+    r2_3 = VecAdd(r2_3, state3_2);
 
     r3_0 = VecAdd(r3_0, state0);
     r3_1 = VecAdd(r3_1, state1);
     r3_2 = VecAdd(r3_2, state2);
-    r3_3 = VecAdd(r3_3, state3);
-    r3_3 = VecAdd64(r3_3, CTRS[2]);
+    r3_3 = VecAdd(r3_3, state3_3);
 
     if (input)
     {
