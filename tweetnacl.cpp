@@ -886,6 +886,17 @@ static int unpackneg(gf r[4],const byte p[32])
   return 0;
 }
 
+/* Reject S >= L per RFC 8032. See GH #1352. */
+static int scalar_is_canonical(const byte s[32])
+{
+  int i;
+  for(i=31; i>=0; --i) {
+    if (s[i] < L[i]) return 1;
+    if (s[i] > L[i]) return 0;
+  }
+  return 0;
+}
+
 int crypto_sign_open(byte *m,word64 *mlen,const byte *sm,word64 n,const byte *pk)
 {
   word32 i;
@@ -895,6 +906,7 @@ int crypto_sign_open(byte *m,word64 *mlen,const byte *sm,word64 n,const byte *pk
   *mlen = ~W64LIT(0);
   if (n < 64) return -1;
 
+  if (!scalar_is_canonical(sm + 32)) return -1;
   if (unpackneg(q,pk)) return -1;
 
   for(i=0; i<n; ++i) m[i] = sm[i];
