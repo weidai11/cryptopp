@@ -18,6 +18,7 @@
 #include "misc.h"
 #include "hex.h"
 #include "trap.h"
+#include "argon2.h"
 
 #include <iostream>
 #include <sstream>
@@ -309,6 +310,8 @@ public:
 
 		if (valueType == typeid(int))
 			*reinterpret_cast<int *>(pValue) = atoi(value.c_str());
+		else if (valueType == typeid(word32))
+			*reinterpret_cast<word32 *>(pValue) = static_cast<word32>(atol(value.c_str()));
 		else if (valueType == typeid(word64))
 		{
 			std::string x(value.empty() ? "0" : value);
@@ -326,7 +329,7 @@ public:
 		{
 			m_temp.clear();
 			PutDecodedDatumInto(m_data, name, StringSink(m_temp).Ref());
-			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign(ConstBytePtr(m_temp), BytePtrSize(m_temp), false);
+			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign(ConstBytePtr(m_temp), BytePtrSize(m_temp), true);
 		}
 		else
 			throw ValueTypeMismatch(name, typeid(std::string), valueType);
@@ -1150,7 +1153,13 @@ void TestKeyDerivationFunction(TestData &v, unsigned int &totalTests)
 
 	if(test == "Skip") return;
 
-	std::string secret = GetDecodedDatum(v, "Secret");
+	// Argon2 uses "Password" as main input, other KDFs use "Secret"
+	std::string secret;
+	if (name == "Argon2d" || name == "Argon2i" || name == "Argon2id")
+		secret = GetDecodedDatum(v, "Password");
+	else
+		secret = GetDecodedDatum(v, "Secret");
+
 	std::string expected = GetDecodedDatum(v, "DerivedKey");
 
 	TestDataNameValuePairs pairs(v);
@@ -1160,7 +1169,18 @@ void TestKeyDerivationFunction(TestData &v, unsigned int &totalTests)
 
 	if (name != lastName)
 	{
-		kdf.reset(ObjectFactoryRegistry<KeyDerivationFunction>::Registry().CreateObject(name.c_str()));
+		// Special handling for Argon2 variants
+		if (name == "Argon2d" || name == "Argon2i" || name == "Argon2id")
+		{
+			Argon2::Variant variant = Argon2::ARGON2ID;
+			if (name == "Argon2d") variant = Argon2::ARGON2D;
+			else if (name == "Argon2i") variant = Argon2::ARGON2I;
+			kdf.reset(new Argon2(variant));
+		}
+		else
+		{
+			kdf.reset(ObjectFactoryRegistry<KeyDerivationFunction>::Registry().CreateObject(name.c_str()));
+		}
 		name = lastName;
 
 		// Code coverage

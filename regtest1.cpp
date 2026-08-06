@@ -21,6 +21,7 @@
 #include "sha3.h"
 #include "sm3.h"
 #include "hkdf.h"
+#include "argon2.h"
 #include "tiger.h"
 #include "ripemd.h"
 #include "panama.h"
@@ -157,4 +158,6 @@ void RegisterFactories1()
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA512> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<Whirlpool> >();
+
+	RegisterDefaultFactoryFor<KeyDerivationFunction, Argon2>();
 }
