@@ -380,7 +380,7 @@ void Panama<B>::Iterate(size_t count, const word32 *p, byte *output, const byte 
 
 		word32 *const b16 = (word32 *)(void *)(bPtr+((bstart+16*32) & 31*32));
 		word32 *const b4 = (word32 *)(void *)(bPtr+((bstart+(32-4)*32) & 31*32));
-       	bstart += 32;
+		bstart += 32;
 		word32 *const b0 = (word32 *)(void *)(bPtr+((bstart) & 31*32));
 		word32 *const b25 = (word32 *)(void *)(bPtr+((bstart+(32-25)*32) & 31*32));
 

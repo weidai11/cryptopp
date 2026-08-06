@@ -319,7 +319,7 @@ class BlockCipherFinal : public ClonableImpl<BlockCipherFinal<DIR, BASE>, BASE>
 public:
 	/// \brief Construct a default BlockCipherFinal
 	/// \details The cipher is not keyed.
- 	BlockCipherFinal() {}
+	BlockCipherFinal() {}
 
 	/// \brief Construct a BlockCipherFinal
 	/// \param key a byte array used to key the cipher
@@ -372,7 +372,7 @@ class MessageAuthenticationCodeFinal : public ClonableImpl<MessageAuthentication
 public:
 	/// \brief Construct a default MessageAuthenticationCodeFinal
 	/// \details The message authentication code is not keyed.
- 	MessageAuthenticationCodeFinal() {}
+	MessageAuthenticationCodeFinal() {}
 	/// \brief Construct a BlockCipherFinal
 	/// \param key a byte array used to key the algorithm
 	/// \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls

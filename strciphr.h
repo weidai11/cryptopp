@@ -686,7 +686,7 @@ public:
 	virtual ~SymmetricCipherFinal() {}
 
 	/// \brief Construct a stream cipher
- 	SymmetricCipherFinal() {}
+	SymmetricCipherFinal() {}
 
 	/// \brief Construct a stream cipher
 	/// \param key a byte array used to key the cipher

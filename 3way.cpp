@@ -48,15 +48,15 @@ static inline word32 reverseBits(word32 a)
 
 // thanks to Paulo Barreto for this optimized theta()
 #define theta(a0, a1, a2)									\
-{ 															\
-	word32 b0, b1, c; 										\
-	c = a0 ^ a1 ^ a2; 										\
+{															\
+	word32 b0, b1, c;										\
+	c = a0 ^ a1 ^ a2;										\
 	c = rotlConstant<16>(c) ^ rotlConstant<8>(c);			\
-	b0 = (a0 << 24) ^ (a2 >> 8) ^ (a1 << 8) ^ (a0 >> 24); 	\
-	b1 = (a1 << 24) ^ (a0 >> 8) ^ (a2 << 8) ^ (a1 >> 24); 	\
-	a0 ^= c ^ b0; 											\
-	a1 ^= c ^ b1; 											\
-	a2 ^= c ^ (b0 >> 16) ^ (b1 << 16); 						\
+	b0 = (a0 << 24) ^ (a2 >> 8) ^ (a1 << 8) ^ (a0 >> 24);	\
+	b1 = (a1 << 24) ^ (a0 >> 8) ^ (a2 << 8) ^ (a1 >> 24);	\
+	a0 ^= c ^ b0;											\
+	a1 ^= c ^ b1;											\
+	a2 ^= c ^ (b0 >> 16) ^ (b1 << 16);						\
 }
 
 #define rho(a0, a1, a2)			\
