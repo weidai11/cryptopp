@@ -365,6 +365,13 @@
 # undef CRYPTOPP_ARM_ACLE_HEADER
 #endif
 
+// Microsoft's ARM64 compiler doesn't provide
+// arm_acle.h in the standard include paths. The ARM intrinsics
+// are available through arm_neon.h and arm64_neon.h instead.
+#if defined(_MSC_VER) && defined(_M_ARM64)
+# undef CRYPTOPP_ARM_ACLE_HEADER
+#endif
+
 // Cryptogams offers an ARM asm implementations for AES and SHA. Crypto++ does
 // not provide an asm implementation. The Cryptogams AES implementation is
 // about 50% faster than C/C++, and SHA implementation is about 30% faster
