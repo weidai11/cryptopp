@@ -268,8 +268,14 @@ size_t BERDecodeBitString(BufferedTransformation &bt, SecByteBlock &str, unsigne
 	return bc-1;
 }
 
-void DERReencode(BufferedTransformation &source, BufferedTransformation &dest)
+// Max nested constructed BER depth, matching OpenSSL ASN1_MAX_CONSTRUCTED_NEST.
+// See GH #1353.
+static const unsigned int DER_REENCODE_MAX_DEPTH = 32;
+
+static void DERReencodeLimited(BufferedTransformation &source, BufferedTransformation &dest, unsigned int depth)
 {
+	if (depth >= DER_REENCODE_MAX_DEPTH)
+		BERDecodeError();
 	byte tag;
 	source.Peek(tag);
 	BERGeneralDecoder decoder(source, tag);
@@ -279,10 +285,15 @@ void DERReencode(BufferedTransformation &source, BufferedTransformation &dest)
 	else
 	{
 		while (!decoder.EndReached())
-			DERReencode(decoder, encoder);
+			DERReencodeLimited(decoder, encoder, depth + 1);
 	}
 	decoder.MessageEnd();
 	encoder.MessageEnd();
+}
+
+void DERReencode(BufferedTransformation &source, BufferedTransformation &dest)
+{
+	DERReencodeLimited(source, dest, 0);
 }
 
 size_t BERDecodePeekLength(const BufferedTransformation &bt)
