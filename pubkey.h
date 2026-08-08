@@ -315,7 +315,7 @@ public:
 	virtual size_t MinRepresentativeBitLength(size_t hashIdentifierLength, size_t digestLength) const
 		{CRYPTOPP_UNUSED(hashIdentifierLength); CRYPTOPP_UNUSED(digestLength); return 0;}
 	virtual size_t MaxRecoverableLength(size_t representativeBitLength, size_t hashIdentifierLength, size_t digestLength) const
-		{CRYPTOPP_UNUSED(representativeBitLength); CRYPTOPP_UNUSED(representativeBitLength); CRYPTOPP_UNUSED(hashIdentifierLength); CRYPTOPP_UNUSED(digestLength); return 0;}
+		{CRYPTOPP_UNUSED(representativeBitLength); CRYPTOPP_UNUSED(hashIdentifierLength); CRYPTOPP_UNUSED(digestLength); return 0;}
 
 	/// \brief Determines whether an encoding method requires a random number generator
 	/// \return true if the encoding method requires a RandomNumberGenerator()
@@ -1652,27 +1652,62 @@ public:
 
 		Integer k, ks;
 		const Integer& q = params.GetSubgroupOrder();
+		Integer r, s;
+
+		// DSA/ECDSA requires r != 0 and s != 0. Per FIPS 186-4 section 4.6,
+		// if r = 0 or s = 0, a new k must be generated and signature recomputed.
+		// https://github.com/weidai11/cryptopp/issues/1342
 		if (alg.IsDeterministic())
 		{
+			// Deterministic signatures (RFC 6979): GenerateRandom() returns a single k.
+			// RFC 6979 allows looping with updated HMAC_DRBG state, but the API doesn't
+			// expose that. Throw exception as defensive measure (probability ~2/q).
 			const Integer& x = key.GetPrivateExponent();
-			const DeterministicSignatureAlgorithm& det = dynamic_cast<const DeterministicSignatureAlgorithm&>(alg);
-			k = det.GenerateRandom(x, q, e);
+			const DeterministicSignatureAlgorithm* det =
+				dynamic_cast<const DeterministicSignatureAlgorithm*>(&alg);
+			if (!det)
+				throw Exception(Exception::OTHER_ERROR,
+					"DL_SignerBase: IsDeterministic() but algorithm is not DeterministicSignatureAlgorithm");
+			k = det->GenerateRandom(x, q, e);
+
+			// Timing side-channel mitigation for nonce length (Jancar)
+			// https://github.com/weidai11/cryptopp/issues/869
+			ks = k + q;
+			if (ks.BitCount() == q.BitCount())
+				ks += q;
+
+			r = params.ConvertElementToInteger(params.ExponentiateBase(ks));
+			alg.Sign(params, key.GetPrivateExponent(), k, e, r, s);
+
+			if (r.IsZero() || s.IsZero())
+				throw Exception(Exception::OTHER_ERROR,
+					"DL_SignerBase: deterministic signature produced r=0 or s=0");
 		}
 		else
 		{
-			k.Randomize(rng, 1, params.GetSubgroupOrder()-1);
-		}
+			// Probabilistic signatures: retry with fresh random k until valid.
+			// 64 attempts is a safety cap to avoid infinite loops under RNG failure;
+			// expected retries is ~1 (probability of r=0 or s=0 is ~1/q).
+			for (unsigned int i = 0; i < 64; ++i)
+			{
+				k.Randomize(rng, 1, q - 1);
 
-		// Due to timing attack on nonce length by Jancar
-		// https://github.com/weidai11/cryptopp/issues/869
-		ks = k + q;
-		if (ks.BitCount() == q.BitCount()) {
-			ks += q;
-		}
+				// Timing side-channel mitigation for nonce length (Jancar)
+				// https://github.com/weidai11/cryptopp/issues/869
+				ks = k + q;
+				if (ks.BitCount() == q.BitCount())
+					ks += q;
 
-		Integer r, s;
-		r = params.ConvertElementToInteger(params.ExponentiateBase(ks));
-		alg.Sign(params, key.GetPrivateExponent(), k, e, r, s);
+				r = params.ConvertElementToInteger(params.ExponentiateBase(ks));
+				alg.Sign(params, key.GetPrivateExponent(), k, e, r, s);
+
+				if (!r.IsZero() && !s.IsZero())
+					break;
+			}
+			if (r.IsZero() || s.IsZero())
+				throw Exception(Exception::OTHER_ERROR,
+					"DL_SignerBase: probabilistic signature failed after 64 attempts (r=0 or s=0)");
+		}
 
 		/*
 		Integer r, s;
@@ -1834,28 +1869,77 @@ public:
 
 	virtual ~DL_DecryptorBase() {}
 
+	/// \brief Decrypt a message
+	/// \param rng a RandomNumberGenerator for blinding verification
+	/// \param ciphertext the ciphertext
+	/// \param ciphertextLength the ciphertext length
+	/// \param plaintext the plaintext (output)
+	/// \param parameters additional parameters
+	/// \return DecodingResult with message length on success
+	/// \details This function provides a no-write-on-failure guarantee.
+	///  The plaintext buffer is only written on successful decryption. On any failure
+	///  (invalid ciphertext length, invalid element, decryption error), the function
+	///  returns DecodingResult() and the caller's buffer remains untouched.
+	/// \details The function uses blinding verification to detect faulted computations.
+	///  After computing the shared secret z, it verifies using z2 = ephemeralPub^(x + k*order)
+	///  where k is random. A mismatch indicates a fault and the decryption is rejected.
+	/// \sa <A HREF="https://nvd.nist.gov/vuln/detail/CVE-2024-28285">CVE-2024-28285</A>
 	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const
 	{
 		try
 		{
-			CRYPTOPP_UNUSED(rng);
 			const DL_KeyAgreementAlgorithm<T> &agreeAlg = this->GetKeyAgreementAlgorithm();
 			const DL_KeyDerivationAlgorithm<T> &derivAlg = this->GetKeyDerivationAlgorithm();
 			const DL_SymmetricEncryptionAlgorithm &encAlg = this->GetSymmetricEncryptionAlgorithm();
 			const DL_GroupParameters<T> &params = this->GetAbstractGroupParameters();
 			const DL_PrivateKey<T> &key = this->GetKeyInterface();
 
-			Element q = params.DecodeElement(ciphertext, true);
+			// CVE-2024-28285: Validate ciphertext length before any processing
+			// Prevents out-of-bounds reads and size_t underflow
 			size_t elementSize = params.GetEncodedElementSize(true);
+			if (ciphertextLength < elementSize)
+				return DecodingResult();
+
+			// Decode and validate ephemeral public key
+			Element ephemeralPub = params.DecodeElement(ciphertext, true);
 			ciphertext += elementSize;
 			ciphertextLength -= elementSize;
 
-			Element z = agreeAlg.AgreeWithStaticPrivateKey(params, q, true, key.GetPrivateExponent());
+			// Key agreement computation
+			const Integer &x = key.GetPrivateExponent();
+			Element z = agreeAlg.AgreeWithStaticPrivateKey(params, ephemeralPub, true, x);
 
-			SecByteBlock derivedKey(encAlg.GetSymmetricKeyLength(encAlg.GetMaxSymmetricPlaintextLength(ciphertextLength)));
-			derivAlg.Derive(params, derivedKey, derivedKey.size(), z, q, parameters);
+			// CVE-2024-28285: Blinding verification to detect faulted computations
+			// Compute z2 = ephemeralPub^(x + k*order) which should equal z
+			// For multiplicative groups: ephemeralPub^order = 1, so z2 = ephemeralPub^x * 1^k = z
+			// For EC groups: order*ephemeralPub = O (infinity), so z2 = x*P + k*O = z
+			const Integer &order = params.GetSubgroupOrder();
+			Integer k(rng, Integer::One(), order - 1);
+			Integer blindExp = x + k * order;
+			Element z2 = params.ExponentiateElement(ephemeralPub, blindExp);
+			if (!(z == z2))
+				return DecodingResult();  // Fault detected, reject decryption
 
-			return encAlg.SymmetricDecrypt(derivedKey, ciphertext, ciphertextLength, plaintext, parameters);
+			// Derive symmetric key
+			size_t derivedKeyLen = encAlg.GetSymmetricKeyLength(encAlg.GetMaxSymmetricPlaintextLength(ciphertextLength));
+			SecByteBlock derivedKey(derivedKeyLen);
+			derivAlg.Derive(params, derivedKey, derivedKey.size(), z, ephemeralPub, parameters);
+
+			// CVE-2024-28285: Decrypt into temporary buffer first
+			// Only copy to caller's buffer on success (no-write-on-failure guarantee)
+			// Use ciphertextLength as buffer size - it's always >= plaintext length
+			size_t tempBufferLen = ciphertextLength > 0 ? ciphertextLength : 1;
+			SecByteBlock tempPlaintext(tempBufferLen);
+
+			DecodingResult result = encAlg.SymmetricDecrypt(derivedKey, ciphertext, ciphertextLength, tempPlaintext, parameters);
+
+			if (result.isValidCoding && result.messageLength <= tempBufferLen)
+			{
+				// Success: copy plaintext to caller's buffer
+				std::memcpy(plaintext, tempPlaintext, result.messageLength);
+			}
+
+			return result;
 		}
 		catch (DL_BadElement &)
 		{
