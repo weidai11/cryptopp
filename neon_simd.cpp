@@ -49,7 +49,7 @@ extern "C" {
 
 bool CPU_ProbeARMv7()
 {
-#if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
     return false;
 #elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
@@ -132,7 +132,7 @@ bool CPU_ProbeARMv7()
 
 bool CPU_ProbeNEON()
 {
-#if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
     return true;
 #elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;

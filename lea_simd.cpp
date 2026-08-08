@@ -39,7 +39,7 @@
 # include <arm_acle.h>
 #endif
 
-#if defined(_M_ARM64)
+#if defined(_M_ARM64) || defined(_M_ARM64EC)
 # include "adv_simd.h"
 #endif
 

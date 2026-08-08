@@ -16,8 +16,12 @@
 
 #if defined(CRYPTOPP_MSC_VERSION)
 # include <intrin.h>
-# pragma intrinsic(_umul128)
-# pragma intrinsic(__shiftright128)
+# ifndef _M_ARM64EC
+#  pragma intrinsic(_umul128)
+#  pragma intrinsic(__shiftright128)
+# else
+#  include <minwindef.h>
+# endif
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
