@@ -948,17 +948,25 @@ GF2NP * BERDecodeGF2NP(BufferedTransformation &bt)
 {
 	member_ptr<GF2NP> result;
 
+	// Cap m to bound PolynomialMod2 allocation. 4096 fits B-571 with headroom.
+	const unsigned int MAX_GF2N_FIELD_DEGREE = 4096;
+
 	BERSequenceDecoder seq(bt);
 		if (OID(seq) != ASN1::characteristic_two_field())
 			BERDecodeError();
 		BERSequenceDecoder parameters(seq);
 			unsigned int m;
 			BERDecodeUnsigned(parameters, m);
+			if (m == 0 || m > MAX_GF2N_FIELD_DEGREE)
+				BERDecodeError();
 			OID oid(parameters);
 			if (oid == ASN1::tpBasis())
 			{
 				unsigned int t1;
 				BERDecodeUnsigned(parameters, t1);
+				// PolynomialMod2::Trinomial is relaxed for ECIES<EC2N>. Encoded parameters are strict.
+				if (t1 == 0 || t1 >= m)
+					BERDecodeError();
 				result.reset(new GF2NT(m, t1, 0));
 			}
 			else if (oid == ASN1::ppBasis())
@@ -969,6 +977,10 @@ GF2NP * BERDecodeGF2NP(BufferedTransformation &bt)
 				BERDecodeUnsigned(pentanomial, t2);
 				BERDecodeUnsigned(pentanomial, t1);
 				pentanomial.MessageEnd();
+				// PolynomialMod2::Pentanomial is relaxed for ECIES<EC2N>. Encoded parameters are strict.
+				// SEC1 wire order is ascending, so after decoding t3 is smallest and t1 is largest.
+				if (t3 == 0 || t3 >= t2 || t2 >= t1 || t1 >= m)
+					BERDecodeError();
 				result.reset(new GF2NPP(m, t3, t2, t1, 0));
 			}
 			else
