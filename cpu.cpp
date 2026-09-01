@@ -846,19 +846,24 @@ inline bool CPU_QueryARMv7()
 #if defined(__ANDROID__) && defined(__arm__)
 	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_ARMv7) != 0))
+# define LOCALRET true
 		return true;
 #elif defined(__linux__) && defined(__arm__)
 	if ((getauxval(AT_HWCAP) & HWCAP_ARMv7) != 0 ||
 	    (getauxval(AT_HWCAP) & HWCAP_NEON) != 0)
-		return true;
+# define LOCALRET true
 #elif defined(__APPLE__) && defined(__arm__)
 	// Apple hardware is ARMv7 or above.
-	return true;
+# define LOCALRET true
 #elif defined(_WIN32) && defined(_M_ARM64)
 	// Windows 10 ARM64 is only supported on Armv8a and above
-	return true;
+# define LOCALRET true
 #endif
-	return false;
+#ifndef LOCALRET
+# define LOCALRET false
+#endif
+	return LOCALRET;
+#undef LOCALRET
 }
 
 inline bool CPU_QueryNEON()
