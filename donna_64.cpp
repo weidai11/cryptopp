@@ -1812,4 +1812,169 @@ ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKe
 NAMESPACE_END  // Donna
 NAMESPACE_END  // CryptoPP
 
+//**************************** bip32-ed25519 ****************************//
+
+NAMESPACE_BEGIN(CryptoPP)
+NAMESPACE_BEGIN(Donna)
+
+int
+bip32_ed25519_extend(byte secretKey[64], const byte seed[32])
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    ed25519_extsk(secretKey, seed);
+    return 0;
+}
+
+int bip32_ed25519_publickey_CXX(byte publicKey[32], const byte secretKey[64])
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    bignum256modm a;
+    ALIGN(ALIGN_SPEC)
+    ge25519 A;
+    hash_512bits extsk;
+
+    /* A = aB */
+    expand256_modm(a, secretKey, 32);
+    ge25519_scalarmult_base_niels(&A, ge25519_niels_base_multiples, a);
+    ge25519_pack(publicKey, &A);
+
+    return 0;
+}
+
+int bip32_ed25519_publickey(byte publicKey[32], const byte secretKey[64])
+{
+    return bip32_ed25519_publickey_CXX(publicKey, secretKey);
+}
+
+int bip32_ed25519_sign_CXX(std::istream& stream, const byte extsk[64], const byte pk[32], byte RS[64])
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    bignum256modm r, S, a;
+    ALIGN(ALIGN_SPEC) ge25519 R;
+    hash_512bits hashr, hram;
+
+    // Unfortunately we need to read the stream twice. The first time calculates
+    // 'r = H(aExt[32..64], m)'. The second time calculates 'S = H(R,A,m)'. There
+    // is a data dependency due to hashing 'RS' with 'R = [r]B' that does not
+    // allow us to read the stream once.
+    std::streampos where = stream.tellg();
+
+    /* r = H(aExt[32..64], m) */
+    SHA512 hash;
+    hash.Update(extsk + 32, 32);
+    UpdateFromStream(hash, stream);
+    hash.Final(hashr);
+    expand256_modm(r, hashr, 64);
+
+    /* R = rB */
+    ge25519_scalarmult_base_niels(&R, ge25519_niels_base_multiples, r);
+    ge25519_pack(RS, &R);
+
+    // Reset stream for the second digest
+    stream.clear();
+    stream.seekg(where);
+
+    /* S = H(R,A,m).. */
+    ed25519_hram(hram, RS, pk, stream);
+    expand256_modm(S, hram, 64);
+
+    /* S = H(R,A,m)a */
+    expand256_modm(a, extsk, 32);
+    mul256_modm(S, S, a);
+
+    /* S = (r + H(R,A,m)a) */
+    add256_modm(S, S, r);
+
+    /* S = (r + H(R,A,m)a) mod L */
+    contract256_modm(RS + 32, S);
+    return 0;
+}
+
+int bip32_ed25519_sign_CXX(const byte* m, size_t mlen, const byte extsk[32], const byte pk[32], byte RS[64])
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    bignum256modm r, S, a;
+    ALIGN(ALIGN_SPEC)
+    ge25519 R;
+    hash_512bits hashr, hram;
+
+    /* r = H(aExt[32..64], m) */
+    SHA512 hash;
+    hash.Update(extsk + 32, 32);
+    hash.Update(m, mlen);
+    hash.Final(hashr);
+    expand256_modm(r, hashr, 64);
+
+    /* R = rB */
+    ge25519_scalarmult_base_niels(&R, ge25519_niels_base_multiples, r);
+    ge25519_pack(RS, &R);
+
+    /* S = H(R,A,m).. */
+    ed25519_hram(hram, RS, pk, m, mlen);
+    expand256_modm(S, hram, 64);
+
+    /* S = H(R,A,m)a */
+    expand256_modm(a, extsk, 32);
+    mul256_modm(S, S, a);
+
+    /* S = (r + H(R,A,m)a) */
+    add256_modm(S, S, r);
+
+    /* S = (r + H(R,A,m)a) mod L */
+    contract256_modm(RS + 32, S);
+    return 0;
+}
+
+int bip32_ed25519_sign(std::istream& stream, const byte secretKey[64], const byte publicKey[32], 
+                       byte signature[64])
+{
+    return bip32_ed25519_sign_CXX(stream, secretKey, publicKey, signature);
+}
+
+int bip32_ed25519_sign(const byte *message, size_t messageLength, const byte secretKey[64],
+                       const byte publicKey[32], byte signature[64])
+{
+    return bip32_ed25519_sign_CXX(message, messageLength, secretKey, publicKey, signature);
+}
+
+int
+bip32_ed25519_scalar_add(const byte secretKey1[64], const byte secretKey2[64], byte res[32])
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    bignum256modm s1, s2;
+    expand256_modm(s1, secretKey1, 32);
+    expand256_modm(s2, secretKey2, 32);
+    add256_modm(s1, s1, s2);
+    contract256_modm(res, s1);
+
+    return 0;
+}
+
+int
+bip32_ed25519_point_add(const byte publicKey1[32], const byte publicKey2[32], byte res[32])
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    ALIGN(ALIGN_SPEC) ge25519 R, P, Q;
+
+    if (!ge25519_unpack_negative_vartime(&P, publicKey1))
+        return -1;
+    if (!ge25519_unpack_negative_vartime(&Q, publicKey2))
+        return -1;
+
+    ge25519_add(&R, &P, &Q);
+    ge25519_pack(res, &R);
+
+    res[31] ^= 0x80;
+    return 0;
+}
+
+NAMESPACE_END // Donna
+NAMESPACE_END // CryptoPP
+
 #endif  // CRYPTOPP_CURVE25519_64BIT
