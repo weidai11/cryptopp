@@ -151,6 +151,7 @@ inline bool IsVIA(const word32 output[4])
 
 #if defined(__APPLE__)
 
+#if defined(__POWERPC__)
 // http://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
 class AppleMachineInfo
 {
@@ -226,31 +227,8 @@ public:
 		}
 		else if (machine.find("arm64") != std::string::npos)
 		{
-			// M1 machine?
-			std::string brand;
-			size_t size = 32;
-
-			// Supply an oversized buffer, and avoid
-			// an extra call to sysctlbyname.
-			brand.resize(size);
-			if (sysctlbyname("machdep.cpu.brand_string", &brand[0], &size, NULL, 0) == 0 && size > 0)
-			{
-				if (brand[size-1] == '\0')
-					size--;
-				brand.resize(size);
-			}
-
-			if (brand == "Apple M1")
-			{
-				m_device = Mac;
-				m_arch = ARMV82;
-			}
-			else
-			{
-				// ???
-				m_device = 0;
-				m_arch = ARMV8;
-			}
+			m_device = Mac;
+			m_arch = ARMV8;
 		}
 		else
 		{
@@ -303,50 +281,20 @@ void GetAppleMachineInfo(unsigned int& device, unsigned int& version, unsigned i
 	version = info.Version();
 	arch = info.Arch();
 }
+#endif  // __POWERPC__
 
-inline bool IsAppleMachineARM32()
+#if defined(__aarch64__)
+// Apple publishes one hw.optional sysctl per optional Armv8 extension.
+// A missing key means the feature is absent or the OS predates the key,
+// and both cases answer false. The FEAT_ names date from macOS 12 and
+// iOS 15; the older armv8_ names are still published and cover macOS 11.
+inline bool IsAppleFeaturePresent(const char* name)
 {
-	static unsigned int arch;
-	if (arch == 0)
-	{
-		unsigned int unused;
-		GetAppleMachineInfo(unused, unused, arch);
-	}
-	return arch == AppleMachineInfo::ARM32;
+	int value = 0;
+	size_t size = sizeof(value);
+	return sysctlbyname(name, &value, &size, NULL, 0) == 0 && value != 0;
 }
-
-inline bool IsAppleMachineARMv8()
-{
-	static unsigned int arch;
-	if (arch == 0)
-	{
-		unsigned int unused;
-		GetAppleMachineInfo(unused, unused, arch);
-	}
-	return arch >= AppleMachineInfo::ARMV8;
-}
-
-inline bool IsAppleMachineARMv82()
-{
-	static unsigned int arch;
-	if (arch == 0)
-	{
-		unsigned int unused;
-		GetAppleMachineInfo(unused, unused, arch);
-	}
-	return arch >= AppleMachineInfo::ARMV82;
-}
-
-inline bool IsAppleMachineARMv83()
-{
-	static unsigned int arch;
-	if (arch == 0)
-	{
-		unsigned int unused;
-		GetAppleMachineInfo(unused, unused, arch);
-	}
-	return arch >= AppleMachineInfo::ARMV83;
-}
+#endif  // __aarch64__
 
 #endif  // __APPLE__
 
@@ -882,8 +830,7 @@ inline bool CPU_QueryNEON()
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
 	// Core feature set for Aarch32 and Aarch64.
-	if (IsAppleMachineARMv8())
-		return true;
+	return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	// Windows 10 ARM64 is only supported on Armv8a and above
 	if (IsProcessorFeaturePresent(PF_ARM_V8_INSTRUCTIONS_AVAILABLE) != 0)
@@ -909,8 +856,7 @@ inline bool CPU_QueryCRC32()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_CRC32) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
+	if (IsAppleFeaturePresent("hw.optional.armv8_crc32"))
 		return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	if (IsProcessorFeaturePresent(PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE) != 0)
@@ -936,9 +882,9 @@ inline bool CPU_QueryPMULL()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_PMULL) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
-		return true;
+	// Present on every 64-bit Apple core; see the Apple entries in
+	// LLVM's AArch64Processors.td.
+	return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
 		return true;
@@ -963,9 +909,9 @@ inline bool CPU_QueryAES()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_AES) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
-		return true;
+	// Present on every 64-bit Apple core; see the Apple entries in
+	// LLVM's AArch64Processors.td.
+	return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
 		return true;
@@ -990,9 +936,9 @@ inline bool CPU_QuerySHA1()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA1) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
-		return true;
+	// Present on every 64-bit Apple core; see the Apple entries in
+	// LLVM's AArch64Processors.td.
+	return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
 		return true;
@@ -1017,9 +963,9 @@ inline bool CPU_QuerySHA256()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA2) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
-		return true;
+	// Present on every 64-bit Apple core; see the Apple entries in
+	// LLVM's AArch64Processors.td.
+	return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
 		return true;
@@ -1051,8 +997,8 @@ inline bool CPU_QuerySHA3()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA3) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
+	if (IsAppleFeaturePresent("hw.optional.arm.FEAT_SHA3") ||
+		IsAppleFeaturePresent("hw.optional.armv8_2_sha3"))
 		return true;
 #endif
 	return false;
@@ -1082,8 +1028,8 @@ inline bool CPU_QuerySHA512()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA512) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
+	if (IsAppleFeaturePresent("hw.optional.arm.FEAT_SHA512") ||
+		IsAppleFeaturePresent("hw.optional.armv8_2_sha512"))
 		return true;
 #endif
 	return false;
