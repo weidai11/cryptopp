@@ -350,19 +350,16 @@
 # endif
 #endif
 
-// Limit the <arm_acle.h> include.
+// Limit the <arm_acle.h> include. Exclude MSVC ARM64 (no arm_acle.h; intrinsics
+// come from arm_neon.h instead) and Xcode iOS cross-compiles from M1 (absent
+// from sysroot; __ARM_FEATURE_CRC32 distinguishes iOS cross-compile from native
+// macOS/M1 builds where the header is available).
 #if !defined(CRYPTOPP_ARM_ACLE_HEADER)
 # if defined(__aarch32__) || defined(__aarch64__) || (__ARM_ARCH >= 8) || defined(__ARM_ACLE)
-#  define CRYPTOPP_ARM_ACLE_HEADER 1
+#  if !defined(_M_ARM64) && !(defined(__APPLE__) && !defined(__ARM_FEATURE_CRC32))
+#   define CRYPTOPP_ARM_ACLE_HEADER 1
+#  endif
 # endif
-#endif
-
-// Apple M1 hack. Xcode cross-compiles for iOS lack
-// arm_acle.h. Apple M1 needs arm_acle.h. The problem
-// in practice is, we can't get CRYPTOPP_ARM_ACLE_HEADER
-// quite right based on ARM preprocessor macros.
-#if defined(__APPLE__) && !defined(__ARM_FEATURE_CRC32)
-# undef CRYPTOPP_ARM_ACLE_HEADER
 #endif
 
 // Cryptogams offers an ARM asm implementations for AES and SHA. Crypto++ does
