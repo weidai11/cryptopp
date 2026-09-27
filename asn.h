@@ -29,9 +29,9 @@ NAMESPACE_BEGIN(CryptoPP)
 enum ASNTag
 {
 	/// \brief ASN.1 Boolean
-	BOOLEAN 			= 0x01,
+	BOOLEAN				= 0x01,
 	/// \brief ASN.1 Integer
-	INTEGER 			= 0x02,
+	INTEGER				= 0x02,
 	/// \brief ASN.1 Bit string
 	BIT_STRING			= 0x03,
 	/// \brief ASN.1 Octet string
@@ -53,21 +53,21 @@ enum ASNTag
 	/// \brief ASN.1 Sequence
 	SEQUENCE			= 0x10,
 	/// \brief ASN.1 Set
-	SET 				= 0x11,
+	SET					= 0x11,
 	/// \brief ASN.1 Numeric string
 	NUMERIC_STRING		= 0x12,
 	/// \brief ASN.1 Printable string
-	PRINTABLE_STRING 	= 0x13,
+	PRINTABLE_STRING	= 0x13,
 	/// \brief ASN.1 T61 string
 	T61_STRING			= 0x14,
 	/// \brief ASN.1 Videotext string
-	VIDEOTEXT_STRING 	= 0x15,
+	VIDEOTEXT_STRING	= 0x15,
 	/// \brief ASN.1 IA5 string
 	IA5_STRING			= 0x16,
 	/// \brief ASN.1 UTC time
-	UTC_TIME 			= 0x17,
+	UTC_TIME			= 0x17,
 	/// \brief ASN.1 Generalized time
-	GENERALIZED_TIME 	= 0x18,
+	GENERALIZED_TIME	= 0x18,
 	/// \brief ASN.1 Graphic string
 	GRAPHIC_STRING		= 0x19,
 	/// \brief ASN.1 Visible string
@@ -77,7 +77,7 @@ enum ASNTag
 	/// \brief ASN.1 Universal string
 	UNIVERSAL_STRING	= 0x1c,
 	/// \brief ASN.1 BMP string
-	BMP_STRING  		= 0x1e
+	BMP_STRING			= 0x1e
 };
 
 /// \brief ASN.1 flags
@@ -264,7 +264,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodePeekLength(const BufferedTransformatio
 class CRYPTOPP_DLL OID
 {
 public:
-	virtual ~OID() {}
+	//virtual ~OID() {}
 
 	/// \brief Construct an OID
 	OID() {}

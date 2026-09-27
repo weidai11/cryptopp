@@ -210,48 +210,48 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	// Hack. Save EBX for PIC. Do NOT 'push EBX' here.
 	// GCC issues 'mov ESP+8, EBX' to load L1KeyLength.
 	// A push breaks the reference to L1KeyLength.
-	AS2(	mov 	%%ebx, -20(%%esp))
+	AS2(	mov		%%ebx, -20(%%esp))
 # endif
 	// L1KeyLength into EBX.
 	// GCC generates 'mov ESP+8, EBX'.
-	AS2(	mov 	%0, %%ebx)
+	AS2(	mov		%0, %%ebx)
 	INTEL_NOPREFIX
 #else
 	#if defined(__INTEL_COMPILER)
 	char isFirstBlock = m_isFirstBlock;
-	AS2(	mov 	ebx, [L1KeyLength])
-	AS2(	mov 	dl, [isFirstBlock])
+	AS2(	mov		ebx, [L1KeyLength])
+	AS2(	mov		dl, [isFirstBlock])
 	#else
-	AS2(	mov 	ecx, this)
-	AS2(	mov 	ebx, [ecx+m_L1KeyLength])
-	AS2(	mov 	dl, [ecx+m_isFirstBlock])
+	AS2(	mov		ecx, this)
+	AS2(	mov		ebx, [ecx+m_L1KeyLength])
+	AS2(	mov		dl, [ecx+m_isFirstBlock])
 	#endif
-	AS2(	mov 	eax, tagPart)
-	AS2(	shl 	eax, 4)
-	AS2(	mov 	edi, nhK)
-	AS2(	add 	edi, eax)
-	AS2(	add 	eax, eax)
-	AS2(	add 	eax, polyS)
+	AS2(	mov		eax, tagPart)
+	AS2(	shl		eax, 4)
+	AS2(	mov		edi, nhK)
+	AS2(	add		edi, eax)
+	AS2(	add		eax, eax)
+	AS2(	add		eax, polyS)
 
-	AS2(	mov 	esi, data)
-	AS2(	mov 	ecx, blocksRemainingInWord64)
+	AS2(	mov		esi, data)
+	AS2(	mov		ecx, blocksRemainingInWord64)
 #endif
 
-	AS2(	shr 	ebx, 3)
+	AS2(	shr		ebx, 3)
 	AS_PUSH_IF86(	bp)
-	AS2(	sub 	esp, 12)
+	AS2(	sub		esp, 12)
 	ASL(4)
-	AS2(	mov 	ebp, ebx)
-	AS2(	cmp 	ecx, ebx)
+	AS2(	mov		ebp, ebx)
+	AS2(	cmp		ecx, ebx)
 	AS2(	cmovl	ebp, ecx)
-	AS2(	sub 	ecx, ebp)
-	AS2(	lea 	ebp, [edi+8*ebp])	// end of nhK
+	AS2(	sub		ecx, ebp)
+	AS2(	lea		ebp, [edi+8*ebp])	// end of nhK
 	AS2(	movq	mm6, [esi])
 	AS2(	paddq	mm6, [edi])
 	AS2(	movq	mm5, [esi+8])
 	AS2(	paddq	mm5, [edi+8])
-	AS2(	add 	esi, 16)
-	AS2(	add 	edi, 16)
+	AS2(	add		esi, 16)
+	AS2(	add		edi, 16)
 	AS2(	movq	mm4, mm6)
 	ASS(	pshufw	mm2, mm6, 1, 0, 3, 2)
 	AS2(	pmuludq	mm6, mm5)
@@ -264,15 +264,15 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS2(	psrlq	mm6, 32)
 	AS2(	movd	[esp+4], mm5)
 	AS2(	psrlq	mm5, 32)
-	AS2(	cmp 	edi, ebp)
-	ASJ(	je,  	1, f)
+	AS2(	cmp		edi, ebp)
+	ASJ(	je,		1, f)
 	ASL(0)
 	AS2(	movq	mm0, [esi])
 	AS2(	paddq	mm0, [edi])
 	AS2(	movq	mm1, [esi+8])
 	AS2(	paddq	mm1, [edi+8])
-	AS2(	add 	esi, 16)
-	AS2(	add 	edi, 16)
+	AS2(	add		esi, 16)
+	AS2(	add		edi, 16)
 	AS2(	movq	mm4, mm0)
 	AS2(	paddq	mm5, mm2)
 	ASS(	pshufw	mm2, mm0, 1, 0, 3, 2)
@@ -296,7 +296,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS2(	movd	[esp+4], mm1)
 	AS2(	psrlq	mm1, 32)
 	AS2(	paddq	mm5, mm1)
-	AS2(	cmp 	edi, ebp)
+	AS2(	cmp		edi, ebp)
 	ASJ(	jne,	0, b)
 	ASL(1)
 	AS2(	paddq	mm5, mm2)
@@ -309,8 +309,8 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS2(	paddq	mm6, mm4)
 	AS2(	movd	mm4, [esp+8])
 	AS2(	paddq	mm6, mm4)
-	AS2(	lea 	ebp, [8*ebx])
-	AS2(	sub 	edi, ebp)		// reset edi to start of nhK
+	AS2(	lea		ebp, [8*ebx])
+	AS2(	sub		edi, ebp)		// reset edi to start of nhK
 
 	AS2(	movd	[esp], mm7)
 	AS2(	psrlq	mm7, 32)
@@ -331,7 +331,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 #define k3 [eax+2*8+1*4]
 
 	AS2(	test	dl, dl)
-	ASJ(	jz,  	2, f)
+	ASJ(	jz,		2, f)
 	AS2(	movd	mm1, k0)
 	AS2(	movd	mm0, [esp])
 	AS2(	paddq	mm0, mm1)
@@ -346,7 +346,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS2(	paddq	mm5, k2)
 	AS2(	paddq	mm0, mm5)
 	AS2(	movq	a2, mm0)
-	AS2(	xor 	edx, edx)
+	AS2(	xor		edx, edx)
 	ASJ(	jmp,	3, f)
 	ASL(2)
 	AS2(	movd	mm0, a3)
@@ -415,7 +415,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS2(	psrlq	mm4, 1)
 	AS2(	movd	a1, mm0)
 	AS2(	psrlq	mm0, 32)
-	AS2(	por 	mm4, mm7)
+	AS2(	por		mm4, mm7)
 	AS2(	paddq	mm0, mm4)
 	AS2(	movq	a2, mm0)
 
@@ -431,14 +431,14 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	ASL(3)
 	AS2(	test	ecx, ecx)
 	ASJ(	jnz,	4, b)
-	AS2(	add 	esp, 12)
+	AS2(	add		esp, 12)
 	AS_POP_IF86(	bp)
 	AS1(	emms)
 #ifdef __GNUC__
 	ATT_PREFIX
 # if CRYPTOPP_BOOL_X86
 	// Restore EBX for PIC
-	AS2(	mov 	-20(%%esp), %%ebx)
+	AS2(	mov		-20(%%esp), %%ebx)
 # endif
 		:
 		: "m" (L1KeyLength), "c" (blocksRemainingInWord64), "S" (data),

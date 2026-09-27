@@ -538,17 +538,17 @@ public:
 		/// \brief Negation
 		bool		operator!() const;
 		/// \brief Addition
-		Integer 	operator+() const {return *this;}
+		Integer		operator+() const {return *this;}
 		/// \brief Subtraction
-		Integer 	operator-() const;
+		Integer		operator-() const;
 		/// \brief Pre-increment
 		Integer&	operator++();
 		/// \brief Pre-decrement
 		Integer&	operator--();
 		/// \brief Post-increment
-		Integer 	operator++(int) {Integer temp = *this; ++*this; return temp;}
+		Integer		operator++(int) {Integer temp = *this; ++*this; return temp;}
 		/// \brief Post-decrement
-		Integer 	operator--(int) {Integer temp = *this; --*this; return temp;}
+		Integer		operator--(int) {Integer temp = *this; --*this; return temp;}
 	//@}
 
 	/// \name BINARY OPERATORS

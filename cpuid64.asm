@@ -22,11 +22,11 @@ SUBTITLE Microsoft specific ASM code to utilize CPUID and XGETBV64 for down leve
 XGETBV64	PROC FRAME
 .endprolog
     ;; query
-    DB  	0fh, 01h, 0d0h
+    DB      0fh, 01h, 0d0h
     ;; xcr = (EDX << 32) | EAX
-    and 	rax, 0ffffffffh
-    shl 	rdx, 32
-    or  	rax, rdx
+    and     rax, 0ffffffffh
+    shl     rdx, 32
+    or      rax, rdx
     ret
 XGETBV64	ENDP
 
@@ -38,24 +38,24 @@ XGETBV64	ENDP
     ALIGN   8
 CPUID64	PROC FRAME
     ;; preserve per ABI
-    mov 	[rsp+8], rbx
-.savereg 	rbx, 8
+    mov     [rsp+8], rbx
+.savereg    rbx, 8
 .endprolog
     ;; eax = func
-    mov 	rax, rcx
+    mov     rax, rcx
     ;; ecx = subfunc
-    mov 	rcx, rdx
+    mov     rcx, rdx
     ;; query
     cpuid
     ;; save
-    mov 	[r8+0],  eax
-    mov 	[r8+4],  ebx
-    mov 	[r8+8],  ecx
-    mov 	[r8+12], edx
+    mov     [r8+0],  eax
+    mov     [r8+4],  ebx
+    mov     [r8+8],  ecx
+    mov     [r8+12], edx
     ;; return value
-    mov 	rax, 1
+    mov     rax, 1
     ;; restore
-    mov 	rbx, [rsp+8]
+    mov     rbx, [rsp+8]
     ret
 CPUID64	ENDP
 
