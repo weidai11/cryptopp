@@ -152,6 +152,7 @@ inline bool IsVIA(const word32 output[4])
 #if defined(__APPLE__)
 
 // http://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
+// Also see mega-wli's analysis at https://github.com/weidai11/cryptopp/issues/1373
 class AppleMachineInfo
 {
 public:
@@ -240,6 +241,7 @@ public:
 				brand.resize(size);
 			}
 
+			// Not a good test for newer Apple SIlicon; see https://github.com/weidai11/cryptopp/issues/1373
 			if (brand == "Apple M1")
 			{
 				m_device = Mac;
@@ -881,9 +883,9 @@ inline bool CPU_QueryNEON()
 	if ((getauxval(AT_HWCAP) & HWCAP_NEON) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// Core feature set for Aarch32 and Aarch64.
-	if (IsAppleMachineARMv8())
-		return true;
+	// Present on all 64-bit Apple Silicon; see the Apple entries in LLVM's
+	// AArch64Processors.td.
+	return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	// Windows 10 ARM64 is only supported on Armv8a and above
 	if (IsProcessorFeaturePresent(PF_ARM_V8_INSTRUCTIONS_AVAILABLE) != 0)
@@ -936,9 +938,9 @@ inline bool CPU_QueryPMULL()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_PMULL) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
-		return true;
+	// Present on all 64-bit Apple Silicon; see the Apple entries in LLVM's
+	// AArch64Processors.td.
+	return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
 		return true;
@@ -963,9 +965,9 @@ inline bool CPU_QueryAES()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_AES) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
-		return true;
+	// Present on all 64-bit Apple Silicon; see the Apple entries in LLVM's
+	// AArch64Processors.td.
+	return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
 		return true;
@@ -990,9 +992,9 @@ inline bool CPU_QuerySHA1()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA1) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
-		return true;
+	// Present on all 64-bit Apple Silicon; see the Apple entries in LLVM's
+	// AArch64Processors.td.
+	return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
 		return true;
@@ -1017,9 +1019,9 @@ inline bool CPU_QuerySHA256()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA2) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// M1 processor
-	if (IsAppleMachineARMv82())
-		return true;
+	// Present on all 64-bit Apple Silicon; see the Apple entries in LLVM's
+	// AArch64Processors.td.
+	return true;
 #elif defined(_WIN32) && defined(_M_ARM64)
 	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE) != 0)
 		return true;
