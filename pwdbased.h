@@ -66,12 +66,14 @@ public:
 	/// \param timeInSeconds the in seconds
 	/// \return the number of iterations performed
 	/// \throw InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \throw InvalidArgument for a zero iteration count without a positive <tt>timeInSeconds</tt>
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
 	/// \details If <tt>timeInSeconds</tt> is <tt>&gt; 0.0</tt> then DeriveKey will run for
 	///   the specified amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey
-	///   will run for the specified number of iterations.
+	///   will run for the specified number of iterations. A zero iteration count is
+	///   rejected with InvalidArgument unless <tt>timeInSeconds</tt> is positive.
 	/// \details PKCS #5 says PBKDF1 should only take 8-byte salts. This implementation
 	///   allows salts of any length.
 	size_t DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const;
@@ -117,10 +119,14 @@ size_t PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose
 	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
 	CRYPTOPP_ASSERT(derived && derivedLen);
 	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
-	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 	CRYPTOPP_UNUSED(purpose);
 
 	ThrowIfInvalidDerivedKeyLength(derivedLen);
+
+	// RFC 8018 defines the iteration count as a positive integer. A zero
+	// count is valid only with a positive time budget.
+	if (iterations == 0 && !(timeInSeconds > 0))
+		throw InvalidArgument("PKCS5_PBKDF1: zero iterations require a positive TimeInSeconds");
 
 	// Business logic
 	if (!iterations) { iterations = 1; }
@@ -196,12 +202,14 @@ public:
 	/// \param timeInSeconds the in seconds
 	/// \return the number of iterations performed
 	/// \throw InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \throw InvalidArgument for a zero iteration count without a positive <tt>timeInSeconds</tt>
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
 	/// \details If <tt>timeInSeconds</tt> is <tt>&gt; 0.0</tt> then DeriveKey will run for
 	///   the specified amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey
-	///   will run for the specified number of iterations.
+	///   will run for the specified number of iterations. A zero iteration count is
+	///   rejected with InvalidArgument unless <tt>timeInSeconds</tt> is positive.
 	size_t DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen,
 	    const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const;
 
@@ -246,10 +254,14 @@ size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, byte pu
 	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
 	CRYPTOPP_ASSERT(derived && derivedLen);
 	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
-	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 	CRYPTOPP_UNUSED(purpose);
 
 	ThrowIfInvalidDerivedKeyLength(derivedLen);
+
+	// RFC 8018 defines the iteration count as a positive integer. A zero
+	// count is valid only with a positive time budget.
+	if (iterations == 0 && !(timeInSeconds > 0))
+		throw InvalidArgument("PKCS5_PBKDF2_HMAC: zero iterations require a positive TimeInSeconds");
 
 	// Business logic
 	if (!iterations) { iterations = 1; }
@@ -357,12 +369,14 @@ public:
 	/// \param timeInSeconds the in seconds
 	/// \return the number of iterations performed
 	/// \throw InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \throw InvalidArgument for a zero iteration count without a positive <tt>timeInSeconds</tt>
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
 	/// \details If <tt>timeInSeconds</tt> is <tt>&gt; 0.0</tt> then DeriveKey will run for
 	///   the specified amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey
-	///   will run for the specified number of iterations.
+	///   will run for the specified number of iterations. A zero iteration count is
+	///   rejected with InvalidArgument unless <tt>timeInSeconds</tt> is positive.
 	size_t DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen,
 	    const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const;
 
@@ -408,9 +422,13 @@ size_t PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose
 	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
 	CRYPTOPP_ASSERT(derived && derivedLen);
 	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
-	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 
 	ThrowIfInvalidDerivedKeyLength(derivedLen);
+
+	// PKCS #12 applies the hash r times, which leaves a zero count with no
+	// meaning. A zero count is valid only with a positive time budget.
+	if (iterations == 0 && !(timeInSeconds > 0))
+		throw InvalidArgument("PKCS12_PBKDF: zero iterations require a positive TimeInSeconds");
 
 	// Business logic
 	if (!iterations) { iterations = 1; }
