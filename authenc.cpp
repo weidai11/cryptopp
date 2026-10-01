@@ -140,6 +140,10 @@ reswitch:
 
 void AuthenticatedSymmetricCipherBase::TruncatedFinal(byte *mac, size_t macSize)
 {
+	// https://github.com/weidai11/cryptopp/issues/1364
+	if (macSize == 0)
+		throw InvalidArgument(AlgorithmName() + ": zero-length authentication tags are not allowed");
+
 	// https://github.com/weidai11/cryptopp/issues/954
 	this->ThrowIfInvalidTruncatedSize(macSize);
 
