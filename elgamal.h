@@ -75,23 +75,52 @@ public:
 		a_times_b_mod_c(Integer(key, modulusLen), Integer(block, modulusLen-1), p).Encode(cipherText, modulusLen);
 	}
 
+	/// \brief Symmetric decryption for ElGamal DEM
+	/// \param key the symmetric key
+	/// \param cipherText the ciphertext
+	/// \param cipherTextLength the ciphertext length
+	/// \param plainText the plaintext (output)
+	/// \param parameters additional parameters
+	/// \return DecodingResult with message length on success
+	/// \details This function provides a no-write-on-failure guarantee as defense-in-depth.
+	///  The plainText buffer is only written on successful decryption. On any failure
+	///  the function returns DecodingResult() and the caller's buffer remains untouched.
+	/// \sa <A HREF="https://nvd.nist.gov/vuln/detail/CVE-2024-28285">CVE-2024-28285</A>
 	DecodingResult SymmetricDecrypt(const byte *key, const byte *cipherText, size_t cipherTextLength, byte *plainText, const NameValuePairs &parameters) const
 	{
 		CRYPTOPP_UNUSED(parameters);
 		const Integer &p = GetGroupParameters().GetModulus();
 		unsigned int modulusLen = p.ByteCount();
 
+		// Validate ciphertext length
 		if (cipherTextLength != modulusLen)
 			return DecodingResult();
 
+		// Compute decrypted value
 		Integer m = a_times_b_mod_c(Integer(cipherText, modulusLen), Integer(key, modulusLen).InverseMod(p), p);
 
-		m.Encode(plainText, 1);
-		unsigned int plainTextLength = plainText[0];
+		// CVE-2024-28285: Decode into temporary buffer to validate before writing to output
+		// The format is: [random padding][plaintext][length byte]
+		// where length byte is the last byte of the decoded message
+
+		// Extract and validate plaintext length from the least significant byte
+		// Use temp buffer to avoid writing to caller's buffer on failure
+		SecByteBlock tempBuf(modulusLen);
+		m.Encode(tempBuf, modulusLen);
+
+		// Length is in the last byte of the encoded message
+		unsigned int plainTextLength = tempBuf[modulusLen - 1];
 		if (plainTextLength > GetMaxSymmetricPlaintextLength(modulusLen))
 			return DecodingResult();
-		m >>= 8;
-		m.Encode(plainText, plainTextLength);
+
+		// Extract plaintext: it's the bytes just before the length byte
+		// Position: tempBuf[modulusLen - 1 - plainTextLength] to tempBuf[modulusLen - 2]
+		if (plainTextLength > 0)
+		{
+			size_t plainTextOffset = modulusLen - 1 - plainTextLength;
+			std::memcpy(plainText, tempBuf + plainTextOffset, plainTextLength);
+		}
+
 		return DecodingResult(plainTextLength);
 	}
 
