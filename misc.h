@@ -152,7 +152,7 @@ class Integer;
 ///  a negative-sized array triggers the assert at compile time.
 # define CRYPTOPP_COMPILE_ASSERT(expr) { ... }
 #elif defined(CRYPTOPP_CXX17_STATIC_ASSERT)
-# define CRYPTOPP_COMPILE_ASSERT(expr) static_assert(expr)
+# define CRYPTOPP_COMPILE_ASSERT(expr) static_assert(expr, #expr)
 #else // CRYPTOPP_DOXYGEN_PROCESSING
 template <bool b>
 struct CompileAssert
