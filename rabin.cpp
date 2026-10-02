@@ -132,8 +132,12 @@ void InvertibleRabinFunction::BERDecode(BufferedTransformation &bt)
 	m_u.BERDecode(seq);
 	seq.MessageEnd();
 
-	CRYPTOPP_ASSERT(IsPrime(m_p));
-	CRYPTOPP_ASSERT(IsPrime(m_q));
+	// Non-prime m_p or m_q loops indefinitely in CalculateInverse / ModularSquareRoot.
+	// Treat this as a decode failure, not a key-construction error.
+	if (!IsPrime(m_p))
+		BERDecodeError();
+	if (!IsPrime(m_q))
+		BERDecodeError();
 }
 
 void InvertibleRabinFunction::DEREncode(BufferedTransformation &bt) const
