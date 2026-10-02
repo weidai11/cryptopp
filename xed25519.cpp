@@ -65,6 +65,25 @@ bool HasSmallOrder(const byte y[32])
     return (bool)((k >> 8) & 1);
 }
 
+// Order of the Ed25519 base point, little-endian
+const byte order[32] = {
+    0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10
+};
+
+// The signature scalar S must be less than the order, GH #1352
+bool IsCanonicalScalar(const byte s[32])
+{
+    for (size_t i = 32; i-- > 0; ) {
+        if (s[i] < order[i])
+            return true;
+        if (s[i] > order[i])
+            return false;
+    }
+
+    return false;
+}
+
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -884,7 +903,9 @@ bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator
 {
     ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
     const ed25519PublicKey& pk = dynamic_cast<const ed25519PublicKey&>(GetPublicKey());
-    int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), pk.GetPublicKeyBytePtr(), accum.signature());
+    int ret = -1;
+    if (IsCanonicalScalar(accum.signature() + 32))
+        ret = Donna::ed25519_sign_open(accum.data(), accum.size(), pk.GetPublicKeyBytePtr(), accum.signature());
     accum.Restart();
 
     return ret == 0;
@@ -894,6 +915,9 @@ bool ed25519Verifier::VerifyStream(std::istream& stream, const byte *signature, 
 {
     CRYPTOPP_ASSERT(signatureLen == SIGNATURE_LENGTH);
     CRYPTOPP_UNUSED(signatureLen);
+
+    if (IsCanonicalScalar(signature + 32) == false)
+        return false;
 
     const ed25519PublicKey& pk = static_cast<const ed25519PublicKey&>(GetPublicKey());
     int ret = Donna::ed25519_sign_open(stream, pk.GetPublicKeyBytePtr(), signature);
