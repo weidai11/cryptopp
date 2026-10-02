@@ -12,6 +12,10 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|ARM64">
+      <Configuration>Debug</Configuration>
+      <Platform>ARM64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -19,6 +23,10 @@
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|ARM64">
+      <Configuration>Release</Configuration>
+      <Platform>ARM64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
   <!-- Microsoft documentation clearly shows the Global property group -->
@@ -130,6 +138,14 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
+  <!-- ARM64 Configurations -->
+  <ItemDefinitionGroup Condition="'$(Platform)'=='ARM64'" Label="ARM64 Configuration">
+    <Link>
+      <TargetMachine>MachineARM64</TargetMachine>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <BaseAddress></BaseAddress>
+    </Link>
+  </ItemDefinitionGroup>
   <!-- Win32/Debug cryptest.exe for DLL MAC'ing -->
   <!-- Broken at the moment; see http://stackoverflow.com/q/39900437 -->
   <!--   and http://stackoverflow.com/q/39929817/608639              -->
@@ -201,6 +217,8 @@
     <ClCompile Include="channels.cpp" />
     <ClCompile Include="cmac.cpp" />
     <ClCompile Include="cpu.cpp" />
+    <ClCompile Include="neon_simd.cpp" />
+    <ClCompile Include="crc_simd.cpp" />
     <ClCompile Include="cryptlib.cpp" />
     <ClCompile Include="des.cpp" />
     <ClCompile Include="dessp.cpp" />
