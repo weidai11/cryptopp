@@ -115,7 +115,11 @@ void InvertibleESIGNFunction::GenerateRandom(RandomNumberGenerator &rng, const N
 			throw InvalidArgument("InvertibleESIGNFunction::GenerateRandom: buffer overflow");
 
 		seed.resize(seedParam.size() + 4);
-		std::memcpy(seed + 4, seedParam.begin(), seedParam.size());
+		// Help static analyzer verify bounds (Issue #1338)
+		CRYPTOPP_ASSERT(seed.size() >= seedParam.size() + 4);
+		// Guard against null pointer when size is 0 (UBSan)
+		if (seedParam.size() > 0)
+			std::memcpy(seed + 4, seedParam.begin(), seedParam.size());
 
 		PutWord(false, BIG_ENDIAN_ORDER, seed, (word32)0);
 		m_p.GenerateRandom(rng, CombinedNameValuePairs(primeParam, MakeParameters("Seed", ConstByteArrayParameter(seed))));
