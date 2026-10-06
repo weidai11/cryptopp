@@ -184,7 +184,7 @@ AES_Te:
 .size	AES_Te,.-AES_Te
 
 @ void cryptogams_AES_encrypt_block(const unsigned char *in, unsigned char *out,
-@ 		 const AES_KEY *key) {
+@		 const AES_KEY *key) {
 .globl	cryptogams_AES_encrypt_block
 .type	cryptogams_AES_encrypt_block,%function
 .align	5
@@ -955,7 +955,7 @@ AES_Td:
 .size	AES_Td,.-AES_Td
 
 @ void cryptogams_AES_decrypt_block(const unsigned char *in, unsigned char *out,
-@ 		 const AES_KEY *key) {
+@		 const AES_KEY *key) {
 .globl	cryptogams_AES_decrypt_block
 .type	cryptogams_AES_decrypt_block,%function
 .align	5

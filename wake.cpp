@@ -41,22 +41,22 @@ void WAKE_Base::GenKey(word32 k0, word32 k1, word32 k2, word32 k3)
 	t[3] = k3;
 	for (p=4 ; p<256 ; p++)
 	{
-	  x=t[p-4]+t[p-1] ; 					   // fill t
+	  x=t[p-4]+t[p-1] ;				// fill t
 	  t[p]= (x>>3) ^ TT[x&7] ;
 	}
 
 	for (p=0 ; p<23 ; p++)
-		t[p]+=t[p+89] ; 		  // mix first entries
+		t[p]+=t[p+89] ;				// mix first entries
 	x=t[33] ; z=t[59] | 0x01000001 ;
 	z=z&0xff7fffff ;
 	for (p=0 ; p<256 ; p++) {		//change top byte to
-	  x=(x&0xff7fffff)+z ; 		 // a permutation etc
+	  x=(x&0xff7fffff)+z ;			// a permutation etc
 	  t[p]=(t[p] & 0x00ffffff) ^ x ; }
 
 	t[256]=t[0] ;
 	byte y=byte(x);
-	for (p=0 ; p<256 ; p++) {	  // further change perm.
-	  t[p]=t[y=byte(t[p^y]^y)] ;  // and other digits
+	for (p=0 ; p<256 ; p++) {		// further change perm.
+	  t[p]=t[y=byte(t[p^y]^y)] ;	// and other digits
 	  t[y]=t[p+1] ;  }
 }
 

@@ -8,22 +8,22 @@ NAMESPACE_BEGIN(CryptoPP)
 // linear transformation
 #define LT(i,a,b,c,d,e)	{\
 	a = rotlConstant<13>(a);	\
-	c = rotlConstant<3>(c); 	\
-	d = rotlConstant<7>(d ^ c ^ (a << 3)); 	\
-	b = rotlConstant<1>(b ^ a ^ c); 	\
-	a = rotlConstant<5>(a ^ b ^ d); 		\
+	c = rotlConstant<3>(c);		\
+	d = rotlConstant<7>(d ^ c ^ (a << 3));	\
+	b = rotlConstant<1>(b ^ a ^ c);			\
+	a = rotlConstant<5>(a ^ b ^ d);			\
 	c = rotlConstant<22>(c ^ d ^ (b << 7));}
 
 // inverse linear transformation
 #define ILT(i,a,b,c,d,e)	{\
 	c = rotrConstant<22>(c);	\
-	a = rotrConstant<5>(a); 	\
+	a = rotrConstant<5>(a);		\
 	c ^= d ^ (b << 7);	\
-	a ^= b ^ d; 		\
-	b = rotrConstant<1>(b); 	\
+	a ^= b ^ d;			\
+	b = rotrConstant<1>(b);		\
 	d = rotrConstant<7>(d) ^ c ^ (a << 3);	\
-	b ^= a ^ c; 		\
-	c = rotrConstant<3>(c); 	\
+	b ^= a ^ c;			\
+	c = rotrConstant<3>(c);		\
 	a = rotrConstant<13>(a);}
 
 // order of output from S-box functions

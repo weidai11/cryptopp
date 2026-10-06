@@ -123,7 +123,7 @@ template <class B = LittleEndian>
 class PanamaMAC : public HermeticHashFunctionMAC<PanamaHash<B> >
 {
 public:
- 	PanamaMAC() {}
+	PanamaMAC() {}
 	PanamaMAC(const byte *key, unsigned int length)
 		{this->SetKey(key, length);}
 };

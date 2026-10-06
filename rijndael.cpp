@@ -470,11 +470,11 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 		}
 		else if (keyLen == 32)
 		{
-    		temp = rk[11];
-    		rk[12] = rk[ 4] ^ (word32(Se[GETBYTE(temp, 3)]) << 24) ^ (word32(Se[GETBYTE(temp, 2)]) << 16) ^ (word32(Se[GETBYTE(temp, 1)]) << 8) ^ Se[GETBYTE(temp, 0)];
-    		rk[13] = rk[ 5] ^ rk[12];
-    		rk[14] = rk[ 6] ^ rk[13];
-    		rk[15] = rk[ 7] ^ rk[14];
+			temp = rk[11];
+			rk[12] = rk[ 4] ^ (word32(Se[GETBYTE(temp, 3)]) << 24) ^ (word32(Se[GETBYTE(temp, 2)]) << 16) ^ (word32(Se[GETBYTE(temp, 1)]) << 8) ^ Se[GETBYTE(temp, 0)];
+			rk[13] = rk[ 5] ^ rk[12];
+			rk[14] = rk[ 6] ^ rk[13];
+			rk[15] = rk[ 7] ^ rk[14];
 		}
 		rk += keyLen/4;
 	}

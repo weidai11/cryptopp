@@ -1166,7 +1166,7 @@ static word LinearMultiply(word *C, const word *AA, word B, size_t N)
 	Acc2WordsBy1(c, LowWord(p))		\
 	Acc2WordsBy1(d, HighWord(p))
 
-#define Mul_SaveAcc(k, i, j) 		\
+#define Mul_SaveAcc(k, i, j)		\
 	R[k] = LowWord(c);				\
 	Add2WordsBy1(c, d, HighWord(c))	\
 	MultiplyWords(p, A[i], B[j])	\
@@ -1203,13 +1203,13 @@ static word LinearMultiply(word *C, const word *AA, word B, size_t N)
 #define Mul_Acc(i, j)				\
 	MulAcc(c, d, A[i], B[j])
 
-#define Mul_SaveAcc(k, i, j) 		\
+#define Mul_SaveAcc(k, i, j)		\
 	R[k] = c;				\
 	c = LowWord(d);	\
 	AssignWord(d, HighWord(d))	\
 	MulAcc(c, d, A[i], B[j])
 
-#define Mul_End(k, i)					\
+#define Mul_End(k, i)				\
 	R[k] = c;			\
 	MultiplyWords(p, A[i], B[i])	\
 	Acc2WordsBy2(p, d)				\
@@ -1244,7 +1244,7 @@ static word LinearMultiply(word *C, const word *AA, word B, size_t N)
 #define Squ_NonDiag				\
 	Double3Words(c, d)
 
-#define Squ_SaveAcc(k, i, j) 		\
+#define Squ_SaveAcc(k, i, j)		\
 	Acc3WordsBy2(c, d, e)			\
 	R[k] = c;				\
 	MultiplyWords(p, A[i], A[j])	\
@@ -1361,12 +1361,12 @@ void Baseline_MultiplyBottom8(word *R, const word *AA, const word *BB)
 	MultiplyWords(p, A[i], B[j]);\
 	Acc2WordsBy1(d, HighWord(p));
 
-#define Top_SaveAcc0(i, j) 		\
+#define Top_SaveAcc0(i, j)		\
 	c = LowWord(d);	\
 	AssignWord(d, HighWord(d))	\
 	MulAcc(c, d, A[i], B[j])
 
-#define Top_SaveAcc1(i, j) 		\
+#define Top_SaveAcc1(i, j)		\
 	c = L<c; \
 	Acc2WordsBy1(d, c);	\
 	c = LowWord(d);	\
@@ -3756,7 +3756,7 @@ std::ostream& operator<<(std::ostream& out, const Integer &a)
 
 	return out;
 #else
- 	return out << suffix;
+	return out << suffix;
 #endif
 }
 

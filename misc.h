@@ -1131,7 +1131,7 @@ template <class T>
 inline T Crop(T value, size_t bits)
 {
 	if (bits < 8*sizeof(value))
-    	return T(value & ((T(1) << bits) - 1));
+		return T(value & ((T(1) << bits) - 1));
 	else
 		return value;
 }
