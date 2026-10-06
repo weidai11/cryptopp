@@ -18,7 +18,7 @@
 # If your Autotools project results in "configure:6560: error: C preprocessor
 # cpp fails sanity check", then file a bug report with Autotools.
 #
-# See http://www.cryptopp.com/wiki/MacOS_(Command_Line) for more details
+# See http://www.cryptopp.com/wiki/OS_X_(Command_Line) for more details
 #############################################################################
 
 #########################################
