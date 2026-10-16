@@ -15,6 +15,7 @@ void EAX_Base::Resync(const byte *iv, size_t len)
 {
 	MessageAuthenticationCode &mac = AccessMAC();
 	unsigned int blockSize = mac.TagSize();
+	mac.Restart();
 
 	std::memset(m_buffer, 0, blockSize);
 	mac.Update(m_buffer, blockSize);
