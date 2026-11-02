@@ -1578,8 +1578,22 @@ const word32 s_maskLow16[4] = {
 	AS2(	lea		edx, [edi+16*n])\
 	SSE2_FirstMultiply(0)							\
 
+// The subroutine labels below are reached by call from the same asm
+// statement; each SSE2 function body is one statement from its prologue to
+// its epilogue. On the GNU path %= gives the labels a suffix unique to that
+// statement, so every function carries its own copy and no label is
+// referenced across functions, which LTO may place in different objects.
+// MSVC labels are function scoped.
+#ifdef __GNUC__
+	#define ASL_SUB(x) "\n" #x "_%=:" NEW_LINE
+	#define ASC_SUB(x, y) #x " " #y "_%=;"
+#else
+	#define ASL_SUB(x) ASL(x)
+	#define ASC_SUB(x, y) ASC(x, y)
+#endif
+
 #define Squ_Acc(i)								\
-	ASL(LSqu##i)								\
+	ASL_SUB(LSqu##i)								\
 	AS2(	movdqa		xmm1, [esi+(i)*16])	\
 	AS2(	movdqa		xmm0, [edi-(i)*16])	\
 	AS2(	movdqa		xmm2, [ebx])	\
@@ -1596,7 +1610,7 @@ const word32 s_maskLow16[4] = {
 	AS2(	paddd		xmm7, xmm1)		\
 
 #define Squ_Acc1(i)
-#define Squ_Acc2(i)		ASC(call, LSqu##i)
+#define Squ_Acc2(i)		ASC_SUB(call, LSqu##i)
 #define Squ_Acc3(i)		Squ_Acc2(i)
 #define Squ_Acc4(i)		Squ_Acc2(i)
 #define Squ_Acc5(i)		Squ_Acc2(i)
@@ -1713,7 +1727,7 @@ const word32 s_maskLow16[4] = {
 	SSE2_FirstMultiply(0)							\
 
 #define Mul_Acc(i)								\
-	ASL(LMul##i)										\
+	ASL_SUB(LMul##i)										\
 	AS2(	movdqa		xmm1, [esi+i/2*(1-(i-2*(i/2))*2)*16])	\
 	AS2(	movdqa		xmm0, [edi-i/2*(1-(i-2*(i/2))*2)*16])	\
 	AS2(	movdqa		xmm2, [ebx])	\
@@ -1730,7 +1744,7 @@ const word32 s_maskLow16[4] = {
 	AS2(	paddd		xmm7, xmm1)		\
 
 #define Mul_Acc1(i)
-#define Mul_Acc2(i)		ASC(call, LMul##i)
+#define Mul_Acc2(i)		ASC_SUB(call, LMul##i)
 #define Mul_Acc3(i)		Mul_Acc2(i)
 #define Mul_Acc4(i)		Mul_Acc2(i)
 #define Mul_Acc5(i)		Mul_Acc2(i)
@@ -1854,11 +1868,9 @@ void SSE2_Square4(word *C, const word *A)
 void SSE2_Square8(word *C, const word *A)
 {
 	Squ_Begin(4)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Squ_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Squ_Column0(0, 1)
 	Squ_Column1(1, 1)
 	Squ_Column0(2, 2)
@@ -1870,11 +1882,9 @@ void SSE2_Square8(word *C, const word *A)
 void SSE2_Square16(word *C, const word *A)
 {
 	Squ_Begin(8)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Squ_Acc(4) Squ_Acc(3) Squ_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Squ_Column0(0, 1)
 	Squ_Column1(1, 1)
 	Squ_Column0(2, 2)
@@ -1932,11 +1942,9 @@ void SSE2_Square32(word *C, const word *A)
 void SSE2_Multiply4(word *C, const word *A, const word *B)
 {
 	Mul_Begin(2)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Mul_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Mul_Column0(0, 2)
 	Mul_End(2)
 }
@@ -1944,11 +1952,9 @@ void SSE2_Multiply4(word *C, const word *A, const word *B)
 void SSE2_Multiply8(word *C, const word *A, const word *B)
 {
 	Mul_Begin(4)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Mul_Column0(0, 2)
 	Mul_Column1(1, 3)
 	Mul_Column0(2, 4)
@@ -1960,11 +1966,9 @@ void SSE2_Multiply8(word *C, const word *A, const word *B)
 void SSE2_Multiply16(word *C, const word *A, const word *B)
 {
 	Mul_Begin(8)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Mul_Acc(8) Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Mul_Column0(0, 2)
 	Mul_Column1(1, 3)
 	Mul_Column0(2, 4)
@@ -2029,11 +2033,9 @@ void SSE2_MultiplyBottom4(word *C, const word *A, const word *B)
 void SSE2_MultiplyBottom8(word *C, const word *A, const word *B)
 {
 	Mul_Begin(4)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Mul_Acc(3) Mul_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Mul_Column0(0, 2)
 	Mul_Column1(1, 3)
 	Bot_SaveAcc(2) Bot_Acc(4) Bot_Acc(3) Bot_Acc(2)
@@ -2043,11 +2045,9 @@ void SSE2_MultiplyBottom8(word *C, const word *A, const word *B)
 void SSE2_MultiplyBottom16(word *C, const word *A, const word *B)
 {
 	Mul_Begin(8)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Mul_Column0(0, 2)
 	Mul_Column1(1, 3)
 	Mul_Column0(2, 4)
@@ -2061,11 +2061,9 @@ void SSE2_MultiplyBottom16(word *C, const word *A, const word *B)
 void SSE2_MultiplyBottom32(word *C, const word *A, const word *B)
 {
 	Mul_Begin(16)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Mul_Acc(15) Mul_Acc(14) Mul_Acc(13) Mul_Acc(12) Mul_Acc(11) Mul_Acc(10) Mul_Acc(9) Mul_Acc(8) Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Mul_Column0(0, 2)
 	Mul_Column1(1, 3)
 	Mul_Column0(2, 4)
@@ -2088,11 +2086,9 @@ void SSE2_MultiplyTop8(word *C, const word *A, const word *B, word L)
 {
 	Top_Begin(4)
 	Top_Acc(3) Top_Acc(2) Top_Acc(1)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Top_Column0(4)
 	Top_Column1(3)
 	Mul_Column0(0, 2)
@@ -2103,11 +2099,9 @@ void SSE2_MultiplyTop16(word *C, const word *A, const word *B, word L)
 {
 	Top_Begin(8)
 	Top_Acc(7) Top_Acc(6) Top_Acc(5) Top_Acc(4) Top_Acc(3) Top_Acc(2) Top_Acc(1)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Mul_Acc(8) Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Top_Column0(8)
 	Top_Column1(7)
 	Mul_Column0(0, 6)
@@ -2122,11 +2116,9 @@ void SSE2_MultiplyTop32(word *C, const word *A, const word *B, word L)
 {
 	Top_Begin(16)
 	Top_Acc(15) Top_Acc(14) Top_Acc(13) Top_Acc(12) Top_Acc(11) Top_Acc(10) Top_Acc(9) Top_Acc(8) Top_Acc(7) Top_Acc(6) Top_Acc(5) Top_Acc(4) Top_Acc(3) Top_Acc(2) Top_Acc(1)
-#ifndef __GNUC__
 	ASJ(	jmp,	0, f)
 	Mul_Acc(16) Mul_Acc(15) Mul_Acc(14) Mul_Acc(13) Mul_Acc(12) Mul_Acc(11) Mul_Acc(10) Mul_Acc(9) Mul_Acc(8) Mul_Acc(7) Mul_Acc(6) Mul_Acc(5) Mul_Acc(4) Mul_Acc(3) Mul_Acc(2)
 	AS1(	ret) ASL(0)
-#endif
 	Top_Column0(16)
 	Top_Column1(15)
 	Mul_Column0(0, 14)
