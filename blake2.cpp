@@ -323,43 +323,42 @@ void BLAKE2b_ParameterBlock::Reset(size_t digestLen, size_t keyLen)
     m_data[FanoutOff] = m_data[DepthOff] = 1;
 }
 
+// Sizes above the maximum are passed as -1 so UncheckedSetKey rejects
+// them without an out-of-range unsigned to int conversion.
+static int DigestSizeParameter(unsigned int digestSize, unsigned int maxDigestSize)
+{
+    return digestSize > maxDigestSize ? -1 : static_cast<int>(digestSize);
+}
+
 BLAKE2s::BLAKE2s(bool treeMode, unsigned int digestSize)
     : m_digestSize(digestSize), m_keyLength(0), m_treeMode(treeMode)
 {
-    CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
-
     UncheckedSetKey(NULLPTR, 0, MakeParameters
-        (Name::DigestSize(), (int)digestSize)
+        (Name::DigestSize(), DigestSizeParameter(digestSize, DIGESTSIZE))
         (Name::TreeMode(), treeMode));
 }
 
 BLAKE2b::BLAKE2b(bool treeMode, unsigned int digestSize)
     : m_digestSize(digestSize), m_keyLength(0), m_treeMode(treeMode)
 {
-    CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
-
     UncheckedSetKey(NULLPTR, 0, MakeParameters
-        (Name::DigestSize(), (int)digestSize)
+        (Name::DigestSize(), DigestSizeParameter(digestSize, DIGESTSIZE))
         (Name::TreeMode(), treeMode));
 }
 
 BLAKE2s::BLAKE2s(unsigned int digestSize)
     : m_digestSize(digestSize), m_keyLength(0), m_treeMode(false)
 {
-    CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
-
     UncheckedSetKey(NULLPTR, 0, MakeParameters
-        (Name::DigestSize(), (int)digestSize)
+        (Name::DigestSize(), DigestSizeParameter(digestSize, DIGESTSIZE))
         (Name::TreeMode(), false));
 }
 
 BLAKE2b::BLAKE2b(unsigned int digestSize)
     : m_digestSize(digestSize), m_keyLength(0), m_treeMode(false)
 {
-    CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
-
     UncheckedSetKey(NULLPTR, 0, MakeParameters
-        (Name::DigestSize(), (int)digestSize)
+        (Name::DigestSize(), DigestSizeParameter(digestSize, DIGESTSIZE))
         (Name::TreeMode(), false));
 }
 
@@ -367,13 +366,9 @@ BLAKE2s::BLAKE2s(const byte *key, size_t keyLength, const byte* salt, size_t sal
     const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
     : m_digestSize(digestSize), m_keyLength(static_cast<unsigned int>(keyLength)), m_treeMode(treeMode)
 {
-    CRYPTOPP_ASSERT(keyLength <= MAX_KEYLENGTH);
-    CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
-    CRYPTOPP_ASSERT(saltLength <= SALTSIZE);
-    CRYPTOPP_ASSERT(personalizationLength <= PERSONALIZATIONSIZE);
-
+    ThrowIfInvalidKeyLength(keyLength);
     UncheckedSetKey(key, static_cast<unsigned int>(keyLength), MakeParameters
-        (Name::DigestSize(),(int)digestSize)
+        (Name::DigestSize(), DigestSizeParameter(digestSize, DIGESTSIZE))
         (Name::TreeMode(),treeMode)
         (Name::Salt(), ConstByteArrayParameter(salt, saltLength))
         (Name::Personalization(), ConstByteArrayParameter(personalization, personalizationLength)));
@@ -383,13 +378,9 @@ BLAKE2b::BLAKE2b(const byte *key, size_t keyLength, const byte* salt, size_t sal
     const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
     : m_digestSize(digestSize), m_keyLength(static_cast<unsigned int>(keyLength)), m_treeMode(treeMode)
 {
-    CRYPTOPP_ASSERT(keyLength <= MAX_KEYLENGTH);
-    CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
-    CRYPTOPP_ASSERT(saltLength <= SALTSIZE);
-    CRYPTOPP_ASSERT(personalizationLength <= PERSONALIZATIONSIZE);
-
+    ThrowIfInvalidKeyLength(keyLength);
     UncheckedSetKey(key, static_cast<unsigned int>(keyLength), MakeParameters
-        (Name::DigestSize(),(int)digestSize)
+        (Name::DigestSize(), DigestSizeParameter(digestSize, DIGESTSIZE))
         (Name::TreeMode(),treeMode)
         (Name::Salt(), ConstByteArrayParameter(salt, saltLength))
         (Name::Personalization(), ConstByteArrayParameter(personalization, personalizationLength)));
@@ -397,6 +388,22 @@ BLAKE2b::BLAKE2b(const byte *key, size_t keyLength, const byte* salt, size_t sal
 
 void BLAKE2s::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs& params)
 {
+    const int digestSize = params.GetIntValueWithDefault(Name::DigestSize(), static_cast<int>(m_digestSize));
+    if (digestSize < 1 || digestSize > static_cast<int>(DIGESTSIZE))
+        throw InvalidArgument("BLAKE2s: digest size must be 1 to 32 bytes");
+
+    ConstByteArrayParameter salt, personalization;
+    (void)params.GetValue(Name::Salt(), salt);
+    (void)params.GetValue(Name::Personalization(), personalization);
+    bool treeMode = m_treeMode;
+    (void)params.GetValue(Name::TreeMode(), treeMode);
+    if (salt.size() > SALTSIZE)
+        throw InvalidArgument("BLAKE2s: salt must be at most 8 bytes");
+    if (personalization.size() > PERSONALIZATIONSIZE)
+        throw InvalidArgument("BLAKE2s: personalization must be at most 8 bytes");
+    if ((!key && length) || (!salt.begin() && salt.size()) || (!personalization.begin() && personalization.size()))
+        throw InvalidArgument("BLAKE2s: key, salt and personalization must not be null with a length");
+
     if (key && length)
     {
         m_key.New(BLOCKSIZE);
@@ -410,25 +417,39 @@ void BLAKE2s::UncheckedSetKey(const byte *key, unsigned int length, const Crypto
         m_keyLength = 0;
     }
 
-    m_digestSize = static_cast<unsigned int>(params.GetIntValueWithDefault(
-                       Name::DigestSize(), static_cast<int>(m_digestSize)));
+    m_digestSize = static_cast<unsigned int>(digestSize);
 
     m_state.Reset();
     m_block.Reset(m_digestSize, m_keyLength);
-    (void)params.GetValue(Name::TreeMode(), m_treeMode);
+    m_treeMode = treeMode;
 
-    ConstByteArrayParameter t;
-    if (params.GetValue(Name::Salt(), t) && t.begin() && t.size())
-        memcpy_s(m_block.salt(), SALTSIZE, t.begin(), t.size());
+    if (salt.size())
+        memcpy_s(m_block.salt(), SALTSIZE, salt.begin(), salt.size());
 
-    if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
-        memcpy_s(m_block.personalization(), PERSONALIZATIONSIZE, t.begin(), t.size());
+    if (personalization.size())
+        memcpy_s(m_block.personalization(), PERSONALIZATIONSIZE, personalization.begin(), personalization.size());
 
     Restart();
 }
 
 void BLAKE2b::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs& params)
 {
+    const int digestSize = params.GetIntValueWithDefault(Name::DigestSize(), static_cast<int>(m_digestSize));
+    if (digestSize < 1 || digestSize > static_cast<int>(DIGESTSIZE))
+        throw InvalidArgument("BLAKE2b: digest size must be 1 to 64 bytes");
+
+    ConstByteArrayParameter salt, personalization;
+    (void)params.GetValue(Name::Salt(), salt);
+    (void)params.GetValue(Name::Personalization(), personalization);
+    bool treeMode = m_treeMode;
+    (void)params.GetValue(Name::TreeMode(), treeMode);
+    if (salt.size() > SALTSIZE)
+        throw InvalidArgument("BLAKE2b: salt must be at most 16 bytes");
+    if (personalization.size() > PERSONALIZATIONSIZE)
+        throw InvalidArgument("BLAKE2b: personalization must be at most 16 bytes");
+    if ((!key && length) || (!salt.begin() && salt.size()) || (!personalization.begin() && personalization.size()))
+        throw InvalidArgument("BLAKE2b: key, salt and personalization must not be null with a length");
+
     if (key && length)
     {
         m_key.New(BLOCKSIZE);
@@ -442,19 +463,17 @@ void BLAKE2b::UncheckedSetKey(const byte *key, unsigned int length, const Crypto
         m_keyLength = 0;
     }
 
-    m_digestSize = static_cast<unsigned int>(params.GetIntValueWithDefault(
-                       Name::DigestSize(), static_cast<int>(m_digestSize)));
+    m_digestSize = static_cast<unsigned int>(digestSize);
 
     m_state.Reset();
     m_block.Reset(m_digestSize, m_keyLength);
-    (void)params.GetValue(Name::TreeMode(), m_treeMode);
+    m_treeMode = treeMode;
 
-    ConstByteArrayParameter t;
-    if (params.GetValue(Name::Salt(), t) && t.begin() && t.size())
-        memcpy_s(m_block.salt(), SALTSIZE, t.begin(), t.size());
+    if (salt.size())
+        memcpy_s(m_block.salt(), SALTSIZE, salt.begin(), salt.size());
 
-    if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
-        memcpy_s(m_block.personalization(), PERSONALIZATIONSIZE, t.begin(), t.size());
+    if (personalization.size())
+        memcpy_s(m_block.personalization(), PERSONALIZATIONSIZE, personalization.begin(), personalization.size());
 
     Restart();
 }

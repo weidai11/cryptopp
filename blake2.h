@@ -256,12 +256,14 @@ public:
     /// \brief Construct a BLAKE2s hash
     /// \param digestSize the digest size, in bytes
     /// \param treeMode flag indicating tree mode
+    /// \throw InvalidArgument if digestSize is 0 or larger than DIGESTSIZE
     /// \since Crypto++ 5.6.4
     BLAKE2s(bool treeMode=false, unsigned int digestSize = DIGESTSIZE);
 
     /// \brief Construct a BLAKE2s hash
     /// \param digestSize the digest size, in bytes
     /// \details treeMode flag is set to false
+    /// \throw InvalidArgument if digestSize is 0 or larger than DIGESTSIZE
     /// \since Crypto++ 8.2
     BLAKE2s(unsigned int digestSize);
 
@@ -274,6 +276,10 @@ public:
     /// \param personalizationLength the size of the byte array
     /// \param treeMode flag indicating tree mode
     /// \param digestSize the digest size, in bytes
+    /// \throw InvalidKeyLength if keyLength is larger than MAX_KEYLENGTH
+    /// \throw InvalidArgument if digestSize is 0 or larger than DIGESTSIZE, if saltLength is
+    ///   larger than SALTSIZE or personalizationLength larger than PERSONALIZATIONSIZE, or if
+    ///   key, salt or personalization is null with a nonzero length
     /// \since Crypto++ 5.6.4
     BLAKE2s(const byte *key, size_t keyLength, const byte* salt = NULLPTR, size_t saltLength = 0,
         const byte* personalization = NULLPTR, size_t personalizationLength = 0,
@@ -363,12 +369,14 @@ public:
     /// \brief Construct a BLAKE2b hash
     /// \param digestSize the digest size, in bytes
     /// \param treeMode flag indicating tree mode
+    /// \throw InvalidArgument if digestSize is 0 or larger than DIGESTSIZE
     /// \since Crypto++ 5.6.4
     BLAKE2b(bool treeMode=false, unsigned int digestSize = DIGESTSIZE);
 
-    /// \brief Construct a BLAKE2s hash
+    /// \brief Construct a BLAKE2b hash
     /// \param digestSize the digest size, in bytes
     /// \details treeMode flag is set to false
+    /// \throw InvalidArgument if digestSize is 0 or larger than DIGESTSIZE
     /// \since Crypto++ 8.2
     BLAKE2b(unsigned int digestSize);
 
@@ -381,6 +389,10 @@ public:
     /// \param personalizationLength the size of the byte array
     /// \param treeMode flag indicating tree mode
     /// \param digestSize the digest size, in bytes
+    /// \throw InvalidKeyLength if keyLength is larger than MAX_KEYLENGTH
+    /// \throw InvalidArgument if digestSize is 0 or larger than DIGESTSIZE, if saltLength is
+    ///   larger than SALTSIZE or personalizationLength larger than PERSONALIZATIONSIZE, or if
+    ///   key, salt or personalization is null with a nonzero length
     /// \since Crypto++ 5.6.4
     BLAKE2b(const byte *key, size_t keyLength, const byte* salt = NULLPTR, size_t saltLength = 0,
         const byte* personalization = NULLPTR, size_t personalizationLength = 0,
